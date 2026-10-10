@@ -10,3 +10,9 @@ export { default as Modal } from './Modal'
 export { default as Drawer } from './Drawer'
 export { default as Skeleton } from './Skeleton'
 export { default as EmptyState } from './EmptyState'
+
+
+// Navigation
+export { default as Breadcrumb } from './Breadcrumb'
+export { default as Tabs } from './Tabs'
+export { default as Pagination } from './Pagination'
