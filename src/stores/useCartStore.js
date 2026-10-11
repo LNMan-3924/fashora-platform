@@ -9,6 +9,15 @@ export const useCartStore = create(
       // Thêm sản phẩm vào giỏ (phân biệt rõ ràng theo size và color)
       addToCart: (product, selectedSize, selectedColor, quantity = 1) => {
         const { cartItems } = get();
+
+        // Kiểm tra tồn kho (AN)
+        if (quantity > product.stock) {
+          return {
+            success: false,
+            message: 'Sản phẩm không đủ số lượng trong kho!',
+          };
+        }
+
         const existingIndex = cartItems.findIndex(
           (item) =>
             item.id === product.id &&
@@ -17,8 +26,21 @@ export const useCartStore = create(
         );
 
         if (existingIndex > -1) {
-          const updated = [...cartItems];
-          updated[existingIndex].quantity += quantity;
+          const currentQuantity = cartItems[existingIndex].quantity;
+
+          // Tổng số lượng sau khi thêm không được vượt tồn kho (AN)
+          if (currentQuantity + quantity > product.stock) {
+            return {
+              success: false,
+              message: `Chỉ còn ${product.stock} sản phẩm trong kho!`,
+            };
+          }
+          //(AN)
+          const updated = cartItems.map((item, index) =>
+            index === existingIndex
+              ? { ...item, quantity: item.quantity + quantity }
+              : item
+          );
           set({ cartItems: updated });
         } else {
           set({
@@ -49,11 +71,14 @@ export const useCartStore = create(
           get().removeFromCart(id, selectedSize, selectedColor);
           return;
         }
+
         set({
           cartItems: get().cartItems.map((item) =>
             item.id === id &&
-            item.selectedSize === selectedSize &&
-            item.selectedColor === selectedColor
+              item.selectedSize === selectedSize &&
+              item.selectedColor === selectedColor &&
+              //(AN)
+              quantity <= item.stock
               ? { ...item, quantity }
               : item
           ),
