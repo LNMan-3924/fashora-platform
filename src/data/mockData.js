@@ -1005,3 +1005,56 @@ export const getProductsByCategory = (category) =>
     : mockProducts.filter((p) => p.category === category)
 export const getProductsByShop = (shopId) =>
   mockProducts.filter((p) => p.shopId === shopId)
+
+
+
+// ==========================================
+// 9. HERO BANNER & CAMPAIGN CAROUSEL
+// ==========================================
+
+// Ảnh 5: Hero Banner lớn trên cùng
+export const mockHeroBanner = {
+  id: 'hero-banner',
+  title: 'WHIPLASH ARCHIVE',
+  subtitle: 'AESPA × FASHORA CAPSULE DROP',
+  description: 'Bộ sưu tập Futuristic Cyberpunk giới hạn mang cảm hứng Y2K Techwear độc quyền.',
+  image: '/images/banners/hero-banner.jpg',
+  link: '/shop',
+  buttonText: 'EXPLORE CAPSULE',
+}
+
+// 4 ảnh đầu: Thanh Lookbook Carousel phía dưới
+export const mockCarouselItems = [
+  {
+    id: 'carousel-01',
+    name: 'GISELLE',
+    code: 'NO.20001030',
+    tagline: 'FUTURISTIC LEATHER',
+    image: '/images/banners/carousel-01.jpg',
+    link: '/shop?tag=giselle',
+  },
+  {
+    id: 'carousel-02',
+    name: 'NINGNING',
+    code: 'NO.20021023',
+    tagline: 'CYBER CARGO & METALLIC',
+    image: '/images/banners/carousel-02.jpg',
+    link: '/shop?tag=ningning',
+  },
+  {
+    id: 'carousel-03',
+    name: 'KARINA',
+    code: 'NO.20000411',
+    tagline: 'NEO-TECH ACCESSORIES',
+    image: '/images/banners/carousel-03.jpg',
+    link: '/shop?tag=karina',
+  },
+  {
+    id: 'carousel-04',
+    name: 'WINTER',
+    code: 'NO.20010101',
+    tagline: 'DARK BIKER AESTHETIC',
+    image: '/images/banners/carousel-04.jpg',
+    link: '/shop?tag=winter',
+  },
+]
