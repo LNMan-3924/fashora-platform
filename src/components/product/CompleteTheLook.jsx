@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 import { Plus, ArrowRight } from 'lucide-react'
 
 // Ảnh dự phòng mặc định nếu ảnh sản phẩm bị lỗi
-const FALLBACK_IMAGE = '/images/products/accessories/acc-01.jpg'
+const FALLBACK_IMAGE = '/assets/fallback.png'
 
 /**
  * 4 Sản phẩm phối đồ mặc định của thương hiệu M STUDIO

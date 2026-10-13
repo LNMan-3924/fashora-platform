@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { X, ShoppingBag } from 'lucide-react'
 
 // Ảnh dự phòng khi ảnh sản phẩm bị lỗi
-const FALLBACK_IMAGE = '/images/products/accessories/acc-01.jpg'
+const FALLBACK_IMAGE = '/assets/fallback.png'
 
 /**
  * Component QuickAddModal: Cửa sổ pop-up chọn biến thể nhanh (màu sắc, size, số lượng)

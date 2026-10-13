@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Heart, Trash2 } from 'lucide-react'
 
 // Đường dẫn ảnh dự phòng an toàn nếu ảnh sản phẩm trên mạng bị sự cố
-const FALLBACK_IMAGE = '/images/products/shirt/shirt-01.jpg'
+const FALLBACK_IMAGE = '/assets/fallback.png'
 
 /**
  * Component CartItem: Hiển thị 1 dòng sản phẩm trong danh sách giỏ hàng.

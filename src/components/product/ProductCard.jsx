@@ -33,6 +33,9 @@ export default function ProductCard({
             <img
               src={image}
               alt={name}
+              onError={(e) => {
+                e.currentTarget.src = '/assets/fallback.png'
+              }}
               className="w-full h-full object-cover object-center transition-transform duration-500 ease-out group-hover:scale-105"
               loading="lazy"
             />
