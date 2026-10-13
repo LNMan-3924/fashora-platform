@@ -1,9 +1,11 @@
 import { Link } from 'react-router-dom'
 import { Check } from 'lucide-react'
+import { Checkbox } from '../common'
 import CartItem from './CartItem'
 
 /**
  * Component CartShopGroup: Gom nhóm các sản phẩm trong giỏ hàng theo từng Gian hàng (Shop).
+ * Tái sử dụng Checkbox từ src/components/common.
  * Cung cấp:
  * 1. Tiêu đề gian hàng kèm checkbox chọn/bỏ chọn tất cả sản phẩm của shop đó.
  * 2. Huy hiệu xác thực "ATELIER VERIFIED" và liên kết ghé thăm gian hàng.
@@ -35,12 +37,10 @@ export default function CartShopGroup({
       {/* ------------------------------------------------------------- */}
       <div className="flex items-center justify-between pb-4 border-b border-neutral-200 flex-wrap gap-2">
         <div className="flex items-center gap-3">
-          {/* Checkbox gom nhóm: Tick vào đây sẽ chọn hoặc bỏ chọn toàn bộ sản phẩm của shop */}
-          <input
-            type="checkbox"
+          {/* Checkbox gom nhóm: Tái sử dụng từ common */}
+          <Checkbox
             checked={allShopItemsSelected}
             onChange={() => onToggleShopSelect?.(items, !allShopItemsSelected)}
-            className="w-4 h-4 accent-[#111111] cursor-pointer rounded-none"
             aria-label={`Select all items from ${shopName}`}
           />
 

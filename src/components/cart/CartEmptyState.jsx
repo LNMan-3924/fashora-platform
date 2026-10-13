@@ -1,8 +1,10 @@
 import { Link } from 'react-router-dom'
 import { ShoppingBag } from 'lucide-react'
+import { Button } from '../common'
 
 /**
  * Component CartEmptyState: Hiển thị khi giỏ hàng chưa có bất kỳ sản phẩm nào.
+ * Tái sử dụng component Button từ src/components/common để đảm bảo tính đồng bộ giao diện.
  * Cung cấp:
  * 1. Biểu tượng và lời nhắn tinh tế mời khách hàng khám phá các bộ sưu tập.
  * 2. Nút "EXPLORE ARCHIVE" dẫn sang trang sản phẩm (/shop).
@@ -24,25 +26,25 @@ export default function CartEmptyState({ onLoadDemoItems }) {
         Explore the atelier archives to curate your directional wardrobe manifest.
       </p>
 
-      {/* 3. Các nút bấm hành động */}
+      {/* 3. Các nút bấm hành động - Tái sử dụng Button từ common */}
       <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-3">
         {/* Nút quay lại trang danh mục sản phẩm */}
-        <Link
-          to="/shop"
-          className="inline-block bg-[#111111] text-white px-8 py-3 text-xs font-semibold tracking-widest uppercase hover:bg-neutral-800 transition-colors rounded-[2px]"
-        >
-          EXPLORE ARCHIVE
+        <Link to="/shop">
+          <Button variant="primary" size="md" className="tracking-widest text-xs">
+            EXPLORE ARCHIVE
+          </Button>
         </Link>
 
         {/* Nút tiện ích: Nạp lại 3 sản phẩm mẫu cho mục đích test giao diện */}
         {onLoadDemoItems && (
-          <button
-            type="button"
+          <Button
+            variant="secondary"
+            size="md"
             onClick={onLoadDemoItems}
-            className="inline-block bg-white text-[#111111] border border-neutral-300 px-6 py-3 text-xs font-mono font-medium tracking-wider uppercase hover:border-[#111111] transition-colors rounded-[2px] cursor-pointer"
+            className="tracking-wider font-mono text-xs"
           >
             LOAD DEMO ARCHIVE ITEMS
-          </button>
+          </Button>
         )}
       </div>
     </div>

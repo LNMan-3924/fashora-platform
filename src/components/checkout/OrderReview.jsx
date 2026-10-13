@@ -1,11 +1,14 @@
-import { CheckCircle2, ShieldCheck, Loader2 } from 'lucide-react'
+import { CheckCircle2, ShieldCheck } from 'lucide-react'
+import { Button } from '../common'
 
 /**
  * Component OrderReview: Xem lại thông tin đơn hàng trước khi đặt và nút Submit "PLACE ORDER".
+ * Tái sử dụng component Button từ src/components/common để đảm bảo giao diện đồng bộ.
+ *
  * Bao gồm:
  * 1. Tóm tắt thông tin người nhận (Họ tên, SĐT, Địa chỉ đầy đủ 3 cấp).
  * 2. Tóm tắt phương thức giao hàng và phương thức thanh toán COD.
- * 3. Nút đặt hàng "PLACE ORDER" cùng điều khoản atelier.
+ * 3. Nút đặt hàng "PLACE ORDER" với hiệu ứng loading tích hợp sẵn trong Button common.
  *
  * Props:
  * - formData: Thông tin người nhận ({ fullName, phone, address, ward, district, city }).
@@ -93,22 +96,17 @@ export default function OrderReview({
         </div>
       </div>
 
-      {/* Nút bấm ĐẶT HÀNG */}
-      <button
-        type="button"
-        onClick={onSubmit}
+      {/* Nút bấm ĐẶT HÀNG - Tái sử dụng Button từ common */}
+      <Button
+        variant="primary"
+        size="lg"
+        loading={isSubmitting}
         disabled={isSubmitting}
-        className="w-full py-4 bg-[#111111] text-white text-xs uppercase tracking-[0.25em] font-semibold hover:bg-neutral-800 active:bg-neutral-900 disabled:opacity-60 disabled:cursor-not-allowed transition-all duration-200 flex items-center justify-center gap-2"
+        onClick={onSubmit}
+        className="w-full tracking-[0.25em] text-xs py-4"
       >
-        {isSubmitting ? (
-          <>
-            <Loader2 className="w-4 h-4 animate-spin text-white" />
-            <span>PROCESSING ATELIER ORDER...</span>
-          </>
-        ) : (
-          <span>PLACE ORDER</span>
-        )}
-      </button>
+        {isSubmitting ? 'PROCESSING ATELIER ORDER...' : 'PLACE ORDER'}
+      </Button>
 
       {/* Cam kết & điều khoản */}
       <p className="text-[10px] text-neutral-400 text-center uppercase tracking-widest mt-3">
@@ -117,4 +115,3 @@ export default function OrderReview({
     </section>
   )
 }
-

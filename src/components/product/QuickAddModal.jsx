@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { X, ShoppingBag } from 'lucide-react'
+import { Button } from '../common'
 
 // Ảnh dự phòng khi ảnh sản phẩm bị lỗi
 const FALLBACK_IMAGE = '/assets/fallback.png'
@@ -182,17 +183,18 @@ export default function QuickAddModal({
         </div>
 
         {/* ------------------------------------------------------------- */}
-        {/* PHẦN 4: NÚT BẤM THÊM VÀO GIỎ HÀNG (ADD TO CART)               */}
+        {/* PHẦN 4: NÚT BẤM THÊM VÀO GIỎ HÀNG (TÁI SỬ DỤNG BUTTON COMMON)  */}
         {/* ------------------------------------------------------------- */}
         <div className="pt-3 border-t border-neutral-200">
-          <button
-            type="button"
+          <Button
+            variant="primary"
+            size="md"
             onClick={handleAdd}
-            className="w-full h-11 bg-[#111111] text-white hover:bg-neutral-800 font-semibold text-xs tracking-widest rounded-[2px] uppercase transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-xs"
+            className="w-full h-11 tracking-widest text-xs flex items-center justify-center gap-2 cursor-pointer shadow-xs"
           >
             <ShoppingBag className="w-4 h-4" />
             <span>ADD TO CART</span>
-          </button>
+          </Button>
         </div>
       </div>
     </div>

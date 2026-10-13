@@ -1,7 +1,10 @@
 import { Info, ArrowRight, ShieldCheck, Truck, RefreshCw } from 'lucide-react'
+import { Button } from '../common'
 
 /**
  * Component CartOrderSummary: Bảng tóm tắt chi phí đơn hàng và nút thanh toán (Cột phải).
+ * Tái sử dụng component Button từ src/components/common để đồng bộ toàn dự án.
+ *
  * Tính năng:
  * 1. Hiển thị Tạm tính (Subtotal) cho các món đồ đang được tick chọn.
  * 2. Hiển thị chính sách vận chuyển miễn phí (Complimentary Shipping).
@@ -87,20 +90,18 @@ export default function CartOrderSummary({
 
       {/* ------------------------------------------------------------- */}
       {/* PHẦN 4: NÚT TIẾN HÀNH THANH TOÁN (PROCEED TO CHECKOUT)        */}
+      {/* Tái sử dụng Button từ src/components/common                     */}
       {/* ------------------------------------------------------------- */}
-      <button
-        type="button"
+      <Button
+        variant="primary"
+        size="lg"
         disabled={isCheckoutDisabled}
         onClick={onProceedCheckout}
-        className={`w-full h-12 text-white font-semibold text-xs tracking-[0.2em] rounded-[2px] uppercase flex items-center justify-center gap-2 transition-all shadow-xs group ${
-          isCheckoutDisabled
-            ? 'bg-neutral-300 text-neutral-500 cursor-not-allowed opacity-60'
-            : 'bg-[#111111] hover:bg-neutral-800 cursor-pointer'
-        }`}
+        className="w-full tracking-[0.2em] text-xs h-12 flex items-center justify-center gap-2 group cursor-pointer"
       >
         <span>PROCEED TO CHECKOUT</span>
         <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />
-      </button>
+      </Button>
 
       {/* ------------------------------------------------------------- */}
       {/* PHẦN 5: BA HUY HIỆU CAM KẾT DỊCH VỤ CHÍNH HÃNG                */}

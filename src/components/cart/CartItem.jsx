@@ -1,11 +1,13 @@
 import { useState } from 'react'
 import { Heart, Trash2 } from 'lucide-react'
+import { Checkbox } from '../common'
 
 // Đường dẫn ảnh dự phòng an toàn nếu ảnh sản phẩm trên mạng bị sự cố
 const FALLBACK_IMAGE = '/assets/fallback.png'
 
 /**
  * Component CartItem: Hiển thị 1 dòng sản phẩm trong danh sách giỏ hàng.
+ * Tái sử dụng Checkbox từ src/components/common.
  * Bao gồm: Checkbox chọn món, ảnh thu nhỏ 3:4, tên, phân loại, đơn giá,
  * bộ tăng giảm số lượng (-/+), tính thành tiền dòng và các nút thao tác (wishlist, xóa).
  */
@@ -36,14 +38,12 @@ export default function CartItem({
   return (
     <div className="py-5 sm:py-6 flex gap-3 sm:gap-6 items-start border-b border-neutral-200 last:border-b-0">
       {/* ------------------------------------------------------------- */}
-      {/* PHẦN 1: CHECKBOX CHỌN MÓN ĐỂ THANH TOÁN                        */}
+      {/* PHẦN 1: CHECKBOX CHỌN MÓN ĐỂ THANH TOÁN (TÁI SỬ DỤNG COMMON)  */}
       {/* ------------------------------------------------------------- */}
       <div className="pt-2 shrink-0">
-        <input
-          type="checkbox"
+        <Checkbox
           checked={isSelected}
           onChange={() => onToggleSelect?.(item)}
-          className="w-4 h-4 accent-[#111111] cursor-pointer rounded-none"
           aria-label={`Select ${item.name}`}
         />
       </div>

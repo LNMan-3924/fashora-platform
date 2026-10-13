@@ -188,13 +188,26 @@ export default function Checkout() {
     // Nếu dữ liệu hợp lệ: Bắt đầu xử lý đơn hàng
     setIsSubmitting(true)
 
+    const subtotal = displayItems.reduce(
+      (acc, item) => acc + (item.price || 0) * (item.quantity || 1),
+      0
+    )
+    const orderTotal = subtotal + shippingMethod
+    const generatedOrderNumber =
+      '#SPXVN' + Math.floor(100000000 + Math.random() * 900000000)
+
     setTimeout(() => {
       // Xóa sạch giỏ hàng trong store sau khi đặt thành công
       clearCart()
       setIsSubmitting(false)
 
-      // Chuyển hướng sang trang thông báo đặt hàng thành công
-      navigate('/order-success')
+      // Chuyển hướng sang trang thông báo đặt hàng thành công kèm thông tin đơn
+      navigate('/order-success', {
+        state: {
+          orderNumber: generatedOrderNumber,
+          total: orderTotal,
+        },
+      })
     }, 700)
   }
 
