@@ -1,9 +1,12 @@
 import { useState, useEffect, useMemo } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { ArrowRight, Trash2, CheckCircle } from 'lucide-react'
+import { ArrowRight, Trash2 } from 'lucide-react'
 
 // Import store giỏ hàng toàn cục (quản lý bằng Zustand)
 import { useCartStore } from '../../stores'
+
+// Import API service kết nối db.json
+import { getProducts } from '../../services/api'
 
 // Import các sub-component chuyên biệt của trang giỏ hàng
 import {
@@ -12,7 +15,8 @@ import {
   CartEmptyState,
 } from '../../components/cart'
 
-// Import các component dùng chung (gợi ý phối đồ & modal thêm nhanh)
+// Import các component dùng chung (gợi ý phối đồ, modal thêm nhanh & toast)
+import { Toast } from '../../components/common'
 import {
   CompleteTheLook,
   QuickAddModal,
@@ -98,17 +102,43 @@ export default function Cart() {
   const [toastMessage, setToastMessage] = useState('')
 
   // =========================================================================
-  // BƯỚC 3: TỰ ĐỘNG NẠP SẢN PHẨM MẪU LẦN ĐẦU (CHO MỤC ĐÍCH TEST)
+  // BƯỚC 3: TỰ ĐỘNG NẠP SẢN PHẨM MẪU LẦN ĐẦU (GỌI API TỪ DB.JSON)
   // =========================================================================
   useEffect(() => {
     // Kiểm tra xem trình duyệt đã từng nạp dữ liệu mẫu chưa
     const isLoaded = localStorage.getItem('fashora_demo_cart_loaded')
     if (!isLoaded && useCartStore.getState().cartItems.length === 0) {
       localStorage.setItem('fashora_demo_cart_loaded', 'true')
-      // Nạp 3 món đồ mẫu vào Zustand Store
-      DEMO_CART_ITEMS.forEach((item) => {
-        addToCart(item, item.selectedSize, item.selectedColor, item.quantity)
-      })
+      
+      // Gọi API GET /products từ db.json để nạp sản phẩm thực tế vào giỏ hàng
+      getProducts()
+        .then((res) => {
+          const products = res?.data || res
+          if (Array.isArray(products) && products.length > 0) {
+            products.slice(0, 3).forEach((item) => {
+              addToCart(
+                {
+                  ...item,
+                  images: item.images || [item.image],
+                },
+                item.sizes?.[0] || 'M',
+                item.colors?.[0] || 'Standard',
+                1
+              )
+            })
+            return
+          }
+          // Fallback nếu API trống
+          DEMO_CART_ITEMS.forEach((item) => {
+            addToCart(item, item.selectedSize, item.selectedColor, item.quantity)
+          })
+        })
+        .catch(() => {
+          // Fallback nếu chưa bật json-server
+          DEMO_CART_ITEMS.forEach((item) => {
+            addToCart(item, item.selectedSize, item.selectedColor, item.quantity)
+          })
+        })
     }
   }, [addToCart])
 
@@ -225,8 +255,32 @@ export default function Cart() {
     showToast('Selected items removed from cart.')
   }
 
-  // Nút nạp lại sản phẩm mẫu khi giỏ hàng trống (tiện cho việc test)
-  const handleLoadDemo = () => {
+  // Nút nạp lại sản phẩm mẫu: Gọi API getProducts() từ db.json với fallback dự phòng
+  const handleLoadDemo = async () => {
+    try {
+      const res = await getProducts()
+      const products = res?.data || res
+      if (Array.isArray(products) && products.length > 0) {
+        products.slice(0, 3).forEach((item) => {
+          addToCart(
+            {
+              ...item,
+              images: item.images || [item.image],
+            },
+            item.sizes?.[0] || 'M',
+            item.colors?.[0] || 'Standard',
+            1
+          )
+        })
+        setSelectedKeys(null)
+        showToast('Atelier archive items loaded from API (db.json).')
+        return
+      }
+    } catch (err) {
+      console.warn('Cart: Khong the ket noi API db.json, su dung fallback:', err?.message)
+    }
+
+    // Dự phòng khi máy chủ API chưa khởi động
     DEMO_CART_ITEMS.forEach((item) => {
       addToCart(item, item.selectedSize, item.selectedColor, item.quantity)
     })
@@ -354,13 +408,12 @@ export default function Cart() {
         onConfirm={handleConfirmQuickAdd}
       />
 
-      {/* 7. TOAST THÔNG BÁO TỰ ĐỘNG NỔI GÓC DƯỚI BÊN PHẢI */}
-      {toastMessage && (
-        <div className="fixed bottom-6 right-6 z-50 bg-[#111111] text-white px-4 py-3 rounded-[2px] shadow-2xl flex items-center gap-2.5 animate-in fade-in slide-in-from-bottom-5 duration-300 border border-neutral-800">
-          <CheckCircle className="w-4 h-4 text-emerald-400 shrink-0" />
-          <span className="text-xs font-mono">{toastMessage}</span>
-        </div>
-      )}
+      {/* 7. TOAST THÔNG BÁO TÁI SỬ DỤNG TỪ COMMON */}
+      <Toast
+        isVisible={Boolean(toastMessage)}
+        message={toastMessage}
+        onClose={() => setToastMessage('')}
+      />
     </div>
   )
 }

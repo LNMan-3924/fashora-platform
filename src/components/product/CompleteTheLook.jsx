@@ -1,12 +1,14 @@
+import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { Plus, ArrowRight } from 'lucide-react'
+import { getProducts } from '../../services/api'
 
 // Ảnh dự phòng mặc định nếu ảnh sản phẩm bị lỗi
 const FALLBACK_IMAGE = '/assets/fallback.png'
 
 /**
- * 4 Sản phẩm phối đồ mặc định của thương hiệu M STUDIO
- * (Tất cả hình ảnh đều trỏ vào thư mục public/images/products để đảm bảo không bị lỗi ảnh).
+ * 4 Sản phẩm phối đồ mặc định của thương hiệu M STUDIO dùng làm fallback dự phòng
+ * trong trường hợp máy chủ API (json-server db.json) chưa khởi động.
  */
 const DEFAULT_LOOK_ITEMS = [
   {
@@ -65,19 +67,56 @@ const DEFAULT_LOOK_ITEMS = [
 
 /**
  * Component CompleteTheLook: Gợi ý phối đồ dùng chung (Shared Component).
- * Tái sử dụng ở cả trang Cart, Product Detail lẫn trang Shop.
+ * Tự động gọi API (GET /products từ db.json) thay vì dùng dữ liệu mock cứng.
+ * Tái sử dụng ở cả trang Cart lẫn OrderSuccess.
+ *
  * Tính năng:
  * - Hiển thị 4 sản phẩm phối kèm ảnh tỉ lệ thời trang 3:4.
  * - Nút tròn màu trắng có dấu cộng nằm ở góc phải ảnh kèm animation xoay 90 độ khi hover.
  * - Khi click nút cộng, gọi callback onQuickAdd để mở modal chọn biến thể nhanh.
  */
 export default function CompleteTheLook({
-  items = DEFAULT_LOOK_ITEMS,     // Danh sách sản phẩm gợi ý (mặc định là 4 món M STUDIO)
+  items,                          // Danh sách sản phẩm gợi ý truyền từ ngoài vào (nếu có)
   title = 'COMPLETE THE LOOK',    // Tiêu đề khối
   subtitle = 'Curated pairings from M STUDIO to complement your selected silhouette.', // Phụ đề
   viewAllLink = '/shop',          // Đường dẫn xem tất cả sản phẩm
   onQuickAdd,                     // Hàm gọi khi nhấn nút thêm nhanh (+)
 }) {
+  // State lưu trữ dữ liệu sản phẩm tải từ API db.json
+  const [apiItems, setApiItems] = useState([])
+
+  // Gọi API lấy danh sách sản phẩm từ db.json
+  useEffect(() => {
+    let isMounted = true
+
+    getProducts()
+      .then((res) => {
+        if (!isMounted) return
+        const data = res?.data || res
+        if (Array.isArray(data) && data.length > 0) {
+          // Lọc các món phụ kiện hoặc lấy 4 sản phẩm đầu tiên từ db.json
+          const filtered = data
+            .filter((p) => p.category === 'ACCESSORIES' || p.category === 'SHOES')
+            .slice(0, 4)
+
+          const selected = filtered.length === 4 ? filtered : data.slice(0, 4)
+          const formatted = selected.map((p) => ({
+            ...p,
+            image: p.image || p.images?.[0] || FALLBACK_IMAGE,
+            tag: p.badge || p.tag || 'NEW',
+          }))
+          setApiItems(formatted)
+        }
+      })
+      .catch((err) => {
+        console.warn('CompleteTheLook: Khong the ket noi API db.json, su dung san pham fallback:', err?.message)
+      })
+
+    return () => {
+      isMounted = false
+    }
+  }, [])
+
   // Hàm định dạng số tiền VND (VD: 850,000₫)
   const formatVND = (val) =>
     new Intl.NumberFormat('vi-VN').format(val) + '₫'
@@ -89,7 +128,13 @@ export default function CompleteTheLook({
     }
   }
 
-  const displayItems = items && items.length > 0 ? items : DEFAULT_LOOK_ITEMS
+  // Thứ tự ưu tiên: items truyền từ prop > apiItems từ db.json > DEFAULT_LOOK_ITEMS
+  const displayItems =
+    items && items.length > 0 && items !== DEFAULT_LOOK_ITEMS
+      ? items
+      : apiItems.length > 0
+        ? apiItems
+        : DEFAULT_LOOK_ITEMS
 
   return (
     <section className="mt-16 lg:mt-24 pt-10 border-t border-neutral-200">
@@ -131,7 +176,7 @@ export default function CompleteTheLook({
             {/* Khung ảnh sản phẩm tỉ lệ 3:4 */}
             <div className="aspect-[3/4] bg-neutral-50 overflow-hidden relative border-b border-neutral-100">
               <img
-                src={prod.image || FALLBACK_IMAGE}
+                src={prod.image || prod.images?.[0] || FALLBACK_IMAGE}
                 alt={prod.name}
                 onError={handleImageError}
                 className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500"

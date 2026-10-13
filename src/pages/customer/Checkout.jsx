@@ -1,6 +1,7 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useCartStore } from '../../stores/useCartStore'
+import { createOrder, getProducts } from '../../services/api'
 import {
   CheckoutSteps,
   ShippingForm,
@@ -11,9 +12,7 @@ import {
 } from '../../components/checkout'
 
 /**
- * Dữ liệu sản phẩm mẫu (Atelier Demo Items) để hiển thị trong trường hợp giỏ hàng trống,
- * giúp người dùng và reviewer dễ dàng kiểm tra trực quan giao diện đơn hàng.
- * Các hình ảnh sử dụng đường dẫn local nội bộ và có fallback phòng ngừa lỗi.
+ * Dữ liệu sản phẩm mẫu dự phòng (Atelier Demo Items) khi giỏ hàng trống và chưa kết nối được API.
  */
 const DEMO_ORDER_ITEMS = [
   {
@@ -47,10 +46,10 @@ const DEMO_ORDER_ITEMS = [
 
 /**
  * Trang Đặt hàng Checkout (Customer Checkout Page):
- * - Chia tách thành các subcomponent nhỏ gọn trong thư mục components/checkout.
- * - Quản lý form thông tin người nhận, gói vận chuyển, thanh toán COD.
+ * - Tích hợp gọi API POST /orders vào db.json khi người dùng xác nhận đặt hàng.
+ * - Lấy danh sách sản phẩm mẫu từ API GET /products khi giỏ hàng trống.
+ * - Quản lý form thông tin người nhận, gói vận chuyển, phương thức thanh toán COD.
  * - Kiểm tra (validate) chặt chẽ dữ liệu đầu vào người dùng: họ tên, SĐT, địa chỉ 3 cấp.
- * - Tự động đồng bộ với giỏ hàng Zustand (useCartStore), có dữ liệu demo dự phòng.
  * - Hỗ trợ responsive toàn diện trên Mobile, Tablet và Desktop.
  */
 export default function Checkout() {
@@ -60,8 +59,44 @@ export default function Checkout() {
   const cartItems = useCartStore((state) => state.cartItems)
   const clearCart = useCartStore((state) => state.clearCart)
 
-  // Nếu giỏ hàng có đồ thì dùng dữ liệu thật, nếu trống thì dùng danh sách đồ demo để xem trước
-  const displayItems = cartItems.length > 0 ? cartItems : DEMO_ORDER_ITEMS
+  // State lưu sản phẩm mẫu lấy từ API db.json khi giỏ hàng trống
+  const [apiDemoItems, setApiDemoItems] = useState([])
+
+  useEffect(() => {
+    if (cartItems.length > 0) return
+
+    let isMounted = true
+    getProducts()
+      .then((res) => {
+        if (!isMounted) return
+        const data = res?.data || res
+        if (Array.isArray(data) && data.length > 0) {
+          const sample = data.slice(0, 3).map((item) => ({
+            ...item,
+            image: item.image || item.images?.[0] || '/assets/fallback.png',
+            selectedSize: item.sizes?.[0] || 'M',
+            selectedColor: item.colors?.[0] || 'Standard',
+            quantity: 1,
+          }))
+          setApiDemoItems(sample)
+        }
+      })
+      .catch((err) => {
+        console.warn('Checkout: Khong the lay san pham demo tu API db.json, su dung fallback:', err?.message)
+      })
+
+    return () => {
+      isMounted = false
+    }
+  }, [cartItems.length])
+
+  // Nếu giỏ hàng có đồ thì dùng dữ liệu thật, nếu trống thì dùng API demo hoặc DEMO_ORDER_ITEMS
+  const displayItems =
+    cartItems.length > 0
+      ? cartItems
+      : apiDemoItems.length > 0
+        ? apiDemoItems
+        : DEMO_ORDER_ITEMS
 
   // 2. State quản lý thông tin người nhận hàng
   const [formData, setFormData] = useState({
@@ -156,10 +191,13 @@ export default function Checkout() {
   }
 
   /**
-   * Xử lý khi người dùng nhấn đặt hàng (Place Order)
-   * Kiểm tra toàn bộ các trường, nếu có lỗi thì báo đỏ và cuộn tới vị trí lỗi.
+   * Xử lý khi người dùng nhấn đặt hàng (Place Order):
+   * 1. Validate toàn bộ form thông tin.
+   * 2. Tạo payload đơn hàng đầy đủ.
+   * 3. Gửi lên máy chủ API POST /orders lưu vào db.json.
+   * 4. Dọn sạch giỏ hàng và chuyển hướng sang Order Success.
    */
-  const handleSubmitOrder = (e) => {
+  const handleSubmitOrder = async (e) => {
     if (e) e.preventDefault()
 
     // Kiểm tra toàn bộ các trường thông tin
@@ -196,19 +234,67 @@ export default function Checkout() {
     const generatedOrderNumber =
       '#SPXVN' + Math.floor(100000000 + Math.random() * 900000000)
 
-    setTimeout(() => {
-      // Xóa sạch giỏ hàng trong store sau khi đặt thành công
+    const orderPayload = {
+      orderNumber: generatedOrderNumber,
+      recipient: {
+        fullName: formData.fullName,
+        phone: formData.phone,
+        address: formData.address,
+        ward: formData.ward,
+        district: formData.district,
+        city: formData.city,
+      },
+      items: displayItems.map((item) => ({
+        id: item.id,
+        name: item.name,
+        price: item.price,
+        quantity: item.quantity,
+        selectedSize: item.selectedSize || 'Standard',
+        selectedColor: item.selectedColor || 'Standard',
+        image: item.image || item.images?.[0] || '/assets/fallback.png',
+      })),
+      shippingMethod:
+        shippingMethod === 0
+          ? 'Standard Delivery (Complimentary)'
+          : 'Express Priority Courier (50,000₫)',
+      shippingFee: shippingMethod,
+      paymentMethod: 'Cash on Delivery (COD)',
+      subtotal,
+      total: orderTotal,
+      status: 'PENDING',
+      createdAt: new Date().toISOString(),
+    }
+
+    try {
+      // Gửi đơn hàng lên máy chủ db.json qua API POST /orders
+      const res = await createOrder(orderPayload)
+      const savedOrder = res?.data || res
       clearCart()
       setIsSubmitting(false)
 
-      // Chuyển hướng sang trang thông báo đặt hàng thành công kèm thông tin đơn
+      navigate('/order-success', {
+        state: {
+          orderNumber: savedOrder?.orderNumber || generatedOrderNumber,
+          total: savedOrder?.total || orderTotal,
+          orderId: savedOrder?.id,
+        },
+      })
+    } catch (err) {
+      console.warn(
+        'Checkout: Khong the luu don hang len db.json, su dung luong offline.',
+        err?.message
+      )
+      // Vẫn hỗ trợ điều hướng an toàn trong trường hợp máy chủ chưa bật
+      clearCart()
+      setIsSubmitting(false)
+
       navigate('/order-success', {
         state: {
           orderNumber: generatedOrderNumber,
           total: orderTotal,
         },
       })
-    }, 700)
+    }
   }
 
   return (

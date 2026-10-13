@@ -1,13 +1,15 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { Check, Copy } from 'lucide-react'
 import { Button, Toast } from '../../components/common'
 import CompleteTheLook from '../../components/product/CompleteTheLook'
 import QuickAddModal from '../../components/product/QuickAddModal'
 import { useCartStore } from '../../stores/useCartStore'
+import { getOrderById } from '../../services/api'
 
 /**
  * Trang Đặt hàng Thành công (Official Order Successful Page):
+ * - Tự động gọi API GET /orders/:id từ db.json nếu có orderId từ tiến trình Checkout.
  * - Tái sử dụng component Button và Toast từ src/components/common.
  * - Tái sử dụng component CompleteTheLook và QuickAddModal từ src/components/product.
  * - Tái sử dụng useCartStore để quản lý thêm sản phẩm gợi ý vào giỏ hàng.
@@ -18,19 +20,48 @@ export default function OrderSuccess() {
   const navigate = useNavigate()
   const location = useLocation()
 
-  // 1. Lấy thông tin đơn hàng từ state chuyển trang (nếu có) hoặc dùng dữ liệu mặc định
-  const orderNumber = location.state?.orderNumber || '#SPXVN123456789'
-  const orderTotal = location.state?.total
-    ? Number(location.state.total).toLocaleString('vi-VN') + '₫'
+  // State lưu trữ dữ liệu đơn hàng lấy từ API db.json nếu có orderId
+  const [orderDetails, setOrderDetails] = useState(null)
+
+  useEffect(() => {
+    const orderId = location.state?.orderId
+    // Tối ưu hóa: Nếu đã có đầy đủ thông tin mã đơn và tổng tiền từ router state truyền sang,
+    // hoặc không có orderId thì không cần gửi thêm request GET /orders/:id lên máy chủ
+    if (!orderId || (location.state?.orderNumber && location.state?.total !== undefined)) return
+
+    let isMounted = true
+    getOrderById(orderId)
+      .then((res) => {
+        if (!isMounted) return
+        const data = res?.data || res
+        if (data) {
+          setOrderDetails(data)
+        }
+      })
+      .catch((err) => {
+        console.warn('OrderSuccess: Khong the tai chi tiet don tu API db.json:', err?.message)
+      })
+
+    return () => {
+      isMounted = false
+    }
+  }, [location.state?.orderId, location.state?.orderNumber, location.state?.total])
+
+  // Lấy thông tin đơn hàng từ API db.json, hoặc từ state chuyển trang, hoặc dữ liệu mặc định
+  const orderNumber =
+    orderDetails?.orderNumber || location.state?.orderNumber || '#SPXVN123456789'
+  const rawTotal = orderDetails?.total ?? location.state?.total
+  const orderTotal = rawTotal
+    ? Number(rawTotal).toLocaleString('vi-VN') + '₫'
     : '828,000₫'
 
-  // 2. Zustand Store: Thao tác thêm vào giỏ hàng từ mục Complete The Look
+  // Zustand Store: Thao tác thêm vào giỏ hàng từ mục Complete The Look
   const addToCart = useCartStore((state) => state.addToCart)
 
-  // 3. State quản lý Modal thêm nhanh (Quick Add)
+  // State quản lý Modal thêm nhanh (Quick Add)
   const [selectedQuickProduct, setSelectedQuickProduct] = useState(null)
 
-  // 4. State quản lý thông báo Toast
+  // State quản lý thông báo Toast
   const [toast, setToast] = useState({
     visible: false,
     message: '',
@@ -149,7 +180,7 @@ export default function OrderSuccess() {
 
       {/* ============================================================= */}
       {/* PHẦN 2: GỢI Ý PHỐI ĐỒ (COMPLETE THE LOOK)                     */}
-      {/* Tái sử dụng component CompleteTheLook dùng chung              */}
+      {/* Tự động gọi API GET /products từ db.json                     */}
       {/* ============================================================= */}
       <CompleteTheLook
         title="COMPLETE THE LOOK"
