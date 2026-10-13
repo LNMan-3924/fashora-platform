@@ -255,6 +255,16 @@ export default function Cart() {
     showToast('Selected items removed from cart.')
   }
 
+  // Xóa một món hàng riêng lẻ và dọn dẹp key khỏi danh sách được chọn (nếu có)
+  const handleRemoveSingleItem = (id, size, color) => {
+    removeFromCart(id, size, color)
+    if (selectedKeys !== null) {
+      const removedKey = `${id}_${size}_${color}`
+      setSelectedKeys((prev) => (prev ? prev.filter((k) => k !== removedKey) : null))
+    }
+    showToast('Item removed from cart.')
+  }
+
   // Nút nạp lại sản phẩm mẫu: Gọi API getProducts() từ db.json với fallback dự phòng
   const handleLoadDemo = async () => {
     try {
@@ -375,7 +385,7 @@ export default function Cart() {
                 onToggleShopSelect={handleToggleShop}
                 onToggleItemSelect={handleToggleItem}
                 onUpdateQuantity={updateQuantity}
-                onRemoveItem={removeFromCart}
+                onRemoveItem={handleRemoveSingleItem}
               />
             ))}
           </div>

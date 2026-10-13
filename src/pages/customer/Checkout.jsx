@@ -272,6 +272,9 @@ export default function Checkout() {
       clearCart()
       setIsSubmitting(false)
 
+      // Cuộn lên đầu trang trước khi chuyển trang
+      window.scrollTo({ top: 0, left: 0, behavior: 'instant' })
+
       navigate('/order-success', {
         state: {
           orderNumber: savedOrder?.orderNumber || generatedOrderNumber,
@@ -287,6 +290,9 @@ export default function Checkout() {
       // Vẫn hỗ trợ điều hướng an toàn trong trường hợp máy chủ chưa bật
       clearCart()
       setIsSubmitting(false)
+
+      // Cuộn lên đầu trang trước khi chuyển trang
+      window.scrollTo({ top: 0, left: 0, behavior: 'instant' })
 
       navigate('/order-success', {
         state: {

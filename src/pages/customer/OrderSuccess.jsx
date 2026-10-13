@@ -23,6 +23,12 @@ export default function OrderSuccess() {
   // State lưu trữ dữ liệu đơn hàng lấy từ API db.json nếu có orderId
   const [orderDetails, setOrderDetails] = useState(null)
 
+  // Tự động cuộn ngay lập tức lên đỉnh trang khi vừa chuyển sang Order Success
+  // Giúp người dùng nhìn thấy thông báo đặt hàng thành công thay vì bị kẹt ở đáy trang (Complete The Look)
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' })
+  }, [])
+
   useEffect(() => {
     const orderId = location.state?.orderId
     // Tối ưu hóa: Nếu đã có đầy đủ thông tin mã đơn và tổng tiền từ router state truyền sang,
