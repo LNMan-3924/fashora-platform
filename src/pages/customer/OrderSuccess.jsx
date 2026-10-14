@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { Check, Copy } from 'lucide-react'
 import { Button, Toast } from '../../components/common'
@@ -17,6 +17,11 @@ import { useCartStore } from '../../stores/useCartStore'
 export default function OrderSuccess() {
   const navigate = useNavigate()
   const location = useLocation()
+
+  // Tự động cuộn lên đầu trang ngay khi vào trang Order Success
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' })
+  }, [])
 
   // 1. Lấy thông tin đơn hàng từ state chuyển trang (nếu có) hoặc dùng dữ liệu mặc định
   const orderNumber = location.state?.orderNumber || '#SPXVN123456789'
