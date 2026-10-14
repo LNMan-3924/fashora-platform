@@ -119,3 +119,46 @@ export const useCartStore = create(
     }
   )
 );
+
+
+/* ==========================================================================
+   ADDED FOR FEATURE: Cart Badge & Quick Add Synchronization Helpers
+   Mục đích:
+   - Cung cấp các selector và helper hàm lấy tổng số lượng cho Badge giỏ hàng
+   - Đảm bảo tương thích với cả getTotalItems, getTotalCount, getItemCount
+   - Không can thiệp hay sửa đổi phần code gốc phía trên
+   ========================================================================== */
+
+/**
+ * Selector lấy trực tiếp mảng cartItems phục vụ reactivity
+ */
+export const selectCartItems = (state) => state.cartItems;
+
+/**
+ * Selector tính tổng số lượng món đồ hiển thị badge (cộng dồn số lượng của từng item)
+ */
+export const selectTotalCartCount = (state) =>
+  (state.cartItems || []).reduce((total, item) => total + (item.quantity || 0), 0);
+
+/**
+ * Gán alias trực tiếp vào store prototype để tương thích các component cũ/mới:
+ * useCartStore.getState().getTotalCount()
+ * useCartStore.getState().getItemCount()
+ */
+if (typeof useCartStore !== 'undefined' && useCartStore.getState) {
+  const currentState = useCartStore.getState();
+
+  // Alias getTotalCount -> trỏ về getTotalItems
+  if (!currentState.getTotalCount) {
+    useCartStore.setState({
+      getTotalCount: () => useCartStore.getState().getTotalItems(),
+    });
+  }
+
+  // Alias getItemCount -> trỏ về getTotalItems
+  if (!currentState.getItemCount) {
+    useCartStore.setState({
+      getItemCount: () => useCartStore.getState().getTotalItems(),
+    });
+  }
+}
