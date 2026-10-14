@@ -137,28 +137,25 @@ export default function Orders() {
   // Xử lý xác nhận HỦY đơn hàng
   const handleConfirmCancelOrder = async () => {
     if (!orderToCancel) return
-
     const targetId = orderToCancel.id
-    const targetOrderNumber = orderToCancel.orderNumber || orderToCancel.id
 
-    // Cập nhật trạng thái đơn trên giao diện lập tức
-    setOrders((prev) =>
-      prev.map((o) => (o.id === targetId ? { ...o, status: 'CANCELLED' } : o))
-    )
-
-    // Nếu modal xem nhanh đang mở đơn này thì đồng bộ trạng thái luôn
-    if (selectedOrderForModal?.id === targetId) {
-      setSelectedOrderForModal((prev) => (prev ? { ...prev, status: 'CANCELLED' } : null))
-    }
-
-    setOrderToCancel(null)
-    showToast(`Order ${targetOrderNumber} has been cancelled.`)
-
-    // Gửi cập nhật trạng thái lên API db.json
     try {
+
+      // 1. Gửi request lên server/db.json TRƯỚC và CHỜ kết quả
       await updateOrderStatus(targetId, 'CANCELLED')
+
+      // 2. Server xác nhận thành công -> MỚI CẬP NHẬT GIAO DIỆN
+      setOrders((prev) =>
+        prev.map((o) => (o.id === targetId ? { ...o, status: 'CANCELLED' } : o))
+      )
+
+      // 3. Đóng modal và báo thành công
+      setOrderToCancel(null)
+      showToast(`Order ${orderToCancel.orderNumber} has been cancelled.`)
     } catch (err) {
-      console.warn('Orders: Khong the cap nhat trang thai len db.json:', err?.message)
+      // 4. Nếu server lỗi: Không sửa UI, hiện thông báo lỗi để người dùng thử lại
+      showToast(`Failed to cancel order: ${err?.message || 'Unknown error'}`, 'error')
+      console.error('Lỗi khi hủy đơn:', err)
     }
   }
 
