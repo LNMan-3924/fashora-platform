@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useState, useEffect, useMemo } from 'react'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { useCartStore } from '../../stores/useCartStore'
 import { createOrder, getProducts } from '../../services/api'
 import {
@@ -54,9 +54,11 @@ const DEMO_ORDER_ITEMS = [
  */
 export default function Checkout() {
   const navigate = useNavigate()
+  const location = useLocation()
 
-  // 1. Lấy dữ liệu giỏ hàng từ Zustand Store
+  // 1. Lấy dữ liệu giỏ hàng và hàm xóa từ Zustand Store
   const cartItems = useCartStore((state) => state.cartItems)
+  const removeItemsFromCart = useCartStore((state) => state.removeItemsFromCart)
   const clearCart = useCartStore((state) => state.clearCart)
 
   // State lưu sản phẩm mẫu lấy từ API db.json khi giỏ hàng trống
@@ -90,10 +92,45 @@ export default function Checkout() {
     }
   }, [cartItems.length])
 
-  // Nếu giỏ hàng có đồ thì dùng dữ liệu thật, nếu trống thì dùng API demo hoặc DEMO_ORDER_ITEMS
+  // Lấy danh sách sản phẩm được tick chọn để thanh toán:
+  // - Ưu tiên 1: Lấy từ state do trang Cart truyền sang (location.state.selectedItems)
+  // - Ưu tiên 2: Lấy từ sessionStorage (nếu người dùng F5 tải lại trang Checkout)
+  // - Ưu tiên 3: Nếu vào trực tiếp mà giỏ có hàng thì lấy toàn bộ cartItems
+  const selectedCheckoutItems = useMemo(() => {
+    if (
+      location.state?.selectedItems &&
+      Array.isArray(location.state.selectedItems) &&
+      location.state.selectedItems.length > 0
+    ) {
+      return location.state.selectedItems
+    }
+    try {
+      const saved = JSON.parse(
+        sessionStorage.getItem('fashora_checkout_items') || '[]'
+      )
+      if (Array.isArray(saved) && saved.length > 0) {
+        // Chỉ giữ lại các sản phẩm vẫn còn thực tế trong giỏ hàng
+        const validItems = saved.filter((s) =>
+          cartItems.some(
+            (c) =>
+              c.id === s.id &&
+              (c.selectedSize || 'Standard') === (s.selectedSize || 'Standard') &&
+              (c.selectedColor || 'Standard') === (s.selectedColor || 'Standard')
+          )
+        )
+        if (validItems.length > 0) return validItems
+      }
+    } catch {
+      // ignore
+    }
+    return cartItems
+  }, [location.state, cartItems])
+
+  // Nếu có sản phẩm chọn thanh toán -> dùng selectedCheckoutItems.
+  // Nếu giỏ hàng trống -> dùng API demo hoặc DEMO_ORDER_ITEMS
   const displayItems =
-    cartItems.length > 0
-      ? cartItems
+    selectedCheckoutItems.length > 0
+      ? selectedCheckoutItems
       : apiDemoItems.length > 0
         ? apiDemoItems
         : DEMO_ORDER_ITEMS
@@ -269,7 +306,19 @@ export default function Checkout() {
       // Gửi đơn hàng lên máy chủ db.json qua API POST /orders
       const res = await createOrder(orderPayload)
       const savedOrder = res?.data || res
-      clearCart()
+
+      // Xóa CHỈ những sản phẩm đã được thanh toán khỏi giỏ hàng
+      if (removeItemsFromCart && selectedCheckoutItems.length > 0) {
+        removeItemsFromCart(selectedCheckoutItems)
+      } else {
+        clearCart()
+      }
+      try {
+        sessionStorage.removeItem('fashora_checkout_items')
+      } catch {
+        // ignore
+      }
+
       setIsSubmitting(false)
 
       // Cuộn lên đầu trang trước khi chuyển trang
@@ -288,7 +337,17 @@ export default function Checkout() {
         err?.message
       )
       // Vẫn hỗ trợ điều hướng an toàn trong trường hợp máy chủ chưa bật
-      clearCart()
+      if (removeItemsFromCart && selectedCheckoutItems.length > 0) {
+        removeItemsFromCart(selectedCheckoutItems)
+      } else {
+        clearCart()
+      }
+      try {
+        sessionStorage.removeItem('fashora_checkout_items')
+      } catch {
+        // ignore
+      }
+
       setIsSubmitting(false)
 
       // Cuộn lên đầu trang trước khi chuyển trang

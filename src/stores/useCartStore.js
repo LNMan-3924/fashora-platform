@@ -99,6 +99,22 @@ export const useCartStore = create(
         });
       },
 
+      // Xóa danh sách các sản phẩm đã được thanh toán (chỉ xóa những món đã chọn)
+      removeItemsFromCart: (itemsToRemove) => {
+        if (!Array.isArray(itemsToRemove) || itemsToRemove.length === 0) return;
+        set({
+          cartItems: get().cartItems.filter(
+            (cartItem) =>
+              !itemsToRemove.some(
+                (item) =>
+                  item.id === cartItem.id &&
+                  (item.selectedSize || 'Standard') === (cartItem.selectedSize || 'Standard') &&
+                  (item.selectedColor || 'Standard') === (cartItem.selectedColor || 'Standard')
+              )
+          ),
+        });
+      },
+
       // Làm trống giỏ hàng
       clearCart: () => set({ cartItems: [] }),
 

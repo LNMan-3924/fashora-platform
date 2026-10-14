@@ -197,6 +197,11 @@ export default function Cart() {
     }, 0)
   }, [cartItems, activeSelectedKeys])
 
+  // Danh sách các sản phẩm đang được tick chọn thực tế để chuyển sang trang Checkout
+  const selectedCartItems = useMemo(() => {
+    return cartItems.filter((item) => activeSelectedKeys.includes(getItemKey(item)))
+  }, [cartItems, activeSelectedKeys])
+
   // =========================================================================
   // BƯỚC 6: CÁC HÀM XỬ LÝ SỰ KIỆN TƯƠNG TÁC (HANDLERS)
   // =========================================================================
@@ -312,6 +317,26 @@ export default function Cart() {
     showToast(`Added ${lookItem.name} to cart.`)
   }
 
+  // Xử lý chuyển sang trang Checkout chỉ với những món đang được tick chọn
+  const handleProceedCheckout = () => {
+    if (selectedCartItems.length === 0) {
+      showToast('Please select at least one item to proceed to checkout.')
+      return
+    }
+
+    try {
+      sessionStorage.setItem('fashora_checkout_items', JSON.stringify(selectedCartItems))
+    } catch {
+      // ignore
+    }
+
+    navigate('/checkout', {
+      state: {
+        selectedItems: selectedCartItems,
+      },
+    })
+  }
+
   // =========================================================================
   // BƯỚC 7: RENDER GIAO DIỆN
   // =========================================================================
@@ -395,7 +420,7 @@ export default function Cart() {
             <CartOrderSummary
               subtotal={subtotal}
               selectedCount={activeSelectedKeys.length}
-              onProceedCheckout={() => navigate('/checkout')}
+              onProceedCheckout={handleProceedCheckout}
             />
           </div>
         </div>
