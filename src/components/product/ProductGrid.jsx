@@ -1,9 +1,15 @@
-export default function ProductGrid({ children, className = '' }) {
+import ProductCard from './ProductCard';
+
+export default function ProductGrid({ products = [], onQuickAdd }) {
   return (
-    <div
-      className={`grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-4 gap-y-8 md:gap-x-6 md:gap-y-10 ${className}`}
-    >
-      {children}
+    <div className="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 lg:grid-cols-4">
+      {products.map((product) => (
+        <ProductCard
+          key={product.id}
+          product={product}
+          onQuickAdd={onQuickAdd}
+        />
+      ))}
     </div>
-  )
+  );
 }
