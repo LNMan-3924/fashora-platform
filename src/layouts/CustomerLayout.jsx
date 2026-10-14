@@ -7,8 +7,13 @@ export default function CustomerLayout() {
     <div className="min-h-screen flex flex-col bg-white text-black font-sans">
       <Header />
 
-      {/* Thêm container giới hạn độ rộng để nội dung không bị bè ngang trên màn hình lớn */}
-      <main className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-8 lg:px-12 py-6 sm:py-10">
+      {/* ==========================================================================
+         [GHI CHÚ CẬP NHẬT - 14/10/2026]
+         - Chức năng: Mở rộng chiều ngang toàn màn hình (w-full).
+         - Mục đích: Bỏ max-w-7xl, mx-auto và padding cứng để các trang con như Shop
+           có thể hiển thị tràn viền (Edge-to-Edge) theo chuẩn editorial.
+         ========================================================================== */}
+      <main className="flex-1 w-full">
         <Outlet />
       </main>
 

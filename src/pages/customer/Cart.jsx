@@ -341,7 +341,7 @@ export default function Cart() {
   // BƯỚC 7: RENDER GIAO DIỆN
   // =========================================================================
   return (
-    <div className="w-full">
+    <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
       {/* 1. THANH ĐIỀU HƯỚNG BREADCRUMBS */}
       <nav
         aria-label="Breadcrumb"

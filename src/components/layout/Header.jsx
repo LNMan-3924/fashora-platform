@@ -230,8 +230,8 @@ function Header() {
                 <Link
                     to="/"
                     className={`transition-colors uppercase ${isNewArrival
-                            ? 'text-black font-bold'
-                            : 'text-neutral-500 hover:text-black font-medium'
+                        ? 'text-black font-bold'
+                        : 'text-neutral-500 hover:text-black font-medium'
                         }`}
                 >
                     NEW ARRIVAL
@@ -239,8 +239,8 @@ function Header() {
                 <Link
                     to="/shop?tag=best-seller"
                     className={`transition-colors uppercase ${isBestSeller
-                            ? 'text-black font-bold'
-                            : 'text-neutral-500 hover:text-black font-medium'
+                        ? 'text-black font-bold'
+                        : 'text-neutral-500 hover:text-black font-medium'
                         }`}
                 >
                     BEST SELLER
@@ -248,8 +248,8 @@ function Header() {
                 <Link
                     to="/shop"
                     className={`transition-colors uppercase ${isAll
-                            ? 'text-black font-bold'
-                            : 'text-neutral-500 hover:text-black font-medium'
+                        ? 'text-black font-bold'
+                        : 'text-neutral-500 hover:text-black font-medium'
                         }`}
                 >
                     ALL
@@ -314,8 +314,7 @@ function Header() {
                                 to="/"
                                 onClick={() => setIsMobileMenuOpen(false)}
                                 className={({ isActive }) =>
-                                    `text-[11px] tracking-[0.22em] uppercase transition-colors ${
-                                        isActive ? 'text-black font-semibold' : 'text-black hover:opacity-60 font-medium'
+                                    `text-[11px] tracking-[0.22em] uppercase transition-colors ${isActive ? 'text-black font-semibold' : 'text-black hover:opacity-60 font-medium'
                                     }`
                                 }
                             >
@@ -325,8 +324,7 @@ function Header() {
                                 to="/shop?tag=best-seller"
                                 onClick={() => setIsMobileMenuOpen(false)}
                                 className={({ isActive }) =>
-                                    `text-[11px] tracking-[0.22em] uppercase transition-colors ${
-                                        isActive ? 'text-black font-semibold' : 'text-black hover:opacity-60 font-medium'
+                                    `text-[11px] tracking-[0.22em] uppercase transition-colors ${isActive ? 'text-black font-semibold' : 'text-black hover:opacity-60 font-medium'
                                     }`
                                 }
                             >
@@ -336,8 +334,7 @@ function Header() {
                                 to="/shop"
                                 onClick={() => setIsMobileMenuOpen(false)}
                                 className={({ isActive }) =>
-                                    `text-[11px] tracking-[0.22em] uppercase transition-colors ${
-                                        isActive ? 'text-black font-semibold' : 'text-black hover:opacity-60 font-medium'
+                                    `text-[11px] tracking-[0.22em] uppercase transition-colors ${isActive ? 'text-black font-semibold' : 'text-black hover:opacity-60 font-medium'
                                     }`
                                 }
                             >
@@ -352,4 +349,40 @@ function Header() {
     )
 }
 
-export default Header
+
+/* ==========================================================================
+   ADDED FOR FEATURE: Live Cart Counter Synchronization with Zustand Store
+   - Giữ nguyên toàn bộ logic và JSX của Header gốc phía trên.
+   - Kết nối với useCartStore để lấy tổng số lượng sản phẩm (cộng dồn số lượng).
+   - Tự động đồng bộ số lượng tức thì khi Quick Add hoặc cập nhật giỏ hàng.
+   - Hỗ trợ fallback tương thích ngược với localStorage và CustomEvent.
+   ========================================================================== */
+
+function HeaderWithLiveCart(props) {
+    // 1. Lấy tổng số lượng từ Zustand store (tự động re-render khi store thay đổi)
+    const storeCount = useCartStore((state) => {
+        if (typeof state.getTotalItems === 'function') {
+            return state.getTotalItems()
+        }
+        if (Array.isArray(state.cartItems)) {
+            return state.cartItems.reduce((sum, item) => sum + (item.quantity || 0), 0)
+        }
+        return 0
+    })
+
+    // 2. Kích hoạt sự kiện cartUpdated để cập nhật luôn state nội bộ của Header gốc
+    useEffect(() => {
+        try {
+            // Đồng bộ sang fashora_cart cho các component cũ vẫn đọc từ localStorage
+            const currentItems = useCartStore.getState().cartItems || []
+            localStorage.setItem('fashora_cart', JSON.stringify(currentItems))
+        } catch {
+            // Bỏ qua nếu môi trường hạn chế localStorage
+        }
+        window.dispatchEvent(new Event('cartUpdated'))
+    }, [storeCount])
+
+    return <Header {...props} />
+}
+
+export default HeaderWithLiveCart

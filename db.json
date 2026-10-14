@@ -1333,6 +1333,54 @@
       "status": "PENDING",
       "createdAt": "2026-10-14T02:13:58.083Z",
       "id": "cRWMqKFvSyY"
+    },
+    {
+      "orderNumber": "#SPXVN285398411",
+      "recipient": {
+        "fullName": "Helena Vance",
+        "phone": "0912345678",
+        "address": "742 Evergreen Terrace",
+        "ward": "Phường Bến Nghé",
+        "district": "Quận 1",
+        "city": "Thành phố Hồ Chí Minh"
+      },
+      "items": [
+        {
+          "id": "prd_shirt_01",
+          "name": "CROPPED SATIN STRUCTURAL SHIRT",
+          "price": 1250000,
+          "quantity": 1,
+          "selectedSize": "M",
+          "selectedColor": "Pure White",
+          "image": "/images/products/shirt/shirt-01.jpg"
+        },
+        {
+          "id": "prd_pants_02",
+          "name": "ACID FLAME OMBRÉ BALLOON PANTS",
+          "price": 1450000,
+          "quantity": 1,
+          "selectedSize": "L",
+          "selectedColor": "Washed Black / Flame",
+          "image": "/images/products/pants/pants-02.jpg"
+        },
+        {
+          "id": "prd_shoes_01",
+          "name": "MULTI-BUCKLE THIGH-HIGH MOTO BOOTS",
+          "price": 2600000,
+          "quantity": 1,
+          "selectedSize": "42",
+          "selectedColor": "Matte Black",
+          "image": "/images/products/shoes/shoes-01.jpg"
+        }
+      ],
+      "shippingMethod": "Standard Delivery (Complimentary)",
+      "shippingFee": 0,
+      "paymentMethod": "Cash on Delivery (COD)",
+      "subtotal": 5300000,
+      "total": 5300000,
+      "status": "PENDING",
+      "createdAt": "2026-10-14T12:07:09.600Z",
+      "id": "XkxIgmj_sB8"
     }
   ],
   "$schema": "./node_modules/json-server/schema.json"

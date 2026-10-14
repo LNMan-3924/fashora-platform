@@ -160,7 +160,7 @@ export default function Orders() {
   }
 
   return (
-    <div className="w-full">
+    <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
       {/* 1. THANH BREADCRUMB & TIÊU ĐỀ TRANG */}
       <section className="border-b border-neutral-200 pb-6 sm:pb-8 mb-6 sm:mb-8">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
