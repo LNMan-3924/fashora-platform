@@ -44,6 +44,7 @@ export const removeCartItem = (id) => api.delete(`/cart/${id}`);
 
 // ================= ORDERS =================
 export const getOrders = () => api.get('/orders');
+export const getOrderById = (id) => api.get(`/orders/${id}`);
 export const createOrder = (orderData) => api.post('/orders', orderData);
 export const updateOrderStatus = (id, status) => api.patch(`/orders/${id}`, { status });
 
@@ -52,4 +53,4 @@ export default api;
 /* ==========================================================================
    ADDED FOR FEATURE: SHOP & PRODUCT LISTING
    - Added: getProducts API helper for fetching all catalog products
-   ========================================================================== */
+   ========================================================================== */

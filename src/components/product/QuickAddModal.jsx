@@ -1,150 +1,184 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
+import { useCartStore } from '../../stores/useCartStore';
 
-export default function QuickAddModal({ product, isOpen, onClose, onAddToCart }) {
-  // 1. Khai báo đúng cú pháp: const [tênState, setTênState] = useState('');
-  const [selectedColor, setSelectedColor] = useState('');
-  const [selectedSize, setSelectedSize] = useState('');
+const FALLBACK_IMAGE = '/placeholder.png';
+
+function QuickAddContent({ product, onClose, onConfirm, onAddToCart }) {
+  // Lấy hàm addToCart từ store
+  const addToCart = useCartStore((state) => state.addToCart);
+
+  const colors =
+    Array.isArray(product?.colors) && product.colors.length > 0
+      ? product.colors
+      : [product?.color || 'DEFAULT'];
+
+  const sizes =
+    Array.isArray(product?.sizes) && product.sizes.length > 0
+      ? product.sizes
+      : [product?.size || 'One Size'];
+
+  const [selectedColor, setSelectedColor] = useState(colors[0] || 'DEFAULT');
+  const [selectedSize, setSelectedSize] = useState(sizes[0] || 'One Size');
   const [quantity, setQuantity] = useState(1);
 
-  // 2. useEffect cập nhật giá trị mặc định
-  useEffect(() => {
-    if (product) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setSelectedColor(product.colors?.[0] || 'BLACK');
-      setSelectedSize(product.sizes?.[0] || 'S');
-      setQuantity(1);
-    }
-  }, [product, isOpen]);
+  const rawImage =
+    product?.image ||
+    (Array.isArray(product?.images) && product.images.length > 0
+      ? product.images[0]
+      : null) ||
+    FALLBACK_IMAGE;
 
-  // 3. Kiểm tra điều kiện đóng modal (phải đặt DƯỚI các hook ở trên)
-  if (!isOpen || !product) return null;
+  const displayImage =
+    typeof rawImage === 'string'
+      ? rawImage.replace(/^(\.\/)?public\//, '/')
+      : FALLBACK_IMAGE;
 
-  const colors = (product.colors && product.colors.length > 0) ? product.colors : ['BLACK'];
-  const sizes = (product.sizes && product.sizes.length > 0) ? product.sizes : ['S', 'M', 'L', 'XL'];
+  const formatVND = (val) =>
+    new Intl.NumberFormat('vi-VN').format(Number(val) || 0) + '₫';
 
-  const formatPrice = (val) =>
-    new Intl.NumberFormat('vi-VN').format(val || 0) + '₫';
+  const shopName =
+    product?.shopName || product?.sellerName || product?.storeName || 'M STUDIO';
 
+  // Xử lý thêm vào giỏ: chỉ kích hoạt đúng 1 luồng để số lượng không bị nhân đôi
   const handleAdd = () => {
-    if (onAddToCart) {
-      onAddToCart({
-        id: product.id,
-        name: product.name,
-        price: product.price,
-        image: product.images?.[0] || product.image,
-        shopName: product.shopName || 'M STUDIO',
-        color: selectedColor,
-        size: selectedSize,
-        quantity,
-      });
+    const payload = {
+      ...product,
+      id: product?.id,
+      name: product?.name,
+      shopName,
+      image: displayImage,
+      selectedColor,
+      selectedSize,
+      color: selectedColor,
+      size: selectedSize,
+      quantity,
+    };
+
+    if (typeof onAddToCart === 'function') {
+      onAddToCart(payload, selectedSize, selectedColor, quantity);
+    } else if (typeof onConfirm === 'function') {
+      onConfirm(payload);
+    } else if (typeof addToCart === 'function') {
+      try {
+        addToCart(product, selectedSize, selectedColor, quantity);
+      } catch {
+        try {
+          addToCart(payload);
+        } catch (err) {
+          console.warn('Lỗi khi gọi addToCart:', err);
+        }
+      }
     }
-    onClose();
+
+    if (typeof onClose === 'function') onClose();
   };
 
   return (
-    <div 
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-[1px] transition-opacity"
-      onClick={onClose}
+    <div
+      className="bg-white w-full max-w-[420px] rounded-sm border border-neutral-200 p-6 shadow-2xl space-y-4"
+      onClick={(e) => e.stopPropagation()}
     >
-      <div 
-        className="relative w-full max-w-[420px] rounded-sm bg-white p-6 shadow-2xl"
-        onClick={(e) => e.stopPropagation()}
-      >
-        {/* Header */}
-        <div className="flex items-center justify-between border-b border-neutral-100 pb-3">
-          <span className="text-[11px] font-semibold tracking-widest uppercase text-neutral-400">
-            QUICK ADD TO CART
+      {/* Header */}
+      <div className="flex items-center justify-between pb-3 border-b border-neutral-100">
+        <span className="text-[11px] font-semibold tracking-widest uppercase text-neutral-400">
+          {product?.category || 'QUICK ADD TO CART'}
+        </span>
+        <button
+          type="button"
+          aria-label="Close modal"
+          onClick={onClose}
+          className="text-neutral-400 hover:text-black transition-colors text-base font-bold px-1 cursor-pointer"
+        >
+          ✕
+        </button>
+      </div>
+
+      {/* Thông tin sản phẩm */}
+      <div className="flex gap-4 items-center">
+        <div className="w-16 h-20 bg-neutral-100 rounded-sm overflow-hidden shrink-0 border border-neutral-200">
+          <img
+            src={displayImage}
+            alt={product?.name || 'Product'}
+            onError={(e) => {
+              e.currentTarget.onerror = null;
+              e.currentTarget.src = FALLBACK_IMAGE;
+            }}
+            className="w-full h-full object-cover object-top"
+          />
+        </div>
+        <div className="min-w-0 flex-1">
+          <span className="text-[10px] uppercase tracking-wider text-neutral-400 font-normal block">
+            SHOP: {shopName}
           </span>
-          <button
-            type="button"
-            onClick={onClose}
-            className="text-neutral-400 hover:text-black transition-colors text-sm"
-          >
-            ✕
-          </button>
+          <h4 className="font-semibold text-xs uppercase text-neutral-900 truncate mt-0.5">
+            {product?.name}
+          </h4>
+          <p className="font-semibold text-xs text-neutral-900 mt-1">
+            {formatVND(product?.price)}
+          </p>
         </div>
+      </div>
 
-        {/* Thông tin vắn tắt sản phẩm */}
-        <div className="mt-4 flex gap-4">
-          <div className="h-20 w-16 flex-shrink-0 overflow-hidden bg-neutral-100">
-            <img
-              src={product.images?.[0] || product.image || '/placeholder.png'}
-              alt={product.name}
-              className="h-full w-full object-cover"
-            />
-          </div>
-          <div className="flex flex-col justify-center">
-            <span className="text-[10px] uppercase tracking-wider text-neutral-400">
-              SHOP: {product.shopName || 'M STUDIO'}
-            </span>
-            <h4 className="mt-0.5 text-xs font-semibold uppercase text-neutral-900 line-clamp-2 leading-snug">
-              {product.name}
-            </h4>
-            <span className="mt-1 text-xs font-medium text-neutral-800">
-              {formatPrice(product.price)}
-            </span>
-          </div>
-        </div>
-
-        {/* Lựa chọn màu */}
-        <div className="mt-5">
-          <div className="flex justify-between text-[11px] uppercase tracking-wider">
+      {/* Biến thể Color & Size */}
+      <div className="space-y-4 pt-1">
+        <div>
+          <div className="flex justify-between text-[11px] uppercase tracking-wider mb-2">
             <span className="text-neutral-500">COLOR</span>
             <span className="font-semibold text-neutral-900">{selectedColor}</span>
           </div>
-          <div className="mt-2 flex flex-wrap gap-2">
-            {colors.map((c) => (
+          <div className="flex flex-wrap gap-2">
+            {colors.map((color) => (
               <button
-                key={c}
+                key={color}
                 type="button"
-                onClick={() => setSelectedColor(c)}
-                className={`px-3 py-1.5 text-[11px] uppercase tracking-wider transition-all border ${
-                  selectedColor === c
-                    ? 'border-black bg-black text-white'
+                onClick={() => setSelectedColor(color)}
+                className={`px-3 py-1.5 text-[11px] uppercase tracking-wider transition-all border cursor-pointer ${
+                  selectedColor === color
+                    ? 'border-black bg-black text-white font-bold'
                     : 'border-neutral-200 bg-white text-neutral-800 hover:border-black'
                 }`}
               >
-                {c}
+                {color}
               </button>
             ))}
           </div>
         </div>
 
-        {/* Lựa chọn kích cỡ */}
-        <div className="mt-4">
-          <div className="flex justify-between text-[11px] uppercase tracking-wider">
+        <div>
+          <div className="flex justify-between text-[11px] uppercase tracking-wider mb-2">
             <span className="text-neutral-500">SIZE</span>
             <span className="font-semibold text-neutral-900">{selectedSize}</span>
           </div>
-          <div className="mt-2 flex flex-wrap gap-2">
-            {sizes.map((s) => (
+          <div className="flex flex-wrap gap-2">
+            {sizes.map((size) => (
               <button
-                key={s}
+                key={size}
                 type="button"
-                onClick={() => setSelectedSize(s)}
-                className={`min-w-[36px] px-2.5 py-1.5 text-[11px] font-medium transition-all border ${
-                  selectedSize === s
-                    ? 'border-black bg-black text-white'
+                onClick={() => setSelectedSize(size)}
+                className={`min-w-[36px] px-2.5 py-1.5 text-[11px] font-medium transition-all border cursor-pointer ${
+                  selectedSize === size
+                    ? 'border-black bg-black text-white font-bold'
                     : 'border-neutral-200 bg-white text-neutral-800 hover:border-black'
                 }`}
               >
-                {s}
+                {size}
               </button>
             ))}
           </div>
         </div>
 
-        {/* Số lượng & Tổng tiền */}
-        <div className="mt-5 flex items-end justify-between">
+        {/* Số lượng */}
+        <div className="flex items-end justify-between pt-1">
           <div>
-            <div className="text-[10px] uppercase tracking-wider text-neutral-400">
-              QUANTITY <span className="ml-1 text-[9px]">MIN 1</span>
+            <div className="text-[10px] uppercase tracking-wider text-neutral-400 mb-1.5">
+              QUANTITY
             </div>
-            <div className="mt-1.5 flex items-center border border-neutral-200">
+            <div className="inline-flex items-center border border-neutral-200 bg-white h-8">
               <button
                 type="button"
+                aria-label="Decrease"
                 onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-                className="px-3 py-1 text-sm font-semibold text-neutral-600 hover:bg-neutral-100"
+                className="w-8 h-full flex items-center justify-center text-sm font-semibold text-neutral-600 hover:bg-neutral-100 cursor-pointer"
               >
                 -
               </button>
@@ -153,8 +187,9 @@ export default function QuickAddModal({ product, isOpen, onClose, onAddToCart })
               </span>
               <button
                 type="button"
-                onClick={() => setQuantity((q) => q + 1)}
-                className="px-3 py-1 text-sm font-semibold text-neutral-600 hover:bg-neutral-100"
+                aria-label="Increase"
+                onClick={() => setQuantity((q) => Math.min(10, q + 1))}
+                className="w-8 h-full flex items-center justify-center text-sm font-semibold text-neutral-600 hover:bg-neutral-100 cursor-pointer"
               >
                 +
               </button>
@@ -166,23 +201,50 @@ export default function QuickAddModal({ product, isOpen, onClose, onAddToCart })
               TOTAL
             </span>
             <span className="text-sm font-bold text-neutral-900">
-              {formatPrice((product.price || 0) * quantity)}
+              {formatVND((product?.price || 0) * quantity)}
             </span>
           </div>
         </div>
+      </div>
 
-        {/* Nút Thêm Vào Giỏ */}
+      {/* Nút hành động */}
+      <div className="pt-2">
         <button
           type="button"
           onClick={handleAdd}
-          className="mt-6 flex w-full items-center justify-center gap-2 bg-black py-3 text-xs font-semibold uppercase tracking-widest text-white transition-opacity hover:opacity-90 active:scale-[0.99]"
+          className="w-full flex items-center justify-center gap-2 bg-black py-3 text-xs font-semibold uppercase tracking-widest text-white transition-opacity hover:opacity-90 active:scale-[0.99] cursor-pointer"
         >
           <span>ADD TO CART</span>
           <svg className="h-3.5 w-3.5 fill-current" viewBox="0 0 24 24">
-            <path d="M19 7h-3V6a4 4 0 0 0-8 0v1H5a1 1 0 0 0-1 1v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8a1 1 0 0 0-1-1zm-9-1a2 2 0 0 1 4 0v1h-4V6zm8 14H6V9h2v2h2V9h4v2h2V9h2v11z"/>
+            <path d="M19 7h-3V6a4 4 0 0 0-8 0v1H5a1 1 0 0 0-1 1v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8a1 1 0 0 0-1-1zm-9-1a2 2 0 0 1 4 0v1h-4V6zm8 14H6V9h2v2h2V9h4v2h2V9h2v11z" />
           </svg>
         </button>
       </div>
+    </div>
+  );
+}
+
+export default function QuickAddModal({
+  isOpen,
+  product,
+  onClose,
+  onConfirm,
+  onAddToCart,
+}) {
+  if (!isOpen || !product) return null;
+
+  return (
+    <div
+      className="fixed inset-0 z-50 bg-black/60 backdrop-blur-[1px] flex items-center justify-center p-4 transition-opacity"
+      onClick={onClose}
+    >
+      <QuickAddContent
+        key={product?.id || 'quick-add'}
+        product={product}
+        onClose={onClose}
+        onConfirm={onConfirm}
+        onAddToCart={onAddToCart}
+      />
     </div>
   );
 }

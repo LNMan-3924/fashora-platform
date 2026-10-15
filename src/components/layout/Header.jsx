@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom'
-import { useCartStore } from '../../stores/useCartStore' // Đường dẫn tới cartStore (Mẫn thêm 14/10)
+import { useCartStore } from '../../stores'
 
 function Header() {
     const [logoSrc, setLogoSrc] = useState('/assets/logo.png')
@@ -10,8 +10,9 @@ function Header() {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
     const [searchQuery, setSearchQuery] = useState('')
 
-    // State đếm số lượng sản phẩm trong giỏ hàng (mặc định 0)
-    const [cartCount, setCartCount] = useState(0)
+    // Đồng bộ số lượng sản phẩm trong giỏ hàng trực tiếp từ Zustand store (Single Source of Truth)
+    const cartItems = useCartStore((state) => state.cartItems)
+    const cartCount = cartItems.reduce((sum, item) => sum + (item.quantity || 1), 0)
 
     const location = useLocation()
     const navigate = useNavigate()
@@ -23,30 +24,25 @@ function Header() {
     const isBestSeller = isShopPath && currentTag === 'best-seller'
     const isAll = isShopPath && !currentTag
 
-    // Logic đồng bộ giỏ hàng từ localStorage và các tab/sự kiện
+    // Lắng nghe sự kiện storage để đồng bộ giỏ hàng khi người dùng mở nhiều tab trình duyệt
     useEffect(() => {
-        const updateCartCount = () => {
-            try {
-                const savedCart = JSON.parse(localStorage.getItem('fashora_cart') || '[]')
-                const total = savedCart.reduce((sum, item) => sum + (item.quantity || 1), 0)
-                setCartCount(total)
-            } catch {
-                setCartCount(0)
+        const handleStorage = (e) => {
+            if (e.key === 'fashora-cart-storage') {
+                useCartStore.persist?.rehydrate?.()
             }
         }
-
-        // Lấy số lượng giỏ hàng ban đầu
-        updateCartCount()
-
-        // Lắng nghe sự kiện khi có trang khác hoặc component khác thêm hàng
-        window.addEventListener('cartUpdated', updateCartCount)
-        window.addEventListener('storage', updateCartCount)
-
-        return () => {
-            window.removeEventListener('cartUpdated', updateCartCount)
-            window.removeEventListener('storage', updateCartCount)
-        }
+        window.addEventListener('storage', handleStorage)
+        return () => window.removeEventListener('storage', handleStorage)
     }, [])
+
+    // Đồng bộ ngược ra localStorage key fashora_cart để đảm bảo tương thích toàn hệ thống
+    useEffect(() => {
+        try {
+            localStorage.setItem('fashora_cart', JSON.stringify(cartItems))
+        } catch {
+            // ignore
+        }
+    }, [cartItems])
 
     const handleLogoError = () => {
         if (logoSrc === '/assets/logo.png') {
@@ -64,8 +60,8 @@ function Header() {
         }
     }
 
-    // Format hiển thị 2 chữ số (1 -> "01", 2 -> "02")
-    const formattedCount = cartCount < 10 ? `0${cartCount}` : cartCount
+    // Hiển thị số lượng sản phẩm trên icon giỏ hàng (VD: 3, 2, 1 hoặc 99+)
+    const formattedCount = cartCount > 99 ? '99+' : cartCount
 
     return (
         <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-sm border-b border-neutral-100">
@@ -155,13 +151,14 @@ function Header() {
                     {/* Icon Account (kèm dropdown menu tối giản) */}
                     <div
                         className="relative"
-                        onMouseEnter={() => setAccountMenuOpen(true)}
                         onMouseLeave={() => setAccountMenuOpen(false)}
                     >
-                        <Link
-                            to="/"
-                            aria-label="Tài khoản cá nhân"
-                            className="p-1 text-neutral-700 hover:text-black transition-colors block"
+                        <button
+                            type="button"
+                            onClick={() => setAccountMenuOpen((prev) => !prev)}
+                            aria-label="Account Menu"
+                            aria-expanded={accountMenuOpen}
+                            className="p-1 text-neutral-700 hover:text-black transition-colors block cursor-pointer outline-none"
                         >
                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path
@@ -171,7 +168,7 @@ function Header() {
                                     d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"
                                 />
                             </svg>
-                        </Link>
+                        </button>
 
                         {/* Dropdown Menu */}
                         {accountMenuOpen && (
@@ -221,7 +218,7 @@ function Header() {
 
                         {/* Chỉ render badge khi cartCount > 0 */}
                         {cartCount > 0 && (
-                            <span className="absolute -top-1 -right-2 bg-black text-white text-[9px] font-semibold tracking-tighter w-4 h-4 rounded-full flex items-center justify-center animate-in fade-in duration-200">
+                            <span className="absolute -top-1 -right-2 bg-black text-white text-[9px] font-semibold tracking-tighter min-w-4 h-4 px-1 rounded-full flex items-center justify-center animate-in fade-in duration-200">
                                 {formattedCount}
                             </span>
                         )}
@@ -234,8 +231,8 @@ function Header() {
                 <Link
                     to="/"
                     className={`transition-colors uppercase ${isNewArrival
-                            ? 'text-black font-bold'
-                            : 'text-neutral-500 hover:text-black font-medium'
+                        ? 'text-black font-bold'
+                        : 'text-neutral-500 hover:text-black font-medium'
                         }`}
                 >
                     NEW ARRIVAL
@@ -243,8 +240,8 @@ function Header() {
                 <Link
                     to="/shop?tag=best-seller"
                     className={`transition-colors uppercase ${isBestSeller
-                            ? 'text-black font-bold'
-                            : 'text-neutral-500 hover:text-black font-medium'
+                        ? 'text-black font-bold'
+                        : 'text-neutral-500 hover:text-black font-medium'
                         }`}
                 >
                     BEST SELLER
@@ -252,8 +249,8 @@ function Header() {
                 <Link
                     to="/shop"
                     className={`transition-colors uppercase ${isAll
-                            ? 'text-black font-bold'
-                            : 'text-neutral-500 hover:text-black font-medium'
+                        ? 'text-black font-bold'
+                        : 'text-neutral-500 hover:text-black font-medium'
                         }`}
                 >
                     ALL
@@ -318,8 +315,7 @@ function Header() {
                                 to="/"
                                 onClick={() => setIsMobileMenuOpen(false)}
                                 className={({ isActive }) =>
-                                    `text-[11px] tracking-[0.22em] uppercase transition-colors ${
-                                        isActive ? 'text-black font-semibold' : 'text-black hover:opacity-60 font-medium'
+                                    `text-[11px] tracking-[0.22em] uppercase transition-colors ${isActive ? 'text-black font-semibold' : 'text-black hover:opacity-60 font-medium'
                                     }`
                                 }
                             >
@@ -329,8 +325,7 @@ function Header() {
                                 to="/shop?tag=best-seller"
                                 onClick={() => setIsMobileMenuOpen(false)}
                                 className={({ isActive }) =>
-                                    `text-[11px] tracking-[0.22em] uppercase transition-colors ${
-                                        isActive ? 'text-black font-semibold' : 'text-black hover:opacity-60 font-medium'
+                                    `text-[11px] tracking-[0.22em] uppercase transition-colors ${isActive ? 'text-black font-semibold' : 'text-black hover:opacity-60 font-medium'
                                     }`
                                 }
                             >
@@ -340,8 +335,7 @@ function Header() {
                                 to="/shop"
                                 onClick={() => setIsMobileMenuOpen(false)}
                                 className={({ isActive }) =>
-                                    `text-[11px] tracking-[0.22em] uppercase transition-colors ${
-                                        isActive ? 'text-black font-semibold' : 'text-black hover:opacity-60 font-medium'
+                                    `text-[11px] tracking-[0.22em] uppercase transition-colors ${isActive ? 'text-black font-semibold' : 'text-black hover:opacity-60 font-medium'
                                     }`
                                 }
                             >

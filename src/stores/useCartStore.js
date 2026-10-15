@@ -50,8 +50,16 @@ export const useCartStore = create(
                 id: product.id,
                 name: product.name,
                 price: product.price,
-                originalPrice: product.originalPrice,
-                image: product.images[0],
+                image:
+                  (Array.isArray(product.images) && product.images.length > 0
+                    ? product.images[0]
+                    : null) ||
+                  product.image ||
+                  '/assets/fallback.png',
+                images:
+                  Array.isArray(product.images) && product.images.length > 0
+                    ? product.images
+                    : [product.image || '/assets/fallback.png'],
                 category: product.category,
                 shopId: product.shopId,
                 shopName: product.shopName,
@@ -97,6 +105,27 @@ export const useCartStore = create(
               )
           ),
         });
+      },
+
+      // Xóa danh sách các sản phẩm đã được thanh toán (chỉ xóa những món đã chọn)
+      removeItemsFromCart: (itemsToRemove) => {
+        // 1. Kiểm tra điều kiện đầu vào
+        if (!Array.isArray(itemsToRemove) || itemsToRemove.length === 0) return;
+
+        // 2. Tạo Set chứa các key duy nhất của những món cần xóa
+        const removeKeySet = new Set(
+          itemsToRemove.map(
+            (item) => `${item.id}_${item.selectedSize || 'Standard'}_${item.selectedColor || 'Standard'}`
+          )
+        );
+
+        // 3. Lọc lại giỏ hàng và cập nhật state
+        set((state) => ({
+          cartItems: state.cartItems.filter((cartItem) => {
+            const key = `${cartItem.id}_${cartItem.selectedSize || 'Standard'}_${cartItem.selectedColor || 'Standard'}`;
+            return !removeKeySet.has(key);
+          }),
+        }));
       },
 
       // Làm trống giỏ hàng

@@ -67,9 +67,15 @@
       "originalPrice": 550000,
       "badge": "NEW",
       "isSoldOut": false,
-      "images": ["/images/products/accessories/acc-01.jpg"],
-      "sizes": ["One Size"],
-      "colors": ["Silver Chrome"],
+      "images": [
+        "/images/products/accessories/acc-01.jpg"
+      ],
+      "sizes": [
+        "One Size"
+      ],
+      "colors": [
+        "Silver Chrome"
+      ],
       "description": "Futuristic wraparound sunglasses featuring sculpted liquid metal thorn accents and UV400 protective dark lenses.",
       "careInstructions": "Wipe lenses with microfiber cloth. Store in hard protective case.",
       "stock": 12
@@ -84,9 +90,15 @@
       "originalPrice": null,
       "badge": "NEW",
       "isSoldOut": false,
-      "images": ["/images/products/accessories/acc-02.jpg"],
-      "sizes": ["Freesize (Adjustable)"],
-      "colors": ["Matte Silver"],
+      "images": [
+        "/images/products/accessories/acc-02.jpg"
+      ],
+      "sizes": [
+        "Freesize (Adjustable)"
+      ],
+      "colors": [
+        "Matte Silver"
+      ],
       "description": "Statement open band ring sculpted with organic hollowed textures, crafted from brushed titanium alloy.",
       "careInstructions": "Avoid direct contact with water, perfume, and harsh chemicals.",
       "stock": 25
@@ -101,9 +113,15 @@
       "originalPrice": 890000,
       "badge": "SALE",
       "isSoldOut": false,
-      "images": ["/images/products/accessories/acc-03.jpg"],
-      "sizes": ["One Size"],
-      "colors": ["Glossy Black"],
+      "images": [
+        "/images/products/accessories/acc-03.jpg"
+      ],
+      "sizes": [
+        "One Size"
+      ],
+      "colors": [
+        "Glossy Black"
+      ],
       "description": "Avant-garde geometric shoulder bag paneled in high-shine patent faux leather with metal rivets and an adjustable buckle strap.",
       "careInstructions": "Wipe clean with a soft damp cloth. Keep away from heat sources.",
       "stock": 8
@@ -118,9 +136,15 @@
       "originalPrice": null,
       "badge": null,
       "isSoldOut": false,
-      "images": ["/images/products/accessories/acc-04.jpg"],
-      "sizes": ["One Size"],
-      "colors": ["Washed Black"],
+      "images": [
+        "/images/products/accessories/acc-04.jpg"
+      ],
+      "sizes": [
+        "One Size"
+      ],
+      "colors": [
+        "Washed Black"
+      ],
       "description": "Acid-washed cotton twill baseball cap finished with distressed brim detailing and gothic screen-printed graphics.",
       "careInstructions": "Spot clean only. Do not machine wash or tumble dry.",
       "stock": 30
@@ -135,9 +159,15 @@
       "originalPrice": null,
       "badge": "NEW",
       "isSoldOut": false,
-      "images": ["/images/products/accessories/acc-05.jpg"],
-      "sizes": ["One Size"],
-      "colors": ["Metallic Silver"],
+      "images": [
+        "/images/products/accessories/acc-05.jpg"
+      ],
+      "sizes": [
+        "One Size"
+      ],
+      "colors": [
+        "Metallic Silver"
+      ],
       "description": "Crinkled mirror-finish shoulder bag adorned with a bold oval monogram plaque and draping ball chain hardware.",
       "careInstructions": "Store inside dust bag away from rough surfaces.",
       "stock": 14
@@ -152,9 +182,17 @@
       "originalPrice": 420000,
       "badge": "SALE",
       "isSoldOut": false,
-      "images": ["/images/products/accessories/acc-06.jpg"],
-      "sizes": ["85cm", "90cm", "95cm"],
-      "colors": ["Black / Silver"],
+      "images": [
+        "/images/products/accessories/acc-06.jpg"
+      ],
+      "sizes": [
+        "85cm",
+        "90cm",
+        "95cm"
+      ],
+      "colors": [
+        "Black / Silver"
+      ],
       "description": "Smooth faux leather belt detailed with an oversized polished zinc alloy monogram buckle.",
       "careInstructions": "Hang straight or roll loosely. Avoid sharp folding.",
       "stock": 20
@@ -169,9 +207,15 @@
       "originalPrice": null,
       "badge": "SOLDOUT",
       "isSoldOut": true,
-      "images": ["/images/products/accessories/acc-07.jpg"],
-      "sizes": ["One Size"],
-      "colors": ["Chrome Silver"],
+      "images": [
+        "/images/products/accessories/acc-07.jpg"
+      ],
+      "sizes": [
+        "One Size"
+      ],
+      "colors": [
+        "Chrome Silver"
+      ],
       "description": "Wearable tech accessory combining mirrored metallic in-ear buds with decorative curb chain wiring.",
       "careInstructions": "Do not tug cable sharply. Keep audio jacks clean and dry.",
       "stock": 0
@@ -186,9 +230,15 @@
       "originalPrice": null,
       "badge": null,
       "isSoldOut": false,
-      "images": ["/images/products/accessories/acc-08.jpg"],
-      "sizes": ["One Size"],
-      "colors": ["Polished Silver"],
+      "images": [
+        "/images/products/accessories/acc-08.jpg"
+      ],
+      "sizes": [
+        "One Size"
+      ],
+      "colors": [
+        "Polished Silver"
+      ],
       "description": "Curved sports wrap sunglasses built with aerodynamic grooved temples and mirror-tinted polycarbonate lenses.",
       "careInstructions": "Rinse with clean water and dry using a lens cleaning cloth.",
       "stock": 18
@@ -203,9 +253,16 @@
       "originalPrice": null,
       "badge": null,
       "isSoldOut": false,
-      "images": ["/images/products/accessories/acc-09.jpg"],
-      "sizes": ["19cm", "21cm"],
-      "colors": ["Brushed Steel"],
+      "images": [
+        "/images/products/accessories/acc-09.jpg"
+      ],
+      "sizes": [
+        "19cm",
+        "21cm"
+      ],
+      "colors": [
+        "Brushed Steel"
+      ],
       "description": "Flat curb chain bracelet in surgical stainless steel with a center cutout logo plate and lobster clasp.",
       "careInstructions": "Wipe with soft polishing cloth to keep shine.",
       "stock": 22
@@ -220,9 +277,15 @@
       "originalPrice": 320000,
       "badge": "SALE",
       "isSoldOut": false,
-      "images": ["/images/products/accessories/acc-10.jpg"],
-      "sizes": ["55cm"],
-      "colors": ["Silver"],
+      "images": [
+        "/images/products/accessories/acc-10.jpg"
+      ],
+      "sizes": [
+        "55cm"
+      ],
+      "colors": [
+        "Silver"
+      ],
       "description": "Fluid rounded snake bone chain necklace finished with a hollow architectural monogram pendant.",
       "careInstructions": "Lay flat when stored to prevent creasing or twisting.",
       "stock": 16
@@ -237,9 +300,17 @@
       "originalPrice": 350000,
       "badge": "NEW",
       "isSoldOut": false,
-      "images": ["/images/products/accessories/acc-11.jpg"],
-      "sizes": ["6", "7", "8"],
-      "colors": ["Silver / Ice Blue"],
+      "images": [
+        "/images/products/accessories/acc-11.jpg"
+      ],
+      "sizes": [
+        "6",
+        "7",
+        "8"
+      ],
+      "colors": [
+        "Silver / Ice Blue"
+      ],
       "description": "Statement band ring designed with dramatic sharp thorn spikes and set with oval pale-blue faceted crystals.",
       "careInstructions": "Keep dry. Wipe gently with jewelry cloth after wearing.",
       "stock": 20
@@ -254,9 +325,15 @@
       "originalPrice": 790000,
       "badge": "NEW",
       "isSoldOut": false,
-      "images": ["/images/products/accessories/acc-12.jpg"],
-      "sizes": ["One Size"],
-      "colors": ["Dusty Blue"],
+      "images": [
+        "/images/products/accessories/acc-12.jpg"
+      ],
+      "sizes": [
+        "One Size"
+      ],
+      "colors": [
+        "Dusty Blue"
+      ],
       "description": "Soft gathered cylinder shoulder bag crafted in powdery blue faux leather, finished with side drawstrings and a central silver buckle plaque.",
       "careInstructions": "Wipe with soft damp cloth. Avoid harsh chemicals.",
       "stock": 15
@@ -271,9 +348,15 @@
       "originalPrice": null,
       "badge": null,
       "isSoldOut": false,
-      "images": ["/images/products/accessories/acc-13.jpg"],
-      "sizes": ["One Size"],
-      "colors": ["Silver / White"],
+      "images": [
+        "/images/products/accessories/acc-13.jpg"
+      ],
+      "sizes": [
+        "One Size"
+      ],
+      "colors": [
+        "Silver / White"
+      ],
       "description": "Delicate drop earrings featuring a frosted heart cabochon encased in a melted chrome border with hanging star and droplet chains.",
       "careInstructions": "Store in dry jewelry box. Remove before showering or sleeping.",
       "stock": 35
@@ -288,9 +371,15 @@
       "originalPrice": 1150000,
       "badge": "SALE",
       "isSoldOut": false,
-      "images": ["/images/products/accessories/acc-14.jpg"],
-      "sizes": ["One Size"],
-      "colors": ["Matte Black"],
+      "images": [
+        "/images/products/accessories/acc-14.jpg"
+      ],
+      "sizes": [
+        "One Size"
+      ],
+      "colors": [
+        "Matte Black"
+      ],
       "description": "Structured pebbled leather rucksack detailed with gothic cross appliqués, braided drawstrings, and engraved hardware buckles.",
       "careInstructions": "Spot clean leather. Stuff lightly when storing to maintain shape.",
       "stock": 8
@@ -305,9 +394,15 @@
       "originalPrice": null,
       "badge": "NEW",
       "isSoldOut": false,
-      "images": ["/images/products/accessories/acc-15.jpg"],
-      "sizes": ["One Size"],
-      "colors": ["Dark Grey / Silver Fur"],
+      "images": [
+        "/images/products/accessories/acc-15.jpg"
+      ],
+      "sizes": [
+        "One Size"
+      ],
+      "colors": [
+        "Dark Grey / Silver Fur"
+      ],
       "description": "Winter baseball cap hybrid featuring plush faux-fur ear warmers, top tie ribbons, and front cursive embroidery with metal studs.",
       "careInstructions": "Spot clean only. Fluff fur using a soft bristle brush.",
       "stock": 22
@@ -322,9 +417,15 @@
       "originalPrice": 360000,
       "badge": "SALE",
       "isSoldOut": false,
-      "images": ["/images/products/accessories/acc-16.jpg"],
-      "sizes": ["One Size"],
-      "colors": ["Black / Grey Plaid"],
+      "images": [
+        "/images/products/accessories/acc-16.jpg"
+      ],
+      "sizes": [
+        "One Size"
+      ],
+      "colors": [
+        "Black / Grey Plaid"
+      ],
       "description": "Wool felt beret hat outlined with a monochrome tartan ribbon, detachable ball chain swag, and a front metal crest pin.",
       "careInstructions": "Dry clean recommended. Do not wring or bleach.",
       "stock": 18
@@ -339,9 +440,15 @@
       "originalPrice": null,
       "badge": null,
       "isSoldOut": false,
-      "images": ["/images/products/accessories/acc-17.jpg"],
-      "sizes": ["One Size"],
-      "colors": ["Black"],
+      "images": [
+        "/images/products/accessories/acc-17.jpg"
+      ],
+      "sizes": [
+        "One Size"
+      ],
+      "colors": [
+        "Black"
+      ],
       "description": "Dark denim skinny necktie customized with punky safety pins, horseshoe barbell piercings, and cluster rhinestone gems.",
       "careInstructions": "Spot clean only. Do not machine wash.",
       "stock": 26
@@ -356,9 +463,15 @@
       "originalPrice": null,
       "badge": "SOLDOUT",
       "isSoldOut": true,
-      "images": ["/images/products/accessories/acc-18.jpg"],
-      "sizes": ["One Size"],
-      "colors": ["Off-White"],
+      "images": [
+        "/images/products/accessories/acc-18.jpg"
+      ],
+      "sizes": [
+        "One Size"
+      ],
+      "colors": [
+        "Off-White"
+      ],
       "description": "Ribbed knit skull beanie decorated with charcoal bow stencil spray art and adorned with metal safety pins and miniature cutlery charms.",
       "careInstructions": "Hand wash gently inside out. Dry flat on a towel.",
       "stock": 0
@@ -377,8 +490,14 @@
         "/images/products/set/set-01.jpg",
         "/images/products/set/set-01-hover.jpg"
       ],
-      "sizes": ["S", "M", "L"],
-      "colors": ["Black"],
+      "sizes": [
+        "S",
+        "M",
+        "L"
+      ],
+      "colors": [
+        "Black"
+      ],
       "description": "Cohesive tailored two-piece set featuring a structured double-breasted officer jacket with silver embossed buttons and high-waisted ribbed knit hot pants.",
       "careInstructions": "Dry clean only. Do not tumble dry.",
       "stock": 12
@@ -397,8 +516,14 @@
         "/images/products/set/set-02.jpg",
         "/images/products/set/set-02-hover.jpg"
       ],
-      "sizes": ["S", "M", "L"],
-      "colors": ["Washed Black"],
+      "sizes": [
+        "S",
+        "M",
+        "L"
+      ],
+      "colors": [
+        "Washed Black"
+      ],
       "description": "Edgy moto coordinate consisting of a diamond-quilted leather biker jacket with asymmetric zip and low-waist washed flare wide-leg denim trousers.",
       "careInstructions": "Specialist leather clean for jacket. Machine wash denim cold.",
       "stock": 9
@@ -417,8 +542,13 @@
         "/images/products/set/set-03.jpg",
         "/images/products/set/set-03-hover.jpg"
       ],
-      "sizes": ["S", "M"],
-      "colors": ["Espresso Brown / Navy"],
+      "sizes": [
+        "S",
+        "M"
+      ],
+      "colors": [
+        "Espresso Brown / Navy"
+      ],
       "description": "Winter layered set pairing a faux-shearling trimmed textured leather jacket with a floor-length cable-knit column maxi skirt.",
       "careInstructions": "Dry clean recommended. Flat dry knitwear away from direct heat.",
       "stock": 7
@@ -437,8 +567,14 @@
         "/images/products/set/set-04.jpg",
         "/images/products/set/set-04-hover.jpg"
       ],
-      "sizes": ["M", "L", "XL"],
-      "colors": ["Vintage Indigo Wash"],
+      "sizes": [
+        "M",
+        "L",
+        "XL"
+      ],
+      "colors": [
+        "Vintage Indigo Wash"
+      ],
       "description": "Statement denim set engineered with a sharp western cut jacket featuring layered contrasting pop-color collars and ultra-slouchy baggy jeans.",
       "careInstructions": "Machine wash cold inside out. Hang dry to preserve wash texture.",
       "stock": 14
@@ -457,8 +593,13 @@
         "/images/products/set/set-05.jpg",
         "/images/products/set/set-05-hover.jpg"
       ],
-      "sizes": ["M", "L"],
-      "colors": ["Stark White / Black"],
+      "sizes": [
+        "M",
+        "L"
+      ],
+      "colors": [
+        "Stark White / Black"
+      ],
       "description": "Monochromatic atelier statement suit combining an asymmetric funnel-neck white leather jacket with technical spiral-zippered wide track trousers.",
       "careInstructions": "Spot clean jacket with damp cloth. Gentle cycle for trousers.",
       "stock": 6
@@ -477,8 +618,14 @@
         "/images/products/set/set-06.jpg",
         "/images/products/set/set-06-hover.jpg"
       ],
-      "sizes": ["S", "M", "L"],
-      "colors": ["Black / Cream"],
+      "sizes": [
+        "S",
+        "M",
+        "L"
+      ],
+      "colors": [
+        "Black / Cream"
+      ],
       "description": "Asymmetric dual-tone chunky knit cardigan fitted with metal buckle strap fasteners, paired with ultra-wide faux leather puddle trousers.",
       "careInstructions": "Dry clean cardigan. Wipe trousers clean with a damp cloth.",
       "stock": 11
@@ -497,8 +644,13 @@
         "/images/products/set/set-07.jpg",
         "/images/products/set/set-07-hover.jpg"
       ],
-      "sizes": ["S", "M"],
-      "colors": ["Washed Charcoal / Black"],
+      "sizes": [
+        "S",
+        "M"
+      ],
+      "colors": [
+        "Washed Charcoal / Black"
+      ],
       "description": "Avant-garde dystopia coordinate featuring a multi-zipper hooded leather moto jacket with back slit details and a spiked metal-grommet micro skirt.",
       "careInstructions": "Specialist leather clean only. Keep metallic hardware dry.",
       "stock": 5
@@ -517,8 +669,14 @@
         "/images/products/set/set-08.jpg",
         "/images/products/set/set-08-hover.jpg"
       ],
-      "sizes": ["S", "M", "L"],
-      "colors": ["Distressed Silver / Red"],
+      "sizes": [
+        "S",
+        "M",
+        "L"
+      ],
+      "colors": [
+        "Distressed Silver / Red"
+      ],
       "description": "Y2K-inspired motorsport matching set composed of a stand-collar washed metallic leather jacket and a low-rise panel mini skirt with bold contrast stripe graphics.",
       "careInstructions": "Wipe clean with a damp cloth. Do not iron or machine wash.",
       "stock": 14
@@ -537,8 +695,14 @@
         "/images/products/set/set-09.jpg",
         "/images/products/set/set-09-hover.jpg"
       ],
-      "sizes": ["M", "L", "XL"],
-      "colors": ["Camel Brown / Faded Black"],
+      "sizes": [
+        "M",
+        "L",
+        "XL"
+      ],
+      "colors": [
+        "Camel Brown / Faded Black"
+      ],
       "description": "Relaxed retro coordinate comprising a boxy drop-shoulder cropped moto leather jacket with waist belt buckle and loose-leg faded vintage black jeans.",
       "careInstructions": "Spot clean jacket. Machine wash jeans cold inside out.",
       "stock": 16
@@ -553,9 +717,18 @@
       "originalPrice": 790000,
       "badge": "NEW",
       "isSoldOut": false,
-      "images": ["/images/products/pants/pants-01.jpg"],
-      "sizes": ["S", "M", "L", "XL"],
-      "colors": ["Washed Light Blue"],
+      "images": [
+        "/images/products/pants/pants-01.jpg"
+      ],
+      "sizes": [
+        "S",
+        "M",
+        "L",
+        "XL"
+      ],
+      "colors": [
+        "Washed Light Blue"
+      ],
       "description": "Dramatic curved balloon-leg jeans in heavy stone-washed denim with whisker detailing and deep side pleats creating a sculptural voluminous silhouette.",
       "careInstructions": "Machine wash cold inside out. Hang dry to maintain volume.",
       "stock": 24
@@ -570,9 +743,18 @@
       "originalPrice": null,
       "badge": null,
       "isSoldOut": false,
-      "images": ["/images/products/pants/pants-02.jpg"],
-      "sizes": ["S", "M", "L", "XL"],
-      "colors": ["Washed Black"],
+      "images": [
+        "/images/products/pants/pants-02.jpg"
+      ],
+      "sizes": [
+        "S",
+        "M",
+        "L",
+        "XL"
+      ],
+      "colors": [
+        "Washed Black"
+      ],
       "description": "Wide-leg flared denim trousers featuring distinctive bleached rising flame motifs along the lower hems and subtle distress marks.",
       "careInstructions": "Wash separately in cold water. Do not bleach.",
       "stock": 18
@@ -587,9 +769,17 @@
       "originalPrice": 950000,
       "badge": "SALE",
       "isSoldOut": false,
-      "images": ["/images/products/pants/pants-03.jpg"],
-      "sizes": ["M", "L", "XL"],
-      "colors": ["Black / White"],
+      "images": [
+        "/images/products/pants/pants-03.jpg"
+      ],
+      "sizes": [
+        "M",
+        "L",
+        "XL"
+      ],
+      "colors": [
+        "Black / White"
+      ],
       "description": "Heavy tactile cargo pants constructed with all-over frayed knit shredding, gothic graphic eye patch appliqués, and hanging side harness straps.",
       "careInstructions": "Hand wash gently. Air dry flat to preserve frayed threads.",
       "stock": 10
@@ -604,9 +794,17 @@
       "originalPrice": null,
       "badge": "NEW",
       "isSoldOut": false,
-      "images": ["/images/products/pants/pants-04.jpg"],
-      "sizes": ["S", "M", "L"],
-      "colors": ["Jet Black"],
+      "images": [
+        "/images/products/pants/pants-04.jpg"
+      ],
+      "sizes": [
+        "S",
+        "M",
+        "L"
+      ],
+      "colors": [
+        "Jet Black"
+      ],
       "description": "Double-knee carpenter jeans updated with Western-inspired cascading fringe tassels, raw cut hems, and oversized utility pockets.",
       "careInstructions": "Spot clean recommended or wash inside a mesh laundry bag.",
       "stock": 15
@@ -621,9 +819,18 @@
       "originalPrice": 880000,
       "badge": "SALE",
       "isSoldOut": false,
-      "images": ["/images/products/pants/pants-05.jpg"],
-      "sizes": ["S", "M", "L", "XL"],
-      "colors": ["Black / White Contour"],
+      "images": [
+        "/images/products/pants/pants-05.jpg"
+      ],
+      "sizes": [
+        "S",
+        "M",
+        "L",
+        "XL"
+      ],
+      "colors": [
+        "Black / White Contour"
+      ],
       "description": "Baggy skater denim finished with fluid topographic contrast white stitching and multi-functional functional metallic diagonal zippers.",
       "careInstructions": "Machine wash delicate cycle. Close all zippers before wash.",
       "stock": 14
@@ -638,9 +845,17 @@
       "originalPrice": null,
       "badge": "NEW",
       "isSoldOut": false,
-      "images": ["/images/products/pants/pants-06.jpg"],
-      "sizes": ["M", "L", "XL"],
-      "colors": ["Matte Black"],
+      "images": [
+        "/images/products/pants/pants-06.jpg"
+      ],
+      "sizes": [
+        "M",
+        "L",
+        "XL"
+      ],
+      "colors": [
+        "Matte Black"
+      ],
       "description": "Tactical wide-cut pants made from grained faux leather, featuring detachable modular waist pouches, knee harness cinches, and grommeted straps.",
       "careInstructions": "Wipe clean with a damp cloth. Hang on wide hanger.",
       "stock": 12
@@ -655,9 +870,17 @@
       "originalPrice": null,
       "badge": "SOLDOUT",
       "isSoldOut": true,
-      "images": ["/images/products/pants/pants-07.jpg"],
-      "sizes": ["S", "M", "L"],
-      "colors": ["Chalk White"],
+      "images": [
+        "/images/products/pants/pants-07.jpg"
+      ],
+      "sizes": [
+        "S",
+        "M",
+        "L"
+      ],
+      "colors": [
+        "Chalk White"
+      ],
       "description": "Avant-garde bondage-style wide-leg cotton pants detailed with layered zip compartments, metal eyelets, and adjustable roller buckles down each leg.",
       "careInstructions": "Hand wash or dry clean to protect metal buckle hardware.",
       "stock": 0
@@ -672,9 +895,18 @@
       "originalPrice": 960000,
       "badge": "SALE",
       "isSoldOut": false,
-      "images": ["/images/products/pants/pants-08.jpg"],
-      "sizes": ["S", "M", "L", "XL"],
-      "colors": ["Acid Charcoal Grey"],
+      "images": [
+        "/images/products/pants/pants-08.jpg"
+      ],
+      "sizes": [
+        "S",
+        "M",
+        "L",
+        "XL"
+      ],
+      "colors": [
+        "Acid Charcoal Grey"
+      ],
       "description": "Maximalist utility cargo pants constructed with an array of angled bellows pockets, curved contrast topstitching, and an aggressive mineral acid wash.",
       "careInstructions": "Machine wash cold with like colors inside out.",
       "stock": 16
@@ -693,8 +925,14 @@
         "/images/products/shirt/shirt-01.jpg",
         "/images/products/shirt/shirt-01-hover.jpg"
       ],
-      "sizes": ["S", "M", "L"],
-      "colors": ["Stark White"],
+      "sizes": [
+        "S",
+        "M",
+        "L"
+      ],
+      "colors": [
+        "Stark White"
+      ],
       "description": "Modernist cropped button-up shirt in luminous heavy satin, featuring exaggerated western yokes, sharp notched lapels, and raw-cut hem ties.",
       "careInstructions": "Hand wash gently in cool water. Cool iron under pressing cloth.",
       "stock": 20
@@ -713,8 +951,14 @@
         "/images/products/shirt/shirt-02.jpg",
         "/images/products/shirt/shirt-02-hover.jpg"
       ],
-      "sizes": ["M", "L", "XL"],
-      "colors": ["Jet Black"],
+      "sizes": [
+        "M",
+        "L",
+        "XL"
+      ],
+      "colors": [
+        "Jet Black"
+      ],
       "description": "Structured boxy over-shirt tailored from supple faux leather, finished with an industrial grommet waist belt, chest flaps, and four-point star zipper pulls.",
       "careInstructions": "Wipe clean with a damp cloth. Store away from humidity.",
       "stock": 15
@@ -733,8 +977,14 @@
         "/images/products/shirt/shirt-03.jpg",
         "/images/products/shirt/shirt-03-hover.jpg"
       ],
-      "sizes": ["S", "M", "L"],
-      "colors": ["Dusty Beige"],
+      "sizes": [
+        "S",
+        "M",
+        "L"
+      ],
+      "colors": [
+        "Dusty Beige"
+      ],
       "description": "Voluminous hybrid zip shirt crafted from smooth wind-resistant twill with an integrated tie-scarf funnel neckline and shirred elastic waistband.",
       "careInstructions": "Machine wash delicate cycle. Hang to dry.",
       "stock": 18
@@ -753,8 +1003,14 @@
         "/images/products/shirt/shirt-04.jpg",
         "/images/products/shirt/shirt-04-hover.jpg"
       ],
-      "sizes": ["S", "M", "L"],
-      "colors": ["Crimson Red / Cream"],
+      "sizes": [
+        "S",
+        "M",
+        "L"
+      ],
+      "colors": [
+        "Crimson Red / Cream"
+      ],
       "description": "Fine-gauge v-neck knit cardigan shirt designed with tone-on-tone fabric buttons and an oversized contrast ivory bow corsage brooch.",
       "careInstructions": "Hand wash cold. Dry flat to preserve knit shape.",
       "stock": 22
@@ -773,8 +1029,13 @@
         "/images/products/shirt/shirt-05.jpg",
         "/images/products/shirt/shirt-05-hover.jpg"
       ],
-      "sizes": ["S", "M"],
-      "colors": ["Washed Charcoal"],
+      "sizes": [
+        "S",
+        "M"
+      ],
+      "colors": [
+        "Washed Charcoal"
+      ],
       "description": "Slouchy off-the-shoulder knit top featuring raw distressed shoulder buttons and white chain-stitched front gothic typography.",
       "careInstructions": "Wash inside out in laundry bag. Do not tumble dry.",
       "stock": 16
@@ -793,8 +1054,15 @@
         "/images/products/shirt/shirt-06.jpg",
         "/images/products/shirt/shirt-06-hover.jpg"
       ],
-      "sizes": ["S", "M", "L", "XL"],
-      "colors": ["Monochrome Gradient"],
+      "sizes": [
+        "S",
+        "M",
+        "L",
+        "XL"
+      ],
+      "colors": [
+        "Monochrome Gradient"
+      ],
       "description": "Dramatic drop-shoulder motocross jersey shirt featuring fluid monochrome gradient striping, script calligraphy typography, and draped long sleeves.",
       "careInstructions": "Machine wash cold inside out. Do not iron directly on print.",
       "stock": 25
@@ -813,8 +1081,14 @@
         "/images/products/shirt/shirt-07.jpg",
         "/images/products/shirt/shirt-07-hover.jpg"
       ],
-      "sizes": ["M", "L", "XL"],
-      "colors": ["Acid Charcoal"],
+      "sizes": [
+        "M",
+        "L",
+        "XL"
+      ],
+      "colors": [
+        "Acid Charcoal"
+      ],
       "description": "Waffle-knit grunge hooded over-shirt with heavy mineral tie-dye wash, frayed raw edge hems, flared sleeves, and back minimalist text embroidery.",
       "careInstructions": "Hand wash cold or gentle cycle. Flat dry to preserve distressing.",
       "stock": 14
@@ -833,8 +1107,14 @@
         "/images/products/shirt/shirt-08.jpg",
         "/images/products/shirt/shirt-08-hover.jpg"
       ],
-      "sizes": ["S", "M", "L"],
-      "colors": ["Satin Black"],
+      "sizes": [
+        "S",
+        "M",
+        "L"
+      ],
+      "colors": [
+        "Satin Black"
+      ],
       "description": "Fitted boned satin corset top shirt styled with dual silver front zippers and cascading crystal rhinestone fringe tassels across the bust.",
       "careInstructions": "Spot clean only. Do not machine wash to protect crystal fringe.",
       "stock": 12
@@ -849,9 +1129,19 @@
       "originalPrice": 1350000,
       "badge": "NEW",
       "isSoldOut": false,
-      "images": ["/images/products/shoes/shoes-01.jpg"],
-      "sizes": ["36", "37", "38", "39", "40"],
-      "colors": ["Jet Black"],
+      "images": [
+        "/images/products/shoes/shoes-01.jpg"
+      ],
+      "sizes": [
+        "36",
+        "37",
+        "38",
+        "39",
+        "40"
+      ],
+      "colors": [
+        "Jet Black"
+      ],
       "description": "Statement thigh-high boots tailored from supple faux leather, detailed with multiple silver-grommeted buckle straps, inner side zip closure, and a razor stiletto heel.",
       "careInstructions": "Wipe clean with a damp cloth. Store using boot shapers to prevent creasing.",
       "stock": 10
@@ -866,9 +1156,19 @@
       "originalPrice": 1250000,
       "badge": "SALE",
       "isSoldOut": false,
-      "images": ["/images/products/shoes/shoes-02.jpg"],
-      "sizes": ["37", "38", "39", "40", "41"],
-      "colors": ["Distressed White / Black"],
+      "images": [
+        "/images/products/shoes/shoes-02.jpg"
+      ],
+      "sizes": [
+        "37",
+        "38",
+        "39",
+        "40",
+        "41"
+      ],
+      "colors": [
+        "Distressed White / Black"
+      ],
       "description": "Gothic cyber platform knee-high boots featuring an aggressive grunge patina finish, modular zip utility shaft pockets, front lace-up detailing, and an ultra-chunky cleated sole.",
       "careInstructions": "Clean with dry brush. Keep away from excessive moisture.",
       "stock": 8
@@ -883,9 +1183,19 @@
       "originalPrice": null,
       "badge": "NEW",
       "isSoldOut": false,
-      "images": ["/images/products/shoes/shoes-03.jpg"],
-      "sizes": ["36", "37", "38", "39", "40"],
-      "colors": ["Acid Wash Blue"],
+      "images": [
+        "/images/products/shoes/shoes-03.jpg"
+      ],
+      "sizes": [
+        "36",
+        "37",
+        "38",
+        "39",
+        "40"
+      ],
+      "colors": [
+        "Acid Wash Blue"
+      ],
       "description": "Sleek pointed-toe knee-high boots wrapped in cloud-bleached treated denim with an ankle fold-over flap, brass press studs, and a sculpted heel.",
       "careInstructions": "Spot clean treated denim. Avoid prolonged exposure to direct sunlight.",
       "stock": 12
@@ -900,9 +1210,19 @@
       "originalPrice": 1050000,
       "badge": "SALE",
       "isSoldOut": false,
-      "images": ["/images/products/shoes/shoes-04.jpg"],
-      "sizes": ["39", "40", "41", "42", "43"],
-      "colors": ["Antiqued Bronze Black"],
+      "images": [
+        "/images/products/shoes/shoes-04.jpg"
+      ],
+      "sizes": [
+        "39",
+        "40",
+        "41",
+        "42",
+        "43"
+      ],
+      "colors": [
+        "Antiqued Bronze Black"
+      ],
       "description": "Classic lace-up derby shoes reimagined with heavy surface distress distressing and a bold curved metallic cage toe cap over a durable lugged rubber sole.",
       "careInstructions": "Brush clean and condition leather regularly. Buff metal toe guards with soft cloth.",
       "stock": 15
@@ -917,9 +1237,20 @@
       "originalPrice": null,
       "badge": null,
       "isSoldOut": false,
-      "images": ["/images/products/shoes/shoes-05.jpg"],
-      "sizes": ["39", "40", "41", "42", "43", "44"],
-      "colors": ["Washed Black Canvas"],
+      "images": [
+        "/images/products/shoes/shoes-05.jpg"
+      ],
+      "sizes": [
+        "39",
+        "40",
+        "41",
+        "42",
+        "43",
+        "44"
+      ],
+      "colors": [
+        "Washed Black Canvas"
+      ],
       "description": "Industrial high-top combat boots constructed from heavy-duty stone-washed cotton canvas, featuring an exaggerated boxy bulbous toe and deep-traction lugged soles.",
       "careInstructions": "Brush off dried dirt. Wipe canvas gently with damp cloth and mild soap.",
       "stock": 18
@@ -934,9 +1265,19 @@
       "originalPrice": null,
       "badge": "SOLDOUT",
       "isSoldOut": true,
-      "images": ["/images/products/shoes/shoes-06.jpg"],
-      "sizes": ["39", "40", "41", "42", "43"],
-      "colors": ["Polished Glossy Black"],
+      "images": [
+        "/images/products/shoes/shoes-06.jpg"
+      ],
+      "sizes": [
+        "39",
+        "40",
+        "41",
+        "42",
+        "43"
+      ],
+      "colors": [
+        "Polished Glossy Black"
+      ],
       "description": "Monochromatic atelier statement derby shoes in high-shine brushed calf leather, featuring an apron toe seam and an exaggerated architectural block tread sole.",
       "careInstructions": "Wipe with microfiber cloth and polish with neutral wax to maintain high shine.",
       "stock": 0
@@ -953,5 +1294,181 @@
     }
   ],
   "cart": [],
-  "orders": []
+  "orders": [
+    {
+      "orderNumber": "#SPXVN618508209",
+      "recipient": {
+        "fullName": "Helena Vance",
+        "phone": "0912345678",
+        "address": "742 Evergreen Terrace",
+        "ward": "Phường Bến Nghé",
+        "district": "Quận 1",
+        "city": "Thành phố Hồ Chí Minh"
+      },
+      "items": [
+        {
+          "id": "prd_acc_01",
+          "name": "Liquid Thorn Sunglasses",
+          "price": 450000,
+          "quantity": 1,
+          "selectedSize": "One Size",
+          "selectedColor": "Silver Chrome",
+          "image": "/images/products/accessories/acc-01.jpg"
+        },
+        {
+          "id": "prd_acc_02",
+          "name": "Biomorphic Perforated Ring",
+          "price": 180000,
+          "quantity": 1,
+          "selectedSize": "Freesize (Adjustable)",
+          "selectedColor": "Matte Silver",
+          "image": "/images/products/accessories/acc-02.jpg"
+        }
+      ],
+      "shippingMethod": "Standard Delivery (Complimentary)",
+      "shippingFee": 0,
+      "paymentMethod": "Cash on Delivery (COD)",
+      "subtotal": 630000,
+      "total": 630000,
+      "status": "PENDING",
+      "createdAt": "2026-10-14T02:13:58.083Z",
+      "id": "cRWMqKFvSyY"
+    },
+    {
+      "orderNumber": "#SPXVN285398411",
+      "recipient": {
+        "fullName": "Helena Vance",
+        "phone": "0912345678",
+        "address": "742 Evergreen Terrace",
+        "ward": "Phường Bến Nghé",
+        "district": "Quận 1",
+        "city": "Thành phố Hồ Chí Minh"
+      },
+      "items": [
+        {
+          "id": "prd_shirt_01",
+          "name": "CROPPED SATIN STRUCTURAL SHIRT",
+          "price": 1250000,
+          "quantity": 1,
+          "selectedSize": "M",
+          "selectedColor": "Pure White",
+          "image": "/images/products/shirt/shirt-01.jpg"
+        },
+        {
+          "id": "prd_pants_02",
+          "name": "ACID FLAME OMBRÉ BALLOON PANTS",
+          "price": 1450000,
+          "quantity": 1,
+          "selectedSize": "L",
+          "selectedColor": "Washed Black / Flame",
+          "image": "/images/products/pants/pants-02.jpg"
+        },
+        {
+          "id": "prd_shoes_01",
+          "name": "MULTI-BUCKLE THIGH-HIGH MOTO BOOTS",
+          "price": 2600000,
+          "quantity": 1,
+          "selectedSize": "42",
+          "selectedColor": "Matte Black",
+          "image": "/images/products/shoes/shoes-01.jpg"
+        }
+      ],
+      "shippingMethod": "Standard Delivery (Complimentary)",
+      "shippingFee": 0,
+      "paymentMethod": "Cash on Delivery (COD)",
+      "subtotal": 5300000,
+      "total": 5300000,
+      "status": "PENDING",
+      "createdAt": "2026-10-14T12:07:09.600Z",
+      "id": "XkxIgmj_sB8"
+    },
+    {
+      "orderNumber": "#SPXVN498651116",
+      "recipient": {
+        "fullName": "Helena Vance",
+        "phone": "0912345678",
+        "address": "742 Evergreen Terrace",
+        "ward": "Phường Bến Nghé",
+        "district": "Quận 1",
+        "city": "Thành phố Hồ Chí Minh"
+      },
+      "items": [
+        {
+          "id": "prd_acc_03",
+          "name": "Sculptural Patent Shoulder Bag",
+          "price": 750000,
+          "quantity": 1,
+          "selectedSize": "One Size",
+          "selectedColor": "Glossy Black",
+          "image": "/images/products/accessories/acc-03.jpg"
+        },
+        {
+          "id": "prd_acc_06",
+          "name": "Oval Emblem Leather Belt",
+          "price": 320000,
+          "quantity": 2,
+          "selectedSize": "85cm",
+          "selectedColor": "Black / Silver",
+          "image": "/images/products/accessories/acc-06.jpg"
+        },
+        {
+          "id": "prd_shirt_03",
+          "name": "Scarf Collar Elastic Bomber Shirt",
+          "price": 540000,
+          "quantity": 2,
+          "selectedSize": "L",
+          "selectedColor": "Dusty Beige",
+          "image": "/images/products/shirt/shirt-03.jpg"
+        }
+      ],
+      "shippingMethod": "Standard Delivery (Complimentary)",
+      "shippingFee": 0,
+      "paymentMethod": "Cash on Delivery (COD)",
+      "subtotal": 2470000,
+      "total": 2470000,
+      "status": "PENDING",
+      "createdAt": "2026-10-15T08:19:24.733Z",
+      "id": "-1-2mdSG4rM"
+    },
+    {
+      "orderNumber": "#SPXVN941979783",
+      "recipient": {
+        "fullName": "Helena Vance",
+        "phone": "0912345678",
+        "address": "742 Evergreen Terrace",
+        "ward": "Phường Bến Nghé",
+        "district": "Quận 1",
+        "city": "Thành phố Hồ Chí Minh"
+      },
+      "items": [
+        {
+          "id": "prd_acc_01",
+          "name": "Liquid Thorn Sunglasses",
+          "price": 450000,
+          "quantity": 1,
+          "selectedSize": "One Size",
+          "selectedColor": "Silver Chrome",
+          "image": "/images/products/accessories/acc-01.jpg"
+        },
+        {
+          "id": "prd_acc_02",
+          "name": "Biomorphic Perforated Ring",
+          "price": 180000,
+          "quantity": 1,
+          "selectedSize": "Freesize (Adjustable)",
+          "selectedColor": "Matte Silver",
+          "image": "/images/products/accessories/acc-02.jpg"
+        }
+      ],
+      "shippingMethod": "Standard Delivery (Complimentary)",
+      "shippingFee": 0,
+      "paymentMethod": "Cash on Delivery (COD)",
+      "subtotal": 630000,
+      "total": 630000,
+      "status": "PENDING",
+      "createdAt": "2026-10-15T11:12:47.463Z",
+      "id": "yotVvU9V7Ac"
+    }
+  ],
+  "$schema": "./node_modules/json-server/schema.json"
 }

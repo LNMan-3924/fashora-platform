@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { AuthGuard, CheckoutGuard } from '../components/common/ProtectedRoute'
 
 // Layouts
 import CustomerLayout from '../layouts/CustomerLayout'
@@ -19,7 +20,7 @@ import Checkout from '../pages/customer/Checkout'
 import OrderSuccess from '../pages/customer/OrderSuccess'
 import Orders from '../pages/customer/Orders'
 import OrderDetail from '../pages/customer/OrderDetail'
-import Profile from '../pages/customer/Profile'
+// import Profile from '../pages/customer/Profile' // Bỏ comment khi bạn kích hoạt lại Profile
 
 // 3. Seller Onboarding Page (Luồng 4 bước Become A Seller)
 import BecomeSeller from '../pages/seller-onboarding/BecomeSeller'
@@ -46,24 +47,76 @@ function AppRoutes() {
 
         {/* ================= CUSTOMER ROUTES ================= */}
         <Route element={<CustomerLayout />}>
+          {/* Public Routes */}
           <Route path="/" element={<Home />} />
           <Route path="/explore" element={<Explore />} />
           <Route path="/shop" element={<Shop />} />
           <Route path="/product/:id" element={<ProductDetail />} />
           <Route path="/products/:id" element={<ProductDetail />} />
           <Route path="/cart" element={<Cart />} />
-          <Route path="/checkout" element={<Checkout />} />
-          <Route path="/order-success" element={<OrderSuccess />} />
-          <Route path="/orders" element={<Orders />} />
-          <Route path="/orders/:id" element={<OrderDetail />} />
-          <Route path="/profile" element={<Profile />} />
 
-          {/* Quy trình đăng ký mở Shop cho người dùng */}
-          <Route path="/become-seller" element={<BecomeSeller />} />
+          {/* Protected Route: CHECKOUT
+              Gõ tay /checkout khi giỏ hàng trống hoặc chưa đăng nhập -> Tự động chuyển về /cart */}
+          <Route
+            path="/checkout"
+            element={
+              <CheckoutGuard>
+                <Checkout />
+              </CheckoutGuard>
+            }
+          />
+
+          <Route path="/order-success" element={<OrderSuccess />} />
+
+          {/* Protected Routes: Đơn hàng & Hồ sơ
+              Chưa đăng nhập mà vào -> Tự động chuyển hướng sang /login */}
+          <Route
+            path="/orders"
+            element={
+              <AuthGuard>
+                <Orders />
+              </AuthGuard>
+            }
+          />
+          <Route
+            path="/orders/:id"
+            element={
+              <AuthGuard>
+                <OrderDetail />
+              </AuthGuard>
+            }
+          />
+
+          {/* Khi mở lại Profile chỉ cần bỏ comment khối này:
+          <Route
+            path="/profile"
+            element={
+              <AuthGuard>
+                <Profile />
+              </AuthGuard>
+            }
+          />
+          */}
+
+          {/* Quy trình đăng ký mở Shop (Yêu cầu đăng nhập tài khoản trước) */}
+          <Route
+            path="/become-seller"
+            element={
+              <AuthGuard>
+                <BecomeSeller />
+              </AuthGuard>
+            }
+          />
         </Route>
 
         {/* ================= SELLER ROUTES ================= */}
-        <Route element={<SellerLayout />}>
+        <Route
+          element={
+            <AuthGuard>
+              <SellerLayout />
+            </AuthGuard>
+          }
+        >
           <Route path="/seller" element={<Navigate to="/seller/dashboard" replace />} />
           <Route path="/seller/dashboard" element={<SellerDashboard />} />
           <Route path="/seller/products" element={<SellerProducts />} />
@@ -73,7 +126,6 @@ function AppRoutes() {
 
         {/* ================= STOREFRONT ROUTES ================= */}
         <Route element={<StorefrontLayout />}>
-          {/* Hỗ trợ slug động để mở bất kỳ gian hàng nào (vd: /store/m-studio) */}
           <Route path="/store/:slug" element={<Storefront />} />
         </Route>
 

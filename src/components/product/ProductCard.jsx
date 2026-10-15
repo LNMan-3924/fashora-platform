@@ -100,7 +100,7 @@ export default function ProductCard({
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
-              if (onQuickAdd) onQuickAdd(currentProduct);
+              if (onQuickAdd) onQuickAdd({ ...currentProduct, image: displayImage });
             }}
             className="absolute right-2 bottom-2 z-10 flex h-7 w-7 items-center justify-center bg-white/95 border border-neutral-200 text-neutral-800 opacity-0 group-hover:opacity-100 transition-all hover:bg-black hover:text-white cursor-pointer shadow-sm"
             title="Quick add"

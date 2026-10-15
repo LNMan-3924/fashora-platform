@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { getProducts } from '../../services/api';
 import ProductGrid from '../../components/product/ProductGrid';
 import QuickAddModal from '../../components/product/QuickAddModal';
+import { Toast } from '../../components/common';
 import { useCartStore } from '../../stores';
 
 // Danh mục chuẩn theo hệ thống
@@ -15,11 +16,6 @@ const CATEGORIES = [
   { label: 'ACCESSORIES', value: 'ACCESSORIES' },
 ];
 
-/* ==========================================================================
-   [GHI CHÚ CẬP NHẬT - 14/10/2026]
-   - Chức năng: Đổi từ "export default function Shop" thành "export function Shop"
-   - Mục đích: Nhường quyền export default cho wrapper ShopWithViewControls.
-   ========================================================================== */
 export function Shop() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -38,6 +34,7 @@ export function Shop() {
 
   // Quản lý Modal Quick Add
   const [quickAddProduct, setQuickAddProduct] = useState(null);
+  const [toastMessage, setToastMessage] = useState('');
   const addToCartStore = useCartStore((state) => state.addToCart);
 
   // Fetch dữ liệu từ API
@@ -170,12 +167,7 @@ export function Shop() {
   };
 
   return (
-    /* ==========================================================================
-       [GHI CHÚ CẬP NHẬT - 14/10/2026]
-       - Chức năng: Đặt padding đồng bộ px-4 sm:px-6 lg:px-8 cho toàn trang.
-       - Mục đích: Lưới sản phẩm bên dưới căn thẳng hàng 100% với thanh Category ở trên.
-       ========================================================================== */
-    <div className="w-full px-4 sm:px-6 lg:px-8 pt-6 pb-16">
+    <div className="w-full">
       {/* 1. Breadcrumb */}
       <nav className="text-[11px] font-medium tracking-wider text-neutral-400 uppercase">
         <Link to="/" className="hover:text-black transition-colors">HOME</Link>
@@ -333,7 +325,7 @@ export function Shop() {
           </div>
         )}
 
-        {/* LƯỚI SẢN PHẨM CĂN THẲNG LỀ VỚI CATEGORY */}
+        {/* LƯỚI SẢN PHẨM */}
         {!loading && !error && paginatedProducts.length > 0 && (
           <div id="fashora-product-grid" className="w-full">
             <ProductGrid
@@ -402,22 +394,40 @@ export function Shop() {
 
       {/* 6. Quick Add Modal */}
       <QuickAddModal
+        key={quickAddProduct?.id || 'none'}
         product={quickAddProduct}
         isOpen={Boolean(quickAddProduct)}
         onClose={() => setQuickAddProduct(null)}
-        onAddToCart={(item) => {
+        onConfirm={(item) => {
           if (addToCartStore && quickAddProduct) {
-            addToCartStore(quickAddProduct, item.size, item.color, item.quantity);
+            addToCartStore(
+              {
+                ...quickAddProduct,
+                images: quickAddProduct.images || (quickAddProduct.image ? [quickAddProduct.image] : []),
+              },
+              item.selectedSize || item.size || 'One Size',
+              item.selectedColor || item.color || 'Standard',
+              item.quantity || 1
+            );
+            setToastMessage(`Added ${quickAddProduct.name} to cart.`);
           }
         }}
+      />
+
+      {/* 7. Toast thông báo */}
+      <Toast
+        isVisible={Boolean(toastMessage)}
+        message={toastMessage}
+        onClose={() => setToastMessage('')}
       />
     </div>
   );
 }
 
 /* ==========================================================================
-   GHI CHÚ CẬP NHẬT (Ngày: 14/10/2026)
-   Tính năng: View Mode Toggle Responsive Full-Width
+   Wrapper: ShopWithViewControls
+   - Giới hạn độ rộng: max-w-7xl mx-auto
+   - Padding responsive: px-4 sm:px-6 lg:px-8 py-8 sm:py-12
    ========================================================================== */
 function ShopWithViewControls(props) {
   const [isMobile, setIsMobile] = useState(
@@ -473,10 +483,10 @@ function ShopWithViewControls(props) {
   }, [viewCols, isMobile]);
 
   return (
-    <div className="w-full relative">
-      {/* Nút View đặt tràn theo lề mép phải (w-full px-4 sm:px-6 lg:px-8) */}
-      <div className="w-full px-4 sm:px-6 lg:px-8 -mb-4 flex justify-end">
-        <div className="flex items-center gap-2 pt-2">
+    <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+      {/* Nút VIEW căn góc phải của container chuẩn */}
+      <div className="flex justify-end -mb-4">
+        <div className="flex items-center gap-2">
           <span className="text-[11px] font-medium tracking-widest uppercase text-neutral-400">
             VIEW
           </span>
