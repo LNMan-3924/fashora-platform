@@ -10,7 +10,7 @@ import { Button } from '../common'
  * 2. Nút "EXPLORE ARCHIVE" dẫn sang trang sản phẩm (/shop).
  * 3. Nút tiện ích "LOAD DEMO ARCHIVE ITEMS" giúp nạp lại 3 sản phẩm mẫu tức thì để tiện cho việc kiểm thử UI.
  */
-export default function CartEmptyState({ onLoadDemoItems }) {
+export default function CartEmptyState() {
   return (
     <div className="p-8 sm:p-14 text-center border border-dashed border-neutral-300 rounded-[2px] bg-neutral-50 my-6">
       {/* 1. Biểu tượng giỏ hàng rỗng */}
@@ -34,18 +34,6 @@ export default function CartEmptyState({ onLoadDemoItems }) {
             EXPLORE ARCHIVE
           </Button>
         </Link>
-
-        {/* Nút tiện ích: Nạp lại 3 sản phẩm mẫu cho mục đích test giao diện */}
-        {onLoadDemoItems && (
-          <Button
-            variant="secondary"
-            size="md"
-            onClick={onLoadDemoItems}
-            className="tracking-wider font-mono text-xs"
-          >
-            LOAD DEMO ARCHIVE ITEMS
-          </Button>
-        )}
       </div>
     </div>
   )

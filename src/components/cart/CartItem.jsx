@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { Heart, Trash2 } from 'lucide-react'
+
+import { Trash2 } from 'lucide-react'
 import { Checkbox } from '../common'
 
 // Đường dẫn ảnh dự phòng an toàn nếu ảnh sản phẩm trên mạng bị sự cố
@@ -18,8 +18,6 @@ export default function CartItem({
   onUpdateQuantity,       // Hàm gọi khi bấm tăng hoặc giảm số lượng
   onRemove,               // Hàm gọi khi bấm nút xóa món hàng khỏi giỏ
 }) {
-  // State lưu trạng thái món đồ này có được người dùng lưu yêu thích hay không
-  const [isWishlisted, setIsWishlisted] = useState(false)
 
   // Hàm tiện ích: Định dạng số tiền sang chuẩn VND (Ví dụ: 1,250,000₫)
   const formatVND = (val) =>
@@ -133,21 +131,6 @@ export default function CartItem({
             </div>
 
             <div className="flex items-center gap-2">
-              {/* Nút lưu vào danh sách yêu thích (Wishlist) */}
-              <button
-                type="button"
-                title={isWishlisted ? 'Remove from wishlist' : 'Save to wishlist'}
-                onClick={() => setIsWishlisted(!isWishlisted)}
-                className={`p-1 transition-colors cursor-pointer ${
-                  isWishlisted ? 'text-red-500' : 'text-neutral-400 hover:text-[#111111]'
-                }`}
-              >
-                <Heart
-                  className="w-4 h-4"
-                  fill={isWishlisted ? 'currentColor' : 'none'}
-                />
-              </button>
-
               {/* Nút xóa sản phẩm này khỏi giỏ hàng */}
               <button
                 type="button"

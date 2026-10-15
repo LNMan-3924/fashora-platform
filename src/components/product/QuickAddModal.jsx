@@ -1,139 +1,141 @@
-import { useState } from 'react'
-import { X, ShoppingBag } from 'lucide-react'
-import { Button } from '../common'
+import { useState } from 'react';
+import { useCartStore } from '../../stores/useCartStore';
 
-// Ảnh dự phòng khi ảnh sản phẩm bị lỗi
-const FALLBACK_IMAGE = '/assets/fallback.png'
+const FALLBACK_IMAGE = '/placeholder.png';
 
-/**
- * Component con QuickAddContent: Chứa toàn bộ nội dung lựa chọn biến thể
- * Được gắn key={product.id} từ component cha để tự động khởi tạo lại state sạch sẽ khi đổi sản phẩm.
- */
 function QuickAddContent({ product, onClose, onConfirm, onAddToCart }) {
-  // State lưu màu sắc được chọn (mặc định lấy màu đầu tiên trong mảng colors)
-  const [selectedColor, setSelectedColor] = useState(
-    () => product?.colors?.[0] || 'DEFAULT'
-  )
+  // Lấy hàm addToCart từ store
+  const addToCart = useCartStore((state) => state.addToCart);
 
-  // State lưu kích thước được chọn (mặc định lấy size đầu tiên trong mảng sizes)
-  const [selectedSize, setSelectedSize] = useState(
-    () => product?.sizes?.[0] || 'One Size'
-  )
+  const colors =
+    Array.isArray(product?.colors) && product.colors.length > 0
+      ? product.colors
+      : [product?.color || 'DEFAULT'];
 
-  // State lưu số lượng món đồ muốn thêm
-  const [quantity, setQuantity] = useState(1)
+  const sizes =
+    Array.isArray(product?.sizes) && product.sizes.length > 0
+      ? product.sizes
+      : [product?.size || 'One Size'];
 
-  // Chuẩn hóa đường dẫn ảnh: hỗ trợ cả product.image lẫn mảng product.images[0]
+  const [selectedColor, setSelectedColor] = useState(colors[0] || 'DEFAULT');
+  const [selectedSize, setSelectedSize] = useState(sizes[0] || 'One Size');
+  const [quantity, setQuantity] = useState(1);
+
   const rawImage =
     product?.image ||
     (Array.isArray(product?.images) && product.images.length > 0
       ? product.images[0]
       : null) ||
-    FALLBACK_IMAGE
+    FALLBACK_IMAGE;
 
   const displayImage =
     typeof rawImage === 'string'
       ? rawImage.replace(/^(\.\/)?public\//, '/')
-      : FALLBACK_IMAGE
+      : FALLBACK_IMAGE;
 
-  // Hàm định dạng số tiền VND (VD: 850,000₫)
   const formatVND = (val) =>
-    new Intl.NumberFormat('vi-VN').format(val || 0) + '₫'
+    new Intl.NumberFormat('vi-VN').format(Number(val) || 0) + '₫';
 
-  const availableColors =
-    product?.colors && product.colors.length > 0 ? product.colors : ['DEFAULT']
+  const shopName =
+    product?.shopName || product?.sellerName || product?.storeName || 'M STUDIO';
 
-  const availableSizes =
-    product?.sizes && product.sizes.length > 0 ? product.sizes : ['One Size']
-
-  // Xử lý khi người dùng nhấn nút xác nhận thêm vào giỏ
+  // Xử lý thêm vào giỏ: chỉ kích hoạt đúng 1 luồng để số lượng không bị nhân đôi
   const handleAdd = () => {
     const payload = {
       ...product,
+      id: product?.id,
+      name: product?.name,
+      shopName,
       image: displayImage,
       selectedColor,
       selectedSize,
       color: selectedColor,
       size: selectedSize,
       quantity,
+    };
+
+    if (typeof onAddToCart === 'function') {
+      onAddToCart(payload, selectedSize, selectedColor, quantity);
+    } else if (typeof onConfirm === 'function') {
+      onConfirm(payload);
+    } else if (typeof addToCart === 'function') {
+      try {
+        addToCart(product, selectedSize, selectedColor, quantity);
+      } catch {
+        try {
+          addToCart(payload);
+        } catch (err) {
+          console.warn('Lỗi khi gọi addToCart:', err);
+        }
+      }
     }
 
-    // Hỗ trợ cả 2 tên prop onConfirm và onAddToCart để đảm bảo tương thích mọi nơi
-    if (onConfirm) onConfirm(payload)
-    if (onAddToCart) onAddToCart(payload)
-
-    onClose?.()
-  }
+    if (typeof onClose === 'function') onClose();
+  };
 
   return (
     <div
-      className="bg-white w-full max-w-sm rounded-[2px] border border-neutral-200 p-5 shadow-2xl space-y-4 animate-in zoom-in-95 duration-150"
+      className="bg-white w-full max-w-[420px] rounded-sm border border-neutral-200 p-6 shadow-2xl space-y-4"
       onClick={(e) => e.stopPropagation()}
     >
-      {/* ------------------------------------------------------------- */}
-      {/* PHẦN 1: HEADER MODAL (DANH MỤC & NÚT ĐÓNG X)                  */}
-      {/* ------------------------------------------------------------- */}
-      <div className="flex items-center justify-between pb-3 border-b border-neutral-200">
-        <span className="text-[10px] font-mono text-neutral-400 uppercase tracking-widest">
-          {product?.category || 'M STUDIO ATELIER'}
+      {/* Header */}
+      <div className="flex items-center justify-between pb-3 border-b border-neutral-100">
+        <span className="text-[11px] font-semibold tracking-widest uppercase text-neutral-400">
+          {product?.category || 'QUICK ADD TO CART'}
         </span>
         <button
           type="button"
           aria-label="Close modal"
           onClick={onClose}
-          className="text-neutral-400 hover:text-[#111111] transition-colors p-1 cursor-pointer"
+          className="text-neutral-400 hover:text-black transition-colors text-base font-bold px-1 cursor-pointer"
         >
-          <X className="w-4 h-4" />
+          ✕
         </button>
       </div>
 
-      {/* ------------------------------------------------------------- */}
-      {/* PHẦN 2: THÔNG TIN VẮN TẮT SẢN PHẨM (ẢNH, TÊN, GIÁ)            */}
-      {/* ------------------------------------------------------------- */}
-      <div className="flex gap-3 items-center">
-        <div className="w-16 h-20 bg-neutral-50 rounded-[2px] overflow-hidden shrink-0 border border-neutral-200">
+      {/* Thông tin sản phẩm */}
+      <div className="flex gap-4 items-center">
+        <div className="w-16 h-20 bg-neutral-100 rounded-sm overflow-hidden shrink-0 border border-neutral-200">
           <img
             src={displayImage}
             alt={product?.name || 'Product'}
             onError={(e) => {
-              e.currentTarget.onerror = null
-              e.currentTarget.src = FALLBACK_IMAGE
+              e.currentTarget.onerror = null;
+              e.currentTarget.src = FALLBACK_IMAGE;
             }}
             className="w-full h-full object-cover object-top"
           />
         </div>
         <div className="min-w-0 flex-1">
-          <h4 className="font-semibold text-xs uppercase text-[#111111] truncate">
+          <span className="text-[10px] uppercase tracking-wider text-neutral-400 font-normal block">
+            SHOP: {shopName}
+          </span>
+          <h4 className="font-semibold text-xs uppercase text-neutral-900 truncate mt-0.5">
             {product?.name}
           </h4>
-          <p className="font-mono font-bold text-sm text-[#111111] mt-0.5">
+          <p className="font-semibold text-xs text-neutral-900 mt-1">
             {formatVND(product?.price)}
           </p>
-          <span className="text-[10px] font-mono text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded-[2px] inline-block mt-1">
-            IN STOCK ATELIER
-          </span>
         </div>
       </div>
 
-      {/* ------------------------------------------------------------- */}
-      {/* PHẦN 3: BỘ CHỌN CÁC BIẾN THỂ (MÀU SẮC, SIZE, SỐ LƯỢNG)        */}
-      {/* ------------------------------------------------------------- */}
-      <div className="space-y-3 pt-1">
-        {/* Lựa chọn màu sắc */}
+      {/* Biến thể Color & Size */}
+      <div className="space-y-4 pt-1">
         <div>
-          <label className="block text-[10px] font-mono text-neutral-500 mb-1 uppercase tracking-wider">
-            COLOR
-          </label>
+          <div className="flex justify-between text-[11px] uppercase tracking-wider mb-2">
+            <span className="text-neutral-500">COLOR</span>
+            <span className="font-semibold text-neutral-900">{selectedColor}</span>
+          </div>
           <div className="flex flex-wrap gap-2">
-            {availableColors.map((color) => (
+            {colors.map((color) => (
               <button
                 key={color}
                 type="button"
                 onClick={() => setSelectedColor(color)}
-                className={`px-2.5 py-1 text-xs font-mono rounded-[2px] cursor-pointer transition-colors ${
+                className={`px-3 py-1.5 text-[11px] uppercase tracking-wider transition-all border cursor-pointer ${
                   selectedColor === color
-                    ? 'border border-[#111111] bg-[#111111] text-white'
-                    : 'border border-neutral-200 bg-neutral-50 text-[#111111] hover:border-black'
+                    ? 'border-black bg-black text-white font-bold'
+                    : 'border-neutral-200 bg-white text-neutral-800 hover:border-black'
                 }`}
               >
                 {color}
@@ -142,21 +144,21 @@ function QuickAddContent({ product, onClose, onConfirm, onAddToCart }) {
           </div>
         </div>
 
-        {/* Lựa chọn kích thước */}
         <div>
-          <label className="block text-[10px] font-mono text-neutral-500 mb-1 uppercase tracking-wider">
-            SIZE
-          </label>
+          <div className="flex justify-between text-[11px] uppercase tracking-wider mb-2">
+            <span className="text-neutral-500">SIZE</span>
+            <span className="font-semibold text-neutral-900">{selectedSize}</span>
+          </div>
           <div className="flex flex-wrap gap-2">
-            {availableSizes.map((size) => (
+            {sizes.map((size) => (
               <button
                 key={size}
                 type="button"
                 onClick={() => setSelectedSize(size)}
-                className={`px-2.5 py-1 text-xs font-mono rounded-[2px] cursor-pointer transition-colors ${
+                className={`min-w-[36px] px-2.5 py-1.5 text-[11px] font-medium transition-all border cursor-pointer ${
                   selectedSize === size
-                    ? 'border border-[#111111] bg-[#111111] text-white font-bold'
-                    : 'border border-neutral-200 bg-neutral-50 text-[#111111] hover:border-black'
+                    ? 'border-black bg-black text-white font-bold'
+                    : 'border-neutral-200 bg-white text-neutral-800 hover:border-black'
                 }`}
               >
                 {size}
@@ -165,84 +167,84 @@ function QuickAddContent({ product, onClose, onConfirm, onAddToCart }) {
           </div>
         </div>
 
-        {/* Bộ tăng giảm số lượng (- / +) */}
-        <div>
-          <label className="block text-[10px] font-mono text-neutral-500 mb-1 uppercase tracking-wider">
-            QUANTITY
-          </label>
-          <div className="inline-flex items-center border border-neutral-200 rounded-[2px] bg-neutral-50 h-8">
-            <button
-              type="button"
-              aria-label="Decrease"
-              onClick={() => setQuantity(Math.max(1, quantity - 1))}
-              className="w-8 h-full flex items-center justify-center font-mono text-sm text-[#111111] hover:bg-neutral-200 cursor-pointer"
-            >
-              −
-            </button>
-            <span className="w-8 text-center font-mono text-xs font-semibold text-[#111111]">
-              {quantity}
+        {/* Số lượng */}
+        <div className="flex items-end justify-between pt-1">
+          <div>
+            <div className="text-[10px] uppercase tracking-wider text-neutral-400 mb-1.5">
+              QUANTITY
+            </div>
+            <div className="inline-flex items-center border border-neutral-200 bg-white h-8">
+              <button
+                type="button"
+                aria-label="Decrease"
+                onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+                className="w-8 h-full flex items-center justify-center text-sm font-semibold text-neutral-600 hover:bg-neutral-100 cursor-pointer"
+              >
+                -
+              </button>
+              <span className="w-8 text-center text-xs font-semibold text-neutral-900">
+                {quantity}
+              </span>
+              <button
+                type="button"
+                aria-label="Increase"
+                onClick={() => setQuantity((q) => Math.min(10, q + 1))}
+                className="w-8 h-full flex items-center justify-center text-sm font-semibold text-neutral-600 hover:bg-neutral-100 cursor-pointer"
+              >
+                +
+              </button>
+            </div>
+          </div>
+
+          <div className="text-right">
+            <span className="block text-[10px] uppercase tracking-wider text-neutral-400">
+              TOTAL
             </span>
-            <button
-              type="button"
-              aria-label="Increase"
-              onClick={() => setQuantity(Math.min(10, quantity + 1))}
-              className="w-8 h-full flex items-center justify-center font-mono text-sm text-[#111111] hover:bg-neutral-200 cursor-pointer"
-            >
-              +
-            </button>
+            <span className="text-sm font-bold text-neutral-900">
+              {formatVND((product?.price || 0) * quantity)}
+            </span>
           </div>
         </div>
       </div>
 
-      {/* ------------------------------------------------------------- */}
-      {/* PHẦN 4: NÚT BẤM THÊM VÀO GIỎ HÀNG (TÁI SỬ DỤNG BUTTON COMMON)  */}
-      {/* ------------------------------------------------------------- */}
-      <div className="pt-3 border-t border-neutral-200">
-        <Button
-          variant="primary"
-          size="md"
+      {/* Nút hành động */}
+      <div className="pt-2">
+        <button
+          type="button"
           onClick={handleAdd}
-          className="w-full h-11 tracking-widest text-xs flex items-center justify-center gap-2 cursor-pointer shadow-xs"
+          className="w-full flex items-center justify-center gap-2 bg-black py-3 text-xs font-semibold uppercase tracking-widest text-white transition-opacity hover:opacity-90 active:scale-[0.99] cursor-pointer"
         >
-          <ShoppingBag className="w-4 h-4" />
           <span>ADD TO CART</span>
-        </Button>
+          <svg className="h-3.5 w-3.5 fill-current" viewBox="0 0 24 24">
+            <path d="M19 7h-3V6a4 4 0 0 0-8 0v1H5a1 1 0 0 0-1 1v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8a1 1 0 0 0-1-1zm-9-1a2 2 0 0 1 4 0v1h-4V6zm8 14H6V9h2v2h2V9h4v2h2V9h2v11z" />
+          </svg>
+        </button>
       </div>
     </div>
-  )
+  );
 }
 
-/**
- * Component QuickAddModal: Cửa sổ pop-up chọn biến thể nhanh
- *
- * Tính năng:
- * - Chuẩn hóa xử lý ảnh: Hỗ trợ linh hoạt cả `product.image` lẫn mảng `product.images[0]`.
- * - Tự động fallback về /assets/fallback.png nếu đường dẫn ảnh bị lỗi.
- * - Hỗ trợ cả 2 chuẩn callback: onConfirm (chuẩn Atelier) và onAddToCart (tương thích ngược).
- * - Sử dụng key={product.id} giúp tự động reset sạch sẽ state biến thể khi đổi sản phẩm mà không gây cascading render.
- */
 export default function QuickAddModal({
-  isOpen,            // Trạng thái modal có đang hiển thị hay không (boolean)
-  product,           // Thông tin sản phẩm đang được chọn
-  onClose,           // Hàm gọi khi nhấn nút đóng hoặc click ra vùng nền đen bên ngoài
-  onConfirm,         // Hàm gọi khi nhấn nút "ADD TO CART" (chuẩn Atelier)
-  onAddToCart,       // Bí danh tương thích ngược cho onConfirm
+  isOpen,
+  product,
+  onClose,
+  onConfirm,
+  onAddToCart,
 }) {
-  // Nếu modal không mở hoặc không có dữ liệu sản phẩm thì không render gì cả
-  if (!isOpen || !product) return null
+  if (!isOpen || !product) return null;
 
   return (
     <div
-      className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-200"
+      className="fixed inset-0 z-50 bg-black/60 backdrop-blur-[1px] flex items-center justify-center p-4 transition-opacity"
       onClick={onClose}
     >
       <QuickAddContent
-        key={product.id}
+        key={product?.id || 'quick-add'}
         product={product}
         onClose={onClose}
         onConfirm={onConfirm}
         onAddToCart={onAddToCart}
       />
     </div>
-  )
+  );
 }

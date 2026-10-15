@@ -1381,6 +1381,93 @@
       "status": "PENDING",
       "createdAt": "2026-10-14T12:07:09.600Z",
       "id": "XkxIgmj_sB8"
+    },
+    {
+      "orderNumber": "#SPXVN498651116",
+      "recipient": {
+        "fullName": "Helena Vance",
+        "phone": "0912345678",
+        "address": "742 Evergreen Terrace",
+        "ward": "Phường Bến Nghé",
+        "district": "Quận 1",
+        "city": "Thành phố Hồ Chí Minh"
+      },
+      "items": [
+        {
+          "id": "prd_acc_03",
+          "name": "Sculptural Patent Shoulder Bag",
+          "price": 750000,
+          "quantity": 1,
+          "selectedSize": "One Size",
+          "selectedColor": "Glossy Black",
+          "image": "/images/products/accessories/acc-03.jpg"
+        },
+        {
+          "id": "prd_acc_06",
+          "name": "Oval Emblem Leather Belt",
+          "price": 320000,
+          "quantity": 2,
+          "selectedSize": "85cm",
+          "selectedColor": "Black / Silver",
+          "image": "/images/products/accessories/acc-06.jpg"
+        },
+        {
+          "id": "prd_shirt_03",
+          "name": "Scarf Collar Elastic Bomber Shirt",
+          "price": 540000,
+          "quantity": 2,
+          "selectedSize": "L",
+          "selectedColor": "Dusty Beige",
+          "image": "/images/products/shirt/shirt-03.jpg"
+        }
+      ],
+      "shippingMethod": "Standard Delivery (Complimentary)",
+      "shippingFee": 0,
+      "paymentMethod": "Cash on Delivery (COD)",
+      "subtotal": 2470000,
+      "total": 2470000,
+      "status": "PENDING",
+      "createdAt": "2026-10-15T08:19:24.733Z",
+      "id": "-1-2mdSG4rM"
+    },
+    {
+      "orderNumber": "#SPXVN941979783",
+      "recipient": {
+        "fullName": "Helena Vance",
+        "phone": "0912345678",
+        "address": "742 Evergreen Terrace",
+        "ward": "Phường Bến Nghé",
+        "district": "Quận 1",
+        "city": "Thành phố Hồ Chí Minh"
+      },
+      "items": [
+        {
+          "id": "prd_acc_01",
+          "name": "Liquid Thorn Sunglasses",
+          "price": 450000,
+          "quantity": 1,
+          "selectedSize": "One Size",
+          "selectedColor": "Silver Chrome",
+          "image": "/images/products/accessories/acc-01.jpg"
+        },
+        {
+          "id": "prd_acc_02",
+          "name": "Biomorphic Perforated Ring",
+          "price": 180000,
+          "quantity": 1,
+          "selectedSize": "Freesize (Adjustable)",
+          "selectedColor": "Matte Silver",
+          "image": "/images/products/accessories/acc-02.jpg"
+        }
+      ],
+      "shippingMethod": "Standard Delivery (Complimentary)",
+      "shippingFee": 0,
+      "paymentMethod": "Cash on Delivery (COD)",
+      "subtotal": 630000,
+      "total": 630000,
+      "status": "PENDING",
+      "createdAt": "2026-10-15T11:12:47.463Z",
+      "id": "yotVvU9V7Ac"
     }
   ],
   "$schema": "./node_modules/json-server/schema.json"
