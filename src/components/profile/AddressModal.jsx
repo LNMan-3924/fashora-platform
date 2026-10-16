@@ -1,11 +1,13 @@
 import { useState } from 'react'
 import { X } from 'lucide-react'
 import { Button, Input } from '../common'
+import { validateField, validateShippingAddress } from '../../utils/validation'
 
 /**
  * Component con AddressModalContent: Chứa toàn bộ nội dung form nhập địa chỉ
  * Được gắn key={addressData?.id || 'new'} từ component cha để tự khởi tạo state sạch sẽ
  * mà không cần sử dụng useEffect gây cascading renders.
+ * Tái sử dụng hàm validateShippingAddress và validateField từ src/utils/validation.
  */
 function AddressModalContent({ addressData, onClose, onSave }) {
   const isEdit = Boolean(addressData?.id)
@@ -34,18 +36,21 @@ function AddressModalContent({ addressData, onClose, onSave }) {
     }
   }
 
+  // Kiểm tra tính hợp lệ khi người dùng blur khỏi ô input
+  const handleBlur = (e) => {
+    const { name, value } = e.target
+    const errorMsg = validateField(name, value)
+    if (errorMsg) {
+      setErrors((prev) => ({ ...prev, [name]: errorMsg }))
+    }
+  }
+
   const handleSubmit = (e) => {
     e.preventDefault()
 
-    const newErrors = {}
-    if (!formData.name?.trim()) newErrors.name = 'Recipient name is required.'
-    if (!formData.phone?.trim()) newErrors.phone = 'Phone number is required.'
-    if (!formData.street?.trim()) newErrors.street = 'Street address is required.'
-    if (!formData.ward?.trim()) newErrors.ward = 'Ward is required.'
-    if (!formData.district?.trim()) newErrors.district = 'District is required.'
-    if (!formData.city?.trim()) newErrors.city = 'City/Province is required.'
-
-    if (Object.keys(newErrors).length > 0) {
+    // Sử dụng hàm kiểm tra tính hợp lệ địa chỉ dùng chung với Checkout
+    const { isValid, errors: newErrors } = validateShippingAddress(formData)
+    if (!isValid) {
       setErrors(newErrors)
       return
     }
@@ -90,6 +95,7 @@ function AddressModalContent({ addressData, onClose, onSave }) {
             name="name"
             value={formData.name}
             onChange={handleChange}
+            onBlur={handleBlur}
             error={errors.name}
             placeholder="e.g. Helena Vance"
           />
@@ -101,6 +107,7 @@ function AddressModalContent({ addressData, onClose, onSave }) {
             name="phone"
             value={formData.phone}
             onChange={handleChange}
+            onBlur={handleBlur}
             error={errors.phone}
             placeholder="e.g. 0912 345 678"
             className="font-mono"
@@ -113,6 +120,7 @@ function AddressModalContent({ addressData, onClose, onSave }) {
             name="street"
             value={formData.street}
             onChange={handleChange}
+            onBlur={handleBlur}
             error={errors.street}
             placeholder="e.g. 128 Le Duan Boulevard"
           />
@@ -125,6 +133,7 @@ function AddressModalContent({ addressData, onClose, onSave }) {
               name="ward"
               value={formData.ward}
               onChange={handleChange}
+              onBlur={handleBlur}
               error={errors.ward}
               placeholder="e.g. Ben Nghe Ward"
             />
@@ -136,6 +145,7 @@ function AddressModalContent({ addressData, onClose, onSave }) {
               name="district"
               value={formData.district}
               onChange={handleChange}
+              onBlur={handleBlur}
               error={errors.district}
               placeholder="e.g. District 1"
             />
@@ -148,6 +158,7 @@ function AddressModalContent({ addressData, onClose, onSave }) {
             name="city"
             value={formData.city}
             onChange={handleChange}
+            onBlur={handleBlur}
             error={errors.city}
             placeholder="e.g. Ho Chi Minh City"
           />

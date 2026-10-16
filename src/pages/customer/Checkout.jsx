@@ -18,6 +18,8 @@ import {
   storeUserOrder,
   COMMERCE_STORAGE_KEYS,
   FALLBACK_IMAGE,
+  validateField,
+  validateShippingAddress,
 } from '../../constants'
 
 /**
@@ -142,71 +144,19 @@ export default function Checkout() {
     }
   }
 
-  // Kiểm tra tính hợp lệ từng trường khi người dùng blur khỏi ô input
+  // Kiểm tra tính hợp lệ từng trường khi người dùng blur khỏi ô input bằng hàm dùng chung
   const handleInputBlur = (field) => {
-    const value = (formData[field] || '').trim()
-    let errorMsg = ''
-
-    if (field === 'fullName' && !value) {
-      errorMsg = 'Full name is required.'
-    } else if (field === 'phone') {
-      if (!value) {
-        errorMsg = 'Phone number is required.'
-      } else {
-        const cleanPhone = value.replace(/[\s.-]/g, '')
-        const phoneRegex = /^(0|\+84)(3|5|7|8|9)[0-9]{8}$/
-        if (!phoneRegex.test(cleanPhone)) {
-          errorMsg = 'Please enter a valid Vietnamese phone number (10 digits).'
-        }
-      }
-    } else if (field === 'address' && !value) {
-      errorMsg = 'Street address is required.'
-    } else if (field === 'ward' && !value) {
-      errorMsg = 'Ward is required.'
-    } else if (field === 'district' && !value) {
-      errorMsg = 'District is required.'
-    } else if (field === 'city' && !value) {
-      errorMsg = 'City / Province is required.'
-    }
-
+    const errorMsg = validateField(field, formData[field])
     if (errorMsg) {
       setErrors((prev) => ({ ...prev, [field]: errorMsg }))
     }
   }
 
-  // Kiểm tra tổng quát toàn bộ form trước khi gửi đơn
+  // Kiểm tra tổng quát toàn bộ form trước khi gửi đơn bằng hàm dùng chung
   const validateAll = () => {
-    const newErrors = {}
-
-    if (!formData.fullName.trim()) {
-      newErrors.fullName = 'Full name is required.'
-    }
-
-    const cleanPhone = formData.phone.replace(/[\s.-]/g, '')
-    if (!cleanPhone) {
-      newErrors.phone = 'Phone number is required.'
-    } else {
-      const phoneRegex = /^(0|\+84)(3|5|7|8|9)[0-9]{8}$/
-      if (!phoneRegex.test(cleanPhone)) {
-        newErrors.phone = 'Please enter a valid Vietnamese phone number (10 digits).'
-      }
-    }
-
-    if (!formData.address.trim()) {
-      newErrors.address = 'Street address is required.'
-    }
-    if (!formData.ward.trim()) {
-      newErrors.ward = 'Ward is required.'
-    }
-    if (!formData.district.trim()) {
-      newErrors.district = 'District is required.'
-    }
-    if (!formData.city.trim()) {
-      newErrors.city = 'City / Province is required.'
-    }
-
+    const { isValid, errors: newErrors } = validateShippingAddress(formData)
     setErrors(newErrors)
-    return Object.keys(newErrors).length === 0
+    return isValid
   }
 
   // Xử lý xác nhận đặt hàng (Place Order)

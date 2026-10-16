@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Button, Input } from '../common'
+import { validateField, validateProfileInfo } from '../../utils/validation'
 
 /**
  * Component ProfileInlineForm: Biểu mẫu chỉnh sửa thông tin cá nhân TRỰC TIẾP TRÊN TRANG (Inline)
@@ -13,7 +14,7 @@ import { Button, Input } from '../common'
  *   + Ngày sinh (Date of Birth)
  *   + Giới tính (Gender)
  *   (Đã loại bỏ phần chỉnh sửa Primary Address tại đây; toàn bộ địa chỉ giao hàng được quản lý tập trung ở mục Shipping Addresses).
- * - Xác thực đầu vào (Validation): Bắt buộc nhập Họ tên, Số điện thoại và Email.
+ * - Sử dụng hàm kiểm tra đầu vào dùng chung (Single Source of Truth) đồng bộ với Checkout.
  * - Nút "SAVE CHANGES" lưu thông tin vào LocalStorage, cập nhật state và quay lại chế độ xem.
  * - Nút "CANCEL" hủy các chỉnh sửa chưa lưu và quay lại chế độ xem.
  *
@@ -46,24 +47,22 @@ export default function ProfileInlineForm({ profile, onSave, onCancel }) {
     }
   }
 
-  // Xử lý khi nhấn nút Lưu (Submit form)
+  // Kiểm tra tính hợp lệ khi người dùng blur khỏi ô input bằng hàm dùng chung
+  const handleBlur = (e) => {
+    const { name, value } = e.target
+    const errorMsg = validateField(name, value)
+    if (errorMsg) {
+      setErrors((prev) => ({ ...prev, [name]: errorMsg }))
+    }
+  }
+
+  // Xử lý khi nhấn nút Lưu (Submit form) bằng hàm dùng chung
   const handleSubmit = (e) => {
     e.preventDefault()
 
-    // Kiểm tra tính hợp lệ của các trường bắt buộc
-    const newErrors = {}
-    if (!formData.name?.trim()) {
-      newErrors.name = 'Full name is required.'
-    }
-    if (!formData.phone?.trim()) {
-      newErrors.phone = 'Phone number is required.'
-    }
-    if (!formData.email?.trim()) {
-      newErrors.email = 'Email address is required.'
-    }
-
-    // Nếu có lỗi, hiển thị thông báo lỗi và dừng xử lý
-    if (Object.keys(newErrors).length > 0) {
+    // Sử dụng hàm kiểm tra toàn diện dùng chung
+    const { isValid, errors: newErrors } = validateProfileInfo(formData)
+    if (!isValid) {
       setErrors(newErrors)
       return
     }
@@ -114,6 +113,7 @@ export default function ProfileInlineForm({ profile, onSave, onCancel }) {
               name="name"
               value={formData.name}
               onChange={handleChange}
+              onBlur={handleBlur}
               error={errors.name}
               placeholder="e.g. Helena Vance"
             />
@@ -127,6 +127,7 @@ export default function ProfileInlineForm({ profile, onSave, onCancel }) {
                 name="phone"
                 value={formData.phone}
                 onChange={handleChange}
+                onBlur={handleBlur}
                 error={errors.phone}
                 placeholder="e.g. 0912 345 678"
                 className="font-mono"
@@ -139,6 +140,7 @@ export default function ProfileInlineForm({ profile, onSave, onCancel }) {
                 name="email"
                 value={formData.email}
                 onChange={handleChange}
+                onBlur={handleBlur}
                 error={errors.email}
                 placeholder="e.g. helena.vance@example.com"
               />

@@ -1,5 +1,6 @@
 export * from './model'
 export * from './commerce'
+export * from '../utils/validation'
 
 // Các tùy chọn Sort ở trang danh mục sản phẩm (Shop)
 export const SORT_OPTIONS = [
