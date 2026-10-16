@@ -39,7 +39,7 @@ export default function Button({
     <button
       type={type}
       disabled={disabled || loading}
-      className={`${baseStyles}${sizes[size]} ${variants[variant]}${className}`}
+      className={`${baseStyles} ${sizes[size]} ${variants[variant]} ${className}`.trim()}
       {...props}
     >
       {loading && (
