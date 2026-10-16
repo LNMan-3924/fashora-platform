@@ -54,3 +54,25 @@ export default api;
    ADDED FOR FEATURE: SHOP & PRODUCT LISTING
    - Added: getProducts API helper for fetching all catalog products
    ========================================================================== */
+
+/**
+ * Lấy thông tin tài khoản người dùng theo ID từ db.json
+ */
+export const getCurrentUser = async (userId) => {
+  try {
+    const response = await fetch(`http://localhost:3000/users/${userId}`)
+    if (!response.ok) {
+      // Fallback tìm trong danh sách users nếu endpoint theo id không khớp
+      const allRes = await fetch('http://localhost:3000/users')
+      if (allRes.ok) {
+        const users = await allRes.json()
+        return users.find((u) => u.id === userId) || null
+      }
+      return null
+    }
+    return await response.json()
+  } catch (error) {
+    console.warn('api.js getCurrentUser error:', error)
+    return null
+  }
+}

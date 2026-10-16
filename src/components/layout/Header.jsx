@@ -2,17 +2,25 @@ import { useState, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { useCartStore } from '../../stores'
+import { useAuth } from '../../contexts/AuthContext'
 
-function Header() {
+function Header({ hideNav = false }) {
     const [logoSrc, setLogoSrc] = useState('/assets/logo.png')
     const [logoError, setLogoError] = useState(false)
     const [accountMenuOpen, setAccountMenuOpen] = useState(false)
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
     const [searchQuery, setSearchQuery] = useState('')
 
-    // Đồng bộ số lượng sản phẩm trong giỏ hàng trực tiếp từ Zustand store (Single Source of Truth)
-    const cartItems = useCartStore((state) => state.cartItems)
-    const cartCount = cartItems.reduce((sum, item) => sum + (item.quantity || 1), 0)
+    // Lấy trạng thái đăng nhập từ AuthContext
+    const { currentUser, isAuthenticated, logoutUser } = useAuth()
+
+    // Đồng bộ số lượng sản phẩm từ Zustand store
+    const cartItems = useCartStore((state) => state.cartItems) || []
+    const totalCount = cartItems.reduce((sum, item) => sum + (item.quantity || 1), 0)
+
+    // Nghiệp vụ: Ở trang Auth (hideNav = true) hoặc chưa đăng nhập thì giỏ hàng hiển thị trống (0)
+    const displayCartCount = (!isAuthenticated || hideNav) ? 0 : totalCount
+    const formattedCount = displayCartCount > 99 ? '99+' : displayCartCount
 
     const location = useLocation()
     const navigate = useNavigate()
@@ -24,7 +32,7 @@ function Header() {
     const isBestSeller = isShopPath && currentTag === 'best-seller'
     const isAll = isShopPath && !currentTag
 
-    // Lắng nghe sự kiện storage để đồng bộ giỏ hàng khi người dùng mở nhiều tab trình duyệt
+    // Lắng nghe sự kiện storage để đồng bộ giỏ hàng qua các tab
     useEffect(() => {
         const handleStorage = (e) => {
             if (e.key === 'fashora-cart-storage') {
@@ -35,7 +43,7 @@ function Header() {
         return () => window.removeEventListener('storage', handleStorage)
     }, [])
 
-    // Đồng bộ ngược ra localStorage key fashora_cart để đảm bảo tương thích toàn hệ thống
+    // Đồng bộ ngược ra localStorage key fashora_cart
     useEffect(() => {
         try {
             localStorage.setItem('fashora_cart', JSON.stringify(cartItems))
@@ -60,40 +68,39 @@ function Header() {
         }
     }
 
-    // Hiển thị số lượng sản phẩm trên icon giỏ hàng (VD: 3, 2, 1 hoặc 99+)
-    const formattedCount = cartCount > 99 ? '99+' : cartCount
-
     return (
         <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-sm border-b border-neutral-100">
             {/* TẦNG 1: h-20, grid 3 cột */}
             <div className="h-20 grid grid-cols-3 items-center px-6 sm:px-10 lg:px-16">
                 {/* Cột trái: Form ô tìm kiếm dạng gạch chân tối giản / Mobile menu toggle */}
                 <div className="flex items-center">
-                    {/* Nút Hamburger cho Mobile */}
-                    <button
-                        type="button"
-                        aria-label="Mở menu"
-                        onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                        className="md:hidden mr-3 p-1 text-neutral-800 hover:text-black focus:outline-none"
-                    >
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            {isMobileMenuOpen ? (
-                                <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth="1.5"
-                                    d="M6 18L18 6M6 6l12 12"
-                                />
-                            ) : (
-                                <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth="1.5"
-                                    d="M3.75 6.75h16.5M3.75 12h16.5M3.75 17.25h16.5"
-                                />
-                            )}
-                        </svg>
-                    </button>
+                    {/* Nút Hamburger cho Mobile: Chỉ hiển thị khi KHÔNG BỊ ẨN NAV */}
+                    {!hideNav && (
+                        <button
+                            type="button"
+                            aria-label="Mở menu"
+                            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                            className="md:hidden mr-3 p-1 text-neutral-800 hover:text-black focus:outline-none cursor-pointer"
+                        >
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                {isMobileMenuOpen ? (
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth="1.5"
+                                        d="M6 18L18 6M6 6l12 12"
+                                    />
+                                ) : (
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth="1.5"
+                                        d="M3.75 6.75h16.5M3.75 12h16.5M3.75 17.25h16.5"
+                                    />
+                                )}
+                            </svg>
+                        </button>
+                    )}
 
                     {/* Ô tìm kiếm dạng gạch chân tối giản */}
                     <form
@@ -148,7 +155,7 @@ function Header() {
                         VN VIETNAM
                     </span>
 
-                    {/* Icon Account (kèm dropdown menu tối giản) */}
+                    {/* Icon Account (Bấm để bật/tắt dropdown, không chuyển hướng trang) */}
                     <div
                         className="relative"
                         onMouseLeave={() => setAccountMenuOpen(false)}
@@ -172,36 +179,75 @@ function Header() {
 
                         {/* Dropdown Menu */}
                         {accountMenuOpen && (
-                            <div className="absolute right-0 top-full pt-2 w-48 z-50">
-                                <div className="bg-white border border-neutral-200/80 shadow-md py-2 text-xs">
-                                    <Link
-                                        to="/profile"
-                                        onClick={() => setAccountMenuOpen(false)}
-                                        className="block px-4 py-2 text-neutral-700 hover:text-black hover:bg-neutral-50 transition-colors"
-                                    >
-                                        PROFILE
-                                    </Link>
-                                    <Link
-                                        to="/orders"
-                                        onClick={() => setAccountMenuOpen(false)}
-                                        className="block px-4 py-2 text-neutral-700 hover:text-black hover:bg-neutral-50 transition-colors"
-                                    >
-                                        MY ORDER
-                                    </Link>
-                                    <div className="my-1 border-t border-neutral-100" />
-                                    <Link
-                                        to="/become-a-seller"
-                                        onClick={() => setAccountMenuOpen(false)}
-                                        className="block px-4 py-2 font-medium text-black hover:bg-neutral-50 transition-colors"
-                                    >
-                                        BECOME A SELLER
-                                    </Link>
+                            <div className="absolute right-0 top-full pt-2 w-52 z-50 animate-in fade-in duration-150">
+                                <div className="bg-white border border-neutral-200/90 shadow-lg py-2 text-xs">
+                                    {isAuthenticated ? (
+                                        <>
+                                            <div className="px-4 py-2 border-b border-neutral-100">
+                                                <span className="text-[10px] font-mono text-neutral-400 uppercase block tracking-wider">
+                                                    SIGNED IN AS
+                                                </span>
+                                                <span className="text-xs font-bold text-black truncate block mt-0.5">
+                                                    {currentUser?.fullName || 'Valued Member'}
+                                                </span>
+                                            </div>
+                                            <Link
+                                                to="/profile"
+                                                onClick={() => setAccountMenuOpen(false)}
+                                                className="block px-4 py-2 font-mono uppercase text-[11px] tracking-wider text-neutral-700 hover:text-black hover:bg-neutral-50 transition-colors"
+                                            >
+                                                PROFILE
+                                            </Link>
+                                            <Link
+                                                to="/orders"
+                                                onClick={() => setAccountMenuOpen(false)}
+                                                className="block px-4 py-2 font-mono uppercase text-[11px] tracking-wider text-neutral-700 hover:text-black hover:bg-neutral-50 transition-colors"
+                                            >
+                                                MY ORDERS
+                                            </Link>
+                                            <Link
+                                                to="/become-seller"
+                                                onClick={() => setAccountMenuOpen(false)}
+                                                className="block px-4 py-2 font-mono uppercase text-[11px] tracking-wider font-semibold text-black hover:bg-neutral-50 transition-colors"
+                                            >
+                                                BECOME A SELLER
+                                            </Link>
+                                            <div className="my-1 border-t border-neutral-100" />
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    logoutUser()
+                                                    setAccountMenuOpen(false)
+                                                }}
+                                                className="w-full text-left px-4 py-2 font-mono uppercase text-[11px] tracking-wider text-red-600 hover:bg-neutral-50 transition-colors cursor-pointer"
+                                            >
+                                                SIGN OUT
+                                            </button>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <Link
+                                                to="/login"
+                                                onClick={() => setAccountMenuOpen(false)}
+                                                className="block px-4 py-2.5 font-mono uppercase text-[11px] tracking-wider font-semibold text-neutral-800 hover:text-black hover:bg-neutral-50 transition-colors"
+                                            >
+                                                SIGN IN
+                                            </Link>
+                                            <Link
+                                                to="/register"
+                                                onClick={() => setAccountMenuOpen(false)}
+                                                className="block px-4 py-2.5 font-mono uppercase text-[11px] tracking-wider text-neutral-500 hover:text-black hover:bg-neutral-50 transition-colors"
+                                            >
+                                                CREATE AN ACCOUNT
+                                            </Link>
+                                        </>
+                                    )}
                                 </div>
                             </div>
                         )}
                     </div>
 
-                    {/* Icon Giỏ hàng (shopping bag) - Chỉ hiện số khi giỏ có hàng */}
+                    {/* Icon Giỏ hàng (shopping bag) - Chỉ hiện badge số khi displayCartCount > 0 */}
                     <Link
                         to="/cart"
                         aria-label="Giỏ hàng"
@@ -216,8 +262,8 @@ function Header() {
                             />
                         </svg>
 
-                        {/* Chỉ render badge khi cartCount > 0 */}
-                        {cartCount > 0 && (
+                        {/* Chỉ render badge khi displayCartCount > 0 */}
+                        {displayCartCount > 0 && (
                             <span className="absolute -top-1 -right-2 bg-black text-white text-[9px] font-semibold tracking-tighter min-w-4 h-4 px-1 rounded-full flex items-center justify-center animate-in fade-in duration-200">
                                 {formattedCount}
                             </span>
@@ -226,39 +272,41 @@ function Header() {
                 </div>
             </div>
 
-            {/* TẦNG 2: Navigation bar căn giữa bên dưới */}
-            <nav className="hidden md:flex items-center justify-center gap-10 lg:gap-14 py-3 border-t border-neutral-100/70 text-xs tracking-[0.18em]">
-                <Link
-                    to="/"
-                    className={`transition-colors uppercase ${isNewArrival
-                        ? 'text-black font-bold'
-                        : 'text-neutral-500 hover:text-black font-medium'
-                        }`}
-                >
-                    NEW ARRIVAL
-                </Link>
-                <Link
-                    to="/shop?tag=best-seller"
-                    className={`transition-colors uppercase ${isBestSeller
-                        ? 'text-black font-bold'
-                        : 'text-neutral-500 hover:text-black font-medium'
-                        }`}
-                >
-                    BEST SELLER
-                </Link>
-                <Link
-                    to="/shop"
-                    className={`transition-colors uppercase ${isAll
-                        ? 'text-black font-bold'
-                        : 'text-neutral-500 hover:text-black font-medium'
-                        }`}
-                >
-                    ALL
-                </Link>
-            </nav>
+            {/* TẦNG 2: Navigation bar căn giữa bên dưới (ẨN KHI hideNav = true) */}
+            {!hideNav && (
+                <nav className="hidden md:flex items-center justify-center gap-10 lg:gap-14 py-3 border-t border-neutral-100/70 text-xs tracking-[0.18em]">
+                    <Link
+                        to="/"
+                        className={`transition-colors uppercase ${isNewArrival
+                            ? 'text-black font-bold'
+                            : 'text-neutral-500 hover:text-black font-medium'
+                            }`}
+                    >
+                        NEW ARRIVAL
+                    </Link>
+                    <Link
+                        to="/shop?tag=best-seller"
+                        className={`transition-colors uppercase ${isBestSeller
+                            ? 'text-black font-bold'
+                            : 'text-neutral-500 hover:text-black font-medium'
+                            }`}
+                    >
+                        BEST SELLER
+                    </Link>
+                    <Link
+                        to="/shop"
+                        className={`transition-colors uppercase ${isAll
+                            ? 'text-black font-bold'
+                            : 'text-neutral-500 hover:text-black font-medium'
+                            }`}
+                    >
+                        ALL
+                    </Link>
+                </nav>
+            )}
 
-            {/* MOBILE DRAWER */}
-            {isMobileMenuOpen && typeof document !== 'undefined' && createPortal(
+            {/* MOBILE DRAWER (ẨN KHI hideNav = true) */}
+            {!hideNav && isMobileMenuOpen && typeof document !== 'undefined' && createPortal(
                 <div className="fixed inset-0 z-[9999] flex md:hidden" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}>
                     <div
                         className="fixed inset-0 bg-black/60 transition-opacity"
@@ -274,7 +322,7 @@ function Header() {
                             <button
                                 type="button"
                                 onClick={() => setIsMobileMenuOpen(false)}
-                                className="p-1 text-black hover:opacity-60 transition-opacity"
+                                className="p-1 text-black hover:opacity-60 transition-opacity cursor-pointer"
                                 aria-label="Close menu"
                             >
                                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -350,17 +398,7 @@ function Header() {
     )
 }
 
-
-/* ==========================================================================
-   ADDED FOR FEATURE: Live Cart Counter Synchronization with Zustand Store
-   - Giữ nguyên toàn bộ logic và JSX của Header gốc phía trên.
-   - Kết nối với useCartStore để lấy tổng số lượng sản phẩm (cộng dồn số lượng).
-   - Tự động đồng bộ số lượng tức thì khi Quick Add hoặc cập nhật giỏ hàng.
-   - Hỗ trợ fallback tương thích ngược với localStorage và CustomEvent.
-   ========================================================================== */
-
 function HeaderWithLiveCart(props) {
-    // 1. Lấy tổng số lượng từ Zustand store (tự động re-render khi store thay đổi)
     const storeCount = useCartStore((state) => {
         if (typeof state.getTotalItems === 'function') {
             return state.getTotalItems()
@@ -371,14 +409,12 @@ function HeaderWithLiveCart(props) {
         return 0
     })
 
-    // 2. Kích hoạt sự kiện cartUpdated để cập nhật luôn state nội bộ của Header gốc
     useEffect(() => {
         try {
-            // Đồng bộ sang fashora_cart cho các component cũ vẫn đọc từ localStorage
             const currentItems = useCartStore.getState().cartItems || []
             localStorage.setItem('fashora_cart', JSON.stringify(currentItems))
         } catch {
-            // Bỏ qua nếu môi trường hạn chế localStorage
+            // ignore
         }
         window.dispatchEvent(new Event('cartUpdated'))
     }, [storeCount])
