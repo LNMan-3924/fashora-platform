@@ -15,7 +15,7 @@ import { validateField, validateProfileInfo } from '../../utils/validation'
  *   + Giới tính (Gender)
  *   (Đã loại bỏ phần chỉnh sửa Primary Address tại đây; toàn bộ địa chỉ giao hàng được quản lý tập trung ở mục Shipping Addresses).
  * - Sử dụng hàm kiểm tra đầu vào dùng chung (Single Source of Truth) đồng bộ với Checkout.
- * - Nút "SAVE CHANGES" lưu thông tin vào LocalStorage, cập nhật state và quay lại chế độ xem.
+ * - Nút "SAVE CHANGES" gửi cập nhật thông tin qua API backend, cập nhật AuthContext và quay lại chế độ xem.
  * - Nút "CANCEL" hủy các chỉnh sửa chưa lưu và quay lại chế độ xem.
  *
  * Props:

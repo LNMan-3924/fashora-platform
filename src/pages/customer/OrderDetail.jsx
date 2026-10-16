@@ -2,13 +2,12 @@ import { useState, useEffect } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import { ArrowLeft, Copy } from 'lucide-react'
 import { Badge, Toast, Modal, Button } from '../../components/common'
-import { getOrderById, updateOrderStatus } from '../../services/api'
+import { getOrderById, getOrders, updateOrderStatus } from '../../services/api'
+import { useAuth } from '../../contexts/AuthContext'
 import {
   STATUS_CONFIG,
   formatDate,
   canCancelOrder,
-  findStoredOrder,
-  updateStoredOrderStatus,
   OrderTimeline,
   OrderStatusNotice,
   OrderItemsList,
@@ -34,6 +33,7 @@ import {
 export default function OrderDetail() {
   const { id } = useParams()
   const navigate = useNavigate()
+  const { currentUser } = useAuth()
 
   // State lưu trữ dữ liệu chi tiết của đơn hàng
   const [order, setOrder] = useState(null)
@@ -52,54 +52,92 @@ export default function OrderDetail() {
   }, [])
 
   // =========================================================================
-  // 1. TẢI CHI TIẾT ĐƠN HÀNG TỪ API DB.JSON HOẶC TỪ LOCALSTORAGE
+  // 1. TẢI CHI TIẾT ĐƠN HÀNG TỪ API DB.JSON VÀ XÁC THỰC QUYỀN SỞ HỮU
   // =========================================================================
   useEffect(() => {
     let isMounted = true
+
+    // Hàm kiểm tra quyền sở hữu đơn hàng của tài khoản đang đăng nhập
+    const isOrderOwnedByCurrentUser = (ord) => {
+      if (!ord || !currentUser) return false
+      const matchUserId = Boolean(ord.userId && String(ord.userId) === String(currentUser.id))
+      const matchEmail = Boolean(
+        currentUser.email &&
+        ord.customerEmail &&
+        ord.customerEmail.trim().toLowerCase() === currentUser.email.trim().toLowerCase()
+      )
+      return matchUserId || matchEmail
+    }
+
+    const handleOrderData = (data) => {
+      if (data && (data.id || data.orderNumber)) {
+        if (isOrderOwnedByCurrentUser(data)) {
+          setOrder(data)
+          setNotFound(false)
+          setLoading(false)
+          return true
+        }
+      }
+      return false
+    }
 
     // 1. Gọi API lấy đơn hàng theo ID
     getOrderById(id)
       .then((res) => {
         if (!isMounted) return
         const data = res?.data || res
-        if (data && (data.id || data.orderNumber)) {
-          setOrder(data)
-          setLoading(false)
+        if (handleOrderData(data)) {
           return
         }
-
-        // Nếu API trả về rỗng, tra cứu trong LocalStorage bằng hàm dùng chung
-        const localFound = findStoredOrder(id)
-        if (localFound) {
-          setOrder(localFound)
-          setLoading(false)
-        } else {
-          setOrder(null)
-          setNotFound(true)
-          setLoading(false)
+        return getOrders()
+      })
+      .then((res) => {
+        if (!isMounted || !res) return
+        const list = res?.data || res
+        if (Array.isArray(list)) {
+          const found = list.find((o) => o.id === id || o.orderNumber === id)
+          if (handleOrderData(found)) {
+            return
+          }
         }
+        setOrder(null)
+        setNotFound(true)
+        setLoading(false)
       })
       .catch(() => {
         if (!isMounted) return
-        // Khi không kết nối được server, tra cứu LocalStorage
-        const localFound = findStoredOrder(id)
-        if (localFound) {
-          setOrder(localFound)
-          setLoading(false)
-        } else {
-          setOrder(null)
-          setNotFound(true)
-          setLoading(false)
-        }
+        // Khi getOrderById lỗi (ví dụ id là mã đơn #SPXVN...), fallback tìm qua getOrders()
+        getOrders()
+          .then((res) => {
+            if (!isMounted) return
+            const list = res?.data || res
+            if (Array.isArray(list)) {
+              const found = list.find((o) => o.id === id || o.orderNumber === id)
+              if (handleOrderData(found)) {
+                return
+              }
+            }
+            setOrder(null)
+            setNotFound(true)
+            setLoading(false)
+          })
+          .catch((finalErr) => {
+            console.error('OrderDetail: Lỗi tải đơn hàng từ API:', finalErr)
+            if (isMounted) {
+              setOrder(null)
+              setNotFound(true)
+              setLoading(false)
+            }
+          })
       })
 
     return () => {
       isMounted = false
     }
-  }, [id])
+  }, [id, currentUser?.id, currentUser?.email])
 
   // =========================================================================
-  // 2. CÁC HÀM XỬ LÝ SỰ KIỆN (COPY MÃ ĐƠN, HỦY ĐƠN)
+  // 2. CÁC HÀM XỬ LÝ SỰ KIỆN (COPY MÃ ĐƠN, HỦY ĐƠN QUA API)
   // =========================================================================
   const showToast = (message) => {
     setToast({ visible: true, message })
@@ -109,31 +147,28 @@ export default function OrderDetail() {
   const handleCopyOrderNumber = () => {
     const code = order?.orderNumber || id
     if (navigator?.clipboard?.writeText) {
-      navigator.clipboard.writeText(code).catch(() => {})
+      navigator.clipboard.writeText(code).catch(() => { })
     }
     showToast(`Order code ${code} copied to clipboard`)
   }
 
-  // Xác nhận hủy đơn hàng
+  // Xác nhận hủy đơn hàng qua API
   const handleConfirmCancel = async () => {
     if (!order) return
 
     const targetId = order.id
     const targetOrderNumber = order.orderNumber
 
-    // Cập nhật trạng thái CANCELLED vào LocalStorage bằng hàm dùng chung
-    updateStoredOrderStatus(targetId || targetOrderNumber, 'CANCELLED')
-
-    setOrder((prev) => ({ ...prev, status: 'CANCELLED' }))
-    setIsCancelModalOpen(false)
-    showToast(`Order ${targetOrderNumber || targetId} has been cancelled.`)
-
     try {
       if (order.id) {
         await updateOrderStatus(order.id, 'CANCELLED')
       }
+      setOrder((prev) => ({ ...prev, status: 'CANCELLED' }))
+      setIsCancelModalOpen(false)
+      showToast(`Order ${targetOrderNumber || targetId} has been cancelled.`)
     } catch (err) {
-      console.warn('OrderDetail: Khong the cap nhat trang thai len db.json:', err?.message)
+      console.error('OrderDetail: Lỗi hủy đơn hàng qua API:', err)
+      showToast('Failed to cancel order. Please try again.')
     }
   }
 

@@ -23,9 +23,8 @@ export const COMMERCE_STORAGE_KEYS = {
   USER_ORDERS: 'fashora_user_orders',
   LATEST_ORDER: 'fashora_latest_order',
   CHECKOUT_ITEMS: 'fashora_checkout_items',
-  PROFILE_DATA: 'fashora_profile_data',
-  SAVED_ADDRESSES: 'fashora_saved_addresses',
-  DEFAULT_ADDRESS: 'fashora_default_address',
+  // Ghi chú: Dữ liệu hồ sơ người dùng (Profile) và địa chỉ nhận hàng (Shipping Addresses)
+  // được quản lý tập trung 100% qua API backend (/users/:id) và AuthContext, hoàn toàn không lưu LocalStorage.
 }
 
 // 2. ẢNH DỰ PHÒNG MẶC ĐỊNH & XỬ LÝ LỖI ẢNH (FALLBACK IMAGE)

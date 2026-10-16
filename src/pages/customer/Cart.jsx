@@ -1,9 +1,10 @@
 import { useState, useEffect, useMemo } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { ArrowRight, Trash2 } from 'lucide-react'
 
 // Import store giỏ hàng toàn cục (quản lý bằng Zustand)
 import { useCartStore } from '../../stores'
+import { useAuth } from '../../contexts/AuthContext'
 
 // Import các sub-component chuyên biệt của trang giỏ hàng
 import {
@@ -22,6 +23,8 @@ import { getCartItemKey, COMMERCE_STORAGE_KEYS } from '../../constants'
 
 export default function Cart() {
   const navigate = useNavigate()
+  const location = useLocation()
+  const { currentUser } = useAuth()
 
   // =========================================================================
   // BƯỚC 1: LẤY DỮ LIỆU & CÁC HÀM XỬ LÝ TỪ ZUSTAND STORE
@@ -179,6 +182,11 @@ export default function Cart() {
 
   // Xác nhận thêm món đồ từ mục "Complete The Look" vào giỏ hàng
   const handleConfirmQuickAdd = (lookItem) => {
+    const isLoggedIn = Boolean(currentUser?.id || localStorage.getItem('currentUserId'))
+    if (!isLoggedIn) {
+      navigate('/login', { state: { from: location } })
+      return
+    }
     addToCart(
       {
         ...lookItem,
@@ -205,6 +213,17 @@ export default function Cart() {
       )
     } catch {
       // ignore
+    }
+
+    if (!currentUser) {
+      navigate('/login', {
+        state: {
+          from: {
+            pathname: '/checkout',
+          },
+        },
+      })
+      return
     }
 
     navigate('/checkout', {
@@ -308,7 +327,14 @@ export default function Cart() {
 
       {/* 5. GỢI Ý PHỐI ĐỒ (COMPLETE THE LOOK - COMPONENT DÙNG CHUNG) */}
       <CompleteTheLook
-        onQuickAdd={(item) => setQuickAddProduct(item)}
+        onQuickAdd={(item) => {
+          const isLoggedIn = Boolean(currentUser?.id || localStorage.getItem('currentUserId'))
+          if (!isLoggedIn) {
+            navigate('/login', { state: { from: location } })
+            return
+          }
+          setQuickAddProduct(item)
+        }}
       />
 
       {/* 6. CỬA SỔ POPUP THÊM NHANH (QUICK ADD MODAL) */}

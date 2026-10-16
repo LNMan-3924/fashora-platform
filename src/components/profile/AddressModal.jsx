@@ -1,25 +1,21 @@
 import { useState } from 'react'
 import { X } from 'lucide-react'
 import { Button, Input } from '../common'
-import { validateField, validateShippingAddress } from '../../utils/validation'
+import { validateField, validateAddressOnly } from '../../utils/validation'
 
 /**
- * Component con AddressModalContent: Chứa toàn bộ nội dung form nhập địa chỉ
- * Được gắn key={addressData?.id || 'new'} từ component cha để tự khởi tạo state sạch sẽ
- * mà không cần sử dụng useEffect gây cascading renders.
- * Tái sử dụng hàm validateShippingAddress và validateField từ src/utils/validation.
+ * Component AddressModalContent: Form nhập thông tin địa chỉ giao hàng
+ * Yêu cầu: CHỈ YÊU CẦU NHẬP ĐỊA CHỈ (Street, Ward, District, City), không cần họ tên / SĐT / ghi chú.
+ * Được gắn key={addressData?.id || 'new'} từ component cha để tự khởi tạo state sạch sẽ.
  */
 function AddressModalContent({ addressData, onClose, onSave }) {
   const isEdit = Boolean(addressData?.id)
 
   const [formData, setFormData] = useState(() => ({
-    name: addressData?.name || '',
-    phone: addressData?.phone || '',
-    street: addressData?.street || '',
+    street: addressData?.street || addressData?.address || '',
     ward: addressData?.ward || '',
     district: addressData?.district || '',
     city: addressData?.city || '',
-    note: addressData?.note || '',
     isDefault: Boolean(addressData?.isDefault),
   }))
 
@@ -48,8 +44,8 @@ function AddressModalContent({ addressData, onClose, onSave }) {
   const handleSubmit = (e) => {
     e.preventDefault()
 
-    // Sử dụng hàm kiểm tra tính hợp lệ địa chỉ dùng chung với Checkout
-    const { isValid, errors: newErrors } = validateShippingAddress(formData)
+    // Kiểm tra tính hợp lệ chỉ cho các trường địa chỉ
+    const { isValid, errors: newErrors } = validateAddressOnly(formData)
     if (!isValid) {
       setErrors(newErrors)
       return
@@ -57,7 +53,12 @@ function AddressModalContent({ addressData, onClose, onSave }) {
 
     onSave?.({
       ...(addressData || {}),
-      ...formData,
+      street: formData.street.trim(),
+      address: formData.street.trim(),
+      ward: formData.ward.trim(),
+      district: formData.district.trim(),
+      city: formData.city.trim(),
+      isDefault: formData.isDefault,
       id: addressData?.id || `ADDR-${Math.floor(1000 + Math.random() * 9000)}`,
       isVerified: true,
     })
@@ -66,7 +67,7 @@ function AddressModalContent({ addressData, onClose, onSave }) {
 
   return (
     <div
-      className="bg-white max-w-[600px] w-full rounded-[2px] max-h-[90vh] flex flex-col shadow-2xl border border-[#E5E5E5] overflow-hidden animate-in zoom-in-95 duration-150"
+      className="bg-white max-w-[560px] w-full rounded-[2px] max-h-[90vh] flex flex-col shadow-2xl border border-[#E5E5E5] overflow-hidden animate-in zoom-in-95 duration-150"
       onClick={(e) => e.stopPropagation()}
     >
       {/* Header Modal */}
@@ -89,31 +90,6 @@ function AddressModalContent({ addressData, onClose, onSave }) {
         onSubmit={handleSubmit}
         className="overflow-y-auto p-6 md:p-8 flex flex-col gap-4 text-left flex-1"
       >
-        <div>
-          <Input
-            label="RECIPIENT FULL NAME *"
-            name="name"
-            value={formData.name}
-            onChange={handleChange}
-            onBlur={handleBlur}
-            error={errors.name}
-            placeholder="e.g. Helena Vance"
-          />
-        </div>
-
-        <div>
-          <Input
-            label="PHONE NUMBER *"
-            name="phone"
-            value={formData.phone}
-            onChange={handleChange}
-            onBlur={handleBlur}
-            error={errors.phone}
-            placeholder="e.g. 0912 345 678"
-            className="font-mono"
-          />
-        </div>
-
         <div>
           <Input
             label="HOUSE NUMBER / STREET *"
@@ -164,16 +140,6 @@ function AddressModalContent({ addressData, onClose, onSave }) {
           />
         </div>
 
-        <div>
-          <Input
-            label="DELIVERY NOTE (OPTIONAL)"
-            name="note"
-            value={formData.note}
-            onChange={handleChange}
-            placeholder="e.g. Leave with reception / concierge during work hours"
-          />
-        </div>
-
         <div className="pt-2">
           <label className="flex items-center gap-2.5 cursor-pointer text-xs font-medium text-[#111111] select-none">
             <input
@@ -216,7 +182,7 @@ function AddressModalContent({ addressData, onClose, onSave }) {
 
 /**
  * Component AddressModal: Cửa sổ thêm mới hoặc chỉnh sửa địa chỉ giao hàng
- * Sử dụng key trên AddressModalContent giúp reset state mượt mà khi mở lại form.
+ * Chỉ yêu cầu nhập địa chỉ (Street, Ward, District, City).
  */
 export default function AddressModal({
   isOpen,
@@ -240,4 +206,3 @@ export default function AddressModal({
     </div>
   )
 }
-

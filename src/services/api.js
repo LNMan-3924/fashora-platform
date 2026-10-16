@@ -30,6 +30,7 @@ export const deleteProduct = (id) => api.delete(`/products/${id}`);
 export const getUsers = () => api.get('/users');
 export const getUserById = (id) => api.get(`/users/${id}`);
 export const registerUser = (userData) => api.post('/users', userData);
+export const updateUser = (userId, data) => api.patch(`/users/${userId}`, data);
 export const updateUserRoleToSeller = (userId, shopId) =>
   api.patch(`/users/${userId}`, {
     roles: ['customer', 'seller'],
@@ -54,3 +55,22 @@ export default api;
    ADDED FOR FEATURE: SHOP & PRODUCT LISTING
    - Added: getProducts API helper for fetching all catalog products
    ========================================================================== */
+
+/**
+ * Lấy thông tin tài khoản người dùng theo ID từ db.json (JSON-Server port 5000)
+ */
+export const getCurrentUser = async (userId) => {
+  try {
+    const res = await api.get(`/users/${userId}`)
+    return res?.data || null
+  } catch {
+    try {
+      const allRes = await api.get('/users')
+      const users = allRes?.data || []
+      return users.find((u) => u.id === userId) || null
+    } catch (err) {
+      console.warn('api.js getCurrentUser error:', err)
+      return null
+    }
+  }
+}

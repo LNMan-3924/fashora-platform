@@ -106,19 +106,25 @@ export default function ShippingAddresses({
                     )}
                   </div>
 
-                  {/* Chi tiết người nhận & số điện thoại */}
-                  <div className="mb-2">
-                    <h3 className="font-semibold text-sm text-black tracking-wide">
-                      {addr.name}
-                    </h3>
-                    <p className="text-xs text-[#666666] font-mono mt-0.5">
-                      {addr.phone}
-                    </p>
-                  </div>
+                  {/* Chi tiết người nhận & số điện thoại (nếu có) */}
+                  {(addr.name || addr.phone) && (
+                    <div className="mb-2">
+                      {addr.name && (
+                        <h3 className="font-semibold text-sm text-black tracking-wide">
+                          {addr.name}
+                        </h3>
+                      )}
+                      {addr.phone && (
+                        <p className="text-xs text-[#666666] font-mono mt-0.5">
+                          {addr.phone}
+                        </p>
+                      )}
+                    </div>
+                  )}
 
                   {/* Chi tiết địa chỉ 4 cấp */}
                   <div className="text-xs text-[#444444] leading-relaxed space-y-0.5">
-                    <p>{addr.street}</p>
+                    <p className="font-medium text-black">{addr.street || addr.address}</p>
                     <p>
                       {addr.ward ? `${addr.ward}, ` : ''}
                       {addr.district}

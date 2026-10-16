@@ -189,6 +189,39 @@ export const validateShippingAddress = (formData = {}) => {
 }
 
 /**
+ * Kiểm tra các trường địa chỉ (Street, Ward, District, City)
+ * Dùng cho AddressModal (chỉ yêu cầu nhập địa chỉ, không cần tên/sđt)
+ *
+ * @param {object} formData - { street/address, ward, district, city }
+ * @returns {{ isValid: boolean, errors: object }}
+ */
+export const validateAddressOnly = (formData = {}) => {
+  const errors = {}
+
+  // 1. Kiểm tra Địa chỉ đường/số nhà (address hoặc street)
+  const streetField = 'address' in formData ? 'address' : 'street'
+  const streetErr = validateStreet(formData[streetField], 'Street address')
+  if (streetErr) errors[streetField] = streetErr
+
+  // 2. Kiểm tra Phường/Xã
+  const wardErr = validateWard(formData.ward, 'Ward')
+  if (wardErr) errors.ward = wardErr
+
+  // 3. Kiểm tra Quận/Huyện
+  const districtErr = validateDistrict(formData.district, 'District')
+  if (districtErr) errors.district = districtErr
+
+  // 4. Kiểm tra Tỉnh/Thành phố
+  const cityErr = validateCity(formData.city, 'City / Province')
+  if (cityErr) errors.city = cityErr
+
+  return {
+    isValid: Object.keys(errors).length === 0,
+    errors,
+  }
+}
+
+/**
  * Kiểm tra toàn bộ form Thông tin cá nhân Profile (ProfileInlineForm)
  * Kiểm tra 3 trường bắt buộc: Họ tên, Số điện thoại và Email
  *

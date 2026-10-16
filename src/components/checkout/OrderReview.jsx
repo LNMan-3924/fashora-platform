@@ -98,12 +98,13 @@ export default function OrderReview({
 
       {/* Nút bấm ĐẶT HÀNG - Tái sử dụng Button từ common */}
       <Button
+        type="submit"
         variant="primary"
         size="lg"
         loading={isSubmitting}
         disabled={isSubmitting}
         onClick={onSubmit}
-        className="w-full tracking-[0.25em] text-xs py-4"
+        className="w-full tracking-[0.25em] text-xs py-4 cursor-pointer"
       >
         {isSubmitting ? 'PROCESSING ATELIER ORDER...' : 'PLACE ORDER'}
       </Button>

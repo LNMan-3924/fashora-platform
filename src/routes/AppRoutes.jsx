@@ -1,9 +1,12 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { AuthProvider } from '../contexts/AuthContext'
+import { AuthGuard, CheckoutGuard } from '../components/common/ProtectedRoute'
 
 // Layouts
 import CustomerLayout from '../layouts/CustomerLayout'
 import SellerLayout from '../layouts/SellerLayout'
 import StorefrontLayout from '../layouts/StorefrontLayout'
+import AuthLayout from '../layouts/AuthLayout'
 
 // 1. Auth Pages
 import Login from '../pages/auth/Login'
@@ -39,47 +42,109 @@ import NotFound from '../pages/NotFound'
 export default function AppRoutes() {
   return (
     <BrowserRouter>
-      <Routes>
-        {/* ================= AUTH ROUTES ================= */}
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
+      <AuthProvider>
+        <Routes>
+          {/* ================= AUTH ROUTES ================= */}
+          {/* Bọc trong AuthLayout: Có Header (không Nav, không Hamburger) + Footer đen */}
+          <Route element={<AuthLayout />}>
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+          </Route>
 
-        {/* ================= CUSTOMER ROUTES ================= */}
-        <Route element={<CustomerLayout />}>
-          <Route path="/" element={<Home />} />
-          <Route path="/explore" element={<Explore />} />
-          <Route path="/shop" element={<Shop />} />
-          <Route path="/product/:id" element={<ProductDetail />} />
-          <Route path="/products/:id" element={<ProductDetail />} />
-          <Route path="/cart" element={<Cart />} />
-          <Route path="/checkout" element={<Checkout />} />
-          <Route path="/order-success" element={<OrderSuccess />} />
-          <Route path="/orders" element={<Orders />} />
-          <Route path="/orders/:id" element={<OrderDetail />} />
-          <Route path="/profile" element={<Profile />} />
+          {/* ================= CUSTOMER ROUTES ================= */}
+          <Route element={<CustomerLayout />}>
+            {/* Public Routes */}
+            <Route path="/" element={<Home />} />
+            <Route path="/explore" element={<Explore />} />
+            <Route path="/shop" element={<Shop />} />
+            <Route path="/product/:id" element={<ProductDetail />} />
+            <Route path="/products/:id" element={<ProductDetail />} />
+            <Route path="/cart" element={<Cart />} />
 
-          {/* Quy trình đăng ký mở Shop cho người dùng */}
-          <Route path="/become-seller" element={<BecomeSeller />} />
-        </Route>
+            {/* Protected Route: CHECKOUT
+                Gõ tay /checkout khi giỏ hàng trống hoặc chưa đăng nhập -> Tự động chuyển về /cart */}
+            <Route
+              path="/checkout"
+              element={
+                <CheckoutGuard>
+                  <Checkout />
+                </CheckoutGuard>
+              }
+            />
 
-        {/* ================= SELLER ROUTES ================= */}
-        <Route element={<SellerLayout />}>
-          <Route path="/seller" element={<Navigate to="/seller/dashboard" replace />} />
-          <Route path="/seller/dashboard" element={<SellerDashboard />} />
-          <Route path="/seller/products" element={<SellerProducts />} />
-          <Route path="/seller/orders" element={<SellerOrders />} />
-          <Route path="/seller/orders/:id" element={<SellerOrderDetail />} />
-        </Route>
+            <Route
+              path="/order-success"
+              element={
+                <AuthGuard>
+                  <OrderSuccess />
+                </AuthGuard>
+              }
+            />
 
-        {/* ================= STOREFRONT ROUTES ================= */}
-        <Route element={<StorefrontLayout />}>
-          {/* Hỗ trợ slug động để mở bất kỳ gian hàng nào (vd: /store/m-studio) */}
-          <Route path="/store/:slug" element={<Storefront />} />
-        </Route>
+            {/* Protected Routes: Đơn hàng
+                Chưa đăng nhập mà vào -> Tự động chuyển hướng sang /login */}
+            <Route
+              path="/orders"
+              element={
+                <AuthGuard>
+                  <Orders />
+                </AuthGuard>
+              }
+            />
+            <Route
+              path="/orders/:id"
+              element={
+                <AuthGuard>
+                  <OrderDetail />
+                </AuthGuard>
+              }
+            />
 
-        {/* ================= 404 NOT FOUND ================= */}
-        <Route path="*" element={<NotFound />} />
-      </Routes>
+            {/* Customer Profile (Yêu cầu đăng nhập trước) */}
+            <Route
+              path="/profile"
+              element={
+                <AuthGuard>
+                  <Profile />
+                </AuthGuard>
+              }
+            />
+
+            {/* Quy trình đăng ký mở Shop (Yêu cầu đăng nhập tài khoản trước) */}
+            <Route
+              path="/become-seller"
+              element={
+                <AuthGuard>
+                  <BecomeSeller />
+                </AuthGuard>
+              }
+            />
+          </Route>
+
+          {/* ================= SELLER ROUTES ================= */}
+          <Route
+            element={
+              <AuthGuard>
+                <SellerLayout />
+              </AuthGuard>
+            }
+          >
+            <Route path="/seller" element={<Navigate to="/seller/dashboard" replace />} />
+            <Route path="/seller/dashboard" element={<SellerDashboard />} />
+            <Route path="/seller/products" element={<SellerProducts />} />
+            <Route path="/seller/orders" element={<SellerOrders />} />
+            <Route path="/seller/orders/:id" element={<SellerOrderDetail />} />
+          </Route>
+
+          {/* ================= STOREFRONT ROUTES ================= */}
+          <Route element={<StorefrontLayout />}>
+            <Route path="/store/:slug" element={<Storefront />} />
+          </Route>
+
+          {/* ================= 404 NOT FOUND ================= */}
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </AuthProvider>
     </BrowserRouter>
   )
 }

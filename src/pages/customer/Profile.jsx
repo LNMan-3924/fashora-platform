@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Toast } from '../../components/common'
+import { useAuth } from '../../contexts/AuthContext'
+import { getUserById, updateUser } from '../../services/api'
 import {
   ProfileHeader,
   ProfilePhoto,
@@ -8,44 +10,48 @@ import {
   ShippingAddresses,
   AddressModal,
   BecomeSellerBanner,
-  getProfileData,
-  saveProfileData,
-  getSavedAddresses,
-  saveSavedAddresses,
 } from '../../components/profile'
 
 /**
- * Trang Quản lý Hồ sơ Khách hàng (Customer Profile Page)
- *
- * Tính năng chính:
- * - Được chia nhỏ thành các component con độc lập trong src/components/profile/:
- *   + ProfileHeader: Breadcrumbs và tiêu đề trang.
- *   + ProfilePhoto: Quản lý xem trước, tải lên và xóa ảnh đại diện trực tiếp trên giao diện.
- *   + ProfileInfoList: Danh sách 5 thẻ thông số cá nhân ở chế độ xem.
- *   + ProfileInlineForm: Biểu mẫu chỉnh sửa thông tin cá nhân TRỰC TIẾP TRÊN TRANG (Không chỉnh sửa primary address tại đây).
- *   + ShippingAddresses: Quản lý toàn bộ danh sách địa chỉ giao hàng và đặt địa chỉ mặc định (Primary).
- *   + AddressModal: Cửa sổ thêm mới / chỉnh sửa địa chỉ giao hàng (Giữ nguyên modal).
- *   + BecomeSellerBanner: Khung quảng bá chương trình mở shop bán hàng.
- * - Tự động đồng bộ với LocalStorage và cung cấp địa chỉ mặc định cho trang Checkout.
- * - Bố cục responsive hoàn hảo: Mobile (1 cột xếp dọc), Tablet & PC (Lưới 4/8 cột chuẩn Atelier).
+ * Trang Quản lý Hồ sơ Khách hàng (Customer Profile Page):
+ * - Hoàn toàn không sử dụng LocalStorage độc lập để lưu trữ profile nữa.
+ * - Tích hợp trực tiếp với API backend (JSON-Server /users/:id) và AuthContext (login/register).
+ * - Tự động tải thông tin cá nhân và sổ địa chỉ giao hàng của tài khoản đang đăng nhập.
+ * - Hỗ trợ chỉnh sửa thông tin trực tiếp (Inline Form), đổi/xóa avatar, thêm/sửa/xóa địa chỉ giao hàng qua API.
+ * - Đồng bộ hóa tức thì với AuthContext để Header và toàn bộ hệ thống phản ánh thay đổi ngay lập tức.
+ * - Bố cục responsive toàn diện trên Mobile, Tablet và Desktop.
  */
 export default function Profile() {
-  // 1. State thông tin cá nhân
-  const [profile, setProfile] = useState(() => getProfileData())
+  const { currentUser, loading: authLoading, updateCurrentUser } = useAuth()
 
-  // 2. State danh sách địa chỉ giao nhận (Shipping Addresses)
-  const [addresses, setAddresses] = useState(() => getSavedAddresses())
+  // 1. State trạng thái đang tải dữ liệu từ API
+  const [isFetching, setIsFetching] = useState(() => Boolean(currentUser?.id))
 
-  // 3. State quản lý chế độ chỉnh sửa thông tin cá nhân trực tiếp trên giao diện (Inline, không dùng modal)
+  // 2. State thông tin cá nhân
+  const [profile, setProfile] = useState(() => ({
+    name: currentUser?.fullName || currentUser?.name || '',
+    phone: currentUser?.phoneNumber || currentUser?.phone || '',
+    email: currentUser?.email || '',
+    dob: currentUser?.dob || '',
+    gender: currentUser?.gender || 'Female',
+    avatarUrl: currentUser?.avatarUrl || null,
+  }))
+
+  // 3. State danh sách địa chỉ giao nhận (Shipping Addresses từ API user)
+  const [addresses, setAddresses] = useState(() =>
+    Array.isArray(currentUser?.shippingAddresses) ? currentUser.shippingAddresses : []
+  )
+
+  // 4. State quản lý chế độ chỉnh sửa thông tin cá nhân trực tiếp trên giao diện (Inline)
   const [isEditingProfile, setIsEditingProfile] = useState(false)
 
-  // 4. State quản lý Modal thêm / sửa địa chỉ giao hàng (Vẫn giữ nguyên Modal cho Shipping Addresses)
+  // 5. State quản lý Modal thêm / sửa địa chỉ giao hàng
   const [addressModalState, setAddressModalState] = useState({
     isOpen: false,
     data: null, // null = Thêm mới, có object = Sửa
   })
 
-  // 5. State quản lý thông báo Toast nổi
+  // 6. State quản lý thông báo Toast nổi
   const [toast, setToast] = useState({ visible: false, message: '' })
 
   // Cuộn lên đầu trang khi vào trang
@@ -54,80 +60,231 @@ export default function Profile() {
   }, [])
 
   // =========================================================================
-  // BƯỚC 1: XỬ LÝ LƯU & CẬP NHẬT THÔNG TIN HỒ SƠ (TRỰC TIẾP KHÔNG DÙNG MODAL)
+  // BƯỚC 1: TẢI DỮ LIỆU NGƯỜI DÙNG THỰC TẾ TỪ API (/users/:id)
   // =========================================================================
+  useEffect(() => {
+    let isMounted = true
+
+    if (!currentUser?.id) {
+      return
+    }
+
+    getUserById(currentUser.id)
+      .then((res) => {
+        if (!isMounted) return
+        const user = res?.data || res
+        if (user) {
+          setProfile({
+            name: user.fullName || user.name || '',
+            phone: user.phoneNumber || user.phone || '',
+            email: user.email || '',
+            dob: user.dob || '',
+            gender: user.gender || 'Female',
+            avatarUrl: user.avatarUrl || null,
+          })
+          const loadedAddresses = Array.isArray(user.shippingAddresses) ? user.shippingAddresses : []
+          setAddresses(loadedAddresses)
+          updateCurrentUser(user)
+        }
+      })
+      .catch((err) => {
+        console.warn('Profile: Không thể tải từ API, sử dụng dữ liệu phiên Auth:', err?.message)
+        if (isMounted && currentUser) {
+          setProfile({
+            name: currentUser.fullName || currentUser.name || '',
+            phone: currentUser.phoneNumber || currentUser.phone || '',
+            email: currentUser.email || '',
+            dob: currentUser.dob || '',
+            gender: currentUser.gender || 'Female',
+            avatarUrl: currentUser.avatarUrl || null,
+          })
+          setAddresses(
+            Array.isArray(currentUser.shippingAddresses)
+              ? currentUser.shippingAddresses
+              : []
+          )
+        }
+      })
+      .finally(() => {
+        if (isMounted) {
+          setIsFetching(false)
+        }
+      })
+
+    return () => {
+      isMounted = false
+    }
+  }, [currentUser?.id])
+
   const showToast = (message) => {
     setToast({ visible: true, message })
   }
 
-  // Lưu thông tin cá nhân sau khi sửa trực tiếp trên giao diện
-  const handleSaveProfile = (newProfile) => {
-    saveProfileData(newProfile)
-    setProfile(newProfile)
-    setIsEditingProfile(false)
-    showToast('Information updated')
+  // =========================================================================
+  // BƯỚC 2: XỬ LÝ LƯU & CẬP NHẬT THÔNG TIN HỒ SƠ QUA API (PATCH /users/:id)
+  // =========================================================================
+  const handleSaveProfile = async (newProfile) => {
+    if (!currentUser?.id) return
+
+    try {
+      const payload = {
+        fullName: newProfile.name,
+        name: newProfile.name,
+        phoneNumber: newProfile.phone,
+        phone: newProfile.phone,
+        email: newProfile.email,
+        dob: newProfile.dob,
+        gender: newProfile.gender,
+      }
+
+      const res = await updateUser(currentUser.id, payload)
+      const updatedUser = res?.data || res
+
+      setProfile(newProfile)
+      setIsEditingProfile(false)
+      updateCurrentUser(updatedUser)
+      showToast('Information updated')
+    } catch (err) {
+      console.error('Lỗi cập nhật hồ sơ qua API:', err)
+      showToast('Failed to update information. Please try again.')
+    }
   }
 
-  // Tải lên ảnh đại diện mới
-  const handlePhotoChange = (avatarUrl) => {
-    const updated = { ...profile, avatarUrl }
-    saveProfileData(updated)
-    setProfile(updated)
-    showToast('Profile photo updated')
+  // Tải lên ảnh đại diện mới qua API
+  const handlePhotoChange = async (avatarUrl) => {
+    if (!currentUser?.id) return
+
+    try {
+      const res = await updateUser(currentUser.id, { avatarUrl })
+      const updatedUser = res?.data || res
+
+      setProfile((prev) => ({ ...prev, avatarUrl }))
+      updateCurrentUser(updatedUser)
+      showToast('Profile photo updated')
+    } catch (err) {
+      console.error('Lỗi cập nhật ảnh đại diện qua API:', err)
+      showToast('Failed to update profile photo.')
+    }
   }
 
-  // Xóa ảnh đại diện
-  const handlePhotoRemove = () => {
-    const updated = { ...profile, avatarUrl: null }
-    saveProfileData(updated)
-    setProfile(updated)
-    showToast('Profile photo removed')
+  // Xóa ảnh đại diện qua API
+  const handlePhotoRemove = async () => {
+    if (!currentUser?.id) return
+
+    try {
+      const res = await updateUser(currentUser.id, { avatarUrl: null })
+      const updatedUser = res?.data || res
+
+      setProfile((prev) => ({ ...prev, avatarUrl: null }))
+      updateCurrentUser(updatedUser)
+      showToast('Profile photo removed')
+    } catch (err) {
+      console.error('Lỗi xóa ảnh đại diện qua API:', err)
+      showToast('Failed to remove profile photo.')
+    }
   }
 
   // =========================================================================
-  // BƯỚC 2: XỬ LÝ QUẢN LÝ ĐỊA CHỈ GIAO HÀNG (SHIPPING ADDRESSES - GIỮ NGUYÊN)
+  // BƯỚC 3: XỬ LÝ QUẢN LÝ ĐỊA CHỈ GIAO HÀNG QUA API (PATCH /users/:id)
   // =========================================================================
   // Lưu địa chỉ (Thêm mới hoặc Cập nhật)
-  const handleSaveAddress = (addr) => {
+  const handleSaveAddress = async (addr) => {
+    if (!currentUser?.id) return
+
     let updatedList
     const isEdit = addresses.some((a) => a.id === addr.id)
 
+    const resolvedAddr = {
+      ...addr,
+      name: addr.name || profile.name || currentUser?.fullName || currentUser?.name || '',
+      phone: addr.phone || profile.phone || currentUser?.phoneNumber || currentUser?.phone || '',
+    }
+
     if (isEdit) {
       updatedList = addresses.map((item) => {
-        if (item.id === addr.id) {
-          return { ...addr }
+        if (item.id === resolvedAddr.id) {
+          return { ...resolvedAddr }
         }
-        // Nếu địa chỉ này được chọn làm mặc định, bỏ mặc định ở các địa chỉ khác
-        return addr.isDefault ? { ...item, isDefault: false } : item
+        return resolvedAddr.isDefault ? { ...item, isDefault: false } : item
       })
-      showToast('Address updated')
     } else {
-      const willBeDefault = addr.isDefault || addresses.length === 0
+      const willBeDefault = resolvedAddr.isDefault || addresses.length === 0
       const formattedList = willBeDefault
         ? addresses.map((a) => ({ ...a, isDefault: false }))
         : [...addresses]
 
-      updatedList = [...formattedList, { ...addr, isDefault: willBeDefault }]
-      showToast('New address added')
+      updatedList = [...formattedList, { ...resolvedAddr, isDefault: willBeDefault }]
     }
 
-    saveSavedAddresses(updatedList)
-    setAddresses(updatedList)
+    const def = updatedList.find((a) => a.isDefault) || updatedList[0]
+    const payload = {
+      shippingAddresses: updatedList,
+      ...(def && {
+        address: {
+          fullName: def.name || profile.name || currentUser?.fullName || '',
+          phone: def.phone || profile.phone || currentUser?.phoneNumber || '',
+          address: def.street || def.address || '',
+          ward: def.ward || '',
+          district: def.district || '',
+          city: def.city || '',
+        },
+      }),
+    }
+
+    try {
+      const res = await updateUser(currentUser.id, payload)
+      const updatedUser = res?.data || res
+
+      setAddresses(updatedList)
+      updateCurrentUser(updatedUser)
+      showToast(isEdit ? 'Address updated' : 'New address added')
+    } catch (err) {
+      console.error('Lỗi lưu địa chỉ qua API:', err)
+      showToast('Failed to save address. Please try again.')
+    }
   }
 
-  // Đặt một địa chỉ làm mặc định (Primary)
-  const handleSetDefaultAddress = (targetId) => {
+  // Đặt một địa chỉ làm mặc định (Primary) qua API
+  const handleSetDefaultAddress = async (targetId) => {
+    if (!currentUser?.id) return
+
     const updatedList = addresses.map((a) => ({
       ...a,
       isDefault: a.id === targetId,
     }))
-    saveSavedAddresses(updatedList)
-    setAddresses(updatedList)
-    showToast('Default shipping address updated')
+
+    const def = updatedList.find((a) => a.id === targetId)
+    const payload = {
+      shippingAddresses: updatedList,
+      ...(def && {
+        address: {
+          fullName: def.name,
+          phone: def.phone,
+          address: def.street,
+          ward: def.ward,
+          district: def.district,
+          city: def.city,
+        },
+      }),
+    }
+
+    try {
+      const res = await updateUser(currentUser.id, payload)
+      const updatedUser = res?.data || res
+
+      setAddresses(updatedList)
+      updateCurrentUser(updatedUser)
+      showToast('Default shipping address updated')
+    } catch (err) {
+      console.error('Lỗi đặt địa chỉ mặc định qua API:', err)
+      showToast('Failed to set default address.')
+    }
   }
 
-  // Xóa địa chỉ
-  const handleDeleteAddress = (targetId) => {
+  // Xóa địa chỉ qua API
+  const handleDeleteAddress = async (targetId) => {
+    if (!currentUser?.id) return
+
     const target = addresses.find((a) => a.id === targetId)
     if (!target) return
 
@@ -144,9 +301,44 @@ export default function Profile() {
       remaining[0].isDefault = true
     }
 
-    saveSavedAddresses(remaining)
-    setAddresses(remaining)
-    showToast('Address removed')
+    const def = remaining.find((a) => a.isDefault) || remaining[0]
+    const payload = {
+      shippingAddresses: remaining,
+      address: def
+        ? {
+            fullName: def.name,
+            phone: def.phone,
+            address: def.street,
+            ward: def.ward,
+            district: def.district,
+            city: def.city,
+          }
+        : null,
+    }
+
+    try {
+      const res = await updateUser(currentUser.id, payload)
+      const updatedUser = res?.data || res
+
+      setAddresses(remaining)
+      updateCurrentUser(updatedUser)
+      showToast('Address removed')
+    } catch (err) {
+      console.error('Lỗi xóa địa chỉ qua API:', err)
+      showToast('Failed to remove address.')
+    }
+  }
+
+  // Hiển thị trạng thái đang tải hồ sơ
+  if (authLoading || isFetching) {
+    return (
+      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 text-center">
+        <div className="w-8 h-8 border-2 border-black border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+        <p className="text-xs tracking-widest uppercase font-mono text-neutral-500">
+          RETRIEVING ATELIER PROFILE...
+        </p>
+      </div>
+    )
   }
 
   return (

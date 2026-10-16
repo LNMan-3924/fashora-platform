@@ -7,7 +7,7 @@ import {
   OrderQuickModal,
 } from '../../components/order'
 import { getOrders, updateOrderStatus } from '../../services/api'
-import { getStoredUserOrders, updateStoredOrderStatus } from '../../constants'
+import { useAuth } from '../../contexts/AuthContext'
 
 /**
  * Trang Quản lý Đơn hàng (My Orders Page):
@@ -21,9 +21,11 @@ import { getStoredUserOrders, updateStoredOrderStatus } from '../../constants'
  */
 export default function Orders() {
   const navigate = useNavigate()
+  const { currentUser } = useAuth()
 
-  // 1. State lưu trữ danh sách đơn hàng thực tế
+  // 1. State lưu trữ danh sách đơn hàng thực tế từ API
   const [orders, setOrders] = useState([])
+  const [isLoading, setIsLoading] = useState(() => Boolean(currentUser?.id))
 
   // 2. State quản lý tab lọc trạng thái hiện tại (mặc định 'all')
   const [activeTab, setActiveTab] = useState('all')
@@ -43,13 +45,10 @@ export default function Orders() {
   }, [])
 
   // =========================================================================
-  // BƯỚC 1: TẢI ĐƠN HÀNG THỰC TẾ TỪ API DB.JSON & LOCALSTORAGE
+  // BƯỚC 1: TẢI ĐƠN HÀNG THỰC TẾ TRỰC TIẾP TỪ API DB.JSON
   // =========================================================================
   useEffect(() => {
     let isMounted = true
-
-    // Đọc các đơn hàng đã lưu trong LocalStorage khi đặt hàng
-    const localOrders = getStoredUserOrders()
 
     getOrders()
       .then((res) => {
@@ -57,35 +56,45 @@ export default function Orders() {
         const apiData = res?.data || res
         const apiList = Array.isArray(apiData) ? apiData : []
 
-        // Kết hợp và loại bỏ trùng lặp giữa LocalStorage và API
-        const orderMap = new Map()
-        localOrders.forEach((o) => {
-          const key = o.orderNumber || o.id
-          if (key) orderMap.set(key, o)
-        })
-        apiList.forEach((o) => {
-          const key = o.orderNumber || o.id
-          if (key && !orderMap.has(key)) {
-            orderMap.set(key, o)
-          }
+        // Nếu chưa đăng nhập hoặc không có ID người dùng, danh sách đơn hàng để rỗng
+        if (!currentUser?.id) {
+          setOrders([])
+          setIsLoading(false)
+          return
+        }
+
+        // Lọc nghiêm ngặt: CHỈ lấy đơn hàng thuộc về chính tài khoản đang đăng nhập
+        // 1. Trùng khớp với userId
+        // 2. Hoặc trùng khớp với customerEmail của tài khoản
+        const userOrders = apiList.filter((o) => {
+          const matchUserId = Boolean(o.userId && String(o.userId) === String(currentUser.id))
+          const matchEmail = Boolean(
+            currentUser.email &&
+            o.customerEmail &&
+            o.customerEmail.trim().toLowerCase() === currentUser.email.trim().toLowerCase()
+          )
+          return matchUserId || matchEmail
         })
 
-        const combined = Array.from(orderMap.values())
         // Sắp xếp đơn mới nhất lên đầu
-        combined.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0))
-        setOrders(combined)
+        const sorted = [...userOrders].sort(
+          (a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0)
+        )
+        setOrders(sorted)
+        setIsLoading(false)
       })
       .catch((err) => {
-        console.warn('Orders: Khong the ket noi API db.json, hien thi don hang tu LocalStorage:', err?.message)
+        console.error('Orders: Lỗi tải đơn hàng từ API:', err)
         if (isMounted) {
-          setOrders(localOrders)
+          setOrders([])
+          setIsLoading(false)
         }
       })
 
     return () => {
       isMounted = false
     }
-  }, [])
+  }, [currentUser?.id, currentUser?.email])
 
   // =========================================================================
   // BƯỚC 2: TÍNH TOÁN SỐ LƯỢNG ĐƠN HÀNG THEO TỪNG TAB TRẠNG THÁI
@@ -142,17 +151,14 @@ export default function Orders() {
     showToast(`Order ${orderNum} copied to clipboard`)
   }
 
-  // Xử lý xác nhận HỦY đơn hàng
+  // Xử lý xác nhận HỦY đơn hàng qua API
   const handleConfirmCancelOrder = async () => {
     if (!orderToCancel) return
     const targetId = orderToCancel.id
     const targetOrderNumber = orderToCancel.orderNumber
 
-    // Cập nhật trạng thái CANCELLED vào LocalStorage bằng hàm dùng chung
-    updateStoredOrderStatus(targetId || targetOrderNumber, 'CANCELLED')
-
     try {
-      // 1. Gửi request lên server/db.json
+      // 1. Gửi request PATCH /orders/:id lên API server (db.json)
       if (targetId) {
         await updateOrderStatus(targetId, 'CANCELLED')
       }
@@ -169,17 +175,9 @@ export default function Orders() {
       // 3. Đóng modal và báo thành công
       setOrderToCancel(null)
       showToast(`Order ${targetOrderNumber} has been cancelled.`)
-    } catch {
-      // Nếu server chưa bật, vẫn hỗ trợ cập nhật offline mượt mà
-      setOrders((prev) =>
-        prev.map((o) =>
-          o.id === targetId || o.orderNumber === targetOrderNumber
-            ? { ...o, status: 'CANCELLED' }
-            : o
-        )
-      )
-      setOrderToCancel(null)
-      showToast(`Order ${targetOrderNumber} has been cancelled.`)
+    } catch (err) {
+      console.error('Orders: Lỗi hủy đơn hàng qua API:', err)
+      showToast('Failed to cancel order. Please try again.')
     }
   }
 
@@ -219,7 +217,14 @@ export default function Orders() {
       />
 
       {/* 3. DANH SÁCH THẺ ĐƠN HÀNG (TÁCH THÀNH COMPONENT OrderCard) */}
-      {filteredOrders.length > 0 ? (
+      {isLoading ? (
+        <div className="py-20 text-center">
+          <div className="w-8 h-8 border-2 border-black border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+          <p className="text-xs font-mono tracking-widest uppercase text-neutral-400">
+            Loading your orders...
+          </p>
+        </div>
+      ) : filteredOrders.length > 0 ? (
         <div className="space-y-6">
           {filteredOrders.map((order) => (
             <OrderCard

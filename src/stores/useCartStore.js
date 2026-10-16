@@ -6,8 +6,18 @@ export const useCartStore = create(
     (set, get) => ({
       cartItems: [],
 
-      // Thêm sản phẩm vào giỏ (phân biệt rõ ràng theo size và color)
+      // Thêm sản phẩm vào giỏ (yêu cầu đăng nhập trước khi thêm)
       addToCart: (product, selectedSize, selectedColor, quantity = 1) => {
+        // Kiểm tra quyền đăng nhập của người dùng
+        const currentUserId = typeof window !== 'undefined' ? localStorage.getItem('currentUserId') : null;
+        if (!currentUserId) {
+          return {
+            success: false,
+            requireLogin: true,
+            message: 'Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng!',
+          };
+        }
+
         const { cartItems } = get();
 
         // Kiểm tra tồn kho (AN)

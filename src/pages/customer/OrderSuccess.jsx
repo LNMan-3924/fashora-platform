@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react'
-import { useNavigate, useLocation } from 'react-router-dom'
+import { useNavigate, useLocation, Navigate } from 'react-router-dom'
 import { Check, Copy } from 'lucide-react'
 import { Button, Toast } from '../../components/common'
 import CompleteTheLook from '../../components/product/CompleteTheLook'
 import QuickAddModal from '../../components/product/QuickAddModal'
 import { useCartStore } from '../../stores/useCartStore'
-import { formatVND, COMMERCE_STORAGE_KEYS } from '../../constants'
+import { formatVND } from '../../constants'
 
 /**
  * Trang Đặt hàng Thành công (Official Order Successful Page):
@@ -14,6 +14,7 @@ import { formatVND, COMMERCE_STORAGE_KEYS } from '../../constants'
  * - Tái sử dụng useCartStore để quản lý thêm sản phẩm gợi ý vào giỏ hàng.
  * - Hỗ trợ sao chép mã đơn hàng vào clipboard kèm thông báo Toast.
  * - Bố cục responsive toàn diện (mobile, tablet, desktop).
+ * - BẢO VỆ: Không cho phép gõ URL trực tiếp để vào trang này. Nếu không có state từ Checkout -> Tự động chuyển về /orders.
  */
 export default function OrderSuccess() {
   const navigate = useNavigate()
@@ -24,22 +25,14 @@ export default function OrderSuccess() {
     window.scrollTo({ top: 0, left: 0, behavior: 'instant' })
   }, [])
 
-  // 1. Lấy thông tin đơn hàng từ state chuyển trang hoặc từ đơn hàng vừa đặt trong localStorage
-  const latestStoredOrder = (() => {
-    try {
-      const raw = localStorage.getItem(COMMERCE_STORAGE_KEYS.LATEST_ORDER)
-      return raw ? JSON.parse(raw) : null
-    } catch {
-      return null
-    }
-  })()
+  // 1. CHẶN TRUY CẬP TRỰC TIẾP QUA URL:
+  // Trang này chỉ hiển thị khi vừa hoàn tất thanh toán từ Checkout (có location.state.orderNumber)
+  const orderNumber = location.state?.orderNumber
+  if (!orderNumber) {
+    return <Navigate to="/orders" replace />
+  }
 
-  const orderNumber = location.state?.orderNumber || latestStoredOrder?.orderNumber || ''
-  const orderTotal = location.state?.total
-    ? formatVND(location.state.total)
-    : latestStoredOrder?.total
-      ? formatVND(latestStoredOrder.total)
-      : ''
+  const orderTotal = location.state?.total ? formatVND(location.state.total) : ''
 
   // 2. Zustand Store: Thao tác thêm vào giỏ hàng từ mục Complete The Look
   const addToCart = useCartStore((state) => state.addToCart)
@@ -82,39 +75,6 @@ export default function OrderSuccess() {
     )
     setSelectedQuickProduct(null)
     showToast('Added to Cart')
-  }
-
-  if (!orderNumber) {
-    return (
-      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
-        <div className="max-w-md mx-auto p-8 border border-neutral-200 bg-[#FAFAFA] rounded-[2px]">
-          <h2 className="text-base font-bold uppercase tracking-[0.2em] text-[#111111] mb-2">
-            NO RECENT ORDER FOUND
-          </h2>
-          <p className="text-xs text-neutral-500 mb-6 leading-relaxed">
-            There is no active order session. You can review your purchase history in My Orders or continue shopping.
-          </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-            <Button
-              variant="primary"
-              size="md"
-              onClick={() => navigate('/orders')}
-              className="w-full sm:w-auto tracking-widest text-xs px-6"
-            >
-              VIEW MY ORDERS
-            </Button>
-            <Button
-              variant="secondary"
-              size="md"
-              onClick={() => navigate('/shop')}
-              className="w-full sm:w-auto tracking-widest text-xs px-6"
-            >
-              EXPLORE SHOP
-            </Button>
-          </div>
-        </div>
-      </div>
-    )
   }
 
   return (
