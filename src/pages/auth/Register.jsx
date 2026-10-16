@@ -86,7 +86,7 @@ export default function Register() {
 
     try {
       // 2. Kiểm tra trùng lặp trong db.json
-      const checkRes = await fetch('http://localhost:3000/users')
+      const checkRes = await fetch('http://localhost5000/users')
       if (!checkRes.ok) throw new Error('Cannot connect to user service.')
       const existingUsers = await checkRes.json()
 

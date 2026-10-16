@@ -7,8 +7,13 @@ export const useCartStore = create(
       cartItems: [],
 
       // Thêm sản phẩm vào giỏ (phân biệt rõ ràng theo size và color)
+      // Tìm hàm addToCart trong useCartStore.js:
       addToCart: (product, selectedSize, selectedColor, quantity = 1) => {
+        // 👉 THÊM DÒNG NÀY ĐỂ BẮT TẬN TAY NƠI GỌI:
+        console.trace('🚨 PHÁT HIỆN CÓ FILE ĐANG GỌI addToCart VỚI SẢN PHẨM:', product?.name || product);
+
         const { cartItems } = get();
+        // ... các đoạn code phía dưới giữ nguyên
 
         // Kiểm tra tồn kho (AN)
         if (quantity > product.stock) {

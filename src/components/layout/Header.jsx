@@ -19,7 +19,7 @@ function Header({ hideNav = false }) {
     const totalCount = cartItems.reduce((sum, item) => sum + (item.quantity || 1), 0)
 
     // Nghiệp vụ: Ở trang Auth (hideNav = true) hoặc chưa đăng nhập thì giỏ hàng hiển thị trống (0)
-    const displayCartCount = (!isAuthenticated || hideNav) ? 0 : totalCount
+    const displayCartCount = hideNav ? 0 : totalCount
     const formattedCount = displayCartCount > 99 ? '99+' : displayCartCount
 
     const location = useLocation()

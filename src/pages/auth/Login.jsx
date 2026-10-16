@@ -31,7 +31,7 @@ export default function Login() {
     setIsLoading(true)
 
     try {
-      const res = await fetch('http://localhost:3000/users')
+      const res = await fetch('http://localhost:5000/users')
       if (!res.ok) throw new Error('Cannot connect to authentication service.')
       const users = await res.json()
 
