@@ -14,6 +14,11 @@ import {
   getDefaultShippingAddress,
   getSavedAddresses,
 } from '../../components/profile'
+import {
+  storeUserOrder,
+  COMMERCE_STORAGE_KEYS,
+  FALLBACK_IMAGE,
+} from '../../constants'
 
 /**
  * Trang Đặt hàng Checkout (Customer Checkout Page):
@@ -47,7 +52,7 @@ export default function Checkout() {
     }
     try {
       const saved = JSON.parse(
-        sessionStorage.getItem('fashora_checkout_items') || '[]'
+        sessionStorage.getItem(COMMERCE_STORAGE_KEYS.CHECKOUT_ITEMS) || '[]'
       )
       if (Array.isArray(saved) && saved.length > 0) {
         // Chỉ giữ lại các sản phẩm vẫn còn thực tế trong giỏ hàng
@@ -253,7 +258,7 @@ export default function Checkout() {
         quantity: item.quantity || 1,
         selectedSize: item.selectedSize || 'Standard',
         selectedColor: item.selectedColor || 'Standard',
-        image: item.image || item.images?.[0] || '/assets/fallback.png',
+        image: item.image || item.images?.[0] || FALLBACK_IMAGE,
       })),
       shippingFee: shippingMethod,
       shippingMethod:
@@ -271,26 +276,13 @@ export default function Checkout() {
       },
     }
 
-    // Hàm tiện ích: Lưu đơn hàng vào LocalStorage để đồng bộ xuyên suốt
-    const persistOrderLocally = (saved) => {
-      try {
-        const existing = JSON.parse(localStorage.getItem('fashora_user_orders') || '[]')
-        const orderToStore = saved || orderPayload
-        const filtered = existing.filter((o) => o.orderNumber !== orderToStore.orderNumber)
-        localStorage.setItem('fashora_user_orders', JSON.stringify([orderToStore, ...filtered]))
-        localStorage.setItem('fashora_latest_order', JSON.stringify(orderToStore))
-      } catch (err) {
-        console.warn('Lỗi lưu đơn hàng vào LocalStorage:', err)
-      }
-    }
-
     try {
       // Gửi đơn hàng lên máy chủ db.json qua API POST /orders
       const res = await createOrder(orderPayload)
       const savedOrder = res?.data || res
 
-      // Đồng bộ vào LocalStorage
-      persistOrderLocally(savedOrder)
+      // Đồng bộ vào LocalStorage bằng hàm dùng chung (Single Source of Truth)
+      storeUserOrder(savedOrder || orderPayload)
 
       // Xóa các sản phẩm đã được thanh toán khỏi giỏ hàng
       if (removeItemsFromCart && selectedCheckoutItems.length > 0) {
@@ -299,7 +291,7 @@ export default function Checkout() {
         clearCart()
       }
       try {
-        sessionStorage.removeItem('fashora_checkout_items')
+        sessionStorage.removeItem(COMMERCE_STORAGE_KEYS.CHECKOUT_ITEMS)
       } catch {
         // ignore
       }

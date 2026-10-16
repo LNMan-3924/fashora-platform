@@ -6,6 +6,9 @@ import { getOrderById, updateOrderStatus } from '../../services/api'
 import {
   STATUS_CONFIG,
   formatDate,
+  canCancelOrder,
+  findStoredOrder,
+  updateStoredOrderStatus,
   OrderTimeline,
   OrderStatusNotice,
   OrderItemsList,
@@ -54,24 +57,6 @@ export default function OrderDetail() {
   useEffect(() => {
     let isMounted = true
 
-    const normalizedParam = String(id || '').trim().toLowerCase()
-
-    // Hàm tra cứu trong LocalStorage người dùng
-    const findInLocalStorage = () => {
-      try {
-        const raw = localStorage.getItem('fashora_user_orders')
-        const list = raw ? JSON.parse(raw) : []
-        return list.find(
-          (o) =>
-            String(o.id || '').toLowerCase() === normalizedParam ||
-            String(o.orderNumber || '').toLowerCase() === normalizedParam ||
-            String(o.orderNumber || '').toLowerCase() === `#${normalizedParam}`
-        )
-      } catch {
-        return null
-      }
-    }
-
     // 1. Gọi API lấy đơn hàng theo ID
     getOrderById(id)
       .then((res) => {
@@ -83,8 +68,8 @@ export default function OrderDetail() {
           return
         }
 
-        // Nếu API trả về rỗng, tra cứu trong LocalStorage
-        const localFound = findInLocalStorage()
+        // Nếu API trả về rỗng, tra cứu trong LocalStorage bằng hàm dùng chung
+        const localFound = findStoredOrder(id)
         if (localFound) {
           setOrder(localFound)
           setLoading(false)
@@ -97,7 +82,7 @@ export default function OrderDetail() {
       .catch(() => {
         if (!isMounted) return
         // Khi không kết nối được server, tra cứu LocalStorage
-        const localFound = findInLocalStorage()
+        const localFound = findStoredOrder(id)
         if (localFound) {
           setOrder(localFound)
           setLoading(false)
@@ -136,21 +121,8 @@ export default function OrderDetail() {
     const targetId = order.id
     const targetOrderNumber = order.orderNumber
 
-    // Cập nhật LocalStorage
-    try {
-      const raw = localStorage.getItem('fashora_user_orders')
-      if (raw) {
-        const list = JSON.parse(raw)
-        const updated = list.map((o) =>
-          o.id === targetId || o.orderNumber === targetOrderNumber
-            ? { ...o, status: 'CANCELLED' }
-            : o
-        )
-        localStorage.setItem('fashora_user_orders', JSON.stringify(updated))
-      }
-    } catch (e) {
-      console.warn(e)
-    }
+    // Cập nhật trạng thái CANCELLED vào LocalStorage bằng hàm dùng chung
+    updateStoredOrderStatus(targetId || targetOrderNumber, 'CANCELLED')
 
     setOrder((prev) => ({ ...prev, status: 'CANCELLED' }))
     setIsCancelModalOpen(false)
@@ -215,8 +187,7 @@ export default function OrderDetail() {
   const rawStatus = (order.status || 'PENDING').toUpperCase()
   const config = STATUS_CONFIG[rawStatus] || STATUS_CONFIG.PENDING
   const isCancelled = rawStatus === 'CANCELLED'
-  const canCancel =
-    rawStatus === 'PENDING' || rawStatus === 'CONFIRMED' || rawStatus === 'PROCESSING'
+  const canCancel = canCancelOrder(rawStatus)
 
   return (
     <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">

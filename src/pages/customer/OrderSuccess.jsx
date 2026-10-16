@@ -5,6 +5,7 @@ import { Button, Toast } from '../../components/common'
 import CompleteTheLook from '../../components/product/CompleteTheLook'
 import QuickAddModal from '../../components/product/QuickAddModal'
 import { useCartStore } from '../../stores/useCartStore'
+import { formatVND, COMMERCE_STORAGE_KEYS } from '../../constants'
 
 /**
  * Trang Đặt hàng Thành công (Official Order Successful Page):
@@ -26,7 +27,7 @@ export default function OrderSuccess() {
   // 1. Lấy thông tin đơn hàng từ state chuyển trang hoặc từ đơn hàng vừa đặt trong localStorage
   const latestStoredOrder = (() => {
     try {
-      const raw = localStorage.getItem('fashora_latest_order')
+      const raw = localStorage.getItem(COMMERCE_STORAGE_KEYS.LATEST_ORDER)
       return raw ? JSON.parse(raw) : null
     } catch {
       return null
@@ -35,9 +36,9 @@ export default function OrderSuccess() {
 
   const orderNumber = location.state?.orderNumber || latestStoredOrder?.orderNumber || ''
   const orderTotal = location.state?.total
-    ? Number(location.state.total).toLocaleString('vi-VN') + '₫'
+    ? formatVND(location.state.total)
     : latestStoredOrder?.total
-      ? Number(latestStoredOrder.total).toLocaleString('vi-VN') + '₫'
+      ? formatVND(latestStoredOrder.total)
       : ''
 
   // 2. Zustand Store: Thao tác thêm vào giỏ hàng từ mục Complete The Look

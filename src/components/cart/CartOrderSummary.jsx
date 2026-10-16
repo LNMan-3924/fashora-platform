@@ -1,5 +1,6 @@
 import { Info, ArrowRight, ShieldCheck, Truck, RefreshCw } from 'lucide-react'
 import { Button } from '../common'
+import { formatVND } from '../../constants'
 
 /**
  * Component CartOrderSummary: Bảng tóm tắt chi phí đơn hàng và nút thanh toán (Cột phải).
@@ -17,10 +18,6 @@ export default function CartOrderSummary({
   selectedCount = 0,        // Số lượng sản phẩm đang được chọn
   onProceedCheckout,        // Hàm gọi khi nhấn nút tiến hành thanh toán
 }) {
-  // Hàm định dạng số tiền sang chuẩn Việt Nam Đồng (VD: 5,300,000₫)
-  const formatVND = (val) =>
-    new Intl.NumberFormat('vi-VN').format(val) + '₫'
-
   // Vô hiệu hóa nút thanh toán nếu người dùng chưa chọn bất kỳ món hàng nào
   const isCheckoutDisabled = selectedCount === 0
 

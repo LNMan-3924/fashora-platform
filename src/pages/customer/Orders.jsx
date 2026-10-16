@@ -7,6 +7,7 @@ import {
   OrderQuickModal,
 } from '../../components/order'
 import { getOrders, updateOrderStatus } from '../../services/api'
+import { getStoredUserOrders, updateStoredOrderStatus } from '../../constants'
 
 /**
  * Trang Quản lý Đơn hàng (My Orders Page):
@@ -48,16 +49,7 @@ export default function Orders() {
     let isMounted = true
 
     // Đọc các đơn hàng đã lưu trong LocalStorage khi đặt hàng
-    const getLocalOrders = () => {
-      try {
-        const raw = localStorage.getItem('fashora_user_orders')
-        return raw ? JSON.parse(raw) : []
-      } catch {
-        return []
-      }
-    }
-
-    const localOrders = getLocalOrders()
+    const localOrders = getStoredUserOrders()
 
     getOrders()
       .then((res) => {
@@ -156,28 +148,14 @@ export default function Orders() {
     const targetId = orderToCancel.id
     const targetOrderNumber = orderToCancel.orderNumber
 
-    // Hàm tiện ích: Cập nhật trạng thái CANCELLED vào LocalStorage
-    const updateLocalCancel = () => {
-      try {
-        const raw = localStorage.getItem('fashora_user_orders')
-        if (raw) {
-          const list = JSON.parse(raw)
-          const updated = list.map((o) =>
-            o.id === targetId || o.orderNumber === targetOrderNumber
-              ? { ...o, status: 'CANCELLED' }
-              : o
-          )
-          localStorage.setItem('fashora_user_orders', JSON.stringify(updated))
-        }
-      } catch (e) {
-        console.warn(e)
-      }
-    }
+    // Cập nhật trạng thái CANCELLED vào LocalStorage bằng hàm dùng chung
+    updateStoredOrderStatus(targetId || targetOrderNumber, 'CANCELLED')
 
     try {
       // 1. Gửi request lên server/db.json
-      await updateOrderStatus(targetId, 'CANCELLED')
-      updateLocalCancel()
+      if (targetId) {
+        await updateOrderStatus(targetId, 'CANCELLED')
+      }
 
       // 2. Cập nhật state giao diện
       setOrders((prev) =>
@@ -193,7 +171,6 @@ export default function Orders() {
       showToast(`Order ${targetOrderNumber} has been cancelled.`)
     } catch {
       // Nếu server chưa bật, vẫn hỗ trợ cập nhật offline mượt mà
-      updateLocalCancel()
       setOrders((prev) =>
         prev.map((o) =>
           o.id === targetId || o.orderNumber === targetOrderNumber

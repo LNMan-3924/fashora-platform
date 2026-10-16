@@ -18,6 +18,7 @@ import {
   CompleteTheLook,
   QuickAddModal,
 } from '../../components/product'
+import { getCartItemKey, COMMERCE_STORAGE_KEYS } from '../../constants'
 
 export default function Cart() {
   const navigate = useNavigate()
@@ -59,8 +60,8 @@ export default function Cart() {
   // =========================================================================
   // BƯỚC 4: TÍNH TOÁN & XỬ LÝ DỮ LIỆU CHỌN SẢN PHẨM (SELECTION LOGIC)
   // =========================================================================
-  // Tạo key duy nhất cho mỗi món hàng (kết hợp ID + Size + Màu sắc)
-  const getItemKey = (item) => `${item.id}_${item.selectedSize}_${item.selectedColor}`
+  // Tái sử dụng hàm tạo key duy nhất từ src/constants (ID + Size + Màu sắc)
+  const getItemKey = getCartItemKey
 
   // Danh sách toàn bộ key của tất cả sản phẩm đang có trong giỏ
   const allItemKeys = useMemo(() => {
@@ -170,7 +171,7 @@ export default function Cart() {
   const handleRemoveSingleItem = (id, size, color) => {
     removeFromCart(id, size, color)
     if (selectedKeys !== null) {
-      const removedKey = `${id}_${size}_${color}`
+      const removedKey = getCartItemKey({ id, selectedSize: size, selectedColor: color })
       setSelectedKeys((prev) => (prev ? prev.filter((k) => k !== removedKey) : null))
     }
     showToast('Item removed from cart.')
@@ -198,7 +199,10 @@ export default function Cart() {
     }
 
     try {
-      sessionStorage.setItem('fashora_checkout_items', JSON.stringify(selectedCartItems))
+      sessionStorage.setItem(
+        COMMERCE_STORAGE_KEYS.CHECKOUT_ITEMS,
+        JSON.stringify(selectedCartItems)
+      )
     } catch {
       // ignore
     }

@@ -1,9 +1,10 @@
 import { BadgeCheck, Lock } from 'lucide-react'
+import { formatVND, FALLBACK_IMAGE, handleImageError } from '../../constants'
 
 /**
  * Component CheckoutOrderSummary: Cột tóm tắt giỏ hàng bên phải (Sticky Summary).
  * Bao gồm:
- * 1. Danh sách sản phẩm trong đơn hàng kèm ảnh (có fallback về /assets/fallback.png nếu lỗi)
+ * 1. Danh sách sản phẩm trong đơn hàng kèm ảnh (có fallback tự động nếu lỗi)
  * 2. Phân tích chi phí: Tạm tính (Subtotal), Phí vận chuyển (Shipping), Thuế (Taxes)
  * 3. Tổng thanh toán cuối cùng (Total)
  * 4. Huy hiệu bảo mật đơn hàng (Encrypted Atelier Dispatch Log)
@@ -13,11 +14,6 @@ import { BadgeCheck, Lock } from 'lucide-react'
  * - shippingFee: Phí vận chuyển (0 hoặc 50000)
  */
 export default function CheckoutOrderSummary({ items = [], shippingFee = 0 }) {
-  // Hàm định dạng tiền tệ VND đồng nhất
-  const formatVND = (amount) => {
-    return Number(amount || 0).toLocaleString('en-US') + '₫'
-  }
-
   // Tính tổng phụ (Subtotal)
   const subtotal = items.reduce(
     (acc, item) => acc + (item.price || 0) * (item.quantity || 1),
@@ -48,15 +44,12 @@ export default function CheckoutOrderSummary({ items = [], shippingFee = 0 }) {
 
             return (
               <div key={itemKey} className="py-4 first:pt-0 last:pb-0 flex gap-4">
-                {/* Ảnh sản phẩm với cơ chế fallback về /assets/fallback.png nếu hỏng */}
+                {/* Ảnh sản phẩm với cơ chế fallback về FALLBACK_IMAGE nếu hỏng */}
                 <div className="w-16 h-20 bg-neutral-100 shrink-0 overflow-hidden border border-neutral-200">
                   <img
-                    src={item.image || '/assets/fallback.png'}
+                    src={item.image || FALLBACK_IMAGE}
                     alt={item.name || 'Product item'}
-                    onError={(e) => {
-                      // Tự động gán ảnh fallback khi link bị lỗi 404 hoặc hết hạn
-                      e.currentTarget.src = '/assets/fallback.png'
-                    }}
+                    onError={handleImageError}
                     className="w-full h-full object-cover object-top"
                   />
                 </div>

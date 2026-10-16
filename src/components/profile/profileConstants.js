@@ -4,9 +4,11 @@
  * cho toàn bộ module Profile và đồng bộ thông tin giao hàng sang Checkout.
  */
 
-export const PROFILE_STORAGE_KEY = 'fashora_profile_data'
-export const SAVED_ADDRESSES_STORAGE_KEY = 'fashora_saved_addresses'
-export const DEFAULT_ADDRESS_STORAGE_KEY = 'fashora_default_address'
+import { COMMERCE_STORAGE_KEYS } from '../../constants/commerce'
+
+export const PROFILE_STORAGE_KEY = COMMERCE_STORAGE_KEYS.PROFILE_DATA
+export const SAVED_ADDRESSES_STORAGE_KEY = COMMERCE_STORAGE_KEYS.SAVED_ADDRESSES
+export const DEFAULT_ADDRESS_STORAGE_KEY = COMMERCE_STORAGE_KEYS.DEFAULT_ADDRESS
 
 // Dữ liệu hồ sơ khách hàng ban đầu (trống)
 export const DEFAULT_PROFILE_DATA = {
