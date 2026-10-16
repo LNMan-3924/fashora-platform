@@ -6,14 +6,19 @@ export const useCartStore = create(
     (set, get) => ({
       cartItems: [],
 
-      // Thêm sản phẩm vào giỏ (phân biệt rõ ràng theo size và color)
-      // Tìm hàm addToCart trong useCartStore.js:
+      // Thêm sản phẩm vào giỏ (yêu cầu đăng nhập trước khi thêm)
       addToCart: (product, selectedSize, selectedColor, quantity = 1) => {
-        // 👉 THÊM DÒNG NÀY ĐỂ BẮT TẬN TAY NƠI GỌI:
-        console.trace('🚨 PHÁT HIỆN CÓ FILE ĐANG GỌI addToCart VỚI SẢN PHẨM:', product?.name || product);
+        // Kiểm tra quyền đăng nhập của người dùng
+        const currentUserId = typeof window !== 'undefined' ? localStorage.getItem('currentUserId') : null;
+        if (!currentUserId) {
+          return {
+            success: false,
+            requireLogin: true,
+            message: 'Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng!',
+          };
+        }
 
         const { cartItems } = get();
-        // ... các đoạn code phía dưới giữ nguyên
 
         // Kiểm tra tồn kho (AN)
         if (quantity > product.stock) {
