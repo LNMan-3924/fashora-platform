@@ -23,11 +23,22 @@ export default function OrderSuccess() {
     window.scrollTo({ top: 0, left: 0, behavior: 'instant' })
   }, [])
 
-  // 1. Lấy thông tin đơn hàng từ state chuyển trang (nếu có) hoặc dùng dữ liệu mặc định
-  const orderNumber = location.state?.orderNumber || '#SPXVN123456789'
+  // 1. Lấy thông tin đơn hàng từ state chuyển trang hoặc từ đơn hàng vừa đặt trong localStorage
+  const latestStoredOrder = (() => {
+    try {
+      const raw = localStorage.getItem('fashora_latest_order')
+      return raw ? JSON.parse(raw) : null
+    } catch {
+      return null
+    }
+  })()
+
+  const orderNumber = location.state?.orderNumber || latestStoredOrder?.orderNumber || ''
   const orderTotal = location.state?.total
     ? Number(location.state.total).toLocaleString('vi-VN') + '₫'
-    : '828,000₫'
+    : latestStoredOrder?.total
+      ? Number(latestStoredOrder.total).toLocaleString('vi-VN') + '₫'
+      : ''
 
   // 2. Zustand Store: Thao tác thêm vào giỏ hàng từ mục Complete The Look
   const addToCart = useCartStore((state) => state.addToCart)
@@ -70,6 +81,39 @@ export default function OrderSuccess() {
     )
     setSelectedQuickProduct(null)
     showToast('Added to Cart')
+  }
+
+  if (!orderNumber) {
+    return (
+      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
+        <div className="max-w-md mx-auto p-8 border border-neutral-200 bg-[#FAFAFA] rounded-[2px]">
+          <h2 className="text-base font-bold uppercase tracking-[0.2em] text-[#111111] mb-2">
+            NO RECENT ORDER FOUND
+          </h2>
+          <p className="text-xs text-neutral-500 mb-6 leading-relaxed">
+            There is no active order session. You can review your purchase history in My Orders or continue shopping.
+          </p>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+            <Button
+              variant="primary"
+              size="md"
+              onClick={() => navigate('/orders')}
+              className="w-full sm:w-auto tracking-widest text-xs px-6"
+            >
+              VIEW MY ORDERS
+            </Button>
+            <Button
+              variant="secondary"
+              size="md"
+              onClick={() => navigate('/shop')}
+              className="w-full sm:w-auto tracking-widest text-xs px-6"
+            >
+              EXPLORE SHOP
+            </Button>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   return (

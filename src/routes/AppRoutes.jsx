@@ -36,7 +36,7 @@ import Storefront from '../pages/storefront/Storefront'
 // 6. System Page (404 Not Found)
 import NotFound from '../pages/NotFound'
 
-function AppRoutes() {
+export default function AppRoutes() {
   return (
     <BrowserRouter>
       <Routes>
@@ -83,5 +83,3 @@ function AppRoutes() {
     </BrowserRouter>
   )
 }
-
-export default AppRoutes

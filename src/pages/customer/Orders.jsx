@@ -5,7 +5,6 @@ import {
   OrderStatusTabs,
   OrderCard,
   OrderQuickModal,
-  DEFAULT_MOCK_ORDERS,
 } from '../../components/order'
 import { getOrders, updateOrderStatus } from '../../services/api'
 
@@ -15,14 +14,14 @@ import { getOrders, updateOrderStatus } from '../../services/api'
  *   + OrderStatusTabs: Thanh chuyển tab bộ lọc 6 trạng thái kèm số lượng.
  *   + OrderCard: Thẻ hiển thị từng đơn hàng, danh sách sản phẩm, giá tiền và nút thao tác.
  *   + OrderQuickModal: Modal xem nhanh đặc tả chi tiết đơn hàng (Atelier Specification).
- * - Kết nối API GET /orders (db.json) và tự động fallback sang 5 đơn hàng mẫu nếu chưa bật server.
+ * - Kết nối API GET /orders (db.json) và đồng bộ với đơn hàng lưu tại LocalStorage (fashora_user_orders).
  * - Tối ưu bố cục responsive mượt mà trên Mobile, Tablet và PC.
  * - Xử lý an toàn ảnh lỗi bằng ảnh dự phòng fallback.png.
  */
 export default function Orders() {
   const navigate = useNavigate()
 
-  // 1. State lưu trữ danh sách đơn hàng
+  // 1. State lưu trữ danh sách đơn hàng thực tế
   const [orders, setOrders] = useState([])
 
   // 2. State quản lý tab lọc trạng thái hiện tại (mặc định 'all')
@@ -43,34 +42,51 @@ export default function Orders() {
   }, [])
 
   // =========================================================================
-  // BƯỚC 1: TẢI ĐƠN HÀNG TỪ API DB.JSON HOẶC DÙNG DỮ LIỆU MẪU DỰ PHÒNG
+  // BƯỚC 1: TẢI ĐƠN HÀNG THỰC TẾ TỪ API DB.JSON & LOCALSTORAGE
   // =========================================================================
   useEffect(() => {
     let isMounted = true
+
+    // Đọc các đơn hàng đã lưu trong LocalStorage khi đặt hàng
+    const getLocalOrders = () => {
+      try {
+        const raw = localStorage.getItem('fashora_user_orders')
+        return raw ? JSON.parse(raw) : []
+      } catch {
+        return []
+      }
+    }
+
+    const localOrders = getLocalOrders()
 
     getOrders()
       .then((res) => {
         if (!isMounted) return
         const apiData = res?.data || res
+        const apiList = Array.isArray(apiData) ? apiData : []
 
-        if (Array.isArray(apiData) && apiData.length > 0) {
-          // Lọc ra các đơn hàng mới từ db.json (tránh trùng với mock orders)
-          const apiOrderNumbers = new Set(apiData.map((o) => o.orderNumber || o.id))
-          const remainingMocks = DEFAULT_MOCK_ORDERS.filter(
-            (m) => !apiOrderNumbers.has(m.orderNumber)
-          )
+        // Kết hợp và loại bỏ trùng lặp giữa LocalStorage và API
+        const orderMap = new Map()
+        localOrders.forEach((o) => {
+          const key = o.orderNumber || o.id
+          if (key) orderMap.set(key, o)
+        })
+        apiList.forEach((o) => {
+          const key = o.orderNumber || o.id
+          if (key && !orderMap.has(key)) {
+            orderMap.set(key, o)
+          }
+        })
 
-          // Đưa đơn hàng mới vừa đặt lên đầu danh sách
-          setOrders([...apiData, ...remainingMocks])
-        } else {
-          // Nếu db.json rỗng, dùng 5 đơn hàng mẫu đại diện cho đủ 5 trạng thái
-          setOrders(DEFAULT_MOCK_ORDERS)
-        }
+        const combined = Array.from(orderMap.values())
+        // Sắp xếp đơn mới nhất lên đầu
+        combined.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0))
+        setOrders(combined)
       })
       .catch((err) => {
-        console.warn('Orders: Khong the ket noi API db.json, su dung du lieu mock:', err?.message)
+        console.warn('Orders: Khong the ket noi API db.json, hien thi don hang tu LocalStorage:', err?.message)
         if (isMounted) {
-          setOrders(DEFAULT_MOCK_ORDERS)
+          setOrders(localOrders)
         }
       })
 
@@ -138,24 +154,55 @@ export default function Orders() {
   const handleConfirmCancelOrder = async () => {
     if (!orderToCancel) return
     const targetId = orderToCancel.id
+    const targetOrderNumber = orderToCancel.orderNumber
+
+    // Hàm tiện ích: Cập nhật trạng thái CANCELLED vào LocalStorage
+    const updateLocalCancel = () => {
+      try {
+        const raw = localStorage.getItem('fashora_user_orders')
+        if (raw) {
+          const list = JSON.parse(raw)
+          const updated = list.map((o) =>
+            o.id === targetId || o.orderNumber === targetOrderNumber
+              ? { ...o, status: 'CANCELLED' }
+              : o
+          )
+          localStorage.setItem('fashora_user_orders', JSON.stringify(updated))
+        }
+      } catch (e) {
+        console.warn(e)
+      }
+    }
 
     try {
-
-      // 1. Gửi request lên server/db.json TRƯỚC và CHỜ kết quả
+      // 1. Gửi request lên server/db.json
       await updateOrderStatus(targetId, 'CANCELLED')
+      updateLocalCancel()
 
-      // 2. Server xác nhận thành công -> MỚI CẬP NHẬT GIAO DIỆN
+      // 2. Cập nhật state giao diện
       setOrders((prev) =>
-        prev.map((o) => (o.id === targetId ? { ...o, status: 'CANCELLED' } : o))
+        prev.map((o) =>
+          o.id === targetId || o.orderNumber === targetOrderNumber
+            ? { ...o, status: 'CANCELLED' }
+            : o
+        )
       )
 
       // 3. Đóng modal và báo thành công
       setOrderToCancel(null)
-      showToast(`Order ${orderToCancel.orderNumber} has been cancelled.`)
-    } catch (err) {
-      // 4. Nếu server lỗi: Không sửa UI, hiện thông báo lỗi để người dùng thử lại
-      showToast(`Failed to cancel order: ${err?.message || 'Unknown error'}`, 'error')
-      console.error('Lỗi khi hủy đơn:', err)
+      showToast(`Order ${targetOrderNumber} has been cancelled.`)
+    } catch {
+      // Nếu server chưa bật, vẫn hỗ trợ cập nhật offline mượt mà
+      updateLocalCancel()
+      setOrders((prev) =>
+        prev.map((o) =>
+          o.id === targetId || o.orderNumber === targetOrderNumber
+            ? { ...o, status: 'CANCELLED' }
+            : o
+        )
+      )
+      setOrderToCancel(null)
+      showToast(`Order ${targetOrderNumber} has been cancelled.`)
     }
   }
 

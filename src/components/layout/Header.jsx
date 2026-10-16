@@ -155,7 +155,7 @@ function Header() {
                         onMouseLeave={() => setAccountMenuOpen(false)}
                     >
                         <Link
-                            to="/"
+                            to="/profile"
                             aria-label="Tài khoản cá nhân"
                             className="p-1 text-neutral-700 hover:text-black transition-colors block"
                         >
@@ -172,26 +172,26 @@ function Header() {
                         {/* Dropdown Menu */}
                         {accountMenuOpen && (
                             <div className="absolute right-0 top-full pt-2 w-48 z-50">
-                                <div className="bg-white border border-neutral-200/80 shadow-md py-2 text-xs">
+                                <div className="bg-white border border-[#E5E5E5] shadow-lg rounded-[2px] py-2 text-xs">
                                     <Link
                                         to="/profile"
                                         onClick={() => setAccountMenuOpen(false)}
-                                        className="block px-4 py-2 text-neutral-700 hover:text-black hover:bg-neutral-50 transition-colors"
+                                        className="block px-4 py-2 text-neutral-700 hover:text-black hover:bg-neutral-50 transition-colors uppercase font-medium"
                                     >
                                         PROFILE
                                     </Link>
                                     <Link
                                         to="/orders"
                                         onClick={() => setAccountMenuOpen(false)}
-                                        className="block px-4 py-2 text-neutral-700 hover:text-black hover:bg-neutral-50 transition-colors"
+                                        className="block px-4 py-2 text-neutral-700 hover:text-black hover:bg-neutral-50 transition-colors uppercase font-medium"
                                     >
-                                        MY ORDER
+                                        MY ORDERS
                                     </Link>
                                     <div className="my-1 border-t border-neutral-100" />
                                     <Link
-                                        to="/become-a-seller"
+                                        to="/become-seller"
                                         onClick={() => setAccountMenuOpen(false)}
-                                        className="block px-4 py-2 font-medium text-black hover:bg-neutral-50 transition-colors"
+                                        className="block px-4 py-2 font-medium text-black hover:bg-neutral-50 transition-colors uppercase"
                                     >
                                         BECOME A SELLER
                                     </Link>
