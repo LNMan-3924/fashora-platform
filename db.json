@@ -1291,6 +1291,26 @@
       "phoneNumber": "0901234567",
       "role": "customer",
       "shopId": null
+    },
+    {
+      "id": "OG_o5LL7lOM",
+      "fullName": "Lê Ngọc Mẫn",
+      "email": "leman200x@gmail.com",
+      "phoneNumber": "",
+      "password": "123456789",
+      "dob": "03/09/2004",
+      "gender": "Male",
+      "role": "customer",
+      "shopId": null,
+      "address": {
+        "fullName": "Lê Ngọc Mẫn",
+        "phone": "",
+        "address": "",
+        "ward": "",
+        "city": ""
+      },
+      "shippingAddresses": [],
+      "createdAt": "2026-10-16T08:37:09.764Z"
     }
   ],
   "cart": [],
@@ -1330,7 +1350,7 @@
       "paymentMethod": "Cash on Delivery (COD)",
       "subtotal": 630000,
       "total": 630000,
-      "status": "PENDING",
+      "status": "CANCELLED",
       "createdAt": "2026-10-14T02:13:58.083Z",
       "id": "cRWMqKFvSyY"
     },
