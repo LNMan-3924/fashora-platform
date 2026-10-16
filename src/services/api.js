@@ -60,19 +60,16 @@ export default api;
  */
 export const getCurrentUser = async (userId) => {
   try {
-    const response = await fetch(`http://localhost:3000/users/${userId}`)
-    if (!response.ok) {
-      // Fallback tìm trong danh sách users nếu endpoint theo id không khớp
-      const allRes = await fetch('http://localhost:3000/users')
-      if (allRes.ok) {
-        const users = await allRes.json()
-        return users.find((u) => u.id === userId) || null
-      }
+    const res = await getUserById(userId)
+    return res.data || null
+  } catch {
+    try {
+      const allRes = await getUsers()
+      const users = allRes.data || []
+      return users.find((u) => u.id === userId) || null
+    } catch (error) {
+      console.warn('api.js getCurrentUser error:', error)
       return null
     }
-    return await response.json()
-  } catch (error) {
-    console.warn('api.js getCurrentUser error:', error)
-    return null
   }
 }

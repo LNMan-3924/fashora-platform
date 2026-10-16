@@ -1,12 +1,10 @@
 import { useState, useEffect, useMemo } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { ArrowRight, Trash2 } from 'lucide-react'
 
 // Import store giỏ hàng toàn cục (quản lý bằng Zustand)
 import { useCartStore } from '../../stores'
-
-// Import API service kết nối db.json
-import { getProducts } from '../../services/api'
+import { useAuth } from '../../contexts/AuthContext'
 
 // Import các sub-component chuyên biệt của trang giỏ hàng
 import {
@@ -21,64 +19,12 @@ import {
   CompleteTheLook,
   QuickAddModal,
 } from '../../components/product'
-
-/**
- * Dữ liệu 3 sản phẩm mẫu mặc định (dùng ảnh nội bộ từ thư mục public/).
- * Giúp tái hiện chuẩn xác 100% giao diện thiết kế ban đầu khi người dùng mới vào trang.
- */
-const DEMO_CART_ITEMS = [
-  {
-    id: 'prd_shirt_01',
-    name: 'CROPPED SATIN STRUCTURAL SHIRT',
-    price: 1250000,
-    originalPrice: 1450000,
-    image: '/images/products/shirt/shirt-01.jpg',
-    images: ['/images/products/shirt/shirt-01.jpg'],
-    category: 'TOPS / CASUAL ATELIER',
-    shopId: 'shop_m_studio',
-    shopName: 'M STUDIO',
-    selectedSize: 'M',
-    selectedColor: 'Pure White',
-    quantity: 1,
-    stock: 12,
-    badge: 'LIMITED',
-  },
-  {
-    id: 'prd_pants_02',
-    name: 'ACID FLAME OMBRÉ BALLOON PANTS',
-    price: 1450000,
-    originalPrice: 1650000,
-    image: '/images/products/pants/pants-02.jpg',
-    images: ['/images/products/pants/pants-02.jpg'],
-    category: 'BOTTOMS / ARCHIVE',
-    shopId: 'shop_m_studio',
-    shopName: 'M STUDIO',
-    selectedSize: 'L',
-    selectedColor: 'Washed Black / Flame',
-    quantity: 1,
-    stock: 10,
-    badge: 'EDITION 04',
-  },
-  {
-    id: 'prd_shoes_01',
-    name: 'MULTI-BUCKLE THIGH-HIGH MOTO BOOTS',
-    price: 2600000,
-    originalPrice: 2900000,
-    image: '/images/products/shoes/shoes-01.jpg',
-    images: ['/images/products/shoes/shoes-01.jpg'],
-    category: 'FOOTWEAR / ARTISANAL',
-    shopId: 'shop_m_studio',
-    shopName: 'M STUDIO',
-    selectedSize: '42',
-    selectedColor: 'Matte Black',
-    quantity: 1,
-    stock: 8,
-    badge: 'SIGNATURE',
-  },
-]
+import { getCartItemKey, COMMERCE_STORAGE_KEYS } from '../../constants'
 
 export default function Cart() {
   const navigate = useNavigate()
+  const location = useLocation()
+  const { currentUser } = useAuth()
 
   // =========================================================================
   // BƯỚC 1: LẤY DỮ LIỆU & CÁC HÀM XỬ LÝ TỪ ZUSTAND STORE
@@ -101,46 +47,10 @@ export default function Cart() {
   // Nội dung thông báo Toast nổi góc màn hình
   const [toastMessage, setToastMessage] = useState('')
 
-  // =========================================================================
-  // BƯỚC 3: TỰ ĐỘNG NẠP SẢN PHẨM MẪU LẦN ĐẦU (GỌI API TỪ DB.JSON)
-  // =========================================================================
+  // Tự động cuộn lên đầu trang khi vào giỏ hàng
   useEffect(() => {
-    // Kiểm tra xem trình duyệt đã từng nạp dữ liệu mẫu chưa
-    const isLoaded = localStorage.getItem('fashora_demo_cart_loaded')
-    if (!isLoaded && useCartStore.getState().cartItems.length === 0) {
-      localStorage.setItem('fashora_demo_cart_loaded', 'true')
-      
-      // Gọi API GET /products từ db.json để nạp sản phẩm thực tế vào giỏ hàng
-      getProducts()
-        .then((res) => {
-          const products = res?.data || res
-          if (Array.isArray(products) && products.length > 0) {
-            products.slice(0, 3).forEach((item) => {
-              addToCart(
-                {
-                  ...item,
-                  images: item.images || [item.image],
-                },
-                item.sizes?.[0] || 'M',
-                item.colors?.[0] || 'Standard',
-                1
-              )
-            })
-            return
-          }
-          // Fallback nếu API trống
-          DEMO_CART_ITEMS.forEach((item) => {
-            addToCart(item, item.selectedSize, item.selectedColor, item.quantity)
-          })
-        })
-        .catch(() => {
-          // Fallback nếu chưa bật json-server
-          DEMO_CART_ITEMS.forEach((item) => {
-            addToCart(item, item.selectedSize, item.selectedColor, item.quantity)
-          })
-        })
-    }
-  }, [addToCart])
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' })
+  }, [])
 
   // Hàm tiện ích: hiển thị thông báo Toast trong 3 giây rồi tự ẩn
   const showToast = (message) => {
@@ -153,8 +63,8 @@ export default function Cart() {
   // =========================================================================
   // BƯỚC 4: TÍNH TOÁN & XỬ LÝ DỮ LIỆU CHỌN SẢN PHẨM (SELECTION LOGIC)
   // =========================================================================
-  // Tạo key duy nhất cho mỗi món hàng (kết hợp ID + Size + Màu sắc)
-  const getItemKey = (item) => `${item.id}_${item.selectedSize}_${item.selectedColor}`
+  // Tái sử dụng hàm tạo key duy nhất từ src/constants (ID + Size + Màu sắc)
+  const getItemKey = getCartItemKey
 
   // Danh sách toàn bộ key của tất cả sản phẩm đang có trong giỏ
   const allItemKeys = useMemo(() => {
@@ -264,47 +174,19 @@ export default function Cart() {
   const handleRemoveSingleItem = (id, size, color) => {
     removeFromCart(id, size, color)
     if (selectedKeys !== null) {
-      const removedKey = `${id}_${size}_${color}`
+      const removedKey = getCartItemKey({ id, selectedSize: size, selectedColor: color })
       setSelectedKeys((prev) => (prev ? prev.filter((k) => k !== removedKey) : null))
     }
     showToast('Item removed from cart.')
   }
 
-  // Nút nạp lại sản phẩm mẫu: Gọi API getProducts() từ db.json với fallback dự phòng
-  const handleLoadDemo = async () => {
-    try {
-      const res = await getProducts()
-      const products = res?.data || res
-      if (Array.isArray(products) && products.length > 0) {
-        products.slice(0, 3).forEach((item) => {
-          addToCart(
-            {
-              ...item,
-              images: item.images || [item.image],
-            },
-            item.sizes?.[0] || 'M',
-            item.colors?.[0] || 'Standard',
-            1
-          )
-        })
-        setSelectedKeys(null)
-        showToast('Atelier archive items loaded from API (db.json).')
-        return
-      }
-    } catch (err) {
-      console.warn('Cart: Khong the ket noi API db.json, su dung fallback:', err?.message)
-    }
-
-    // Dự phòng khi máy chủ API chưa khởi động
-    DEMO_CART_ITEMS.forEach((item) => {
-      addToCart(item, item.selectedSize, item.selectedColor, item.quantity)
-    })
-    setSelectedKeys(null)
-    showToast('Demo archive items loaded into cart.')
-  }
-
   // Xác nhận thêm món đồ từ mục "Complete The Look" vào giỏ hàng
   const handleConfirmQuickAdd = (lookItem) => {
+    const isLoggedIn = Boolean(currentUser?.id || localStorage.getItem('currentUserId'))
+    if (!isLoggedIn) {
+      navigate('/login', { state: { from: location } })
+      return
+    }
     addToCart(
       {
         ...lookItem,
@@ -325,9 +207,23 @@ export default function Cart() {
     }
 
     try {
-      sessionStorage.setItem('fashora_checkout_items', JSON.stringify(selectedCartItems))
+      sessionStorage.setItem(
+        COMMERCE_STORAGE_KEYS.CHECKOUT_ITEMS,
+        JSON.stringify(selectedCartItems)
+      )
     } catch {
       // ignore
+    }
+
+    if (!currentUser) {
+      navigate('/login', {
+        state: {
+          from: {
+            pathname: '/checkout',
+          },
+        },
+      })
+      return
     }
 
     navigate('/checkout', {
@@ -426,12 +322,19 @@ export default function Cart() {
         </div>
       ) : (
         /* HIỂN THỊ KHI GIỎ HÀNG ĐANG TRỐNG */
-        <CartEmptyState onLoadDemoItems={handleLoadDemo} />
+        <CartEmptyState />
       )}
 
       {/* 5. GỢI Ý PHỐI ĐỒ (COMPLETE THE LOOK - COMPONENT DÙNG CHUNG) */}
       <CompleteTheLook
-        onQuickAdd={(item) => setQuickAddProduct(item)}
+        onQuickAdd={(item) => {
+          const isLoggedIn = Boolean(currentUser?.id || localStorage.getItem('currentUserId'))
+          if (!isLoggedIn) {
+            navigate('/login', { state: { from: location } })
+            return
+          }
+          setQuickAddProduct(item)
+        }}
       />
 
       {/* 6. CỬA SỔ POPUP THÊM NHANH (QUICK ADD MODAL) */}

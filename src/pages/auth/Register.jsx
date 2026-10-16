@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext'
+import { getUsers, registerUser } from '../../services/api'
 
 export default function Register() {
   const navigate = useNavigate()
@@ -86,9 +87,8 @@ export default function Register() {
 
     try {
       // 2. Kiểm tra trùng lặp trong db.json
-      const checkRes = await fetch('http://localhost:3000/users')
-      if (!checkRes.ok) throw new Error('Cannot connect to user service.')
-      const existingUsers = await checkRes.json()
+      const checkRes = await getUsers()
+      const existingUsers = checkRes.data || []
 
       const isDuplicate = existingUsers.some((u) => {
         if (contactType === 'email' && u.email) {
@@ -128,15 +128,9 @@ export default function Register() {
         createdAt: new Date().toISOString(),
       }
 
-      const createRes = await fetch('http://localhost:3000/users', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newUserPayload),
-      })
+      const createRes = await registerUser(newUserPayload)
+      const createdUser = createRes.data
 
-      if (!createRes.ok) throw new Error('Account creation failed.')
-
-      const createdUser = await createRes.json()
       loginUser(createdUser)
       navigate('/shop')
     } catch (err) {
