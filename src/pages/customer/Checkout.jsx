@@ -311,8 +311,7 @@ export default function Checkout() {
         'Checkout: Khong the ket noi API db.json, luu don hang offline:',
         err?.message
       )
-      // Vẫn hỗ trợ lưu đơn hàng offline an toàn
-      persistOrderLocally(orderPayload)
+
 
       if (removeItemsFromCart && selectedCheckoutItems.length > 0) {
         removeItemsFromCart(selectedCheckoutItems)
