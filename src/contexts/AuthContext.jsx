@@ -51,12 +51,37 @@ export function AuthProvider({ children }) {
     setCurrentUser(null)
   }
 
+  const updateCurrentUser = (updatedUserOrFn) => {
+    setCurrentUser((prev) => {
+      if (typeof updatedUserOrFn === 'function') {
+        return updatedUserOrFn(prev)
+      }
+      return prev ? { ...prev, ...updatedUserOrFn } : updatedUserOrFn
+    })
+  }
+
+  const refreshUser = async () => {
+    const savedUserId = localStorage.getItem('currentUserId')
+    if (!savedUserId) return null
+    try {
+      const user = await getCurrentUser(savedUserId)
+      if (user) {
+        setCurrentUser(user)
+      }
+      return user
+    } catch {
+      return null
+    }
+  }
+
   const value = {
     currentUser,
     isAuthenticated: Boolean(currentUser),
     loading,
     loginUser,
     logoutUser,
+    updateCurrentUser,
+    refreshUser,
   }
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

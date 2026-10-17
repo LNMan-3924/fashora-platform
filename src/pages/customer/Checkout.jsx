@@ -1,7 +1,8 @@
-import { useState, useEffect, useMemo } from 'react'
-import { useNavigate, useLocation } from 'react-router-dom'
+import { useState, useMemo, useRef } from 'react'
+import { useNavigate, useLocation, Navigate, Link } from 'react-router-dom'
 import { useCartStore } from '../../stores/useCartStore'
-import { createOrder, getProducts } from '../../services/api'
+import { createOrder, updateUser } from '../../services/api'
+import { useAuth } from '../../contexts/AuthContext'
 import {
   CheckoutSteps,
   ShippingForm,
@@ -10,296 +11,215 @@ import {
   OrderReview,
   CheckoutOrderSummary,
 } from '../../components/checkout'
+import {
+  getDefaultShippingAddress,
+  getSavedAddresses,
+} from '../../components/profile'
+import {
+  storeUserOrder,
+  COMMERCE_STORAGE_KEYS,
+  FALLBACK_IMAGE,
+  validateField,
+  validateShippingAddress,
+} from '../../constants'
 
 /**
- * Dữ liệu sản phẩm mẫu dự phòng (Atelier Demo Items) khi giỏ hàng trống và chưa kết nối được API.
+ * Component CheckoutFormContent:
+ * Quản lý logic form đặt hàng và tương tác người dùng khi đã xác thực tài khoản.
+ * Được mount khi currentUser đã sẵn sàng từ API, đảm bảo khởi tạo đúng dữ liệu mà không cần gọi setState đồng bộ trong effect.
  */
-const DEMO_ORDER_ITEMS = [
-  {
-    id: 'demo-1',
-    name: 'Cropped Structured Satin Shirt',
-    price: 420000,
-    quantity: 1,
-    selectedSize: 'M',
-    selectedColor: 'PURE WHITE',
-    image: '/images/products/shirt/shirt-01.jpg',
-  },
-  {
-    id: 'demo-2',
-    name: 'Acid Flame Ombré Balloon Pants',
-    price: 490000,
-    quantity: 2,
-    selectedSize: 'L',
-    selectedColor: 'WASHED BLACK',
-    image: '/images/products/pants/pants-01.jpg',
-  },
-  {
-    id: 'demo-3',
-    name: 'Multi-Buckle Thigh-High Moto Boots',
-    price: 890000,
-    quantity: 1,
-    selectedSize: '39',
-    selectedColor: 'OBSIDIAN BLACK',
-    image: '/images/products/shoes/shoes-01.jpg',
-  },
-]
-
-/**
- * Trang Đặt hàng Checkout (Customer Checkout Page):
- * - Tích hợp gọi API POST /orders vào db.json khi người dùng xác nhận đặt hàng.
- * - Lấy danh sách sản phẩm mẫu từ API GET /products khi giỏ hàng trống.
- * - Quản lý form thông tin người nhận, gói vận chuyển, phương thức thanh toán COD.
- * - Kiểm tra (validate) chặt chẽ dữ liệu đầu vào người dùng: họ tên, SĐT, địa chỉ 3 cấp.
- * - Hỗ trợ responsive toàn diện trên Mobile, Tablet và Desktop.
- */
-export default function Checkout() {
+function CheckoutFormContent({
+  currentUser,
+  updateCurrentUser,
+  displayItems,
+  selectedCheckoutItems,
+}) {
   const navigate = useNavigate()
-  const location = useLocation()
-
-  // 1. Lấy dữ liệu giỏ hàng và hàm xóa từ Zustand Store
-  const cartItems = useCartStore((state) => state.cartItems)
   const removeItemsFromCart = useCartStore((state) => state.removeItemsFromCart)
   const clearCart = useCartStore((state) => state.clearCart)
 
-  // State lưu sản phẩm mẫu lấy từ API db.json khi giỏ hàng trống
-  const [apiDemoItems, setApiDemoItems] = useState([])
+  // Danh sách địa chỉ đã lưu: Trích xuất từ currentUser (API backend)
+  const savedAddresses = useMemo(() => {
+    return getSavedAddresses(currentUser)
+  }, [currentUser])
 
-  useEffect(() => {
-    if (cartItems.length > 0) return
-
-    let isMounted = true
-    getProducts()
-      .then((res) => {
-        if (!isMounted) return
-        const data = res?.data || res
-        if (Array.isArray(data) && data.length > 0) {
-          const sample = data.slice(0, 3).map((item) => ({
-            ...item,
-            image: item.image || item.images?.[0] || '/assets/fallback.png',
-            selectedSize: item.sizes?.[0] || 'M',
-            selectedColor: item.colors?.[0] || 'Standard',
-            quantity: 1,
-          }))
-          setApiDemoItems(sample)
-        }
-      })
-      .catch((err) => {
-        console.warn('Checkout: Khong the lay san pham demo tu API db.json, su dung fallback:', err?.message)
-      })
-
-    return () => {
-      isMounted = false
+  // State quản lý thông tin người nhận hàng: Khởi tạo từ địa chỉ mặc định hoặc hồ sơ người dùng
+  const [formData, setFormData] = useState(() => {
+    const defaultAddr = getDefaultShippingAddress(currentUser)
+    return {
+      fullName:
+        defaultAddr?.name ||
+        defaultAddr?.fullName ||
+        currentUser?.fullName ||
+        currentUser?.name ||
+        '',
+      phone:
+        defaultAddr?.phone ||
+        defaultAddr?.phoneNumber ||
+        currentUser?.phoneNumber ||
+        currentUser?.phone ||
+        '',
+      address: defaultAddr?.street || defaultAddr?.address || '',
+      ward: defaultAddr?.ward || '',
+      district: defaultAddr?.district || '',
+      city: defaultAddr?.city || '',
     }
-  }, [cartItems.length])
-
-  // Lấy danh sách sản phẩm được tick chọn để thanh toán:
-  // - Ưu tiên 1: Lấy từ state do trang Cart truyền sang (location.state.selectedItems)
-  // - Ưu tiên 2: Lấy từ sessionStorage (nếu người dùng F5 tải lại trang Checkout)
-  // - Ưu tiên 3: Nếu vào trực tiếp mà giỏ có hàng thì lấy toàn bộ cartItems
-  const selectedCheckoutItems = useMemo(() => {
-    if (
-      location.state?.selectedItems &&
-      Array.isArray(location.state.selectedItems) &&
-      location.state.selectedItems.length > 0
-    ) {
-      return location.state.selectedItems
-    }
-    try {
-      const saved = JSON.parse(
-        sessionStorage.getItem('fashora_checkout_items') || '[]'
-      )
-      if (Array.isArray(saved) && saved.length > 0) {
-        // Chỉ giữ lại các sản phẩm vẫn còn thực tế trong giỏ hàng
-        const validItems = saved.filter((s) =>
-          cartItems.some(
-            (c) =>
-              c.id === s.id &&
-              (c.selectedSize || 'Standard') === (s.selectedSize || 'Standard') &&
-              (c.selectedColor || 'Standard') === (s.selectedColor || 'Standard')
-          )
-        )
-        if (validItems.length > 0) return validItems
-      }
-    } catch {
-      // ignore
-    }
-    return cartItems
-  }, [location.state, cartItems])
-
-  // Nếu có sản phẩm chọn thanh toán -> dùng selectedCheckoutItems.
-  // Nếu giỏ hàng trống -> dùng API demo hoặc DEMO_ORDER_ITEMS
-  const displayItems =
-    selectedCheckoutItems.length > 0
-      ? selectedCheckoutItems
-      : apiDemoItems.length > 0
-        ? apiDemoItems
-        : DEMO_ORDER_ITEMS
-
-  // 2. State quản lý thông tin người nhận hàng
-  const [formData, setFormData] = useState({
-    fullName: 'Helena Vance',
-    phone: '0912345678',
-    address: '742 Evergreen Terrace',
-    ward: 'Phường Bến Nghé',
-    district: 'Quận 1',
-    city: 'Thành phố Hồ Chí Minh',
   })
 
-  // State lưu lỗi validate của từng ô input
-  const [errors, setErrors] = useState({})
-
-  // State phương thức vận chuyển: 0 (Standard - Miễn phí) hoặc 50000 (Express)
+  // State quản lý phương thức vận chuyển (Mặc định 0 = Miễn phí tiêu chuẩn)
   const [shippingMethod, setShippingMethod] = useState(0)
 
-  // State phương thức thanh toán: Theo yêu cầu chỉ giữ lại COD
+  // State quản lý phương thức thanh toán (Chỉ COD theo yêu cầu thiết kế)
   const [paymentMethod, setPaymentMethod] = useState('cod')
 
-  // State trạng thái đang gửi đơn hàng
+  // State quản lý các lỗi kiểm tra tính hợp lệ của Form (Form Validation)
+  const [errors, setErrors] = useState({})
+
+  // State thể hiện trạng thái đang gửi đơn hàng lên máy chủ (Loading state)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const submittingRef = useRef(false)
 
-  /**
-   * Hàm kiểm tra tính hợp lệ của từng trường input
-   * Trả về thông báo lỗi dạng chuỗi tiếng Việt, hoặc rỗng nếu hợp lệ.
-   */
-  const validateField = (name, value) => {
-    const trimmed = (value || '').trim()
-
-    switch (name) {
-      case 'fullName':
-        if (!trimmed) return 'Họ và tên không được để trống.'
-        if (trimmed.length < 2) return 'Họ và tên cần có ít nhất 2 ký tự.'
-        return ''
-
-      case 'phone': {
-        if (!trimmed) return 'Số điện thoại không được để trống.'
-        // Chuẩn hóa định dạng SĐT Việt Nam: 10 số bắt đầu bằng 0 hoặc +84
-        const cleanPhone = trimmed.replace(/\s+/g, '')
-        const phoneRegex = /^(0|\+84)[3|5|7|8|9][0-9]{8}$/
-        if (!phoneRegex.test(cleanPhone)) {
-          return 'Số điện thoại không hợp lệ (ví dụ: 0912345678 hoặc +84912345678).'
-        }
-        return ''
-      }
-
-      case 'address':
-        if (!trimmed) return 'Địa chỉ đường / số nhà không được để trống.'
-        if (trimmed.length < 3) return 'Vui lòng nhập địa chỉ chi tiết hơn.'
-        return ''
-
-      case 'ward':
-        if (!trimmed) return 'Phường / Xã không được để trống.'
-        return ''
-
-      case 'district':
-        if (!trimmed) return 'Quận / Huyện không được để trống.'
-        return ''
-
-      case 'city':
-        if (!trimmed) return 'Tỉnh / Thành phố không được để trống.'
-        return ''
-
-      default:
-        return ''
-    }
-  }
-
-  /**
-   * Xử lý thay đổi dữ liệu khi người dùng nhập vào input
-   */
-  const handleInputChange = (e) => {
-    const { name, value } = e.target
-    setFormData((prev) => ({ ...prev, [name]: value }))
-
-    // Nếu trường đó đang có lỗi, xóa ngay thông báo lỗi khi người dùng bắt đầu sửa
-    if (errors[name]) {
-      setErrors((prev) => ({ ...prev, [name]: '' }))
-    }
-  }
-
-  /**
-   * Xử lý kiểm tra dữ liệu khi người dùng rời khỏi ô input (onBlur)
-   */
-  const handleInputBlur = (e) => {
-    const { name, value } = e.target
-    const fieldError = validateField(name, value)
-    if (fieldError) {
-      setErrors((prev) => ({ ...prev, [name]: fieldError }))
-    }
-  }
-
-  /**
-   * Xử lý khi người dùng nhấn đặt hàng (Place Order):
-   * 1. Validate toàn bộ form thông tin.
-   * 2. Tạo payload đơn hàng đầy đủ.
-   * 3. Gửi lên máy chủ API POST /orders lưu vào db.json.
-   * 4. Dọn sạch giỏ hàng và chuyển hướng sang Order Success.
-   */
-  const handleSubmitOrder = async (e) => {
-    if (e) e.preventDefault()
-
-    // Kiểm tra toàn bộ các trường thông tin
-    const newErrors = {}
-    Object.keys(formData).forEach((key) => {
-      const errorMsg = validateField(key, formData[key])
-      if (errorMsg) {
-        newErrors[key] = errorMsg
-      }
+  // Xử lý chọn nhanh 1 địa chỉ đã lưu từ Profile
+  const handleSelectSavedAddress = (addr) => {
+    if (!addr) return
+    setFormData({
+      fullName: addr.name || addr.fullName || '',
+      phone: addr.phone || addr.phoneNumber || '',
+      address: addr.street || addr.address || '',
+      ward: addr.ward || '',
+      district: addr.district || '',
+      city: addr.city || '',
     })
+    setErrors({})
+  }
 
-    // Nếu phát hiện có lỗi
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors)
+  // Tính toán tổng tiền hàng và tổng thanh toán
+  const subtotal = useMemo(() => {
+    return displayItems.reduce(
+      (sum, item) => sum + item.price * (item.quantity || 1),
+      0
+    )
+  }, [displayItems])
 
-      // Cuộn mượt đến phần tử đầu tiên bị lỗi để người dùng tiện sửa
-      const firstErrorKey = Object.keys(newErrors)[0]
-      const errorElement = document.querySelector(`[name="${firstErrorKey}"]`)
-      if (errorElement) {
-        errorElement.scrollIntoView({ behavior: 'smooth', block: 'center' })
-        errorElement.focus()
+  const orderTotal = subtotal + shippingMethod
+
+  // Xử lý thay đổi dữ liệu trong form thông tin giao hàng (hỗ trợ cả cặp key-value lẫn DOM SyntheticEvent)
+  const handleInputChange = (fieldOrEvent, maybeValue) => {
+    let field = fieldOrEvent
+    let val = maybeValue
+
+    if (fieldOrEvent && fieldOrEvent.target) {
+      field = fieldOrEvent.target.name
+      val = fieldOrEvent.target.value
+    }
+
+    if (!field) return
+
+    setFormData((prev) => ({
+      ...prev,
+      [field]: val,
+    }))
+
+    // Tự động xóa thông báo lỗi của trường đó khi người dùng bắt đầu nhập lại
+    if (errors[field]) {
+      setErrors((prev) => ({
+        ...prev,
+        [field]: '',
+      }))
+    }
+  }
+
+  // Kiểm tra tính hợp lệ từng trường khi người dùng blur khỏi ô input
+  const handleInputBlur = (fieldOrEvent) => {
+    const field = fieldOrEvent?.target ? fieldOrEvent.target.name : fieldOrEvent
+    if (!field) return
+
+    const errorMsg = validateField(field, formData[field])
+    if (errorMsg) {
+      setErrors((prev) => ({ ...prev, [field]: errorMsg }))
+    }
+  }
+
+  // Kiểm tra tổng quát toàn bộ form trước khi gửi đơn bằng hàm dùng chung
+  const validateAll = () => {
+    const { isValid, errors: newErrors } = validateShippingAddress(formData)
+    setErrors(newErrors)
+    return { isValid, newErrors }
+  }
+
+  // Xử lý xác nhận đặt hàng (Place Order)
+  const handleSubmitOrder = async (e) => {
+    if (e && e.preventDefault) e.preventDefault()
+
+    if (isSubmitting || submittingRef.current) return
+
+    // 1. Kiểm tra giỏ hàng
+    if (!displayItems || displayItems.length === 0) {
+      alert('Your cart is empty. Please select products to checkout.')
+      navigate('/cart')
+      return
+    }
+
+    // 2. Kiểm tra tính hợp lệ của toàn bộ form
+    const { isValid, newErrors } = validateAll()
+    if (!isValid) {
+      const firstErrorField = Object.keys(newErrors)[0]
+      if (firstErrorField) {
+        const el =
+          document.getElementById(firstErrorField) ||
+          document.querySelector(`[name="${firstErrorField}"]`)
+        if (el) {
+          el.focus?.()
+          el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+        }
       }
       return
     }
 
-    // Nếu dữ liệu hợp lệ: Bắt đầu xử lý đơn hàng
+    submittingRef.current = true
     setIsSubmitting(true)
 
-    const subtotal = displayItems.reduce(
-      (acc, item) => acc + (item.price || 0) * (item.quantity || 1),
-      0
-    )
-    const orderTotal = subtotal + shippingMethod
-    const generatedOrderNumber =
-      '#SPXVN' + Math.floor(100000000 + Math.random() * 900000000)
+    // Tạo mã đơn hàng độc nhất theo chuẩn SPXVN + 9 chữ số ngẫu nhiên
+    const randomDigits = Math.floor(100000000 + Math.random() * 900000000)
+    const generatedOrderNumber = `#SPXVN${randomDigits}`
 
+    // 3. Chuẩn bị payload đơn hàng đầy đủ
     const orderPayload = {
       orderNumber: generatedOrderNumber,
+      userId: currentUser?.id || null,
+      customerEmail: currentUser?.email || null,
       recipient: {
-        fullName: formData.fullName,
-        phone: formData.phone,
-        address: formData.address,
-        ward: formData.ward,
-        district: formData.district,
-        city: formData.city,
+        fullName: formData.fullName.trim(),
+        phone: formData.phone.trim(),
+        address: formData.address.trim(),
+        ward: (formData.ward || '').trim(),
+        district: (formData.district || '').trim(),
+        city: (formData.city || '').trim(),
       },
+      shopName: displayItems[0]?.shopName || 'M STUDIO',
       items: displayItems.map((item) => ({
         id: item.id,
         name: item.name,
         price: item.price,
-        quantity: item.quantity,
+        quantity: item.quantity || 1,
         selectedSize: item.selectedSize || 'Standard',
         selectedColor: item.selectedColor || 'Standard',
-        image: item.image || item.images?.[0] || '/assets/fallback.png',
+        image: item.image || item.images?.[0] || FALLBACK_IMAGE,
       })),
-      shippingMethod:
-        shippingMethod === 0
-          ? 'Standard Delivery (Complimentary)'
-          : 'Express Priority Courier (50,000₫)',
       shippingFee: shippingMethod,
+      shippingMethod:
+        shippingMethod > 0
+          ? 'Express Courier (+₫35,000)'
+          : 'Standard Delivery (Complimentary)',
       paymentMethod: 'Cash on Delivery (COD)',
       subtotal,
       total: orderTotal,
       status: 'PENDING',
       createdAt: new Date().toISOString(),
+      logistics: {
+        courier: 'SPX Express',
+        waybill: `VN${Date.now().toString().slice(-8)}VN`,
+      },
     }
 
     try {
@@ -307,21 +227,67 @@ export default function Checkout() {
       const res = await createOrder(orderPayload)
       const savedOrder = res?.data || res
 
-      // Xóa CHỈ những sản phẩm đã được thanh toán khỏi giỏ hàng
+      // Yêu cầu: Khi account không có địa chỉ mà nhập địa chỉ trong checkout thì lưu luôn vào address trong API
+      const hasAccountAddress =
+        Boolean(currentUser?.address?.address && currentUser.address.address.trim()) ||
+        (Array.isArray(currentUser?.shippingAddresses) && currentUser.shippingAddresses.length > 0)
+
+      if (currentUser?.id && !hasAccountAddress && formData.address?.trim()) {
+        try {
+          const newRecipient = {
+            fullName: formData.fullName.trim(),
+            phone: formData.phone.trim(),
+            address: formData.address.trim(),
+            ward: (formData.ward || '').trim(),
+            district: (formData.district || '').trim(),
+            city: (formData.city || '').trim(),
+          }
+
+          const newShippingAddr = {
+            id: `ADDR-${Math.floor(1000 + Math.random() * 9000)}`,
+            name: formData.fullName.trim(),
+            phone: formData.phone.trim(),
+            street: formData.address.trim(),
+            address: formData.address.trim(),
+            ward: (formData.ward || '').trim(),
+            district: (formData.district || '').trim(),
+            city: (formData.city || '').trim(),
+            isDefault: true,
+            isVerified: true,
+          }
+
+          const userPayload = {
+            address: newRecipient,
+            shippingAddresses: [newShippingAddr],
+          }
+
+          const updateRes = await updateUser(currentUser.id, userPayload)
+          const updatedUser = updateRes?.data || updateRes
+          if (updateCurrentUser) {
+            updateCurrentUser(updatedUser)
+          }
+        } catch (addrErr) {
+          console.warn('Checkout: Không thể tự động lưu địa chỉ vào tài khoản qua API:', addrErr)
+        }
+      }
+
+      // Đồng bộ vào LocalStorage bằng hàm dùng chung (Single Source of Truth)
+      storeUserOrder(savedOrder || orderPayload)
+
+      // Xóa các sản phẩm đã được thanh toán khỏi giỏ hàng
       if (removeItemsFromCart && selectedCheckoutItems.length > 0) {
         removeItemsFromCart(selectedCheckoutItems)
       } else {
         clearCart()
       }
       try {
-        sessionStorage.removeItem('fashora_checkout_items')
+        sessionStorage.removeItem(COMMERCE_STORAGE_KEYS.CHECKOUT_ITEMS)
       } catch {
         // ignore
       }
 
+      submittingRef.current = false
       setIsSubmitting(false)
-
-      // Cuộn lên đầu trang trước khi chuyển trang
       window.scrollTo({ top: 0, left: 0, behavior: 'instant' })
 
       navigate('/order-success', {
@@ -333,24 +299,25 @@ export default function Checkout() {
       })
     } catch (err) {
       console.warn(
-        'Checkout: Khong the luu don hang len db.json, su dung luong offline.',
+        'Checkout: Khong the ket noi API db.json, luu don hang offline:',
         err?.message
       )
-      // Vẫn hỗ trợ điều hướng an toàn trong trường hợp máy chủ chưa bật
+
+      storeUserOrder(orderPayload)
+
       if (removeItemsFromCart && selectedCheckoutItems.length > 0) {
         removeItemsFromCart(selectedCheckoutItems)
       } else {
         clearCart()
       }
       try {
-        sessionStorage.removeItem('fashora_checkout_items')
+        sessionStorage.removeItem(COMMERCE_STORAGE_KEYS.CHECKOUT_ITEMS)
       } catch {
         // ignore
       }
 
+      submittingRef.current = false
       setIsSubmitting(false)
-
-      // Cuộn lên đầu trang trước khi chuyển trang
       window.scrollTo({ top: 0, left: 0, behavior: 'instant' })
 
       navigate('/order-success', {
@@ -367,21 +334,6 @@ export default function Checkout() {
       {/* 1. Thanh tiến trình các bước đặt hàng (Step Indicators) */}
       <CheckoutSteps />
 
-      {/* Thông báo hiển thị chế độ demo nếu giỏ hàng hiện tại đang trống */}
-      {cartItems.length === 0 && (
-        <div className="mb-6 p-3.5 bg-neutral-100/70 border border-neutral-200 text-xs text-neutral-600 flex items-center justify-between flex-wrap gap-2">
-          <span>
-            <strong className="text-[#111111] uppercase tracking-wider">
-              Atelier Archive Preview:
-            </strong>{' '}
-            Displaying sample archive garments for checkout simulation.
-          </span>
-          <span className="text-[11px] font-mono uppercase tracking-widest text-neutral-400">
-            M STUDIO PREVIEW
-          </span>
-        </div>
-      )}
-
       {/* 2. Bố cục chính 2 cột: Cột trái 7 phần (Forms), Cột phải 5 phần (Sticky Order Summary) */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
         {/* CỘT TRÁI: Các bước nhập thông tin, vận chuyển, COD & review */}
@@ -396,6 +348,8 @@ export default function Checkout() {
             onChange={handleInputChange}
             onBlur={handleInputBlur}
             errors={errors}
+            savedAddresses={savedAddresses}
+            onSelectSavedAddress={handleSelectSavedAddress}
           />
 
           {/* Bước 2: Phương thức giao hàng (Tiêu chuẩn hoặc Hỏa tốc) */}
@@ -420,7 +374,7 @@ export default function Checkout() {
           />
         </form>
 
-        {/* CỘT PHẢI: Tóm tắt đơn hàng, danh sách sản phẩm & con dấu bảo mật */}
+        {/* CỘT PHẢI: Tóm tắt đơn hàng, danh sách sản phẩm thực tế & con dấu bảo mật */}
         <CheckoutOrderSummary
           items={displayItems}
           shippingFee={shippingMethod}
@@ -429,3 +383,115 @@ export default function Checkout() {
     </div>
   )
 }
+
+/**
+ * Trang Đặt hàng Checkout (Customer Checkout Page):
+ * - Tích hợp gọi API POST /orders vào db.json khi người dùng xác nhận đặt hàng.
+ * - Tự động đồng bộ với giỏ hàng thực tế từ Zustand Store (không dùng mock/demo items).
+ * - Lưu đơn hàng vào LocalStorage (fashora_user_orders) để tra cứu lịch sử mua hàng mọi lúc.
+ * - Quản lý form thông tin người nhận, gói vận chuyển, phương thức thanh toán COD.
+ * - Kiểm tra (validate) chặt chẽ dữ liệu đầu vào người dùng: họ tên, SĐT, địa chỉ 3 cấp.
+ * - Hỗ trợ responsive toàn diện trên Mobile, Tablet và Desktop.
+ */
+export default function Checkout() {
+  const location = useLocation()
+  const cartItems = useCartStore((state) => state.cartItems)
+
+  // Lấy dữ liệu người dùng xác thực từ AuthContext (gọi API)
+  const { currentUser, loading: authLoading, updateCurrentUser } = useAuth()
+
+  // Lấy danh sách sản phẩm được tick chọn để thanh toán:
+  // - Ưu tiên 1: Lấy từ state do trang Cart truyền sang (location.state.selectedItems)
+  // - Ưu tiên 2: Lấy từ sessionStorage (nếu người dùng F5 tải lại trang Checkout)
+  // - Ưu tiên 3: Nếu vào trực tiếp mà giỏ có hàng thì lấy toàn bộ cartItems
+  const selectedCheckoutItems = useMemo(() => {
+    if (
+      location.state?.selectedItems &&
+      Array.isArray(location.state.selectedItems) &&
+      location.state.selectedItems.length > 0
+    ) {
+      return location.state.selectedItems
+    }
+    try {
+      const saved = JSON.parse(
+        sessionStorage.getItem(COMMERCE_STORAGE_KEYS.CHECKOUT_ITEMS) || '[]'
+      )
+      if (Array.isArray(saved) && saved.length > 0) {
+        // Chỉ giữ lại các sản phẩm vẫn còn thực tế trong giỏ hàng
+        const validItems = saved.filter((s) =>
+          cartItems.some(
+            (c) =>
+              c.id === s.id &&
+              (c.selectedSize || 'Standard') === (s.selectedSize || 'Standard') &&
+              (c.selectedColor || 'Standard') === (s.selectedColor || 'Standard')
+          )
+        )
+        if (validItems.length > 0) return validItems
+      }
+    } catch {
+      // ignore
+    }
+    return cartItems
+  }, [location.state, cartItems])
+
+  // Danh sách sản phẩm thực tế cần thanh toán
+  const displayItems = selectedCheckoutItems
+
+  // 1. Kiểm tra trạng thái tải thông tin xác thực từ API
+  if (authLoading) {
+    return (
+      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 text-center">
+        <div className="inline-block w-8 h-8 border-2 border-black border-t-transparent rounded-full animate-spin" />
+        <p className="mt-4 text-xs font-mono tracking-widest uppercase text-neutral-400">
+          Loading checkout details...
+        </p>
+      </div>
+    )
+  }
+
+  // 2. Yêu cầu: Khi chưa login thì không cho vào checkout, nếu vào thì chuyển đến login
+  if (!currentUser) {
+    return <Navigate to="/login" state={{ from: location }} replace />
+  }
+
+  // 3. Trường hợp giỏ hàng hoặc danh sách thanh toán trống
+  if (displayItems.length === 0) {
+    return (
+      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
+        <div className="max-w-md mx-auto p-8 sm:p-12 border border-neutral-200 bg-[#FAFAFA] rounded-[2px]">
+          <h2 className="text-base sm:text-lg font-bold uppercase tracking-[0.2em] text-[#111111] mb-2">
+            NO ITEMS SELECTED FOR CHECKOUT
+          </h2>
+          <p className="text-xs text-neutral-500 mb-8 leading-relaxed">
+            Your checkout list is currently empty. Please select products from your cart or explore our collections.
+          </p>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+            <Link
+              to="/cart"
+              className="w-full sm:w-auto px-6 py-3 bg-[#111111] text-white text-xs font-semibold uppercase tracking-wider hover:bg-black transition-colors cursor-pointer inline-block text-center"
+            >
+              RETURN TO CART
+            </Link>
+            <Link
+              to="/shop"
+              className="w-full sm:w-auto px-6 py-3 border border-neutral-300 text-neutral-700 text-xs font-semibold uppercase tracking-wider hover:border-black hover:text-black transition-colors cursor-pointer inline-block text-center"
+            >
+              EXPLORE SHOP
+            </Link>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <CheckoutFormContent
+      key={currentUser.id}
+      currentUser={currentUser}
+      updateCurrentUser={updateCurrentUser}
+      displayItems={displayItems}
+      selectedCheckoutItems={selectedCheckoutItems}
+    />
+  )
+}
+

@@ -4,6 +4,7 @@ import { useCartStore } from '../../stores/useCartStore';
 const FALLBACK_IMAGE = '/placeholder.png';
 
 function QuickAddContent({ product, onClose, onConfirm, onAddToCart }) {
+
   // Lấy hàm addToCart từ store
   const addToCart = useCartStore((state) => state.addToCart);
 
@@ -39,7 +40,7 @@ function QuickAddContent({ product, onClose, onConfirm, onAddToCart }) {
   const shopName =
     product?.shopName || product?.sellerName || product?.storeName || 'M STUDIO';
 
-  // Xử lý thêm vào giỏ: chỉ kích hoạt đúng 1 luồng để số lượng không bị nhân đôi
+  // Xử lý thêm vào giỏ: cho phép cả khách vãng lai và người dùng đã đăng nhập
   const handleAdd = () => {
     const payload = {
       ...product,

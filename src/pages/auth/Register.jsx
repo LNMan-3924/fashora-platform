@@ -187,18 +187,16 @@ export default function Register() {
                 <button
                   type="button"
                   onClick={() => setContactType('email')}
-                  className={`text-[9px] font-mono uppercase tracking-wider px-1.5 py-0.5 border cursor-pointer ${
-                    contactType === 'email' ? 'bg-black text-white border-black' : 'text-neutral-400 border-neutral-200'
-                  }`}
+                  className={`text-[9px] font-mono uppercase tracking-wider px-1.5 py-0.5 border cursor-pointer ${contactType === 'email' ? 'bg-black text-white border-black' : 'text-neutral-400 border-neutral-200'
+                    }`}
                 >
                   USE EMAIL
                 </button>
                 <button
                   type="button"
                   onClick={() => setContactType('phone')}
-                  className={`text-[9px] font-mono uppercase tracking-wider px-1.5 py-0.5 border cursor-pointer ${
-                    contactType === 'phone' ? 'bg-black text-white border-black' : 'text-neutral-400 border-neutral-200'
-                  }`}
+                  className={`text-[9px] font-mono uppercase tracking-wider px-1.5 py-0.5 border cursor-pointer ${contactType === 'phone' ? 'bg-black text-white border-black' : 'text-neutral-400 border-neutral-200'
+                    }`}
                 >
                   USE PHONE
                 </button>

@@ -66,7 +66,6 @@ export default function Login() {
 
       // Điều hướng thông minh dựa theo quyền thực tế của tài khoản:
       const isSeller = foundUser.role === 'seller' || (Array.isArray(foundUser.roles) && foundUser.roles.includes('seller'))
-      
       const previousPath = location.state?.from?.pathname || (typeof location.state?.from === 'string' ? location.state.from : null)
       const previousState = location.state?.selectedItems
         ? { selectedItems: location.state.selectedItems }
@@ -88,7 +87,7 @@ export default function Login() {
     }
   }
   return (
-   <div className="w-full flex flex-col items-center">
+    <div className="w-full flex flex-col items-center">
       {/* Khung Card chính của Form */}
       <div className="w-full max-w-[480px] bg-white border border-neutral-200/90 p-8 sm:p-10 shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
         {/* Header trong thẻ */}

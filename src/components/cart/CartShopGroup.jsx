@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom'
 import { Check } from 'lucide-react'
 import { Checkbox } from '../common'
 import CartItem from './CartItem'
+import { getCartItemKey } from '../../constants'
 
 /**
  * Component CartShopGroup: Gom nhóm các sản phẩm trong giỏ hàng theo từng Gian hàng (Shop).
@@ -24,11 +25,7 @@ export default function CartShopGroup({
   // Kiểm tra xem TOÀN BỘ sản phẩm của shop này có đang được chọn hay không
   const allShopItemsSelected =
     items.length > 0 &&
-    items.every((item) =>
-      selectedItemIds.includes(
-        `${item.id}_${item.selectedSize}_${item.selectedColor}`
-      )
-    )
+    items.every((item) => selectedItemIds.includes(getCartItemKey(item)))
 
   return (
     <div className="border border-neutral-200 rounded-[2px] p-4 sm:p-6 bg-white mb-6 shadow-xs">
@@ -73,7 +70,7 @@ export default function CartShopGroup({
       <div className="divide-y divide-neutral-100">
         {items.map((item) => {
           // Tạo định danh duy nhất cho từng sản phẩm theo ID + Size + Màu
-          const itemKey = `${item.id}_${item.selectedSize}_${item.selectedColor}`
+          const itemKey = getCartItemKey(item)
           const isSelected = selectedItemIds.includes(itemKey)
 
           return (

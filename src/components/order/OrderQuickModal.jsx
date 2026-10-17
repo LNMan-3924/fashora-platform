@@ -3,6 +3,7 @@ import {
   FALLBACK_IMAGE,
   handleImageError,
   formatVND,
+  formatFullAddress,
 } from './orderConstants'
 
 /**
@@ -57,20 +58,15 @@ export default function OrderQuickModal({
               <h3 className="font-semibold text-neutral-900 tracking-wider text-[11px] uppercase mb-1.5 font-mono">
                 Shipping Address
               </h3>
-              <p className="text-neutral-600 leading-relaxed font-sans">
-                {order.recipient?.fullName || 'Nguyen Van Anh'}
-                <br />
-                {order.recipient?.address || '148/9 Nguyen Trai'}
-                <br />
-                {order.recipient?.ward ? `${order.recipient.ward}, ` : ''}
-                {order.recipient?.district || 'District 1'}
-                <br />
-                {order.recipient?.city || 'Ho Chi Minh City'}
-                <br />
-                <span className="font-mono text-neutral-800">
-                  {order.recipient?.phone || '+84 908 123 456'}
-                </span>
-              </p>
+              <div className="text-neutral-600 leading-relaxed font-sans space-y-0.5">
+                <p className="font-semibold text-neutral-900">
+                  {order.recipient?.fullName || order.recipient?.name || 'Recipient'}
+                </p>
+                <p>{formatFullAddress(order.recipient)}</p>
+                <p className="font-mono text-neutral-800 pt-0.5">
+                  Phone: {order.recipient?.phone || 'N/A'}
+                </p>
+              </div>
             </div>
 
             <div>
@@ -88,7 +84,7 @@ export default function OrderQuickModal({
                 <span>
                   Tracking Waybill:{' '}
                   <span className="font-mono text-neutral-900 font-medium">
-                    {order.logistics?.waybill || 'VN839219388VN'}
+                    {order.logistics?.waybill || 'Pending Assignment'}
                   </span>
                 </span>
                 <br />

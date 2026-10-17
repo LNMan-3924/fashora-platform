@@ -23,7 +23,7 @@ import Checkout from '../pages/customer/Checkout'
 import OrderSuccess from '../pages/customer/OrderSuccess'
 import Orders from '../pages/customer/Orders'
 import OrderDetail from '../pages/customer/OrderDetail'
-// import Profile from '../pages/customer/Profile' // Bỏ comment khi bạn kích hoạt lại Profile
+import Profile from '../pages/customer/Profile'
 
 // 3. Seller Onboarding Page (Luồng 4 bước Become A Seller)
 import BecomeSeller from '../pages/seller-onboarding/BecomeSeller'
@@ -40,7 +40,7 @@ import Storefront from '../pages/storefront/Storefront'
 // 6. System Page (404 Not Found)
 import NotFound from '../pages/NotFound'
 
-function AppRoutes() {
+export default function AppRoutes() {
   return (
     <BrowserRouter>
       <ScrollToTop />
@@ -74,7 +74,14 @@ function AppRoutes() {
               }
             />
 
-            <Route path="/order-success" element={<OrderSuccess />} />
+            <Route
+              path="/order-success"
+              element={
+                <AuthGuard>
+                  <OrderSuccess />
+                </AuthGuard>
+              }
+            />
 
             {/* Protected Routes: Đơn hàng
                 Chưa đăng nhập mà vào -> Tự động chuyển hướng sang /login */}
@@ -95,7 +102,7 @@ function AppRoutes() {
               }
             />
 
-            {/* Khi mở lại Profile chỉ cần bỏ comment khối này:
+            {/* Customer Profile (Yêu cầu đăng nhập trước) */}
             <Route
               path="/profile"
               element={
@@ -104,7 +111,6 @@ function AppRoutes() {
                 </AuthGuard>
               }
             />
-            */}
 
             {/* Quy trình đăng ký mở Shop (Yêu cầu đăng nhập tài khoản trước) */}
             <Route
@@ -144,5 +150,3 @@ function AppRoutes() {
     </BrowserRouter>
   )
 }
-
-export default AppRoutes

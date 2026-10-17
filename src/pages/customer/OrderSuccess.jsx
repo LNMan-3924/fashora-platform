@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react'
-import { useNavigate, useLocation } from 'react-router-dom'
+import { useNavigate, useLocation, Navigate } from 'react-router-dom'
 import { Check, Copy } from 'lucide-react'
 import { Button, Toast } from '../../components/common'
 import CompleteTheLook from '../../components/product/CompleteTheLook'
 import QuickAddModal from '../../components/product/QuickAddModal'
 import { useCartStore } from '../../stores/useCartStore'
+import { formatVND } from '../../constants'
 
 /**
  * Trang Đặt hàng Thành công (Official Order Successful Page):
@@ -13,33 +14,37 @@ import { useCartStore } from '../../stores/useCartStore'
  * - Tái sử dụng useCartStore để quản lý thêm sản phẩm gợi ý vào giỏ hàng.
  * - Hỗ trợ sao chép mã đơn hàng vào clipboard kèm thông báo Toast.
  * - Bố cục responsive toàn diện (mobile, tablet, desktop).
+ * - BẢO VỆ: Không cho phép gõ URL trực tiếp để vào trang này. Nếu không có state từ Checkout -> Tự động chuyển về /orders.
  */
 export default function OrderSuccess() {
   const navigate = useNavigate()
   const location = useLocation()
+
+  // 1. Zustand Store: Thao tác thêm vào giỏ hàng từ mục Complete The Look
+  const addToCart = useCartStore((state) => state.addToCart)
+
+  // 2. State quản lý Modal thêm nhanh (Quick Add)
+  const [selectedQuickProduct, setSelectedQuickProduct] = useState(null)
+
+  // 3. State quản lý thông báo Toast
+  const [toast, setToast] = useState({
+    visible: false,
+    message: '',
+  })
 
   // Tự động cuộn lên đầu trang ngay khi vào trang Order Success
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: 'instant' })
   }, [])
 
-  // 1. Lấy thông tin đơn hàng từ state chuyển trang (nếu có) hoặc dùng dữ liệu mặc định
-  const orderNumber = location.state?.orderNumber || '#SPXVN123456789'
-  const orderTotal = location.state?.total
-    ? Number(location.state.total).toLocaleString('vi-VN') + '₫'
-    : '828,000₫'
+  // 4. CHẶN TRUY CẬP TRỰC TIẾP QUA URL:
+  // Trang này chỉ hiển thị khi vừa hoàn tất thanh toán từ Checkout (có location.state.orderNumber)
+  const orderNumber = location.state?.orderNumber
+  if (!orderNumber) {
+    return <Navigate to="/orders" replace />
+  }
 
-  // 2. Zustand Store: Thao tác thêm vào giỏ hàng từ mục Complete The Look
-  const addToCart = useCartStore((state) => state.addToCart)
-
-  // 3. State quản lý Modal thêm nhanh (Quick Add)
-  const [selectedQuickProduct, setSelectedQuickProduct] = useState(null)
-
-  // 4. State quản lý thông báo Toast
-  const [toast, setToast] = useState({
-    visible: false,
-    message: '',
-  })
+  const orderTotal = location.state?.total ? formatVND(location.state.total) : ''
 
   /**
    * Hiển thị thông báo Toast với nội dung truyền vào

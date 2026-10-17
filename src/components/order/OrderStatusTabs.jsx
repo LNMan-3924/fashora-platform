@@ -1,3 +1,5 @@
+import { ORDER_TABS } from './orderConstants'
+
 /**
  * Component OrderStatusTabs: Thanh chuyển đổi bộ lọc trạng thái đơn hàng (Tabs)
  * Hỗ trợ cuộn ngang mượt mà trên Mobile và co giãn tự nhiên trên Tablet / Desktop.
@@ -12,14 +14,10 @@ export default function OrderStatusTabs({
   onTabChange,
   counts = {},
 }) {
-  const tabs = [
-    { key: 'all', label: 'ALL ORDERS', count: counts.all || 0 },
-    { key: 'pending', label: 'PENDING', count: counts.pending || 0 },
-    { key: 'confirmed', label: 'CONFIRMED', count: counts.confirmed || 0 },
-    { key: 'shipping', label: 'SHIPPING', count: counts.shipping || 0 },
-    { key: 'completed', label: 'COMPLETED', count: counts.completed || 0 },
-    { key: 'cancelled', label: 'CANCELLED', count: counts.cancelled || 0 },
-  ]
+  const tabs = ORDER_TABS.map((tab) => ({
+    ...tab,
+    count: counts[tab.key] || 0,
+  }))
 
   return (
     <nav

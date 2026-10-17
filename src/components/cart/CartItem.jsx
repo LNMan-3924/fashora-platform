@@ -1,13 +1,12 @@
 
 import { Trash2 } from 'lucide-react'
 import { Checkbox } from '../common'
-
-// Đường dẫn ảnh dự phòng an toàn nếu ảnh sản phẩm trên mạng bị sự cố
-const FALLBACK_IMAGE = '/assets/fallback.png'
+import { FALLBACK_IMAGE, handleImageError, formatVND } from '../../constants'
 
 /**
  * Component CartItem: Hiển thị 1 dòng sản phẩm trong danh sách giỏ hàng.
  * Tái sử dụng Checkbox từ src/components/common.
+ * Sử dụng FALLBACK_IMAGE, handleImageError, formatVND dùng chung từ src/constants.
  * Bao gồm: Checkbox chọn món, ảnh thu nhỏ 3:4, tên, phân loại, đơn giá,
  * bộ tăng giảm số lượng (-/+), tính thành tiền dòng và các nút thao tác (wishlist, xóa).
  */
@@ -19,19 +18,8 @@ export default function CartItem({
   onRemove,               // Hàm gọi khi bấm nút xóa món hàng khỏi giỏ
 }) {
 
-  // Hàm tiện ích: Định dạng số tiền sang chuẩn VND (Ví dụ: 1,250,000₫)
-  const formatVND = (val) =>
-    new Intl.NumberFormat('vi-VN').format(val) + '₫'
-
   // Tính thành tiền của dòng: Đơn giá nhân với số lượng
   const lineTotal = (item.price || 0) * (item.quantity || 1)
-
-  // Hàm xử lý lỗi ảnh: Tự động trỏ về ảnh dự phòng có sẵn trong thư mục public
-  const handleImageError = (e) => {
-    if (!e.currentTarget.src.includes(FALLBACK_IMAGE)) {
-      e.currentTarget.src = FALLBACK_IMAGE
-    }
-  }
 
   return (
     <div className="py-5 sm:py-6 flex gap-3 sm:gap-6 items-start border-b border-neutral-200 last:border-b-0">

@@ -7,6 +7,7 @@ import {
   handleImageError,
   formatVND,
   formatDate,
+  canCancelOrder,
 } from './orderConstants'
 
 /**
@@ -36,10 +37,7 @@ export default function OrderCard({
   const rawStatus = (order.status || 'PENDING').toUpperCase()
   const config = STATUS_CONFIG[rawStatus] || STATUS_CONFIG.PENDING
   const isCancelled = rawStatus === 'CANCELLED'
-  const canCancel =
-    rawStatus === 'PENDING' ||
-    rawStatus === 'CONFIRMED' ||
-    rawStatus === 'PROCESSING'
+  const canCancel = canCancelOrder(rawStatus)
 
   return (
     <article

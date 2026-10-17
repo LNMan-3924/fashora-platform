@@ -5,9 +5,9 @@ import {
   OrderStatusTabs,
   OrderCard,
   OrderQuickModal,
-  DEFAULT_MOCK_ORDERS,
 } from '../../components/order'
 import { getOrders, updateOrderStatus } from '../../services/api'
+import { useAuth } from '../../contexts/AuthContext'
 
 /**
  * Trang Quản lý Đơn hàng (My Orders Page):
@@ -15,15 +15,17 @@ import { getOrders, updateOrderStatus } from '../../services/api'
  *   + OrderStatusTabs: Thanh chuyển tab bộ lọc 6 trạng thái kèm số lượng.
  *   + OrderCard: Thẻ hiển thị từng đơn hàng, danh sách sản phẩm, giá tiền và nút thao tác.
  *   + OrderQuickModal: Modal xem nhanh đặc tả chi tiết đơn hàng (Atelier Specification).
- * - Kết nối API GET /orders (db.json) và tự động fallback sang 5 đơn hàng mẫu nếu chưa bật server.
+ * - Kết nối API GET /orders (db.json) và đồng bộ với đơn hàng lưu tại LocalStorage (fashora_user_orders).
  * - Tối ưu bố cục responsive mượt mà trên Mobile, Tablet và PC.
  * - Xử lý an toàn ảnh lỗi bằng ảnh dự phòng fallback.png.
  */
 export default function Orders() {
   const navigate = useNavigate()
+  const { currentUser } = useAuth()
 
-  // 1. State lưu trữ danh sách đơn hàng
+  // 1. State lưu trữ danh sách đơn hàng thực tế từ API
   const [orders, setOrders] = useState([])
+  const [isLoading, setIsLoading] = useState(() => Boolean(currentUser?.id))
 
   // 2. State quản lý tab lọc trạng thái hiện tại (mặc định 'all')
   const [activeTab, setActiveTab] = useState('all')
@@ -43,7 +45,7 @@ export default function Orders() {
   }, [])
 
   // =========================================================================
-  // BƯỚC 1: TẢI ĐƠN HÀNG TỪ API DB.JSON HOẶC DÙNG DỮ LIỆU MẪU DỰ PHÒNG
+  // BƯỚC 1: TẢI ĐƠN HÀNG THỰC TẾ TRỰC TIẾP TỪ API DB.JSON
   // =========================================================================
   useEffect(() => {
     let isMounted = true
@@ -52,32 +54,47 @@ export default function Orders() {
       .then((res) => {
         if (!isMounted) return
         const apiData = res?.data || res
+        const apiList = Array.isArray(apiData) ? apiData : []
 
-        if (Array.isArray(apiData) && apiData.length > 0) {
-          // Lọc ra các đơn hàng mới từ db.json (tránh trùng với mock orders)
-          const apiOrderNumbers = new Set(apiData.map((o) => o.orderNumber || o.id))
-          const remainingMocks = DEFAULT_MOCK_ORDERS.filter(
-            (m) => !apiOrderNumbers.has(m.orderNumber)
-          )
-
-          // Đưa đơn hàng mới vừa đặt lên đầu danh sách
-          setOrders([...apiData, ...remainingMocks])
-        } else {
-          // Nếu db.json rỗng, dùng 5 đơn hàng mẫu đại diện cho đủ 5 trạng thái
-          setOrders(DEFAULT_MOCK_ORDERS)
+        // Nếu chưa đăng nhập hoặc không có ID người dùng, danh sách đơn hàng để rỗng
+        if (!currentUser?.id) {
+          setOrders([])
+          setIsLoading(false)
+          return
         }
+
+        // Lọc nghiêm ngặt: CHỈ lấy đơn hàng thuộc về chính tài khoản đang đăng nhập
+        // 1. Trùng khớp với userId
+        // 2. Hoặc trùng khớp với customerEmail của tài khoản
+        const userOrders = apiList.filter((o) => {
+          const matchUserId = Boolean(o.userId && String(o.userId) === String(currentUser.id))
+          const matchEmail = Boolean(
+            currentUser.email &&
+            o.customerEmail &&
+            o.customerEmail.trim().toLowerCase() === currentUser.email.trim().toLowerCase()
+          )
+          return matchUserId || matchEmail
+        })
+
+        // Sắp xếp đơn mới nhất lên đầu
+        const sorted = [...userOrders].sort(
+          (a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0)
+        )
+        setOrders(sorted)
+        setIsLoading(false)
       })
       .catch((err) => {
-        console.warn('Orders: Khong the ket noi API db.json, su dung du lieu mock:', err?.message)
+        console.error('Orders: Lỗi tải đơn hàng từ API:', err)
         if (isMounted) {
-          setOrders(DEFAULT_MOCK_ORDERS)
+          setOrders([])
+          setIsLoading(false)
         }
       })
 
     return () => {
       isMounted = false
     }
-  }, [])
+  }, [currentUser?.id, currentUser?.email])
 
   // =========================================================================
   // BƯỚC 2: TÍNH TOÁN SỐ LƯỢNG ĐƠN HÀNG THEO TỪNG TAB TRẠNG THÁI
@@ -134,28 +151,33 @@ export default function Orders() {
     showToast(`Order ${orderNum} copied to clipboard`)
   }
 
-  // Xử lý xác nhận HỦY đơn hàng
+  // Xử lý xác nhận HỦY đơn hàng qua API
   const handleConfirmCancelOrder = async () => {
     if (!orderToCancel) return
     const targetId = orderToCancel.id
+    const targetOrderNumber = orderToCancel.orderNumber
 
     try {
+      // 1. Gửi request PATCH /orders/:id lên API server (db.json)
+      if (targetId) {
+        await updateOrderStatus(targetId, 'CANCELLED')
+      }
 
-      // 1. Gửi request lên server/db.json TRƯỚC và CHỜ kết quả
-      await updateOrderStatus(targetId, 'CANCELLED')
-
-      // 2. Server xác nhận thành công -> MỚI CẬP NHẬT GIAO DIỆN
+      // 2. Cập nhật state giao diện
       setOrders((prev) =>
-        prev.map((o) => (o.id === targetId ? { ...o, status: 'CANCELLED' } : o))
+        prev.map((o) =>
+          o.id === targetId || o.orderNumber === targetOrderNumber
+            ? { ...o, status: 'CANCELLED' }
+            : o
+        )
       )
 
       // 3. Đóng modal và báo thành công
       setOrderToCancel(null)
-      showToast(`Order ${orderToCancel.orderNumber} has been cancelled.`)
+      showToast(`Order ${targetOrderNumber} has been cancelled.`)
     } catch (err) {
-      // 4. Nếu server lỗi: Không sửa UI, hiện thông báo lỗi để người dùng thử lại
-      showToast(`Failed to cancel order: ${err?.message || 'Unknown error'}`, 'error')
-      console.error('Lỗi khi hủy đơn:', err)
+      console.error('Orders: Lỗi hủy đơn hàng qua API:', err)
+      showToast('Failed to cancel order. Please try again.')
     }
   }
 
@@ -195,7 +217,14 @@ export default function Orders() {
       />
 
       {/* 3. DANH SÁCH THẺ ĐƠN HÀNG (TÁCH THÀNH COMPONENT OrderCard) */}
-      {filteredOrders.length > 0 ? (
+      {isLoading ? (
+        <div className="py-20 text-center">
+          <div className="w-8 h-8 border-2 border-black border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+          <p className="text-xs font-mono tracking-widest uppercase text-neutral-400">
+            Loading your orders...
+          </p>
+        </div>
+      ) : filteredOrders.length > 0 ? (
         <div className="space-y-6">
           {filteredOrders.map((order) => (
             <OrderCard

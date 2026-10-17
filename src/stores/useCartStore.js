@@ -8,6 +8,7 @@ export const useCartStore = create(
 
       // Thêm sản phẩm vào giỏ (cho phép khách vãng lai và người dùng đã đăng nhập)
       addToCart: (product, selectedSize, selectedColor, quantity = 1) => {
+
         const { cartItems } = get();
 
         // Kiểm tra tồn kho

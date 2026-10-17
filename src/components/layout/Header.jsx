@@ -69,7 +69,7 @@ function Header({ hideNav = false }) {
     }
 
     return (
-        <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-sm border-b border-neutral-100">
+        <header className="sticky top-0 z-40 bg-black/95 backdrop-blur-sm border-b border-neutral-800">
             {/* TẦNG 1: h-20, grid 3 cột */}
             <div className="h-20 grid grid-cols-3 items-center px-6 sm:px-10 lg:px-16">
                 {/* Cột trái: Form ô tìm kiếm dạng gạch chân tối giản / Mobile menu toggle */}
@@ -80,7 +80,7 @@ function Header({ hideNav = false }) {
                             type="button"
                             aria-label="Mở menu"
                             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                            className="md:hidden mr-3 p-1 text-neutral-800 hover:text-black focus:outline-none cursor-pointer"
+                            className="md:hidden mr-3 p-1 text-neutral-300 hover:text-white focus:outline-none cursor-pointer"
                         >
                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 {isMobileMenuOpen ? (
@@ -105,7 +105,7 @@ function Header({ hideNav = false }) {
                     {/* Ô tìm kiếm dạng gạch chân tối giản */}
                     <form
                         onSubmit={handleSearchSubmit}
-                        className="hidden sm:flex items-center gap-2 border-b border-neutral-200 pb-1 max-w-[220px] w-full"
+                        className="hidden sm:flex items-center gap-2 border-b border-neutral-700 pb-1 max-w-[220px] w-full"
                     >
                         <svg
                             className="w-3.5 h-3.5 text-neutral-400 shrink-0"
@@ -125,7 +125,7 @@ function Header({ hideNav = false }) {
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                             placeholder="SEARCH..."
-                            className="w-full text-xs placeholder:text-neutral-400 tracking-[0.15em] bg-transparent focus:outline-none text-neutral-800 uppercase"
+                            className="w-full text-xs placeholder:text-neutral-500 tracking-[0.15em] bg-transparent focus:outline-none text-white uppercase"
                         />
                     </form>
                 </div>
@@ -141,7 +141,7 @@ function Header({ hideNav = false }) {
                                 onError={handleLogoError}
                             />
                         ) : (
-                            <span className="text-xl sm:text-2xl font-bold tracking-[0.35em] text-black">
+                            <span className="text-xl sm:text-2xl font-bold tracking-[0.35em] text-white">
                                 FASHORA
                             </span>
                         )}
@@ -165,7 +165,7 @@ function Header({ hideNav = false }) {
                             onClick={() => setAccountMenuOpen((prev) => !prev)}
                             aria-label="Account Menu"
                             aria-expanded={accountMenuOpen}
-                            className="p-1 text-neutral-700 hover:text-black transition-colors block cursor-pointer outline-none"
+                            className="p-1 text-neutral-300 hover:text-white transition-colors block cursor-pointer outline-none"
                         >
                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path
@@ -180,46 +180,46 @@ function Header({ hideNav = false }) {
                         {/* Dropdown Menu */}
                         {accountMenuOpen && (
                             <div className="absolute right-0 top-full pt-2 w-52 z-50 animate-in fade-in duration-150">
-                                <div className="bg-white border border-neutral-200/90 shadow-lg py-2 text-xs">
+                                <div className="bg-neutral-900 border border-neutral-800 shadow-2xl py-2 text-xs rounded-sm">
                                     {isAuthenticated ? (
                                         <>
-                                            <div className="px-4 py-2 border-b border-neutral-100">
+                                            <div className="px-4 py-2 border-b border-neutral-800">
                                                 <span className="text-[10px] font-mono text-neutral-400 uppercase block tracking-wider">
                                                     SIGNED IN AS
                                                 </span>
-                                                <span className="text-xs font-bold text-black truncate block mt-0.5">
+                                                <span className="text-xs font-bold text-white truncate block mt-0.5">
                                                     {currentUser?.fullName || 'Valued Member'}
                                                 </span>
                                             </div>
                                             <Link
                                                 to="/profile"
                                                 onClick={() => setAccountMenuOpen(false)}
-                                                className="block px-4 py-2 font-mono uppercase text-[11px] tracking-wider text-neutral-700 hover:text-black hover:bg-neutral-50 transition-colors"
+                                                className="block px-4 py-2 font-mono uppercase text-[11px] tracking-wider text-neutral-300 hover:text-white hover:bg-neutral-800 transition-colors"
                                             >
                                                 PROFILE
                                             </Link>
                                             <Link
                                                 to="/orders"
                                                 onClick={() => setAccountMenuOpen(false)}
-                                                className="block px-4 py-2 font-mono uppercase text-[11px] tracking-wider text-neutral-700 hover:text-black hover:bg-neutral-50 transition-colors"
+                                                className="block px-4 py-2 font-mono uppercase text-[11px] tracking-wider text-neutral-300 hover:text-white hover:bg-neutral-800 transition-colors"
                                             >
                                                 MY ORDERS
                                             </Link>
                                             <Link
                                                 to="/become-seller"
                                                 onClick={() => setAccountMenuOpen(false)}
-                                                className="block px-4 py-2 font-mono uppercase text-[11px] tracking-wider font-semibold text-black hover:bg-neutral-50 transition-colors"
+                                                className="block px-4 py-2 font-mono uppercase text-[11px] tracking-wider font-semibold text-white hover:bg-neutral-800 transition-colors"
                                             >
                                                 BECOME A SELLER
                                             </Link>
-                                            <div className="my-1 border-t border-neutral-100" />
+                                            <div className="my-1 border-t border-neutral-800" />
                                             <button
                                                 type="button"
                                                 onClick={() => {
                                                     logoutUser()
                                                     setAccountMenuOpen(false)
                                                 }}
-                                                className="w-full text-left px-4 py-2 font-mono uppercase text-[11px] tracking-wider text-red-600 hover:bg-neutral-50 transition-colors cursor-pointer"
+                                                className="w-full text-left px-4 py-2 font-mono uppercase text-[11px] tracking-wider text-red-400 hover:bg-neutral-800 transition-colors cursor-pointer"
                                             >
                                                 SIGN OUT
                                             </button>
@@ -229,14 +229,14 @@ function Header({ hideNav = false }) {
                                             <Link
                                                 to="/login"
                                                 onClick={() => setAccountMenuOpen(false)}
-                                                className="block px-4 py-2.5 font-mono uppercase text-[11px] tracking-wider font-semibold text-neutral-800 hover:text-black hover:bg-neutral-50 transition-colors"
+                                                className="block px-4 py-2.5 font-mono uppercase text-[11px] tracking-wider font-semibold text-white hover:bg-neutral-800 transition-colors"
                                             >
                                                 SIGN IN
                                             </Link>
                                             <Link
                                                 to="/register"
                                                 onClick={() => setAccountMenuOpen(false)}
-                                                className="block px-4 py-2.5 font-mono uppercase text-[11px] tracking-wider text-neutral-500 hover:text-black hover:bg-neutral-50 transition-colors"
+                                                className="block px-4 py-2.5 font-mono uppercase text-[11px] tracking-wider text-neutral-400 hover:text-white hover:bg-neutral-800 transition-colors"
                                             >
                                                 CREATE AN ACCOUNT
                                             </Link>
@@ -251,7 +251,7 @@ function Header({ hideNav = false }) {
                     <Link
                         to="/cart"
                         aria-label="Giỏ hàng"
-                        className="relative p-1 text-neutral-700 hover:text-black transition-colors flex items-center"
+                        className="relative p-1 text-neutral-300 hover:text-white transition-colors flex items-center"
                     >
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path
@@ -264,7 +264,7 @@ function Header({ hideNav = false }) {
 
                         {/* Chỉ render badge khi displayCartCount > 0 */}
                         {displayCartCount > 0 && (
-                            <span className="absolute -top-1 -right-2 bg-black text-white text-[9px] font-semibold tracking-tighter min-w-4 h-4 px-1 rounded-full flex items-center justify-center animate-in fade-in duration-200">
+                            <span className="absolute -top-1 -right-2 bg-white text-black text-[9px] font-bold tracking-tighter min-w-4 h-4 px-1 rounded-full flex items-center justify-center animate-in fade-in duration-200">
                                 {formattedCount}
                             </span>
                         )}
@@ -274,12 +274,12 @@ function Header({ hideNav = false }) {
 
             {/* TẦNG 2: Navigation bar căn giữa bên dưới (ẨN KHI hideNav = true) */}
             {!hideNav && (
-                <nav className="hidden md:flex items-center justify-center gap-10 lg:gap-14 py-3 border-t border-neutral-100/70 text-xs tracking-[0.18em]">
+                <nav className="hidden md:flex items-center justify-center gap-10 lg:gap-14 py-3 border-t border-neutral-800/80 text-xs tracking-[0.18em]">
                     <Link
                         to="/"
                         className={`transition-colors uppercase ${isNewArrival
-                            ? 'text-black font-bold'
-                            : 'text-neutral-500 hover:text-black font-medium'
+                            ? 'text-white font-bold'
+                            : 'text-neutral-400 hover:text-white font-medium'
                             }`}
                     >
                         NEW ARRIVAL
@@ -287,8 +287,8 @@ function Header({ hideNav = false }) {
                     <Link
                         to="/shop?tag=best-seller"
                         className={`transition-colors uppercase ${isBestSeller
-                            ? 'text-black font-bold'
-                            : 'text-neutral-500 hover:text-black font-medium'
+                            ? 'text-white font-bold'
+                            : 'text-neutral-400 hover:text-white font-medium'
                             }`}
                     >
                         BEST SELLER
@@ -296,8 +296,8 @@ function Header({ hideNav = false }) {
                     <Link
                         to="/shop"
                         className={`transition-colors uppercase ${isAll
-                            ? 'text-black font-bold'
-                            : 'text-neutral-500 hover:text-black font-medium'
+                            ? 'text-white font-bold'
+                            : 'text-neutral-400 hover:text-white font-medium'
                             }`}
                     >
                         ALL
@@ -309,20 +309,20 @@ function Header({ hideNav = false }) {
             {!hideNav && isMobileMenuOpen && typeof document !== 'undefined' && createPortal(
                 <div className="fixed inset-0 z-[9999] flex md:hidden" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}>
                     <div
-                        className="fixed inset-0 bg-black/60 transition-opacity"
+                        className="fixed inset-0 bg-black/70 backdrop-blur-xs transition-opacity"
                         onClick={() => setIsMobileMenuOpen(false)}
                     />
 
-                    <aside className="relative z-10 w-[300px] max-w-[85vw] h-full bg-white shadow-2xl flex flex-col px-6 py-7 animate-in slide-in-from-left duration-200">
+                    <aside className="relative z-10 w-[300px] max-w-[85vw] h-full bg-neutral-950 border-r border-neutral-800 shadow-2xl flex flex-col px-6 py-7 animate-in slide-in-from-left duration-200">
                         {/* 1. Header của Drawer */}
-                        <div className="flex items-center justify-between pb-5 border-b border-neutral-100">
-                            <span className="text-lg font-bold tracking-[0.28em] uppercase text-black">
+                        <div className="flex items-center justify-between pb-5 border-b border-neutral-800">
+                            <span className="text-lg font-bold tracking-[0.28em] uppercase text-white">
                                 FASHORA
                             </span>
                             <button
                                 type="button"
                                 onClick={() => setIsMobileMenuOpen(false)}
-                                className="p-1 text-black hover:opacity-60 transition-opacity cursor-pointer"
+                                className="p-1 text-white hover:opacity-60 transition-opacity cursor-pointer"
                                 aria-label="Close menu"
                             >
                                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -333,7 +333,7 @@ function Header({ hideNav = false }) {
 
                         {/* 2. Ô Tìm Kiếm */}
                         <form onSubmit={handleSearchSubmit} className="mt-6 w-full">
-                            <div className="relative flex items-center bg-[#f4f4f4] rounded-lg px-3.5 py-2.5">
+                            <div className="relative flex items-center bg-neutral-900 border border-neutral-800 rounded-lg px-3.5 py-2.5">
                                 <svg
                                     className="w-4 h-4 text-neutral-400 shrink-0 mr-2.5"
                                     fill="none"
@@ -352,7 +352,7 @@ function Header({ hideNav = false }) {
                                     value={searchQuery}
                                     onChange={(e) => setSearchQuery(e.target.value)}
                                     placeholder="SEARCH ARCHIVE..."
-                                    className="w-full bg-transparent text-[11px] tracking-[0.16em] uppercase placeholder:text-neutral-400 placeholder:tracking-[0.16em] focus:outline-none text-black"
+                                    className="w-full bg-transparent text-[11px] tracking-[0.16em] uppercase placeholder:text-neutral-500 placeholder:tracking-[0.16em] focus:outline-none text-white"
                                 />
                             </div>
                         </form>
@@ -363,7 +363,7 @@ function Header({ hideNav = false }) {
                                 to="/"
                                 onClick={() => setIsMobileMenuOpen(false)}
                                 className={({ isActive }) =>
-                                    `text-[11px] tracking-[0.22em] uppercase transition-colors ${isActive ? 'text-black font-semibold' : 'text-black hover:opacity-60 font-medium'
+                                    `text-[11px] tracking-[0.22em] uppercase transition-colors ${isActive ? 'text-white font-semibold' : 'text-neutral-300 hover:text-white font-medium'
                                     }`
                                 }
                             >
@@ -373,7 +373,7 @@ function Header({ hideNav = false }) {
                                 to="/shop?tag=best-seller"
                                 onClick={() => setIsMobileMenuOpen(false)}
                                 className={({ isActive }) =>
-                                    `text-[11px] tracking-[0.22em] uppercase transition-colors ${isActive ? 'text-black font-semibold' : 'text-black hover:opacity-60 font-medium'
+                                    `text-[11px] tracking-[0.22em] uppercase transition-colors ${isActive ? 'text-white font-semibold' : 'text-neutral-300 hover:text-white font-medium'
                                     }`
                                 }
                             >
@@ -383,7 +383,7 @@ function Header({ hideNav = false }) {
                                 to="/shop"
                                 onClick={() => setIsMobileMenuOpen(false)}
                                 className={({ isActive }) =>
-                                    `text-[11px] tracking-[0.22em] uppercase transition-colors ${isActive ? 'text-black font-semibold' : 'text-black hover:opacity-60 font-medium'
+                                    `text-[11px] tracking-[0.22em] uppercase transition-colors ${isActive ? 'text-white font-semibold' : 'text-neutral-300 hover:text-white font-medium'
                                     }`
                                 }
                             >

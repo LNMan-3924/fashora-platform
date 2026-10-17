@@ -1,5 +1,8 @@
+import { formatFullAddress } from './orderConstants'
+
 /**
  * Component OrderDeliveryInfo: Hiển thị thông tin giao nhận và vận chuyển đơn hàng
+ * Tái sử dụng hàm formatFullAddress từ src/constants/commerce.js
  *
  * Tính năng:
  * - Cột 1: Thông tin người nhận và địa chỉ giao hàng chi tiết 3 cấp.
@@ -9,13 +12,21 @@
  * Props:
  * - recipient: Thông tin người nhận { fullName, phone, address, ward, district, city }
  * - logistics: Thông tin vận chuyển { courier, waybill }
+ * - shippingMethod: Tên phương thức vận chuyển
  * - paymentMethod: Phương thức thanh toán (COD)
  */
 export default function OrderDeliveryInfo({
   recipient = {},
   logistics = {},
+  shippingMethod,
   paymentMethod = 'Cash On Delivery (COD)',
 }) {
+  const recipientName = recipient.fullName || recipient.name || 'Recipient'
+  const recipientPhone = recipient.phone || 'N/A'
+  const formattedAddress = formatFullAddress(recipient)
+  const courier = logistics.courier || 'SPX Express Logistics'
+  const waybill = logistics.waybill || 'Pending Assignment'
+
   return (
     <section className="bg-white border border-neutral-200 p-6 sm:p-8">
       <h2 className="text-sm font-bold tracking-widest uppercase text-neutral-900 font-mono pb-4 border-b border-neutral-200 mb-6">
@@ -30,16 +41,11 @@ export default function OrderDeliveryInfo({
           </h3>
           <div className="space-y-1 text-neutral-700 leading-relaxed font-sans">
             <p className="font-semibold text-neutral-900 text-sm">
-              {recipient.fullName || 'Nguyen Van Anh'}
+              {recipientName}
             </p>
-            <p>{recipient.address || '148/9 Nguyen Trai'}</p>
-            <p>
-              {recipient.ward ? `${recipient.ward}, ` : ''}
-              {recipient.district ? `${recipient.district}, ` : ''}
-              {recipient.city || 'Ho Chi Minh City'}
-            </p>
+            <p className="text-neutral-700">{formattedAddress}</p>
             <p className="font-mono text-neutral-900 font-medium pt-1">
-              Phone: {recipient.phone || '+84 908 123 456'}
+              Phone: {recipientPhone}
             </p>
           </div>
         </div>
@@ -52,23 +58,26 @@ export default function OrderDeliveryInfo({
           <div className="space-y-2 text-neutral-700 leading-relaxed font-sans">
             <div>
               <span className="text-neutral-500">Shipping Partner:</span>
-              <p className="font-semibold text-neutral-900">
-                {logistics.courier || 'SPX Express Logistics'}
-              </p>
+              <p className="font-semibold text-neutral-900">{courier}</p>
             </div>
 
             <div>
               <span className="text-neutral-500">Tracking Waybill:</span>
               <p className="font-mono font-bold text-neutral-900 tracking-wider">
-                {logistics.waybill || 'VN839219388VN'}
+                {waybill}
               </p>
             </div>
 
+            {shippingMethod && (
+              <div>
+                <span className="text-neutral-500">Service:</span>
+                <p className="font-medium text-neutral-900">{shippingMethod}</p>
+              </div>
+            )}
+
             <div>
               <span className="text-neutral-500">Payment Protocol:</span>
-              <p className="font-medium text-neutral-900">
-                {paymentMethod}
-              </p>
+              <p className="font-medium text-neutral-900">{paymentMethod}</p>
             </div>
           </div>
         </div>
@@ -76,4 +85,3 @@ export default function OrderDeliveryInfo({
     </section>
   )
 }
-

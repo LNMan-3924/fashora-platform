@@ -335,7 +335,9 @@ export function Shop() {
           <div id="fashora-product-grid" className="w-full">
             <ProductGrid
               products={paginatedProducts}
-              onQuickAdd={(item) => setQuickAddProduct(item)}
+              onQuickAdd={(item) => {
+                setQuickAddProduct(item);
+              }}
             />
           </div>
         )}

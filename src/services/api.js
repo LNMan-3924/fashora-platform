@@ -30,6 +30,7 @@ export const deleteProduct = (id) => api.delete(`/products/${id}`);
 export const getUsers = () => api.get('/users');
 export const getUserById = (id) => api.get(`/users/${id}`);
 export const registerUser = (userData) => api.post('/users', userData);
+export const updateUser = (userId, data) => api.patch(`/users/${userId}`, data);
 export const updateUserRoleToSeller = (userId, shopId) =>
   api.patch(`/users/${userId}`, {
     roles: ['customer', 'seller'],
@@ -56,7 +57,7 @@ export default api;
    ========================================================================== */
 
 /**
- * Lấy thông tin tài khoản người dùng theo ID từ db.json
+ * Lấy thông tin tài khoản người dùng theo ID từ db.json (JSON-Server port 5000)
  */
 export const getCurrentUser = async (userId) => {
   try {
