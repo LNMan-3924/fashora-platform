@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext'
 import { getUsers, registerUser } from '../../services/api'
@@ -6,6 +6,10 @@ import { getUsers, registerUser } from '../../services/api'
 export default function Register() {
   const navigate = useNavigate()
   const { loginUser } = useAuth()
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' })
+  }, [])
 
   // Chọn loại định danh: Email hoặc Phone
   const [contactType, setContactType] = useState('email')
