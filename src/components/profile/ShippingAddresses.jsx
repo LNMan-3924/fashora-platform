@@ -126,8 +126,7 @@ export default function ShippingAddresses({
                   <div className="text-xs text-[#444444] leading-relaxed space-y-0.5">
                     <p className="font-medium text-black">{addr.street || addr.address}</p>
                     <p>
-                      {addr.ward ? `${addr.ward}, ` : ''}
-                      {addr.district}
+                      {[addr.ward, addr.district].filter(Boolean).join(', ')}
                     </p>
                     <p>{addr.city}</p>
                   </div>

@@ -85,13 +85,10 @@ export const validateWard = (value, label = 'Ward') => {
 }
 
 /**
- * Kiểm tra Quận / Huyện
+ * Kiểm tra Quận / Huyện (Tùy chọn theo chuẩn 34 đơn vị hành chính cấp tỉnh mới)
  */
-export const validateDistrict = (value, label = 'District') => {
-  const trimmed = String(value || '').trim()
-  if (!trimmed) {
-    return `${label} is required.`
-  }
+export const validateDistrict = () => {
+  // Theo mô hình 2 cấp sau sắp xếp (34 tỉnh thành), cấp Quận/Huyện là tùy chọn
   return ''
 }
 

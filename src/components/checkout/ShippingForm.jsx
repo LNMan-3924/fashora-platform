@@ -1,14 +1,15 @@
 import { Link } from 'react-router-dom'
-import { Input } from '../common'
+import { Input, VietnamAddressSelect } from '../common'
 
 /**
  * Component ShippingForm: Khung nhập thông tin giao hàng của người nhận.
- * Tái sử dụng component Input từ src/components/common để code ngắn gọn, đồng nhất thiết kế.
+ * Tái sử dụng component Input và VietnamAddressSelect từ src/components/common để code ngắn gọn, đồng nhất thiết kế.
+ * Hỗ trợ chuẩn 34 đơn vị hành chính cấp tỉnh mới của Việt Nam (Nghị quyết 202/2025/QH15 & QĐ 19/2025/QĐ-TTg).
  *
  * Tính năng:
  * 1. Hiển thị danh sách địa chỉ đã lưu từ Hồ sơ cá nhân (Profile) để chọn nhanh bằng 1 click.
- * 2. Tự động điền đầy đủ Họ tên, SĐT, Số nhà/Đường, Phường/Xã, Quận/Huyện, Tỉnh/TP.
- * 3. Cho phép người dùng chỉnh sửa trực tiếp các ô input nếu muốn giao đến địa chỉ khác.
+ * 2. Tự động điền đầy đủ Họ tên, SĐT, Số nhà/Đường, Phường/Xã, Tỉnh/TP.
+ * 3. Dropdown Tỉnh/Thành phố (34 đơn vị) -> tự động nạp Phường/Xã trực thuộc tương ứng.
  * 4. Tự động hiển thị thông báo lỗi kiểm tra dữ liệu đầu vào (Validation Errors).
  */
 export default function ShippingForm({
@@ -19,6 +20,20 @@ export default function ShippingForm({
   savedAddresses = [],
   onSelectSavedAddress,
 }) {
+  const handleCityChange = (newCity) => {
+    if (typeof onChange === 'function') {
+      onChange('city', newCity)
+      onChange('ward', '')
+      onChange('district', '')
+    }
+  }
+
+  const handleWardChange = (newWard) => {
+    if (typeof onChange === 'function') {
+      onChange('ward', newWard)
+    }
+  }
+
   // Chuẩn hóa sự kiện onChange từ native <input> để truyền lại đúng (name, value) cho component cha
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -152,44 +167,16 @@ export default function ShippingForm({
           placeholder="e.g. 128 Le Duan Boulevard, Floor 4"
         />
 
-        {/* 4. Cấu trúc hành chính 3 cấp (Phường/Xã, Quận/Huyện, Tỉnh/TP) */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          {/* Phường / Xã */}
-          <Input
-            label="Phường / Xã *"
-            id="ward"
-            name="ward"
-            value={formData.ward || ''}
-            onChange={handleChange}
-            onBlur={handleBlur}
-            error={errors.ward}
-            placeholder="e.g. Ben Nghe Ward"
-          />
-
-          {/* Quận / Huyện */}
-          <Input
-            label="Quận / Huyện *"
-            id="district"
-            name="district"
-            value={formData.district || ''}
-            onChange={handleChange}
-            onBlur={handleBlur}
-            error={errors.district}
-            placeholder="e.g. District 1"
-          />
-
-          {/* Tỉnh / Thành phố */}
-          <Input
-            label="Tỉnh / Thành phố *"
-            id="city"
-            name="city"
-            value={formData.city || ''}
-            onChange={handleChange}
-            onBlur={handleBlur}
-            error={errors.city}
-            placeholder="e.g. Ho Chi Minh City"
-          />
-        </div>
+        {/* 4. Cấu trúc hành chính 2 cấp theo chuẩn 34 đơn vị hành chính cấp tỉnh mới */}
+        <VietnamAddressSelect
+          cityValue={formData.city}
+          wardValue={formData.ward}
+          onCityChange={handleCityChange}
+          onWardChange={handleWardChange}
+          onBlur={handleBlur}
+          cityError={errors.city}
+          wardError={errors.ward}
+        />
       </div>
     </section>
   )

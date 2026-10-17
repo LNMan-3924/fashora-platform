@@ -1,11 +1,11 @@
 import { useState } from 'react'
 import { X } from 'lucide-react'
-import { Button, Input } from '../common'
+import { Button, Input, VietnamAddressSelect } from '../common'
 import { validateField, validateAddressOnly } from '../../utils/validation'
 
 /**
  * Component AddressModalContent: Form nhập thông tin địa chỉ giao hàng
- * Yêu cầu: CHỈ YÊU CẦU NHẬP ĐỊA CHỈ (Street, Ward, District, City), không cần họ tên / SĐT / ghi chú.
+ * Yêu cầu: CHỈ YÊU CẦU NHẬP ĐỊA CHỈ (Street, Ward, City theo chuẩn 34 đơn vị hành chính mới).
  * Được gắn key={addressData?.id || 'new'} từ component cha để tự khởi tạo state sạch sẽ.
  */
 function AddressModalContent({ addressData, onClose, onSave }) {
@@ -20,6 +20,28 @@ function AddressModalContent({ addressData, onClose, onSave }) {
   }))
 
   const [errors, setErrors] = useState({})
+
+  const handleCityChange = (newCity) => {
+    setFormData((prev) => ({
+      ...prev,
+      city: newCity,
+      ward: '',
+      district: '',
+    }))
+    if (errors.city || errors.ward) {
+      setErrors((prev) => ({ ...prev, city: '', ward: '' }))
+    }
+  }
+
+  const handleWardChange = (newWard) => {
+    setFormData((prev) => ({
+      ...prev,
+      ward: newWard,
+    }))
+    if (errors.ward) {
+      setErrors((prev) => ({ ...prev, ward: '' }))
+    }
+  }
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target
@@ -55,9 +77,9 @@ function AddressModalContent({ addressData, onClose, onSave }) {
       ...(addressData || {}),
       street: formData.street.trim(),
       address: formData.street.trim(),
-      ward: formData.ward.trim(),
-      district: formData.district.trim(),
-      city: formData.city.trim(),
+      ward: (formData.ward || '').trim(),
+      district: (formData.district || '').trim(),
+      city: (formData.city || '').trim(),
       isDefault: formData.isDefault,
       id: addressData?.id || `ADDR-${Math.floor(1000 + Math.random() * 9000)}`,
       isVerified: true,
@@ -102,43 +124,19 @@ function AddressModalContent({ addressData, onClose, onSave }) {
           />
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div>
-            <Input
-              label="WARD / COMMUNE *"
-              name="ward"
-              value={formData.ward}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              error={errors.ward}
-              placeholder="e.g. Ben Nghe Ward"
-            />
-          </div>
-
-          <div>
-            <Input
-              label="DISTRICT / COUNTY *"
-              name="district"
-              value={formData.district}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              error={errors.district}
-              placeholder="e.g. District 1"
-            />
-          </div>
-        </div>
-
-        <div>
-          <Input
-            label="PROVINCE / CITY *"
-            name="city"
-            value={formData.city}
-            onChange={handleChange}
-            onBlur={handleBlur}
-            error={errors.city}
-            placeholder="e.g. Ho Chi Minh City"
-          />
-        </div>
+        <VietnamAddressSelect
+          cityValue={formData.city}
+          wardValue={formData.ward}
+          onCityChange={handleCityChange}
+          onWardChange={handleWardChange}
+          onBlur={handleBlur}
+          cityError={errors.city}
+          wardError={errors.ward}
+          cityLabel="PROVINCE / CITY (34 PROVINCES) *"
+          wardLabel="WARD / COMMUNE *"
+          cityPlaceholder="-- Select Province / City --"
+          wardPlaceholder="-- Select Ward / Commune --"
+        />
 
         <div className="pt-2">
           <label className="flex items-center gap-2.5 cursor-pointer text-xs font-medium text-[#111111] select-none">

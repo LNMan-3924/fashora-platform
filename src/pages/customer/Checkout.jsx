@@ -192,9 +192,9 @@ function CheckoutFormContent({
         fullName: formData.fullName.trim(),
         phone: formData.phone.trim(),
         address: formData.address.trim(),
-        ward: formData.ward.trim(),
-        district: formData.district.trim(),
-        city: formData.city.trim(),
+        ward: (formData.ward || '').trim(),
+        district: (formData.district || '').trim(),
+        city: (formData.city || '').trim(),
       },
       shopName: displayItems[0]?.shopName || 'M STUDIO',
       items: displayItems.map((item) => ({
@@ -238,9 +238,9 @@ function CheckoutFormContent({
             fullName: formData.fullName.trim(),
             phone: formData.phone.trim(),
             address: formData.address.trim(),
-            ward: formData.ward.trim(),
-            district: formData.district.trim(),
-            city: formData.city.trim(),
+            ward: (formData.ward || '').trim(),
+            district: (formData.district || '').trim(),
+            city: (formData.city || '').trim(),
           }
 
           const newShippingAddr = {
@@ -249,9 +249,9 @@ function CheckoutFormContent({
             phone: formData.phone.trim(),
             street: formData.address.trim(),
             address: formData.address.trim(),
-            ward: formData.ward.trim(),
-            district: formData.district.trim(),
-            city: formData.city.trim(),
+            ward: (formData.ward || '').trim(),
+            district: (formData.district || '').trim(),
+            city: (formData.city || '').trim(),
             isDefault: true,
             isVerified: true,
           }

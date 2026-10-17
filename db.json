@@ -1340,9 +1340,9 @@
         "fullName": "Nguyen Thien An",
         "phone": "0912345678",
         "address": "123",
-        "ward": "binh thuong",
-        "district": "quan 7",
-        "city": "long an"
+        "ward": "Đặc khu Phú Quốc",
+        "district": "",
+        "city": "Tỉnh An Giang"
       },
       "shippingAddresses": [
         {
@@ -1351,9 +1351,9 @@
           "phone": "0912345678",
           "street": "123",
           "address": "123",
-          "ward": "binh thuong",
-          "district": "quan 7",
-          "city": "long an",
+          "ward": "Đặc khu Phú Quốc",
+          "district": "",
+          "city": "Tỉnh An Giang",
           "isDefault": true,
           "isVerified": true
         }

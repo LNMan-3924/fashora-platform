@@ -20,12 +20,24 @@ export default function OrderSuccess() {
   const navigate = useNavigate()
   const location = useLocation()
 
+  // 1. Zustand Store: Thao tác thêm vào giỏ hàng từ mục Complete The Look
+  const addToCart = useCartStore((state) => state.addToCart)
+
+  // 2. State quản lý Modal thêm nhanh (Quick Add)
+  const [selectedQuickProduct, setSelectedQuickProduct] = useState(null)
+
+  // 3. State quản lý thông báo Toast
+  const [toast, setToast] = useState({
+    visible: false,
+    message: '',
+  })
+
   // Tự động cuộn lên đầu trang ngay khi vào trang Order Success
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: 'instant' })
   }, [])
 
-  // 1. CHẶN TRUY CẬP TRỰC TIẾP QUA URL:
+  // 4. CHẶN TRUY CẬP TRỰC TIẾP QUA URL:
   // Trang này chỉ hiển thị khi vừa hoàn tất thanh toán từ Checkout (có location.state.orderNumber)
   const orderNumber = location.state?.orderNumber
   if (!orderNumber) {
@@ -33,18 +45,6 @@ export default function OrderSuccess() {
   }
 
   const orderTotal = location.state?.total ? formatVND(location.state.total) : ''
-
-  // 2. Zustand Store: Thao tác thêm vào giỏ hàng từ mục Complete The Look
-  const addToCart = useCartStore((state) => state.addToCart)
-
-  // 3. State quản lý Modal thêm nhanh (Quick Add)
-  const [selectedQuickProduct, setSelectedQuickProduct] = useState(null)
-
-  // 4. State quản lý thông báo Toast
-  const [toast, setToast] = useState({
-    visible: false,
-    message: '',
-  })
 
   /**
    * Hiển thị thông báo Toast với nội dung truyền vào
