@@ -1,11 +1,10 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { getProducts } from '../../services/api';
 import ProductGrid from '../../components/product/ProductGrid';
 import QuickAddModal from '../../components/product/QuickAddModal';
 import { Toast } from '../../components/common';
 import { useCartStore } from '../../stores';
-import { useAuth } from '../../contexts/AuthContext';
 
 // Danh mục chuẩn theo hệ thống
 const CATEGORIES = [
@@ -18,10 +17,6 @@ const CATEGORIES = [
 ];
 
 export function Shop() {
-  const navigate = useNavigate();
-  const location = useLocation();
-  const { currentUser } = useAuth();
-
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -341,11 +336,6 @@ export function Shop() {
             <ProductGrid
               products={paginatedProducts}
               onQuickAdd={(item) => {
-                const isLoggedIn = Boolean(currentUser?.id || localStorage.getItem('currentUserId'));
-                if (!isLoggedIn) {
-                  navigate('/login', { state: { from: location } });
-                  return;
-                }
                 setQuickAddProduct(item);
               }}
             />
@@ -416,11 +406,6 @@ export function Shop() {
         isOpen={Boolean(quickAddProduct)}
         onClose={() => setQuickAddProduct(null)}
         onConfirm={(item) => {
-          const isLoggedIn = Boolean(currentUser?.id || localStorage.getItem('currentUserId'));
-          if (!isLoggedIn) {
-            navigate('/login', { state: { from: location } });
-            return;
-          }
           if (addToCartStore && quickAddProduct) {
             const result = addToCartStore(
               {

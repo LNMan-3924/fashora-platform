@@ -56,7 +56,7 @@
       "link": "/shop?tag=winter"
     }
   ],
- "products": [
+  "products": [
     {
       "id": "prd_acc_01",
       "shopId": "shop_m_studio",
@@ -1922,7 +1922,7 @@
       "paymentMethod": "Cash on Delivery (COD)",
       "subtotal": 750000,
       "total": 750000,
-      "status": "PENDING",
+      "status": "CANCELLED",
       "createdAt": "2026-10-16T12:46:37.189Z",
       "logistics": {
         "courier": "SPX Express",

@@ -1,14 +1,9 @@
 import { useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
 import { useCartStore } from '../../stores/useCartStore';
-import { useAuth } from '../../contexts/AuthContext';
 
 const FALLBACK_IMAGE = '/placeholder.png';
 
 function QuickAddContent({ product, onClose, onConfirm, onAddToCart }) {
-  const navigate = useNavigate();
-  const location = useLocation();
-  const { currentUser } = useAuth();
 
   // Lấy hàm addToCart từ store
   const addToCart = useCartStore((state) => state.addToCart);
@@ -45,15 +40,8 @@ function QuickAddContent({ product, onClose, onConfirm, onAddToCart }) {
   const shopName =
     product?.shopName || product?.sellerName || product?.storeName || 'M STUDIO';
 
-  // Xử lý thêm vào giỏ: yêu cầu đăng nhập trước khi thêm
+  // Xử lý thêm vào giỏ: cho phép cả khách vãng lai và người dùng đã đăng nhập
   const handleAdd = () => {
-    // 1. Kiểm tra trạng thái đăng nhập
-    const isUserLoggedIn = Boolean(currentUser?.id || localStorage.getItem('currentUserId'));
-    if (!isUserLoggedIn) {
-      if (typeof onClose === 'function') onClose();
-      navigate('/login', { state: { from: location } });
-      return;
-    }
     const payload = {
       ...product,
       id: product?.id,
