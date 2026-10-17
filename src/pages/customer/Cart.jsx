@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react'
-import { Link, useNavigate, useLocation } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { ArrowRight, Trash2 } from 'lucide-react'
 
 // Import store giỏ hàng toàn cục (quản lý bằng Zustand)
@@ -23,7 +23,6 @@ import { getCartItemKey, COMMERCE_STORAGE_KEYS } from '../../constants'
 
 export default function Cart() {
   const navigate = useNavigate()
-  const location = useLocation()
   const { currentUser } = useAuth()
 
   // =========================================================================
@@ -180,13 +179,8 @@ export default function Cart() {
     showToast('Item removed from cart.')
   }
 
-  // Xác nhận thêm món đồ từ mục "Complete The Look" vào giỏ hàng
+  // Xác nhận thêm món đồ từ mục "Complete The Look" vào giỏ hàng (cho phép cả khách vãng lai)
   const handleConfirmQuickAdd = (lookItem) => {
-    const isLoggedIn = Boolean(currentUser?.id || localStorage.getItem('currentUserId'))
-    if (!isLoggedIn) {
-      navigate('/login', { state: { from: location } })
-      return
-    }
     addToCart(
       {
         ...lookItem,
@@ -328,11 +322,6 @@ export default function Cart() {
       {/* 5. GỢI Ý PHỐI ĐỒ (COMPLETE THE LOOK - COMPONENT DÙNG CHUNG) */}
       <CompleteTheLook
         onQuickAdd={(item) => {
-          const isLoggedIn = Boolean(currentUser?.id || localStorage.getItem('currentUserId'))
-          if (!isLoggedIn) {
-            navigate('/login', { state: { from: location } })
-            return
-          }
           setQuickAddProduct(item)
         }}
       />

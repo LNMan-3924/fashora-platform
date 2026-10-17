@@ -57,6 +57,11 @@ export function Shop() {
     }
   }, []);
 
+  // Tự động cuộn lên đầu trang khi vào trang Shop
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' })
+  }, [])
+
   useEffect(() => {
     let isMounted = true;
     const loadData = async () => {
@@ -417,7 +422,7 @@ export function Shop() {
             return;
           }
           if (addToCartStore && quickAddProduct) {
-            addToCartStore(
+            const result = addToCartStore(
               {
                 ...quickAddProduct,
                 images: quickAddProduct.images || (quickAddProduct.image ? [quickAddProduct.image] : []),
@@ -426,7 +431,11 @@ export function Shop() {
               item.selectedColor || item.color || 'Standard',
               item.quantity || 1
             );
-            setToastMessage(`Added ${quickAddProduct.name} to cart.`);
+            if (result?.success === false) {
+              setToastMessage(result.message);
+            } else {
+              setToastMessage(`Added ${quickAddProduct.name} to cart.`);
+            }
           }
         }}
       />

@@ -52,7 +52,13 @@ export function CheckoutGuard({ children }) {
 
   // Kiểm tra 2: Giỏ hàng phải có hàng mới cho vào checkout (tránh gõ tay link khi giỏ rỗng)
   const selectedItems = location.state?.selectedItems || []
-  const hasItems = cartItems.length > 0 || selectedItems.length > 0
+  let savedItems = []
+  try {
+    savedItems = JSON.parse(sessionStorage.getItem('fashora_checkout_items') || '[]')
+  } catch {
+    // ignore
+  }
+  const hasItems = cartItems.length > 0 || selectedItems.length > 0 || (Array.isArray(savedItems) && savedItems.length > 0)
 
   if (!hasItems) {
     return <Navigate to="/cart" replace />

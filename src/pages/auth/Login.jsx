@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext'
 
@@ -6,6 +6,10 @@ export default function Login() {
   const navigate = useNavigate()
   const location = useLocation()
   const { loginUser } = useAuth()
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' })
+  }, [])
 
   const [identifier, setIdentifier] = useState('')
   const [password, setPassword] = useState('')
@@ -62,11 +66,13 @@ export default function Login() {
 
       // Điều hướng thông minh dựa theo quyền thực tế của tài khoản:
       const isSeller = foundUser.role === 'seller' || (Array.isArray(foundUser.roles) && foundUser.roles.includes('seller'))
-
-      const previousPath = location.state?.from?.pathname
+      const previousPath = location.state?.from?.pathname || (typeof location.state?.from === 'string' ? location.state.from : null)
+      const previousState = location.state?.selectedItems
+        ? { selectedItems: location.state.selectedItems }
+        : location.state?.from?.state
 
       if (previousPath) {
-        navigate(previousPath, { replace: true })
+        navigate(previousPath, { replace: true, state: previousState })
       } else if (isSeller) {
         // Tài khoản đã đăng ký seller -> Chuyển vào Dashboard
         navigate('/seller/dashboard', { replace: true })

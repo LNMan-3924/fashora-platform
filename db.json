@@ -56,7 +56,7 @@
       "link": "/shop?tag=winter"
     }
   ],
-  "products": [
+ "products": [
     {
       "id": "prd_acc_01",
       "shopId": "shop_m_studio",
@@ -78,7 +78,17 @@
       ],
       "description": "Futuristic wraparound sunglasses featuring sculpted liquid metal thorn accents and UV400 protective dark lenses.",
       "careInstructions": "Wipe lenses with microfiber cloth. Store in hard protective case.",
-      "stock": 12
+      "stock": 12,
+      "details": {
+        "material": "Electroplated alloy frame with liquid metal thorn finish and shatter-resistant polycarbonate UV400 dark lenses.",
+        "specifications": [
+          "Wrap-around ergonomic aerodynamic curved frame.",
+          "Custom sculpted liquid-thorn organic temples.",
+          "Full spectrum UV400 category 3 sun glare protection.",
+          "Laser-etched atelier branding inside temple."
+        ],
+        "origin": "Curated by M STUDIO. Precision hardware cast in Veneto, Italy."
+      }
     },
     {
       "id": "prd_acc_02",
@@ -101,7 +111,17 @@
       ],
       "description": "Statement open band ring sculpted with organic hollowed textures, crafted from brushed titanium alloy.",
       "careInstructions": "Avoid direct contact with water, perfume, and harsh chemicals.",
-      "stock": 25
+      "stock": 25,
+      "details": {
+        "material": "Hypoallergenic brushed titanium and surgical-grade zinc composite alloy with a sandblasted matte finish.",
+        "specifications": [
+          "Biomorphic hollowed-out perforations with fluid contours.",
+          "Open-band structure accommodating US sizes 6 to 9.",
+          "Corrosion and tarnish resistant treatment.",
+          "Hand-burnished matte industrial silver texture."
+        ],
+        "origin": "Sculpted and cast in collaboration with M STUDIO Metals Workshop."
+      }
     },
     {
       "id": "prd_acc_03",
@@ -124,7 +144,17 @@
       ],
       "description": "Avant-garde geometric shoulder bag paneled in high-shine patent faux leather with metal rivets and an adjustable buckle strap.",
       "careInstructions": "Wipe clean with a soft damp cloth. Keep away from heat sources.",
-      "stock": 8
+      "stock": 8,
+      "details": {
+        "material": "Mirror-finish polyurethane patent faux leather with cotton-twill interior lining and polished chrome hardware.",
+        "specifications": [
+          "Asymmetrical multi-panel geometric silhouette.",
+          "Adjustable roller buckle strap with reinforced industrial eyelets.",
+          "Concealed magnetic top flap closure with YKK interior zip pouch.",
+          "Debossed atelier logo plate on back exterior panel."
+        ],
+        "origin": "Handcrafted by artisan leather workshops for M STUDIO."
+      }
     },
     {
       "id": "prd_acc_04",
@@ -147,7 +177,17 @@
       ],
       "description": "Acid-washed cotton twill baseball cap finished with distressed brim detailing and gothic screen-printed graphics.",
       "careInstructions": "Spot clean only. Do not machine wash or tumble dry.",
-      "stock": 30
+      "stock": 30,
+      "details": {
+        "material": "100% Heavyweight 380gsm cotton twill with customized acid enzyme washing.",
+        "specifications": [
+          "Hand-distressed raw abrasion points along the curved brim.",
+          "Discharge screen-printed gothic calligraphy artwork.",
+          "Embroidered ventilation eyelets and structured crown.",
+          "Antique silver metal slider buckle for universal sizing."
+        ],
+        "origin": "Textile washed and customized in Vietnam under M STUDIO standards."
+      }
     },
     {
       "id": "prd_acc_05",
@@ -170,7 +210,17 @@
       ],
       "description": "Crinkled mirror-finish shoulder bag adorned with a bold oval monogram plaque and draping ball chain hardware.",
       "careInstructions": "Store inside dust bag away from rough surfaces.",
-      "stock": 14
+      "stock": 14,
+      "details": {
+        "material": "Crinkled metallic foil bonded to vegan leather substrate with dense nylon lining.",
+        "specifications": [
+          "High-gloss crinkle-textured reflective body.",
+          "Cast zinc alloy oval monogram front plaque.",
+          "Detachable dual drape ball chain accessories.",
+          "Interior zip slip pocket and reinforced flat base."
+        ],
+        "origin": "Curated by M STUDIO. Limited production allocation."
+      }
     },
     {
       "id": "prd_acc_06",
@@ -195,7 +245,17 @@
       ],
       "description": "Smooth faux leather belt detailed with an oversized polished zinc alloy monogram buckle.",
       "careInstructions": "Hang straight or roll loosely. Avoid sharp folding.",
-      "stock": 20
+      "stock": 20,
+      "details": {
+        "material": "Smooth bonded microfiber composite leather strap with high-polished zinc alloy buckle.",
+        "specifications": [
+          "Belt width: 3.8 cm with beveled, burnished edges.",
+          "Oversized hollowed oval signature emblem buckle (7.5 cm x 5.0 cm).",
+          "Dual leather strap retaining keepers.",
+          "Five precision die-cut sizing holes."
+        ],
+        "origin": "Assembled with custom alloy hardware for M STUDIO."
+      }
     },
     {
       "id": "prd_acc_07",
@@ -218,7 +278,17 @@
       ],
       "description": "Wearable tech accessory combining mirrored metallic in-ear buds with decorative curb chain wiring.",
       "careInstructions": "Do not tug cable sharply. Keep audio jacks clean and dry.",
-      "stock": 0
+      "stock": 0,
+      "details": {
+        "material": "Mirror-plated ABS acoustic enclosures and rhodium-plated brass chain cladding.",
+        "specifications": [
+          "10mm dynamic acoustic drivers tuned for balanced frequency response.",
+          "Gold-plated standard 3.5mm stereo connector.",
+          "Integrated in-line omnidirectional microphone and play/pause remote.",
+          "Durable metallic curb chain sheath minimizing tangle."
+        ],
+        "origin": "Engineered audio components assembled for M STUDIO Archive."
+      }
     },
     {
       "id": "prd_acc_08",
@@ -241,7 +311,17 @@
       ],
       "description": "Curved sports wrap sunglasses built with aerodynamic grooved temples and mirror-tinted polycarbonate lenses.",
       "careInstructions": "Rinse with clean water and dry using a lens cleaning cloth.",
-      "stock": 18
+      "stock": 18,
+      "details": {
+        "material": "Ultralight TR90 thermoplastic polymer frame with mirrored shatterproof polycarbonate lenses.",
+        "specifications": [
+          "Wrap-around face shield shielding peripheral glare.",
+          "UV400 lens classification filter protecting UVA and UVB rays.",
+          "Aerodynamic vortex groove cutouts on wide temples.",
+          "Hypoallergenic soft-touch integrated nose bridges."
+        ],
+        "origin": "Precision molded and imported for M STUDIO Eyewear Series."
+      }
     },
     {
       "id": "prd_acc_09",
@@ -265,7 +345,17 @@
       ],
       "description": "Flat curb chain bracelet in surgical stainless steel with a center cutout logo plate and lobster clasp.",
       "careInstructions": "Wipe with soft polishing cloth to keep shine.",
-      "stock": 22
+      "stock": 22,
+      "details": {
+        "material": "316L Marine-grade surgical stainless steel with brushed industrial micro-matte finish.",
+        "specifications": [
+          "Beveled 9mm curb chain links engineered for seamless wrist articulation.",
+          "Laser-cut architectural central cutout identification plaque.",
+          "Heavy-duty spring-loaded lobster clasp.",
+          "Rust, oxidation, and sweat proof construction."
+        ],
+        "origin": "Fabricated by M STUDIO Metalcraft Lab."
+      }
     },
     {
       "id": "prd_acc_10",
@@ -288,7 +378,17 @@
       ],
       "description": "Fluid rounded snake bone chain necklace finished with a hollow architectural monogram pendant.",
       "careInstructions": "Lay flat when stored to prevent creasing or twisting.",
-      "stock": 16
+      "stock": 16,
+      "details": {
+        "material": "Silver-plated copper core snake chain with solid cast alloy centerpiece pendant.",
+        "specifications": [
+          "3mm fluid cylindrical round snake chain (Length: 55 cm).",
+          "Hollowed three-dimensional geometric monogram pendant.",
+          "Secure branded lobster claw fastener with 5cm extension tail.",
+          "Anti-tarnish protective lacquer dip."
+        ],
+        "origin": "Crafted under M STUDIO Archival Jewelry specifications."
+      }
     },
     {
       "id": "prd_acc_11",
@@ -313,7 +413,17 @@
       ],
       "description": "Statement band ring designed with dramatic sharp thorn spikes and set with oval pale-blue faceted crystals.",
       "careInstructions": "Keep dry. Wipe gently with jewelry cloth after wearing.",
-      "stock": 20
+      "stock": 20,
+      "details": {
+        "material": "Silver-finished brass alloy crowned with laboratory-grown pale blue faceted cubic zirconia crystals.",
+        "specifications": [
+          "Sculptural gothic barbed thorn crown contouring.",
+          "Bezel-set crystal stones refracting natural light.",
+          "Smooth contoured inner shank for ergonomic daily wear.",
+          "Available in fixed jewelers ring sizes US 6, 7, and 8."
+        ],
+        "origin": "Cast and hand-polished by M STUDIO Atelier."
+      }
     },
     {
       "id": "prd_acc_12",
@@ -336,7 +446,17 @@
       ],
       "description": "Soft gathered cylinder shoulder bag crafted in powdery blue faux leather, finished with side drawstrings and a central silver buckle plaque.",
       "careInstructions": "Wipe with soft damp cloth. Avoid harsh chemicals.",
-      "stock": 15
+      "stock": 15,
+      "details": {
+        "material": "Ultra-supple vegan lambskin faux leather with custom powder blue dye and satin poly lining.",
+        "specifications": [
+          "Ruched cylindrical body with adjustable side drawstring gathers.",
+          "Center antique cast silver buckle front plate.",
+          "Wide comfortable shoulder drop measuring 28cm.",
+          "Reinforced zipper top closure with polished hardware."
+        ],
+        "origin": "Custom tailored and dyed exclusively for M STUDIO."
+      }
     },
     {
       "id": "prd_acc_13",
@@ -359,7 +479,17 @@
       ],
       "description": "Delicate drop earrings featuring a frosted heart cabochon encased in a melted chrome border with hanging star and droplet chains.",
       "careInstructions": "Store in dry jewelry box. Remove before showering or sleeping.",
-      "stock": 35
+      "stock": 35,
+      "details": {
+        "material": "S925 Sterling silver earring posts with electroplated liquid chrome alloy and synthetic iridescent opal.",
+        "specifications": [
+          "Hypoallergenic ear pins suitable for sensitive ears.",
+          "Melted brutalist chrome casing enclosing frosted heart cabochon.",
+          "Asymmetric descending fine curb chains with star charms.",
+          "Overall drop length: 6.5 cm; weight: 6g per piece."
+        ],
+        "origin": "Designed by M STUDIO Studio Collection."
+      }
     },
     {
       "id": "prd_acc_14",
@@ -382,7 +512,17 @@
       ],
       "description": "Structured pebbled leather rucksack detailed with gothic cross appliqués, braided drawstrings, and engraved hardware buckles.",
       "careInstructions": "Spot clean leather. Stuff lightly when storing to maintain shape.",
-      "stock": 8
+      "stock": 8,
+      "details": {
+        "material": "Heavyweight pebbled full-grain faux leather with heavy duty twill lining and antiqued alloy hardware.",
+        "specifications": [
+          "Flap closure with dual engraved roller buckles and hidden magnetic snaps.",
+          "Interior drawstring cinching opening with braided leather cords.",
+          "Padded internal laptop compartment accommodating up to 14-inch devices.",
+          "Gothic cross motif leather appliqués on front bellows pocket."
+        ],
+        "origin": "Crafted in small batch workshop production for M STUDIO."
+      }
     },
     {
       "id": "prd_acc_15",
@@ -405,7 +545,17 @@
       ],
       "description": "Winter baseball cap hybrid featuring plush faux-fur ear warmers, top tie ribbons, and front cursive embroidery with metal studs.",
       "careInstructions": "Spot clean only. Fluff fur using a soft bristle brush.",
-      "stock": 22
+      "stock": 22,
+      "details": {
+        "material": "Brushed heavyweight wool-blend felt outer with high-density plush faux shearling fur lining.",
+        "specifications": [
+          "Hybrid baseball visor silhouette with convertible drop-down earflaps.",
+          "Top ribbon ties allowing ear flaps to be tied up or secured below chin.",
+          "Metallic dome rivets framing tonal script cursive embroidery.",
+          "Quilted inner insulation lining retaining body heat."
+        ],
+        "origin": "Engineered for winter collection by M STUDIO."
+      }
     },
     {
       "id": "prd_acc_16",
@@ -428,7 +578,17 @@
       ],
       "description": "Wool felt beret hat outlined with a monochrome tartan ribbon, detachable ball chain swag, and a front metal crest pin.",
       "careInstructions": "Dry clean recommended. Do not wring or bleach.",
-      "stock": 18
+      "stock": 18,
+      "details": {
+        "material": "100% Compressed natural wool felt with woven cotton-blend tartan trim and alloy hardware.",
+        "specifications": [
+          "Classic French beret crown with internal sweatband and drawstring adjustor.",
+          "Contrast monochrome tartan plaid perimeter binding.",
+          "Detachable dual-layer chrome ball chain with swivel lobster clasps.",
+          "Embossed military heraldic crest badge on temple."
+        ],
+        "origin": "Curated millinery piece produced for M STUDIO."
+      }
     },
     {
       "id": "prd_acc_17",
@@ -451,7 +611,17 @@
       ],
       "description": "Dark denim skinny necktie customized with punky safety pins, horseshoe barbell piercings, and cluster rhinestone gems.",
       "careInstructions": "Spot clean only. Do not machine wash.",
-      "stock": 26
+      "stock": 26,
+      "details": {
+        "material": "12oz Raw black denim weave accented with steel body jewelry hardware and glass rhinestones.",
+        "specifications": [
+          "Narrow modern silhouette: 4.5 cm widest point, 145 cm full length.",
+          "Hand-pierced stainless steel horseshoe circular barbells.",
+          "Arranged industrial safety pins and prong-set light-catching crystals.",
+          "Pre-tied or free tie flexibility with internal keeper loop."
+        ],
+        "origin": "Hand-customized by M STUDIO Atelier in Vietnam."
+      }
     },
     {
       "id": "prd_acc_18",
@@ -474,7 +644,17 @@
       ],
       "description": "Ribbed knit skull beanie decorated with charcoal bow stencil spray art and adorned with metal safety pins and miniature cutlery charms.",
       "careInstructions": "Hand wash gently inside out. Dry flat on a towel.",
-      "stock": 0
+      "stock": 0,
+      "details": {
+        "material": "100% Stretch-ribbed acrylic yarn knit with airbrush stencil pigment and alloy charms.",
+        "specifications": [
+          "Dual-fold cuff design with manual distressing and thread fraying.",
+          "Hand-sprayed charcoal bow stencil graffiti graphic.",
+          "Curated charm cluster: safety pins and antique silver finished mini cutlery charms.",
+          "Deep crown height fitting snug to slouchy styling."
+        ],
+        "origin": "Individually hand-sprayed and embellished by M STUDIO."
+      }
     },
     {
       "id": "prd_set_01",
@@ -500,7 +680,17 @@
       ],
       "description": "Cohesive tailored two-piece set featuring a structured double-breasted officer jacket with silver embossed buttons and high-waisted ribbed knit hot pants.",
       "careInstructions": "Dry clean only. Do not tumble dry.",
-      "stock": 12
+      "stock": 12,
+      "details": {
+        "material": "Jacket: 70% Poly-twill, 30% Rayon structured suiting; Shorts: 95% Ribbed compact cotton, 5% Spandex.",
+        "specifications": [
+          "Double-breasted jacket front with silver military-crested embossed dome buttons.",
+          "Internal padded structured shoulders and sharp peak lapels.",
+          "High-waisted form-fitting knit hot pants with elasticated waistband.",
+          "Full inner cupro lining inside jacket for frictionless layering."
+        ],
+        "origin": "Drafted and assembled in Veneto, Italy under M STUDIO Atelier."
+      }
     },
     {
       "id": "prd_set_02",
@@ -526,7 +716,17 @@
       ],
       "description": "Edgy moto coordinate consisting of a diamond-quilted leather biker jacket with asymmetric zip and low-waist washed flare wide-leg denim trousers.",
       "careInstructions": "Specialist leather clean for jacket. Machine wash denim cold.",
-      "stock": 9
+      "stock": 9,
+      "details": {
+        "material": "Jacket: Textured heavyweight vegan biker leather; Denim: 13.5oz mineral stone-washed cotton denim.",
+        "specifications": [
+          "Diamond-quilted shoulder and sleeve padding with asymmetric moto zipper closure.",
+          "Industrial YKK metal hardware and collar snap tabs.",
+          "Low-rise flare leg jeans with whisker bleaching and raw pool-hem cut.",
+          "Traditional 5-pocket denim styling with custom rivet enforcements."
+        ],
+        "origin": "Engineered for FASHORA Runway Collection by M STUDIO."
+      }
     },
     {
       "id": "prd_set_03",
@@ -551,7 +751,17 @@
       ],
       "description": "Winter layered set pairing a faux-shearling trimmed textured leather jacket with a floor-length cable-knit column maxi skirt.",
       "careInstructions": "Dry clean recommended. Flat dry knitwear away from direct heat.",
-      "stock": 7
+      "stock": 7,
+      "details": {
+        "material": "Jacket: Cracked vintage vegan leather with plush acrylic shearling; Skirt: 60% Wool, 40% Acrylic cable knit.",
+        "specifications": [
+          "Oversized shearling lapels, cuffs, and hemline with dual throat collar straps.",
+          "Heavy antique brass zip front closure.",
+          "Floor-sweeping column silhouette cable knit maxi skirt.",
+          "Comfortable encased elastic waistband with high back walking vent."
+        ],
+        "origin": "Curated European winter capsule by M STUDIO."
+      }
     },
     {
       "id": "prd_set_04",
@@ -577,7 +787,17 @@
       ],
       "description": "Statement denim set engineered with a sharp western cut jacket featuring layered contrasting pop-color collars and ultra-slouchy baggy jeans.",
       "careInstructions": "Machine wash cold inside out. Hang dry to preserve wash texture.",
-      "stock": 14
+      "stock": 14,
+      "details": {
+        "material": "100% Ring-spun 14oz rigid cotton denim in vintage tint stonewash.",
+        "specifications": [
+          "Layered dual collar construction with contrast faded wash tones.",
+          "Drop-shoulder western trucker silhouette with matte silver shank buttons.",
+          "Super-wide puddle jeans with double knee paneling.",
+          "Enzyme bleached fade patterning across thighs and yoke."
+        ],
+        "origin": "Manufactured with artisanal denim washes for M STUDIO."
+      }
     },
     {
       "id": "prd_set_05",
@@ -602,7 +822,17 @@
       ],
       "description": "Monochromatic atelier statement suit combining an asymmetric funnel-neck white leather jacket with technical spiral-zippered wide track trousers.",
       "careInstructions": "Spot clean jacket with damp cloth. Gentle cycle for trousers.",
-      "stock": 6
+      "stock": 6,
+      "details": {
+        "material": "Jacket: High-grade matte polyurethane leather; Pants: Technical heavy nylon-twill waterproof fabric.",
+        "specifications": [
+          "High funnel collar with diagonal asymmetric zipper and magnetic clasp.",
+          "Tailored sculptural sleeve darts creating articulated bends.",
+          "Wide technical trousers fitted with full continuous spiral leg zippers.",
+          "Modular zipped pockets and cinchable shock-cord ankle cuffs."
+        ],
+        "origin": "Developed at FASHORA Design Studio, Paris 8th Arrondissement."
+      }
     },
     {
       "id": "prd_set_06",
@@ -628,7 +858,17 @@
       ],
       "description": "Asymmetric dual-tone chunky knit cardigan fitted with metal buckle strap fasteners, paired with ultra-wide faux leather puddle trousers.",
       "careInstructions": "Dry clean cardigan. Wipe trousers clean with a damp cloth.",
-      "stock": 11
+      "stock": 11,
+      "details": {
+        "material": "Top: 55% Cotton, 45% Acrylic heavyweight chunky knit; Bottom: Matte grained synthetic leather.",
+        "specifications": [
+          "Monochromatic colorblocked body with diagonal ribbed knit texture.",
+          "Trio of adjustable brushed alloy roller buckle strap closures across front.",
+          "Fluid wide-leg leather trousers with high waist fit and front pleats.",
+          "Deep slanted side pockets and double welt rear pockets."
+        ],
+        "origin": "Curated and crafted under M STUDIO Limited Allocation."
+      }
     },
     {
       "id": "prd_set_07",
@@ -653,7 +893,17 @@
       ],
       "description": "Avant-garde dystopia coordinate featuring a multi-zipper hooded leather moto jacket with back slit details and a spiked metal-grommet micro skirt.",
       "careInstructions": "Specialist leather clean only. Keep metallic hardware dry.",
-      "stock": 5
+      "stock": 5,
+      "details": {
+        "material": "Hand-buffed distressed synthetic leather shell with breathable viscose lining.",
+        "specifications": [
+          "Detachable structured hood with adjustable drawcords.",
+          "Multi-directional chrome zippers across torso and sleeves.",
+          "Micro mini skirt loaded with all-over rows of punched metal eyelets.",
+          "Internal built-in safety stretch shorts under skirt for secure fit."
+        ],
+        "origin": "Custom hand-finished piece by M STUDIO Atelier."
+      }
     },
     {
       "id": "prd_set_08",
@@ -679,7 +929,17 @@
       ],
       "description": "Y2K-inspired motorsport matching set composed of a stand-collar washed metallic leather jacket and a low-rise panel mini skirt with bold contrast stripe graphics.",
       "careInstructions": "Wipe clean with a damp cloth. Do not iron or machine wash.",
-      "stock": 14
+      "stock": 14,
+      "details": {
+        "material": "Distressed metallic silver coated faux leather with bold crimson racing stripe leather inlays.",
+        "specifications": [
+          "Snap-tab mandarin moto collar and zip wrist gussets.",
+          "Ergonomic racing curved arm panel construction.",
+          "Low-waisted A-line mini skirt with contrast colorblocked hip panels.",
+          "Heavy-duty industrial front zippers."
+        ],
+        "origin": "Created for M STUDIO Velocity Archive Collection."
+      }
     },
     {
       "id": "prd_set_09",
@@ -705,7 +965,17 @@
       ],
       "description": "Relaxed retro coordinate comprising a boxy drop-shoulder cropped moto leather jacket with waist belt buckle and loose-leg faded vintage black jeans.",
       "careInstructions": "Spot clean jacket. Machine wash jeans cold inside out.",
-      "stock": 16
+      "stock": 16,
+      "details": {
+        "material": "Jacket: Burnished vintage camel vegan leather; Jeans: 100% 13oz washed cotton denim.",
+        "specifications": [
+          "Exaggerated cropped silhouette hitting above natural waistline.",
+          "Integrated wide waist belt with heavyweight polished rectangular prong buckle.",
+          "Extra wide-leg jeans with subtle thigh fading and contrast stitching.",
+          "Reinforced double-stitched stress points throughout both pieces."
+        ],
+        "origin": "Curated and assembled for M STUDIO Archive Series."
+      }
     },
     {
       "id": "prd_pants_01",
@@ -731,7 +1001,17 @@
       ],
       "description": "Dramatic curved balloon-leg jeans in heavy stone-washed denim with whisker detailing and deep side pleats creating a sculptural voluminous silhouette.",
       "careInstructions": "Machine wash cold inside out. Hang dry to maintain volume.",
-      "stock": 24
+      "stock": 24,
+      "details": {
+        "material": "100% Heavyweight 14.5oz organic cotton denim treated with natural pumice stonewash.",
+        "specifications": [
+          "Sculptural 3D curved balloon leg with double inward knee darts.",
+          "High-rise fitted waist contouring into dramatic flared volume.",
+          "Vintage faded whiskering and hand-scraped abrasions.",
+          "Branded zinc button fly and copper rivets."
+        ],
+        "origin": "Precision cut and washed for M STUDIO Denim Division."
+      }
     },
     {
       "id": "prd_pants_02",
@@ -757,7 +1037,17 @@
       ],
       "description": "Wide-leg flared denim trousers featuring distinctive bleached rising flame motifs along the lower hems and subtle distress marks.",
       "careInstructions": "Wash separately in cold water. Do not bleach.",
-      "stock": 18
+      "stock": 18,
+      "details": {
+        "material": "100% Cotton 13.8oz sulfur-dyed black denim.",
+        "specifications": [
+          "Artisanal discharge-bleached ascending flame pattern on leg hems.",
+          "Slouchy wide-leg cut with extended inseam for puddle-stack effect.",
+          "Frayed raw hem finish along bottom cuff.",
+          "Custom M STUDIO engraved matte black hardware."
+        ],
+        "origin": "Hand-bleached and customized in Vietnam by M STUDIO."
+      }
     },
     {
       "id": "prd_pants_03",
@@ -782,7 +1072,17 @@
       ],
       "description": "Heavy tactile cargo pants constructed with all-over frayed knit shredding, gothic graphic eye patch appliqués, and hanging side harness straps.",
       "careInstructions": "Hand wash gently. Air dry flat to preserve frayed threads.",
-      "stock": 10
+      "stock": 10,
+      "details": {
+        "material": "100% Cotton canvas base overlaid with distressed open-weave gauze and canvas patches.",
+        "specifications": [
+          "Manual distress shredding and fraying across front panels.",
+          "Screen-printed gothic eyeball canvas patch appliqués.",
+          "Six ergonomic cargo storage pockets with flap closures.",
+          "D-ring utility webbing harness straps hanging from waist to knee."
+        ],
+        "origin": "Handcrafted limited edition produced for M STUDIO."
+      }
     },
     {
       "id": "prd_pants_04",
@@ -807,7 +1107,17 @@
       ],
       "description": "Double-knee carpenter jeans updated with Western-inspired cascading fringe tassels, raw cut hems, and oversized utility pockets.",
       "careInstructions": "Spot clean recommended or wash inside a mesh laundry bag.",
-      "stock": 15
+      "stock": 15,
+      "details": {
+        "material": "Heavy duty 14oz rigid black cotton denim with raw-edge denim fringe tassels.",
+        "specifications": [
+          "Double-knee reinforced panels lined with flowing western fringe trim.",
+          "Carpenter hammer loop and dual utility ruler side pockets.",
+          "Straight-leg relaxed fit with reinforced triple-needle topstitching.",
+          "Unwashed jet-black finish retaining deep color depth."
+        ],
+        "origin": "Constructed by specialized denim artisans for M STUDIO."
+      }
     },
     {
       "id": "prd_pants_05",
@@ -833,7 +1143,17 @@
       ],
       "description": "Baggy skater denim finished with fluid topographic contrast white stitching and multi-functional functional metallic diagonal zippers.",
       "careInstructions": "Machine wash delicate cycle. Close all zippers before wash.",
-      "stock": 14
+      "stock": 14,
+      "details": {
+        "material": "13.5oz Washed black cotton denim with contrast high-tensile polyester stitching.",
+        "specifications": [
+          "Ergonomic topographic spiral seams curving around entire leg silhouette.",
+          "Functional metal zippers allowing silhouette transformation from straight to flare.",
+          "Generous baggy cut engineered with a dropped crotch.",
+          "Heavy contrast white dual-stitch embroidery."
+        ],
+        "origin": "Architectural silhouette drafted by M STUDIO Atelier."
+      }
     },
     {
       "id": "prd_pants_06",
@@ -858,7 +1178,17 @@
       ],
       "description": "Tactical wide-cut pants made from grained faux leather, featuring detachable modular waist pouches, knee harness cinches, and grommeted straps.",
       "careInstructions": "Wipe clean with a damp cloth. Hang on wide hanger.",
-      "stock": 12
+      "stock": 12,
+      "details": {
+        "material": "High-durability matte pebbled polyurethane leather with breathable poly-viscose backing.",
+        "specifications": [
+          "Eight dimensional cargo utility pockets with concealed snaps.",
+          "Adjustable knee harness straps with quick-release snap buckles.",
+          "Detachable modular pouch clip at right waistband.",
+          "Wide leg opening with interior toggle shock-cords."
+        ],
+        "origin": "Tailored under M STUDIO Technical Utility specifications."
+      }
     },
     {
       "id": "prd_pants_07",
@@ -883,7 +1213,17 @@
       ],
       "description": "Avant-garde bondage-style wide-leg cotton pants detailed with layered zip compartments, metal eyelets, and adjustable roller buckles down each leg.",
       "careInstructions": "Hand wash or dry clean to protect metal buckle hardware.",
-      "stock": 0
+      "stock": 0,
+      "details": {
+        "material": "100% 340gsm Structured cotton drill in natural unbleached chalk white.",
+        "specifications": [
+          "Six adjustable bondage straps with metallic roller buckles wrapping each leg.",
+          "Continuously punched metal eyelet webbing trims.",
+          "Silver metal zipper utility pockets across thighs and calves.",
+          "Extra-wide relaxed hem pooling over footwear."
+        ],
+        "origin": "Exclusive prototype crafted by M STUDIO."
+      }
     },
     {
       "id": "prd_pants_08",
@@ -909,7 +1249,17 @@
       ],
       "description": "Maximalist utility cargo pants constructed with an array of angled bellows pockets, curved contrast topstitching, and an aggressive mineral acid wash.",
       "careInstructions": "Machine wash cold with like colors inside out.",
-      "stock": 16
+      "stock": 16,
+      "details": {
+        "material": "100% Ring-spun 13.5oz cotton denim subjected to mineral acid-wash processing.",
+        "specifications": [
+          "Ten asymmetric gusseted 3D cargo pockets.",
+          "Dramatic mineral snow wash creating high-contrast texture.",
+          "Articulated knees with kinetic pleats for ease of movement.",
+          "Triple-reinforced stitching along crotch and inseams."
+        ],
+        "origin": "Washed and customized under M STUDIO Heavy Denim standards."
+      }
     },
     {
       "id": "prd_shirt_01",
@@ -935,7 +1285,17 @@
       ],
       "description": "Modernist cropped button-up shirt in luminous heavy satin, featuring exaggerated western yokes, sharp notched lapels, and raw-cut hem ties.",
       "careInstructions": "Hand wash gently in cool water. Cool iron under pressing cloth.",
-      "stock": 20
+      "stock": 20,
+      "details": {
+        "material": "88% Triacetate, 12% Polyamide high-density Italian satin drape.",
+        "specifications": [
+          "Cropped silhouette hitting right above natural waist.",
+          "Dramatic exaggerated western curved front and back yoke tailoring.",
+          "Raw-cut adjustable tie sashes integrated into bottom hem.",
+          "Concealed placket featuring genuine mother-of-pearl buttons."
+        ],
+        "origin": "Conceived in Paris, Veneto craftsmanship for M STUDIO."
+      }
     },
     {
       "id": "prd_shirt_02",
@@ -961,7 +1321,17 @@
       ],
       "description": "Structured boxy over-shirt tailored from supple faux leather, finished with an industrial grommet waist belt, chest flaps, and four-point star zipper pulls.",
       "careInstructions": "Wipe clean with a damp cloth. Store away from humidity.",
-      "stock": 15
+      "stock": 15,
+      "details": {
+        "material": "Matte-grain synthetic leather outer with silky cupro inner lining.",
+        "specifications": [
+          "Boxy, drop-shoulder over-shirt silhouette for versatile outer layering.",
+          "Removable matching leather waist belt with metal eyelets and buckle.",
+          "Signature star-shaped cast metal zipper pulls on chest flap pockets.",
+          "Structured architectural fold-down point collar."
+        ],
+        "origin": "Engineered for M STUDIO Outerwear Archives."
+      }
     },
     {
       "id": "prd_shirt_03",
@@ -987,7 +1357,17 @@
       ],
       "description": "Voluminous hybrid zip shirt crafted from smooth wind-resistant twill with an integrated tie-scarf funnel neckline and shirred elastic waistband.",
       "careInstructions": "Machine wash delicate cycle. Hang to dry.",
-      "stock": 18
+      "stock": 18,
+      "details": {
+        "material": "65% High-twist cotton, 35% Technical windproof nylon twill.",
+        "specifications": [
+          "Convertible funnel collar extending into integrated draped tie-scarves.",
+          "Two-way brushed alloy front zipper closure.",
+          "Shirred elasticized bomber waistband creating blouson volume.",
+          "Relaxed drop-shoulder sleeves with gathered snap cuffs."
+        ],
+        "origin": "Curated by M STUDIO Contemporary Tailoring."
+      }
     },
     {
       "id": "prd_shirt_04",
@@ -1013,7 +1393,17 @@
       ],
       "description": "Fine-gauge v-neck knit cardigan shirt designed with tone-on-tone fabric buttons and an oversized contrast ivory bow corsage brooch.",
       "careInstructions": "Hand wash cold. Dry flat to preserve knit shape.",
-      "stock": 22
+      "stock": 22,
+      "details": {
+        "material": "70% Mercerized fine-gauge cotton, 30% Mulberry silk knit.",
+        "specifications": [
+          "Plunging feminine V-neckline with ribbed knit collar trim.",
+          "Detachable handmade contrast ivory satin bow corsage with safety pin.",
+          "Color-matched fabric-covered shank button front closure.",
+          "Fitted silhouette with extended slim ribbed cuffs."
+        ],
+        "origin": "Knit from premium blended yarns for M STUDIO."
+      }
     },
     {
       "id": "prd_shirt_05",
@@ -1038,7 +1428,17 @@
       ],
       "description": "Slouchy off-the-shoulder knit top featuring raw distressed shoulder buttons and white chain-stitched front gothic typography.",
       "careInstructions": "Wash inside out in laundry bag. Do not tumble dry.",
-      "stock": 16
+      "stock": 16,
+      "details": {
+        "material": "100% Slub cotton jersey with mineral enzyme distress washing.",
+        "specifications": [
+          "Asymmetrical draped boat neckline exposing left collarbone.",
+          "Decorative burnished metal shoulder buttons on left sleeve.",
+          "Front chain-stitched gothic text graphic in contrast ecru thread.",
+          "Curved raw hemline with overlock safety stitching."
+        ],
+        "origin": "Produced by M STUDIO Graphic Division."
+      }
     },
     {
       "id": "prd_shirt_06",
@@ -1065,7 +1465,17 @@
       ],
       "description": "Dramatic drop-shoulder motocross jersey shirt featuring fluid monochrome gradient striping, script calligraphy typography, and draped long sleeves.",
       "careInstructions": "Machine wash cold inside out. Do not iron directly on print.",
-      "stock": 25
+      "stock": 25,
+      "details": {
+        "material": "100% Breathable moisture-wicking technical mesh polyester (240gsm).",
+        "specifications": [
+          "Sublimation printing with gradient smoke and speed graphic motifs.",
+          "Ribbed V-neck motocross style collar.",
+          "Exaggerated oversized cut with elongated dropped sleeves.",
+          "Durable double-needle stitched cuffs and drop-tail hem."
+        ],
+        "origin": "Engineered for M STUDIO Velocity Collection."
+      }
     },
     {
       "id": "prd_shirt_07",
@@ -1091,7 +1501,17 @@
       ],
       "description": "Waffle-knit grunge hooded over-shirt with heavy mineral tie-dye wash, frayed raw edge hems, flared sleeves, and back minimalist text embroidery.",
       "careInstructions": "Hand wash cold or gentle cycle. Flat dry to preserve distressing.",
-      "stock": 14
+      "stock": 14,
+      "details": {
+        "material": "Heavyweight 360gsm waffle thermal knit cotton.",
+        "specifications": [
+          "Acid mineral wash yielding a unique smokey cloud patina on each piece.",
+          "Generous double-layered hood with raw unhemmed drawcords.",
+          "Subtle bell flare cut on sleeve cuffs.",
+          "Minimalist tonal micro-embroidery along lower back hem."
+        ],
+        "origin": "Custom washed and dyed for M STUDIO Archive."
+      }
     },
     {
       "id": "prd_shirt_08",
@@ -1117,7 +1537,17 @@
       ],
       "description": "Fitted boned satin corset top shirt styled with dual silver front zippers and cascading crystal rhinestone fringe tassels across the bust.",
       "careInstructions": "Spot clean only. Do not machine wash to protect crystal fringe.",
-      "stock": 12
+      "stock": 12,
+      "details": {
+        "material": "Double-layered heavy stretch satin (95% Polyester, 5% Elastane) with glass crystal rhinestone chains.",
+        "specifications": [
+          "Integrated flexible plastic boning defining and contouring the torso.",
+          "Dual metallic front separating zippers for adjustable fit.",
+          "Cascading tier of light-reflective crystal rhinestone fringes across chest.",
+          "Curved pointed hemline elongating the waistline."
+        ],
+        "origin": "Artisanal partywear edition crafted by M STUDIO Atelier."
+      }
     },
     {
       "id": "prd_shoes_01",
@@ -1144,7 +1574,17 @@
       ],
       "description": "Statement thigh-high boots tailored from supple faux leather, detailed with multiple silver-grommeted buckle straps, inner side zip closure, and a razor stiletto heel.",
       "careInstructions": "Wipe clean with a damp cloth. Store using boot shapers to prevent creasing.",
-      "stock": 10
+      "stock": 10,
+      "details": {
+        "material": "Stretch micro-grain vegan leather upper, cushioned latex footbed, and non-slip rubber outsole.",
+        "specifications": [
+          "Shaft height: 62 cm (Thigh-high length); Heel height: 10.5 cm razor stiletto.",
+          "Nine functional silver grommeted buckle straps along shaft for adjustable grip.",
+          "Full-length inner medial YKK zipper for effortless slip-on access.",
+          "Pointed-toe archetype with reinforced toe box structure."
+        ],
+        "origin": "Handcrafted footwear line for M STUDIO Atelier."
+      }
     },
     {
       "id": "prd_shoes_02",
@@ -1171,7 +1611,17 @@
       ],
       "description": "Gothic cyber platform knee-high boots featuring an aggressive grunge patina finish, modular zip utility shaft pockets, front lace-up detailing, and an ultra-chunky cleated sole.",
       "careInstructions": "Clean with dry brush. Keep away from excessive moisture.",
-      "stock": 8
+      "stock": 8,
+      "details": {
+        "material": "Hand-buffed distressed synthetic leather with molded lightweight EVA platform and rubber tread.",
+        "specifications": [
+          "Heel height: 8.0 cm; Front platform: 5.5 cm with deep cleated traction teeth.",
+          "Detachable zippered utility pocket attached via strap to exterior boot shaft.",
+          "Front 20-eyelet lace-up system with side zip for daily convenience.",
+          "Antibacterial breathable microfiber insole lining."
+        ],
+        "origin": "Engineered for M STUDIO Gothic Footwear Archives."
+      }
     },
     {
       "id": "prd_shoes_03",
@@ -1198,7 +1648,17 @@
       ],
       "description": "Sleek pointed-toe knee-high boots wrapped in cloud-bleached treated denim with an ankle fold-over flap, brass press studs, and a sculpted heel.",
       "careInstructions": "Spot clean treated denim. Avoid prolonged exposure to direct sunlight.",
-      "stock": 12
+      "stock": 12,
+      "details": {
+        "material": "13oz Stonewashed and cloud-bleached cotton denim layered over reinforced leather structure.",
+        "specifications": [
+          "Shaft height: 42 cm; Heel height: 9.5 cm sculpted architectural stiletto.",
+          "Fold-over cuff collar accented with antiqued metal snap buttons.",
+          "Razor sharp pointed toe profile.",
+          "Full inner lining and cushioned footbed."
+        ],
+        "origin": "Custom textile wash footwear produced for M STUDIO."
+      }
     },
     {
       "id": "prd_shoes_04",
@@ -1225,7 +1685,17 @@
       ],
       "description": "Classic lace-up derby shoes reimagined with heavy surface distress distressing and a bold curved metallic cage toe cap over a durable lugged rubber sole.",
       "careInstructions": "Brush clean and condition leather regularly. Buff metal toe guards with soft cloth.",
-      "stock": 15
+      "stock": 15,
+      "details": {
+        "material": "Full-grain buffed cowhide leather with burnished bronze steel toe plate and vulcanized rubber sole.",
+        "specifications": [
+          "Curved high-grade metallic toe guard riveted to front upper.",
+          "Traditional open 4-eyelet derby lacing configuration.",
+          "Chunky lugged rubber commando sole: 4.5 cm heel elevation.",
+          "Goodyear-welted style welt stitching for maximum sole bonding."
+        ],
+        "origin": "Assembled with custom foundry hardware for M STUDIO Footwear."
+      }
     },
     {
       "id": "prd_shoes_05",
@@ -1253,7 +1723,17 @@
       ],
       "description": "Industrial high-top combat boots constructed from heavy-duty stone-washed cotton canvas, featuring an exaggerated boxy bulbous toe and deep-traction lugged soles.",
       "careInstructions": "Brush off dried dirt. Wipe canvas gently with damp cloth and mild soap.",
-      "stock": 18
+      "stock": 18,
+      "details": {
+        "material": "18oz Heavy military duck cotton canvas with rubberized toe cap and molded rubber sole.",
+        "specifications": [
+          "Exaggerated bulbous round toe box with protective rubber bumper.",
+          "Deep multi-directional tread lug sole: 5.0 cm heel height.",
+          "Heavy metal speed hooks and round waxed cotton cord laces.",
+          "Reinforced canvas back pull tab for easy entry."
+        ],
+        "origin": "Engineered utility footwear line for M STUDIO."
+      }
     },
     {
       "id": "prd_shoes_06",
@@ -1280,7 +1760,17 @@
       ],
       "description": "Monochromatic atelier statement derby shoes in high-shine brushed calf leather, featuring an apron toe seam and an exaggerated architectural block tread sole.",
       "careInstructions": "Wipe with microfiber cloth and polish with neutral wax to maintain high shine.",
-      "stock": 0
+      "stock": 0,
+      "details": {
+        "material": "High-gloss polished brush-off box calf leather with dual-density lightweight EVA and rubber compound sole.",
+        "specifications": [
+          "Classic apron toe stitched moc-seam profile.",
+          "Architectural stepped-block lug tread sole (Heel: 5.0 cm, Forefoot: 3.5 cm).",
+          "Padded leather collar preventing ankle chafing.",
+          "Full leather lining and branded ergonomic arch-support insole."
+        ],
+        "origin": "Crafted in Veneto, Italy under M STUDIO Atelier Standards."
+      }
     }
   ],
   "users": [

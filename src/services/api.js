@@ -61,15 +61,15 @@ export default api;
  */
 export const getCurrentUser = async (userId) => {
   try {
-    const res = await api.get(`/users/${userId}`)
-    return res?.data || null
+    const res = await getUserById(userId)
+    return res.data || null
   } catch {
     try {
-      const allRes = await api.get('/users')
-      const users = allRes?.data || []
+      const allRes = await getUsers()
+      const users = allRes.data || []
       return users.find((u) => u.id === userId) || null
-    } catch (err) {
-      console.warn('api.js getCurrentUser error:', err)
+    } catch (error) {
+      console.warn('api.js getCurrentUser error:', error)
       return null
     }
   }

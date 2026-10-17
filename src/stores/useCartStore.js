@@ -6,25 +6,16 @@ export const useCartStore = create(
     (set, get) => ({
       cartItems: [],
 
-      // Thêm sản phẩm vào giỏ (yêu cầu đăng nhập trước khi thêm)
+      // Thêm sản phẩm vào giỏ (cho phép khách vãng lai và người dùng đã đăng nhập)
       addToCart: (product, selectedSize, selectedColor, quantity = 1) => {
-        // Kiểm tra quyền đăng nhập của người dùng
-        const currentUserId = typeof window !== 'undefined' ? localStorage.getItem('currentUserId') : null;
-        if (!currentUserId) {
-          return {
-            success: false,
-            requireLogin: true,
-            message: 'Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng!',
-          };
-        }
 
         const { cartItems } = get();
 
-        // Kiểm tra tồn kho (AN)
+        // Kiểm tra tồn kho
         if (quantity > product.stock) {
           return {
             success: false,
-            message: 'Sản phẩm không đủ số lượng trong kho!',
+            message: 'Insufficient stock for this product!',
           };
         }
 
@@ -38,20 +29,21 @@ export const useCartStore = create(
         if (existingIndex > -1) {
           const currentQuantity = cartItems[existingIndex].quantity;
 
-          // Tổng số lượng sau khi thêm không được vượt tồn kho (AN)
+          // Tổng số lượng sau khi thêm không được vượt tồn kho
           if (currentQuantity + quantity > product.stock) {
             return {
               success: false,
-              message: `Chỉ còn ${product.stock} sản phẩm trong kho!`,
+              message: `Only ${product.stock} items remaining in stock!`,
             };
           }
-          //(AN)
+
           const updated = cartItems.map((item, index) =>
             index === existingIndex
               ? { ...item, quantity: item.quantity + quantity }
               : item
           );
           set({ cartItems: updated });
+          return { success: true };
         } else {
           set({
             cartItems: [
@@ -80,6 +72,7 @@ export const useCartStore = create(
               },
             ],
           });
+          return { success: true };
         }
       },
 
