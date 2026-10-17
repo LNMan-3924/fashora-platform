@@ -145,6 +145,7 @@ export default function CompleteTheLook({
   subtitle = 'Curated pairings from M STUDIO to complement your selected silhouette.',
   viewAllLink = '/shop',
   onQuickAdd,
+  className = '',
 }) {
   const [apiItems, setApiItems] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -218,7 +219,7 @@ export default function CompleteTheLook({
   };
 
   return (
-    <section className="mt-16 lg:mt-24 pt-10 border-t border-neutral-200">
+    <section className={className || "mt-16 lg:mt-24 pt-10 border-t border-neutral-200"}>
       {/* ------------------------------------------------------------- */}
       {/* HEADER KHỐI GỢI Ý & BỘ NÚT ĐIỀU HƯỚNG MŨI TÊN                  */}
       {/* ------------------------------------------------------------- */}
