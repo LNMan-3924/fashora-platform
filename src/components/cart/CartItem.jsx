@@ -20,6 +20,11 @@ export default function CartItem({
 
   // Tính thành tiền của dòng: Đơn giá nhân với số lượng
   const lineTotal = (item.price || 0) * (item.quantity || 1)
+  const itemImage =
+    item.image ||
+    (Array.isArray(item.images) && item.images.length > 0 ? item.images[0] : null) ||
+    FALLBACK_IMAGE
+  const itemName = item.name || 'ATELIER PIECE'
 
   return (
     <div className="py-5 sm:py-6 flex gap-3 sm:gap-6 items-start border-b border-neutral-200 last:border-b-0">
@@ -30,7 +35,7 @@ export default function CartItem({
         <Checkbox
           checked={isSelected}
           onChange={() => onToggleSelect?.(item)}
-          aria-label={`Select ${item.name}`}
+          aria-label={`Select ${itemName}`}
         />
       </div>
 
@@ -39,8 +44,8 @@ export default function CartItem({
       {/* ------------------------------------------------------------- */}
       <div className="w-20 sm:w-28 shrink-0 bg-neutral-100 aspect-[3/4] rounded-[2px] overflow-hidden relative border border-neutral-200">
         <img
-          src={item.image || FALLBACK_IMAGE}
-          alt={item.name}
+          src={itemImage}
+          alt={itemName}
           onError={handleImageError}
           className="w-full h-full object-cover object-top"
           loading="lazy"
@@ -66,7 +71,7 @@ export default function CartItem({
             </span>
             {/* Tên sản phẩm */}
             <h3 className="font-semibold text-xs sm:text-base text-[#111111] uppercase tracking-tight mt-0.5 line-clamp-2">
-              {item.name}
+              {itemName}
             </h3>
             {/* Size và Màu sắc đã chọn */}
             <p className="text-xs text-neutral-500 mt-1 font-mono">

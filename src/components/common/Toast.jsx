@@ -34,10 +34,10 @@ export default function Toast({
   return (
     <div
       aria-live="polite"
-      className={`fixed bottom-6 right-6 z-50 bg-[#111111] text-white text-xs uppercase tracking-widest px-6 py-4 shadow-2xl flex items-center space-x-3 pointer-events-none transition-all duration-300 transform ${
+      className={`fixed bottom-6 right-6 z-50 bg-[#111111] text-white text-xs uppercase tracking-widest px-6 py-4 shadow-2xl flex items-center space-x-3 transition-all duration-300 transform ${
         isVisible
-          ? 'translate-y-0 opacity-100'
-          : 'translate-y-6 opacity-0'
+          ? 'translate-y-0 opacity-100 pointer-events-auto'
+          : 'translate-y-6 opacity-0 pointer-events-none'
       }`}
     >
       {icon || <Check className="w-4 h-4 text-white stroke-[2.5] shrink-0" />}

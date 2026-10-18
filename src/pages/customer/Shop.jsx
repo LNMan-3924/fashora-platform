@@ -175,7 +175,7 @@ export function Shop() {
     <div className="w-full">
       {/* 1. Breadcrumb */}
       <nav className="text-[11px] font-medium tracking-wider text-neutral-400 uppercase">
-        <Link to="/" className="hover:text-black transition-colors">HOME</Link>
+        <Link to="/home" className="hover:text-black transition-colors">HOME</Link>
         <span className="mx-2">/</span>
         <span className="text-neutral-900">{selectedCategory}</span>
       </nav>

@@ -18,17 +18,18 @@ function Header({ hideNav = false }) {
     const cartItems = useCartStore((state) => state.cartItems) || []
     const totalCount = cartItems.reduce((sum, item) => sum + (item.quantity || 1), 0)
 
-    // Nghiệp vụ: Ở trang Auth (hideNav = true) hoặc chưa đăng nhập thì giỏ hàng hiển thị trống (0)
-    const displayCartCount = hideNav ? 0 : totalCount
-    const formattedCount = displayCartCount > 99 ? '99+' : displayCartCount
-
     const location = useLocation()
     const navigate = useNavigate()
     const searchParams = new URLSearchParams(location.search)
     const currentTag = searchParams.get('tag')
     const isShopPath = location.pathname === '/shop'
 
-    const isNewArrival = location.pathname === '/'
+    // Nghiệp vụ: Chỉ ở các trang Auth (/login, /register) mới ẩn badge giỏ hàng (0); ở Explore và các trang khác vẫn đồng bộ số lượng giỏ hàng
+    const isAuthPage = ['/login', '/register'].includes(location.pathname)
+    const displayCartCount = isAuthPage ? 0 : totalCount
+    const formattedCount = displayCartCount > 99 ? '99+' : displayCartCount
+
+    const isNewArrival = location.pathname === '/home'
     const isBestSeller = isShopPath && currentTag === 'best-seller'
     const isAll = isShopPath && !currentTag
 
@@ -132,7 +133,7 @@ function Header({ hideNav = false }) {
 
                 {/* Cột giữa: Logo FASHORA căn chính giữa */}
                 <div className="flex items-center justify-center">
-                    <Link to="/" className="inline-flex items-center justify-center">
+                    <Link to="/home" className="inline-flex items-center justify-center">
                         {!logoError ? (
                             <img
                                 src={logoSrc}
@@ -276,7 +277,7 @@ function Header({ hideNav = false }) {
             {!hideNav && (
                 <nav className="hidden md:flex items-center justify-center gap-10 lg:gap-14 py-3 border-t border-neutral-800/80 text-xs tracking-[0.18em]">
                     <Link
-                        to="/"
+                        to="/home"
                         className={`transition-colors uppercase ${isNewArrival
                             ? 'text-white font-bold'
                             : 'text-neutral-400 hover:text-white font-medium'
@@ -360,7 +361,7 @@ function Header({ hideNav = false }) {
                         {/* 3. Navigation */}
                         <nav className="mt-8 flex flex-col gap-5">
                             <NavLink
-                                to="/"
+                                to="/home"
                                 onClick={() => setIsMobileMenuOpen(false)}
                                 className={({ isActive }) =>
                                     `text-[11px] tracking-[0.22em] uppercase transition-colors ${isActive ? 'text-white font-semibold' : 'text-neutral-300 hover:text-white font-medium'

@@ -9,7 +9,7 @@ export default function ProfileHeader() {
       {/* 1. Thanh Breadcrumb */}
       <nav aria-label="Breadcrumb" className="mb-4 sm:mb-6">
         <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.2em] text-[#888888] font-mono">
-          <Link to="/" className="hover:text-black transition-colors">
+          <Link to="/home" className="hover:text-black transition-colors">
             HOME
           </Link>
           <span>/</span>
