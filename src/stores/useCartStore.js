@@ -7,21 +7,37 @@ export const useCartStore = create(
       cartItems: [],
 
       // Thêm sản phẩm vào giỏ (cho phép khách vãng lai và người dùng đã đăng nhập)
-      addToCart: (product, selectedSize, selectedColor, quantity = 1) => {
+      addToCart: (product, selectedSize = 'One Size', selectedColor = 'Standard', quantity = 1) => {
+        // Hỗ trợ trường hợp truyền vào Axios response object { data: product }
+        const raw = product?.data && (product.data.id || product.data.name) ? product.data : product;
+        if (!raw) return { success: false, message: 'Invalid product data' };
 
         const { cartItems } = get();
 
-        // Kiểm tra tồn kho
-        if (quantity > product.stock) {
+        // Kiểm tra tồn kho (nếu không có trường stock thì mặc định 99)
+        const availableStock = typeof raw?.stock === 'number' ? raw.stock : 99;
+        const targetQty = Number(quantity) || 1;
+        if (targetQty > availableStock) {
           return {
             success: false,
             message: 'Insufficient stock for this product!',
           };
         }
 
+        const safeId = String(raw.id || 'item_' + Date.now());
+        const safeName = raw.name || raw.title || 'ATELIER PIECE';
+        const safePrice = Number(raw.price) || 0;
+        const safeImages = Array.isArray(raw.images) && raw.images.length > 0
+          ? raw.images
+          : (raw.image ? [raw.image] : ['/assets/fallback.png']);
+        const safeImage = safeImages[0] || raw.image || '/assets/fallback.png';
+        const safeCategory = raw.category || 'SET';
+        const safeShopName = raw.shopName || 'M STUDIO';
+        const safeShopId = raw.shopId || 'shop_m_studio';
+
         const existingIndex = cartItems.findIndex(
           (item) =>
-            item.id === product.id &&
+            item.id === safeId &&
             item.selectedSize === selectedSize &&
             item.selectedColor === selectedColor
         );
@@ -30,16 +46,16 @@ export const useCartStore = create(
           const currentQuantity = cartItems[existingIndex].quantity;
 
           // Tổng số lượng sau khi thêm không được vượt tồn kho
-          if (currentQuantity + quantity > product.stock) {
+          if (currentQuantity + targetQty > availableStock) {
             return {
               success: false,
-              message: `Only ${product.stock} items remaining in stock!`,
+              message: `Only ${availableStock} items remaining in stock!`,
             };
           }
 
           const updated = cartItems.map((item, index) =>
             index === existingIndex
-              ? { ...item, quantity: item.quantity + quantity }
+              ? { ...item, quantity: item.quantity + targetQty }
               : item
           );
           set({ cartItems: updated });
@@ -49,31 +65,42 @@ export const useCartStore = create(
             cartItems: [
               ...cartItems,
               {
-                id: product.id,
-                name: product.name,
-                price: product.price,
-                image:
-                  (Array.isArray(product.images) && product.images.length > 0
-                    ? product.images[0]
-                    : null) ||
-                  product.image ||
-                  '/assets/fallback.png',
-                images:
-                  Array.isArray(product.images) && product.images.length > 0
-                    ? product.images
-                    : [product.image || '/assets/fallback.png'],
-                category: product.category,
-                shopId: product.shopId,
-                shopName: product.shopName,
+                id: safeId,
+                name: safeName,
+                price: safePrice,
+                image: safeImage,
+                images: safeImages,
+                category: safeCategory,
+                shopId: safeShopId,
+                shopName: safeShopName,
                 selectedSize,
                 selectedColor,
-                quantity,
-                stock: product.stock,
+                quantity: targetQty,
+                stock: availableStock,
               },
             ],
           });
           return { success: true };
         }
+      },
+
+      // Alias addItem: Tương thích cả 2 kiểu truyền tham số (đơn lẻ hoặc object options)
+      addItem: (product, selectedSize, selectedColor, quantity) => {
+        if (typeof selectedSize === 'object' && selectedSize !== null) {
+          const opts = selectedSize;
+          return get().addToCart(
+            product,
+            opts.selectedSize || opts.size || 'One Size',
+            opts.selectedColor || opts.color || 'Standard',
+            Number(opts.quantity) || 1
+          );
+        }
+        return get().addToCart(
+          product,
+          selectedSize || 'One Size',
+          selectedColor || 'Standard',
+          Number(quantity) || 1
+        );
       },
 
       // Cập nhật số lượng
@@ -99,14 +126,19 @@ export const useCartStore = create(
       // Xóa sản phẩm khỏi giỏ
       removeFromCart: (id, selectedSize, selectedColor) => {
         set({
-          cartItems: get().cartItems.filter(
-            (item) =>
-              !(
-                item.id === id &&
+          cartItems: get().cartItems.filter((item) => {
+            if (!item.id || !id) {
+              return !(
                 item.selectedSize === selectedSize &&
                 item.selectedColor === selectedColor
-              )
-          ),
+              );
+            }
+            return !(
+              item.id === id &&
+              item.selectedSize === selectedSize &&
+              item.selectedColor === selectedColor
+            );
+          }),
         });
       },
 
@@ -148,9 +180,38 @@ export const useCartStore = create(
     {
       name: 'fashora-cart-storage',
       storage: createJSONStorage(() => localStorage),
+      onRehydrateStorage: () => (state) => {
+        if (state && Array.isArray(state.cartItems)) {
+          // Tự động dọn dẹp các món hàng rác/lỗi (không có tên hoặc giá rỗng)
+          state.cartItems = state.cartItems.filter(
+            (item) => item && item.name && item.name.trim() !== ''
+          );
+        }
+      },
     }
   )
 );
+
+// Tự động dọn dẹp dữ liệu giỏ hàng bị lỗi trong localStorage (nếu có từ phiên trước)
+if (typeof window !== 'undefined' && window.localStorage) {
+  try {
+    const rawCart = localStorage.getItem('fashora-cart-storage');
+    if (rawCart) {
+      const parsed = JSON.parse(rawCart);
+      if (parsed?.state?.cartItems && Array.isArray(parsed.state.cartItems)) {
+        const validItems = parsed.state.cartItems.filter(
+          (item) => item && item.name && item.name.trim() !== ''
+        );
+        if (validItems.length !== parsed.state.cartItems.length) {
+          parsed.state.cartItems = validItems;
+          localStorage.setItem('fashora-cart-storage', JSON.stringify(parsed));
+        }
+      }
+    }
+  } catch {
+    // ignore
+  }
+}
 
 
 /* ==========================================================================

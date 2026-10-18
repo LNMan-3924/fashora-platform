@@ -146,9 +146,8 @@ function QuickAddContent({ product, onClose, onConfirm, onAddToCart }) {
         </div>
 
         <div>
-          <div className="flex justify-between text-[11px] uppercase tracking-wider mb-2">
-            <span className="text-neutral-500">SIZE</span>
-            <span className="font-semibold text-neutral-900">{selectedSize}</span>
+          <div className="text-[11px] uppercase tracking-wider mb-2 text-neutral-500 font-medium">
+            SIZE
           </div>
           <div className="flex flex-wrap gap-2">
             {sizes.map((size) => (

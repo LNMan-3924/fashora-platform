@@ -237,7 +237,7 @@ export default function Cart() {
         aria-label="Breadcrumb"
         className="flex items-center gap-2 mb-4 text-xs font-mono tracking-widest text-neutral-400 uppercase"
       >
-        <Link to="/" className="hover:text-[#111111] transition-colors">
+        <Link to="/home" className="hover:text-[#111111] transition-colors">
           HOME
         </Link>
         <span className="text-neutral-300">/</span>

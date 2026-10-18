@@ -191,7 +191,7 @@ export default function Orders() {
               aria-label="Breadcrumb"
               className="flex items-center space-x-2 text-xs tracking-widest text-neutral-400 uppercase mb-3 font-mono"
             >
-              <Link to="/" className="hover:text-black transition-colors">
+              <Link to="/home" className="hover:text-black transition-colors">
                 HOME
               </Link>
               <span>/</span>

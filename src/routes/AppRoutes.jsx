@@ -16,6 +16,7 @@ import Register from '../pages/auth/Register'
 // 2. Customer Pages
 import Home from '../pages/customer/Home'
 import Explore from '../pages/customer/Explore'
+import StoryDetail from '../pages/customer/StoryDetail'
 import Shop from '../pages/customer/Shop'
 import ProductDetail from '../pages/customer/ProductDetail'
 import Cart from '../pages/customer/Cart'
@@ -55,9 +56,11 @@ export default function AppRoutes() {
 
           {/* ================= CUSTOMER ROUTES ================= */}
           <Route element={<CustomerLayout />}>
-            {/* Public Routes */}
-            <Route path="/" element={<Home />} />
+            {/* Public Routes - Explore hiển thị đầu tiên khi vào web */}
+            <Route path="/" element={<Explore />} />
+            <Route path="/home" element={<Home />} />
             <Route path="/explore" element={<Explore />} />
+            <Route path="/explore/story/:id" element={<StoryDetail />} />
             <Route path="/shop" element={<Shop />} />
             <Route path="/product/:id" element={<ProductDetail />} />
             <Route path="/products/:id" element={<ProductDetail />} />

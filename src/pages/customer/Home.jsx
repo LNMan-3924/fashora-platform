@@ -1,28 +1,13 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, ChevronLeft, ChevronRight, Plus } from 'lucide-react';
-import { getProducts, getCarouselItems, getHeroBanner } from '../../services/api';
+import { ArrowLeft, ArrowRight, ChevronLeft, ChevronRight, Plus } from 'lucide-react';
+import { getProducts, getCarouselItems } from '../../services/api';
 import CompleteTheLook from '../../components/product/CompleteTheLook';
 import QuickAddModal from '../../components/product/QuickAddModal';
 import { Toast } from '../../components/common';
 import { useCartStore } from '../../stores';
 
 const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=600&q=80';
-
-// Màu sắc nhãn Badge theo nhận diện Fashora
-function getBadgeStyle(variant) {
-  const v = (variant || '').toLowerCase();
-  if (v.includes('sale') || v.includes('discount')) {
-    return 'bg-red-600 text-white';
-  }
-  if (v.includes('sold') || v.includes('out')) {
-    return 'bg-neutral-800 text-neutral-200';
-  }
-  if (v.includes('hot') || v.includes('best')) {
-    return 'bg-amber-600 text-white';
-  }
-  return 'bg-black text-white';
-}
 
 // Định dạng tiền tệ VND
 const formatVND = (val) =>
@@ -181,7 +166,6 @@ export default function Home() {
   const [setProducts, setSetProducts] = useState(DEFAULT_SET_PRODUCTS);
   const [carouselItems, setCarouselItems] = useState(DEFAULT_CAROUSEL_ITEMS);
   const [currentSlide, setCurrentSlide] = useState(0);
-  const [isCarouselPaused, setIsCarouselPaused] = useState(false);
 
   // 2. Quản lý Quick Add Modal & Toast thông báo
   const [quickAddProduct, setQuickAddProduct] = useState(null);
@@ -337,20 +321,21 @@ export default function Home() {
               </p>
             </div>
 
-            {/* CỤM BÊN PHẢI (2 Call-To-Action buttons) */}
+            {/* CỤM BÊN PHẢI (Call-To-Action buttons) */}
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 shrink-0">
+              <Link
+                to="/explore"
+                className="inline-flex items-center justify-center gap-2 px-6 sm:px-7 py-3.5 sm:py-4 bg-black/40 border border-white/80 text-white backdrop-blur-sm font-bold text-xs sm:text-sm uppercase tracking-widest transition-all duration-300 hover:bg-white hover:text-black active:scale-[0.99] shadow-xl text-center"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                <span>BACK TO EXPLORE PAGE</span>
+              </Link>
               <Link
                 to="/shop?category=ALL"
                 className="inline-flex items-center justify-center gap-2 px-7 sm:px-8 py-3.5 sm:py-4 bg-white text-black font-bold text-xs sm:text-sm uppercase tracking-widest transition-all duration-300 hover:bg-neutral-200 active:scale-[0.99] shadow-xl text-center"
               >
                 <span>EXPLORE PRODUCTS</span>
                 <ArrowRight className="w-4 h-4" />
-              </Link>
-              <Link
-                to="/shop?tag=best-seller"
-                className="inline-flex items-center justify-center gap-2 px-7 sm:px-8 py-3.5 sm:py-4 bg-black/40 border border-white/80 text-white backdrop-blur-sm font-bold text-xs sm:text-sm uppercase tracking-widest transition-all duration-300 hover:bg-white hover:text-black active:scale-[0.99] shadow-xl text-center"
-              >
-                <span>BEST SELLER</span>
               </Link>
             </div>
           </div>

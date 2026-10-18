@@ -16,7 +16,7 @@ export default function CheckoutSteps() {
           aria-label="Breadcrumb"
           className="text-[10px] uppercase tracking-[0.25em] text-neutral-400 mb-1 font-mono flex items-center gap-1.5"
         >
-          <Link to="/" className="hover:text-[#111111] transition-colors">
+          <Link to="/home" className="hover:text-[#111111] transition-colors">
             HOME
           </Link>
           <span>/</span>
