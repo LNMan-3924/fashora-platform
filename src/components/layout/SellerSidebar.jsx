@@ -1,4 +1,4 @@
-import { NavLink, Link } from 'react-router-dom'
+import { NavLink } from 'react-router-dom'
 
 export default function SellerSidebar({ sellerInfo, onCloseMobile }) {
   const shopName = sellerInfo?.shopName || 'M STUDIO'
@@ -63,8 +63,7 @@ export default function SellerSidebar({ sellerInfo, onCloseMobile }) {
           </h1>
 
           {/* BADGE TỰ ĐỘNG ĐỔI TÊN SHOP KHI ĐĂNG KÝ */}
-          <div className="mt-3 inline-flex items-center gap-1.5 px-2.5 py-1 bg-neutral-100 border border-neutral-200/80 rounded text-[11px] font-semibold text-neutral-800">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+          <div className="mt-3 inline-flex items-center px-2.5 py-1 bg-neutral-100 border border-neutral-200/80 rounded text-[11px] font-semibold text-neutral-800">
             <span className="truncate max-w-[140px]">{shopName}</span>
           </div>
         </div>
@@ -81,10 +80,9 @@ export default function SellerSidebar({ sellerInfo, onCloseMobile }) {
                 to={item.path}
                 onClick={onCloseMobile}
                 className={({ isActive }) =>
-                  `flex items-center gap-3 px-3 py-2.5 text-xs tracking-wider transition-colors ${
-                    isActive
-                      ? 'bg-neutral-100 font-bold text-black border-l-4 border-black -ml-4 pl-3'
-                      : 'font-medium text-neutral-600 hover:bg-neutral-50 hover:text-black'
+                  `flex items-center gap-3 px-3 py-2.5 text-xs tracking-wider transition-colors ${isActive
+                    ? 'bg-neutral-100 font-bold text-black border-l-4 border-black -ml-4 pl-3'
+                    : 'font-medium text-neutral-600 hover:bg-neutral-50 hover:text-black'
                   }`
                 }
               >
@@ -95,25 +93,7 @@ export default function SellerSidebar({ sellerInfo, onCloseMobile }) {
           </nav>
         </div>
 
-        {/* 3. STOREFRONT BOX TỰ ĐỘNG ĐỔI TÊN THEO SHOP */}
-        <div className="px-5 py-2">
-          <div className="p-4 border border-neutral-200 bg-white space-y-2">
-            <h4 className="text-[11px] font-bold tracking-wider uppercase text-neutral-900 truncate">
-              {shopName} STOREFRONT
-            </h4>
-            <p className="text-[10px] leading-relaxed text-neutral-500">
-              View your customer-facing atelier catalog in the public Fashora marketplace.
-            </p>
-            <Link
-              to={`/brand/${shopName.toLowerCase().replace(/\s+/g, '-')}`}
-              target="_blank"
-              className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-black hover:opacity-70 transition-opacity pt-1"
-            >
-              <span>VIEW PUBLIC SHOP</span>
-              <span>↗</span>
-            </Link>
-          </div>
-        </div>
+
       </div>
 
       {/* 4. PROFILE DƯỚI ĐÁY TỰ ĐỘNG LẤY CHỮ CÁI ĐẦU VÀ TÊN SHOP */}

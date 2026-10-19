@@ -25,8 +25,7 @@ export default function SellerHeader({
                 </span>
 
                 {/* Badge tên Shop bên phải */}
-                <div className="inline-flex items-center gap-1.5 px-2 py-0.5 border border-neutral-300 rounded text-[10px] font-medium text-neutral-700 bg-neutral-50 z-10">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                <div className="inline-flex items-center px-2 py-0.5 border border-neutral-300 rounded text-[10px] font-medium text-neutral-700 bg-neutral-50 z-10">
                     <span className="truncate max-w-[90px]">{shopName}</span>
                 </div>
             </header>
@@ -55,10 +54,7 @@ export default function SellerHeader({
                 {/* Cụm trạng thái bên phải */}
                 <div className="flex items-center">
                     <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-[#171717] border border-neutral-700/80 rounded text-[11px] font-medium text-neutral-300 tracking-wider">
-                        <span className="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.6)]"></span>
-                        <span className="font-semibold text-white">SHOP ACTIVE</span>
-                        <span className="text-neutral-500">•</span>
-                        <span>VIETNAM (₫)</span>
+                        <span className="font-semibold text-emerald-400">ACTIVE</span>
                     </div>
                 </div>
             </div>

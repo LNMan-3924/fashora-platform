@@ -1857,6 +1857,209 @@
   "cart": [],
   "orders": [
     {
+      "orderNumber": "#ORD-9041",
+      "userId": "usr_helena",
+      "customerEmail": "helena.vance@example.com",
+      "recipient": {
+        "fullName": "Helena Vance",
+        "phone": "0912345678",
+        "address": "128 Le Duan Boulevard, Floor 4",
+        "ward": "Ben Nghe Ward",
+        "district": "District 1",
+        "city": "Ho Chi Minh City"
+      },
+      "shopName": "M STUDIO",
+      "items": [
+        {
+          "id": "prd_shirt_01",
+          "name": "Draped Satin Structural Shirt",
+          "price": 580000,
+          "quantity": 1,
+          "selectedSize": "M",
+          "selectedColor": "Onyx Black",
+          "image": "/images/products/shirt/shirt-01.jpg"
+        },
+        {
+          "id": "prd_acc_02",
+          "name": "Biomorphic Perforated Ring",
+          "price": 180000,
+          "quantity": 1,
+          "selectedSize": "Freesize",
+          "selectedColor": "Matte Silver",
+          "image": "/images/products/accessories/acc-02.jpg"
+        },
+        {
+          "id": "prd_acc_01",
+          "name": "Liquid Thorn Sunglasses",
+          "price": 450000,
+          "quantity": 1,
+          "selectedSize": "One Size",
+          "selectedColor": "Silver Chrome",
+          "image": "/images/products/accessories/acc-01.jpg"
+        }
+      ],
+      "shippingFee": 50000,
+      "shippingMethod": "Standard Delivery",
+      "paymentMethod": "Cash on Delivery (COD)",
+      "subtotal": 1210000,
+      "total": 1260000,
+      "status": "PENDING",
+      "createdAt": "2026-10-18T10:15:00.000Z",
+      "logistics": {
+        "courier": "SPX Express",
+        "waybill": "VN8291041VN"
+      },
+      "id": "ord_9041"
+    },
+    {
+      "orderNumber": "#ORD-9038",
+      "userId": "usr_alexander",
+      "customerEmail": "alexander.wright@example.com",
+      "recipient": {
+        "fullName": "Alexander Wright",
+        "phone": "0908765432",
+        "address": "88 Dong Khoi Street",
+        "ward": "Ben Nghe Ward",
+        "district": "District 1",
+        "city": "Ho Chi Minh City"
+      },
+      "shopName": "M STUDIO",
+      "items": [
+        {
+          "id": "prd_acc_05",
+          "name": "Metallic Y2K Shoulder Bag",
+          "price": 620000,
+          "quantity": 1,
+          "selectedSize": "One Size",
+          "selectedColor": "Chrome Silver",
+          "image": "/images/products/accessories/acc-05.jpg"
+        }
+      ],
+      "shippingFee": 60000,
+      "shippingMethod": "Express Courier",
+      "paymentMethod": "Cash on Delivery (COD)",
+      "subtotal": 620000,
+      "total": 680000,
+      "status": "CONFIRMED",
+      "createdAt": "2026-10-18T09:30:00.000Z",
+      "logistics": {
+        "courier": "SPX Express",
+        "waybill": "VN8291038VN"
+      },
+      "id": "ord_9038"
+    },
+    {
+      "orderNumber": "#ORD-9029",
+      "userId": "usr_klara",
+      "customerEmail": "klara.chen@example.com",
+      "recipient": {
+        "fullName": "Klara Chen",
+        "phone": "0934567890",
+        "address": "15 Le Thanh Ton Street",
+        "ward": "Ben Nghe Ward",
+        "district": "District 1",
+        "city": "Ho Chi Minh City"
+      },
+      "shopName": "M STUDIO",
+      "items": [
+        {
+          "id": "prd_set_01",
+          "name": "Quilted Biker Jacket & Flare Denim Set",
+          "price": 1890000,
+          "quantity": 1,
+          "selectedSize": "S",
+          "selectedColor": "Charcoal Black",
+          "image": "/images/products/set/set-01.jpg"
+        }
+      ],
+      "shippingFee": 0,
+      "shippingMethod": "Standard Delivery (Complimentary)",
+      "paymentMethod": "Cash on Delivery (COD)",
+      "subtotal": 1890000,
+      "total": 1890000,
+      "status": "SHIPPING",
+      "createdAt": "2026-10-17T16:20:00.000Z",
+      "logistics": {
+        "courier": "SPX Express",
+        "waybill": "VN8291029VN"
+      },
+      "id": "ord_9029"
+    },
+    {
+      "orderNumber": "#ORD-9014",
+      "userId": "usr_marc",
+      "customerEmail": "marc.dupont@example.com",
+      "recipient": {
+        "fullName": "Marc Dupont",
+        "phone": "0977889900",
+        "address": "22 Pasteur Street",
+        "ward": "Nguyen Thai Binh Ward",
+        "district": "District 1",
+        "city": "Ho Chi Minh City"
+      },
+      "shopName": "M STUDIO",
+      "items": [
+        {
+          "id": "prd_shirt_02",
+          "name": "Double Lapel Pocket Tailored Blazer Shirt",
+          "price": 590000,
+          "quantity": 1,
+          "selectedSize": "L",
+          "selectedColor": "Jet Black",
+          "image": "/images/products/shirt/shirt-02.jpg"
+        }
+      ],
+      "shippingFee": 0,
+      "shippingMethod": "Standard Delivery (Complimentary)",
+      "paymentMethod": "Cash on Delivery (COD)",
+      "subtotal": 590000,
+      "total": 590000,
+      "status": "COMPLETED",
+      "createdAt": "2026-10-17T11:00:00.000Z",
+      "logistics": {
+        "courier": "SPX Express",
+        "waybill": "VN8291014VN"
+      },
+      "id": "ord_9014"
+    },
+    {
+      "orderNumber": "#ORD-8992",
+      "userId": "usr_elena",
+      "customerEmail": "elena.rostova@example.com",
+      "recipient": {
+        "fullName": "Elena Rostova",
+        "phone": "0911223344",
+        "address": "50 Nam Ky Khoi Nghia",
+        "ward": "Vo Thi Sau Ward",
+        "district": "District 3",
+        "city": "Ho Chi Minh City"
+      },
+      "shopName": "M STUDIO",
+      "items": [
+        {
+          "id": "prd_acc_01",
+          "name": "Liquid Thorn Sunglasses",
+          "price": 450000,
+          "quantity": 1,
+          "selectedSize": "One Size",
+          "selectedColor": "Silver Chrome",
+          "image": "/images/products/accessories/acc-01.jpg"
+        }
+      ],
+      "shippingFee": 40000,
+      "shippingMethod": "Standard Delivery",
+      "paymentMethod": "Cash on Delivery (COD)",
+      "subtotal": 450000,
+      "total": 490000,
+      "status": "CANCELLED",
+      "createdAt": "2026-10-16T15:45:00.000Z",
+      "logistics": {
+        "courier": "SPX Express",
+        "waybill": "VN8298992VN"
+      },
+      "id": "ord_8992"
+    },
+    {
       "orderNumber": "#SPXVN881002530",
       "userId": "upkuSobx8os",
       "customerEmail": "an@gmail.com",
