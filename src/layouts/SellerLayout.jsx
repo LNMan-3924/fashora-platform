@@ -1,12 +1,21 @@
 import { useState, useEffect } from 'react'
-import { Outlet, useLocation } from 'react-router-dom'
+import { Outlet, useLocation, Navigate } from 'react-router-dom'
+import { useAuth } from '../contexts/AuthContext'
 import SellerSidebar from '../components/layout/SellerSidebar'
 import SellerHeader from '../components/layout/SellerHeader'
 import SellerFooter from '../components/layout/SellerFooter'
 
+/**
+ * Layout Kênh Người Bán (Seller Layout):
+ * - Bảo vệ đa tầng: Nghiêm cấm tuyệt đối người chưa đăng nhập truy cập vào trang người bán
+ *   bằng URL hay bất kỳ đường dẫn nào.
+ * - Khi chưa đăng nhập -> Lập tức chuyển hướng về trang /login.
+ * - Khung giao diện chia 2 cột: Sidebar trái (Desktop), Drawer menu (Mobile), Header và Footer.
+ */
 export default function SellerLayout() {
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const { currentUser, isAuthenticated, loading } = useAuth()
   const location = useLocation()
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
   // Mặc định là M STUDIO nếu chưa có ai đăng ký mới
   const [sellerInfo, setSellerInfo] = useState({
@@ -38,6 +47,20 @@ export default function SellerLayout() {
     if (location.pathname.includes('/seller/products')) return 'PRODUCTS'
     if (location.pathname.includes('/seller/orders')) return 'ORDERS'
     return 'DASHBOARD'
+  }
+
+  // 1. Kiểm tra trạng thái xác thực: Nếu đang tải dữ liệu phiên đăng nhập
+  if (loading) {
+    return (
+      <div className="w-full min-h-screen flex items-center justify-center bg-[#f9f9f9]">
+        <div className="inline-block w-8 h-8 border-2 border-black border-t-transparent rounded-[2px] animate-spin" />
+      </div>
+    )
+  }
+
+  // 2. Chặn tuyệt đối người chưa đăng nhập: Chuyển hướng ngay về /login kèm vị trí URL muốn truy cập
+  if (!currentUser || !isAuthenticated) {
+    return <Navigate to="/login" state={{ from: location }} replace />
   }
 
   return (

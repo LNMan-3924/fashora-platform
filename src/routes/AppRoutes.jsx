@@ -1,6 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider } from '../contexts/AuthContext'
-import { AuthGuard, CheckoutGuard } from '../components/common/ProtectedRoute'
+import { AuthGuard, SellerGuard, CheckoutGuard } from '../components/common/ProtectedRoute'
 import { ScrollToTop } from '../components/common'
 
 // Layouts
@@ -127,11 +127,12 @@ export default function AppRoutes() {
           </Route>
 
           {/* ================= SELLER ROUTES ================= */}
+          {/* Được bảo vệ nghiêm ngặt bằng SellerGuard: Người chưa đăng nhập tuyệt đối không thể vào */}
           <Route
             element={
-              <AuthGuard>
+              <SellerGuard>
                 <SellerLayout />
-              </AuthGuard>
+              </SellerGuard>
             }
           >
             <Route path="/seller" element={<Navigate to="/seller/dashboard" replace />} />
