@@ -88,6 +88,7 @@ export function Shop() {
     let result = [...products];
 
     // Lọc theo Category
+    // Nếu chọn khác 'ALL', so khớp chính xác mã danh mục viết hoa (SET, SHIRT, PANTS,...)
     if (selectedCategory !== 'ALL') {
       result = result.filter(
         (p) => p.category?.toUpperCase() === selectedCategory
@@ -95,6 +96,7 @@ export function Shop() {
     }
 
     // Tìm kiếm theo tên
+    // Tìm kiếm không phân biệt chữ hoa/chữ thường (Case-insensitive) trên tên sản phẩm
     if (searchQuery.trim()) {
       result = result.filter((p) =>
         p.name?.toLowerCase().includes(searchQuery.toLowerCase())
@@ -111,9 +113,9 @@ export function Shop() {
 
     // Sắp xếp
     if (sortBy === 'PRICE_LOW') {
-      result.sort((a, b) => a.price - b.price);
+      result.sort((a, b) => a.price - b.price); //s xếp giá tăng dần
     } else if (sortBy === 'PRICE_HIGH') {
-      result.sort((a, b) => b.price - a.price);
+      result.sort((a, b) => b.price - a.price); // giảm gần 
     }
 
     return result;

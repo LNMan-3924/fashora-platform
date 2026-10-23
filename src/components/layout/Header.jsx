@@ -15,7 +15,7 @@ function Header({ hideNav = false }) {
     const { currentUser, isAuthenticated, logoutUser } = useAuth()
 
     // Đồng bộ số lượng sản phẩm từ Zustand store
-    const cartItems = useCartStore((state) => state.cartItems) || []
+    const cartItems = useCartStore((state) => state.cartItems || [])
     const totalCount = cartItems.reduce((sum, item) => sum + (item.quantity || 1), 0)
 
     const location = useLocation()
@@ -206,13 +206,23 @@ function Header({ hideNav = false }) {
                                             >
                                                 MY ORDERS
                                             </Link>
-                                            <Link
-                                                to="/become-seller"
-                                                onClick={() => setAccountMenuOpen(false)}
-                                                className="block px-4 py-2 font-mono uppercase text-[11px] tracking-wider font-semibold text-white hover:bg-neutral-800 transition-colors"
-                                            >
-                                                BECOME A SELLER
-                                            </Link>
+                                            {currentUser?.shopId ? (
+                                                <Link
+                                                    to="/seller/dashboard"
+                                                    onClick={() => setAccountMenuOpen(false)}
+                                                    className="block px-4 py-2 font-mono uppercase text-[11px] tracking-wider font-semibold text-emerald-400 hover:text-white hover:bg-neutral-800 transition-colors"
+                                                >
+                                                    SELLER DASHBOARD
+                                                </Link>
+                                            ) : (
+                                                <Link
+                                                    to="/become-seller"
+                                                    onClick={() => setAccountMenuOpen(false)}
+                                                    className="block px-4 py-2 font-mono uppercase text-[11px] tracking-wider font-semibold text-white hover:bg-neutral-800 transition-colors"
+                                                >
+                                                    BECOME A SELLER
+                                                </Link>
+                                            )}
                                             <div className="my-1 border-t border-neutral-800" />
                                             <button
                                                 type="button"

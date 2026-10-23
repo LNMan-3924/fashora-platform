@@ -26,6 +26,8 @@ export const createProduct = (data) => api.post('/products', data);
 export const updateProduct = (id, data) => api.put(`/products/${id}`, data);
 export const deleteProduct = (id) => api.delete(`/products/${id}`);
 
+export const createOrUpdateShop = (shopData) => api.patch('/shop', shopData);
+
 // ================= USERS & AUTH =================
 export const getUsers = () => api.get('/users');
 export const getUserById = (id) => api.get(`/users/${id}`);
@@ -33,6 +35,7 @@ export const registerUser = (userData) => api.post('/users', userData);
 export const updateUser = (userId, data) => api.patch(`/users/${userId}`, data);
 export const updateUserRoleToSeller = (userId, shopId) =>
   api.patch(`/users/${userId}`, {
+    role: 'seller',
     roles: ['customer', 'seller'],
     shopId,
   });

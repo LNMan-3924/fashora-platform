@@ -171,7 +171,7 @@ export default function ProductDetail() {
     if (result?.success === false) {
       showToast(result.message)
     } else {
-      showToast(`Added ${quantity}x ${product.name} to cart.`)
+      showToast(`ADDED ${product.name.toUpperCase()} TO CART.`)
     }
   }
 
@@ -622,7 +622,7 @@ export default function ProductDetail() {
             item.selectedColor || 'Standard',
             item.quantity || 1
           )
-          showToast(`Added ${item.name} to cart.`)
+          showToast(`ADDED ${item.name.toUpperCase()} TO CART.`)
         }}
       />
 

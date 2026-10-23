@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext'
 import { getUsers, registerUser } from '../../services/api'
+import { nanoid } from 'nanoid'
 
 export default function Register() {
   const navigate = useNavigate()
@@ -112,7 +113,7 @@ export default function Register() {
 
       // 3. Khởi tạo tài khoản chuẩn Fashora
       const newUserPayload = {
-        id: 'usr_' + Date.now(),
+        id: nanoid(),
         fullName: formData.fullName.trim(),
         email: contactType === 'email' ? formData.email.trim().toLowerCase() : '',
         phoneNumber: contactType === 'phone' ? formData.phoneNumber.trim() : '',
