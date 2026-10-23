@@ -48,6 +48,15 @@ export function AuthProvider({ children }) {
 
   const logoutUser = () => {
     localStorage.removeItem('currentUserId')
+    try {
+      Object.keys(sessionStorage).forEach((key) => {
+        if (key.startsWith('fashora_seller_onboarding_draft')) {
+          sessionStorage.removeItem(key)
+        }
+      })
+    } catch {
+      // ignore
+    }
     setCurrentUser(null)
   }
 

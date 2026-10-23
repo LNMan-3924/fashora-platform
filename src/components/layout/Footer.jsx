@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 export default function Footer() {
   return (
     <footer className="bg-black text-white border-t border-neutral-900">
-      <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16 pt-16 pb-12">
+      <div className="max-w-[1560px] mx-auto px-6 sm:px-10 lg:px-16 pt-16 pb-12">
         {/* 4 CỘT THÔNG TIN CHÍNH */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 pb-16 text-xs">
           

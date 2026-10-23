@@ -134,7 +134,7 @@ export default function OrderDetail() {
     return () => {
       isMounted = false
     }
-  }, [id, currentUser?.id, currentUser?.email])
+  }, [id, currentUser])
 
   // =========================================================================
   // 2. CÁC HÀM XỬ LÝ SỰ KIỆN (COPY MÃ ĐƠN, HỦY ĐƠN QUA API)

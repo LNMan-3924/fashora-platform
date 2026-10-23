@@ -21,6 +21,9 @@ import {
 } from '../../components/product'
 import { getCartItemKey, COMMERCE_STORAGE_KEYS } from '../../constants'
 
+// Tái sử dụng hàm tạo key duy nhất từ src/constants (ID + Size + Màu sắc)
+const getItemKey = getCartItemKey
+
 export default function Cart() {
   const navigate = useNavigate()
   const { currentUser } = useAuth()
@@ -62,8 +65,6 @@ export default function Cart() {
   // =========================================================================
   // BƯỚC 4: TÍNH TOÁN & XỬ LÝ DỮ LIỆU CHỌN SẢN PHẨM (SELECTION LOGIC)
   // =========================================================================
-  // Tái sử dụng hàm tạo key duy nhất từ src/constants (ID + Size + Màu sắc)
-  const getItemKey = getCartItemKey
 
   // Danh sách toàn bộ key của tất cả sản phẩm đang có trong giỏ
   const allItemKeys = useMemo(() => {
