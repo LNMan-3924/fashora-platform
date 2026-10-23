@@ -26,8 +26,12 @@ import Orders from '../pages/customer/Orders'
 import OrderDetail from '../pages/customer/OrderDetail'
 import Profile from '../pages/customer/Profile'
 
-// 3. Seller Onboarding Page (Luồng 4 bước Become A Seller)
-import BecomeSeller from '../pages/seller-onboarding/BecomeSeller'
+// 3. Seller Onboarding Pages (Luồng 4 bước Become A Seller)
+import BecomeSellerLayout from '../pages/seller-onboarding/BecomeSellerLayout'
+import BecomeSellerOverview from '../pages/seller-onboarding/BecomeSellerOverview'
+import BecomeSellerInfo from '../pages/seller-onboarding/BecomeSellerInfo'
+import BecomeSellerReview from '../pages/seller-onboarding/BecomeSellerReview'
+import BecomeSellerSuccess from '../pages/seller-onboarding/BecomeSellerSuccess'
 
 // 4. Seller Pages
 import SellerDashboard from '../pages/seller/Dashboard'
@@ -120,10 +124,15 @@ export default function AppRoutes() {
               path="/become-seller"
               element={
                 <AuthGuard>
-                  <BecomeSeller />
+                  <BecomeSellerLayout />
                 </AuthGuard>
               }
-            />
+            >
+              <Route index element={<BecomeSellerOverview />} />
+              <Route path="info" element={<BecomeSellerInfo />} />
+              <Route path="review" element={<BecomeSellerReview />} />
+              <Route path="success" element={<BecomeSellerSuccess />} />
+            </Route>
           </Route>
 
           {/* ================= SELLER ROUTES ================= */}

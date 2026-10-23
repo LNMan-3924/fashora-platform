@@ -11,6 +11,7 @@ import { formatVND, FALLBACK_IMAGE, handleImageError } from '../../constants/com
 export default function BestSellingProducts({
   products = [],
   loading = false,
+  shopName = 'M STUDIO',
 }) {
   const displayProducts = products.slice(0, 4)
 
@@ -23,7 +24,7 @@ export default function BestSellingProducts({
             BEST SELLING PRODUCTS
           </h3>
           <p className="text-xs text-neutral-400 mt-1">
-            Top performing garments in M STUDIO atelier catalog
+            Top performing garments in {shopName} atelier catalog
           </p>
         </div>
 

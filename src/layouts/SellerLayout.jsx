@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Outlet, useLocation, Navigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
+import { getShopById, getShops } from '../services/api'
 import SellerSidebar from '../components/layout/SellerSidebar'
 import SellerHeader from '../components/layout/SellerHeader'
 import SellerFooter from '../components/layout/SellerFooter'
@@ -10,37 +11,154 @@ import SellerFooter from '../components/layout/SellerFooter'
  * - Bảo vệ đa tầng: Nghiêm cấm tuyệt đối người chưa đăng nhập truy cập vào trang người bán
  *   bằng URL hay bất kỳ đường dẫn nào.
  * - Khi chưa đăng nhập -> Lập tức chuyển hướng về trang /login.
- * - Khung giao diện chia 2 cột: Sidebar trái (Desktop), Drawer menu (Mobile), Header và Footer.
+ * - Đa shop độc lập (Multi-Tenant Seller): Tự động nạp đúng thông tin shop của tài khoản đang đăng nhập
+ *   (Ví dụ: an@gmail.com -> M STUDIO, leman200x@gmail.com -> L'OBSCUR ATELIER).
+ * - Truyền dữ liệu sellerInfo và currentShopId thông qua Outlet context cho toàn bộ các trang con.
  */
 export default function SellerLayout() {
   const { currentUser, isAuthenticated, loading } = useAuth()
   const location = useLocation()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
-  // Mặc định là M STUDIO nếu chưa có ai đăng ký mới
-  const [sellerInfo, setSellerInfo] = useState({
-    shopName: 'M STUDIO',
-    sellerCode: 'SELLER #MS-8021',
-    currency: 'VND (₫)'
+  // Khởi tạo thông tin seller mặc định
+  const [sellerInfo, setSellerInfo] = useState(() => {
+    try {
+      const savedShop = localStorage.getItem('fashora_current_shop')
+      if (savedShop) {
+        const parsed = JSON.parse(savedShop)
+        return parsed
+      }
+    } catch {
+      // ignore
+    }
+    return {
+      id: 'shop_m_studio',
+      shopId: 'shop_m_studio',
+      shopName: 'M STUDIO',
+      sellerCode: 'SELLER #MS-8021',
+      currency: 'VND (₫)'
+    }
   })
 
-  // Tự động lắng nghe nếu có shop mới được đăng ký từ BECOME A SELLER
+  // Tự động tải dữ liệu Shop theo tài khoản người dùng đang đăng nhập
   useEffect(() => {
-    const loadShopInfo = () => {
+    let isMounted = true
+
+    const resolveSellerShop = async () => {
+      if (!currentUser) return
+
+      try {
+        let targetShop = null
+        const targetShopId = currentUser.shopId
+
+        // 1. Thử lấy thông tin shop theo shopId của tài khoản
+        if (targetShopId) {
+          try {
+            const res = await getShopById(targetShopId)
+            if (res?.data && (res.data.id === targetShopId || res.data._id === targetShopId || res.data.slug)) {
+              targetShop = res.data
+            }
+          } catch (err) {
+            console.warn('SellerLayout: getShopById fallback:', err)
+          }
+        }
+
+        // 2. Nếu chưa tìm thấy, duyệt danh sách /shops theo ownerId hoặc ownerEmail
+        if (!targetShop) {
+          try {
+            const shopsRes = await getShops()
+            const shopsList = Array.isArray(shopsRes?.data) ? shopsRes.data : []
+            targetShop = shopsList.find(
+              (s) =>
+                (currentUser.id && s.ownerId === currentUser.id) ||
+                (currentUser.email && s.ownerEmail === currentUser.email) ||
+                (targetShopId && s.id === targetShopId)
+            )
+          } catch (err) {
+            console.warn('SellerLayout: getShops fallback:', err)
+          }
+        }
+
+        // 3. Fallback định danh theo tài khoản thực nghiệm
+        if (!targetShop) {
+          if (currentUser.email === 'leman200x@gmail.com' || targetShopId === 'shop_l-obscur-atelier_8158') {
+            targetShop = {
+              id: 'shop_l-obscur-atelier_8158',
+              name: "L'OBSCUR ATELIER",
+              slug: 'l-obscur-atelier',
+              sellerCode: 'SELLER #LOB-8158',
+              currency: 'VND (₫)'
+            }
+          } else if (currentUser.email === 'an@gmail.com' || targetShopId === 'shop_m_studio') {
+            targetShop = {
+              id: 'shop_m_studio',
+              name: 'M STUDIO',
+              slug: 'm-studio',
+              sellerCode: 'SELLER #MS-8021',
+              currency: 'VND (₫)'
+            }
+          }
+        }
+
+        if (targetShop && isMounted) {
+          const resolvedShopId = targetShop.id || targetShopId || 'shop_m_studio'
+          const resolvedName = targetShop.name || 'YOUR ATELIER'
+          const resolvedCode =
+            targetShop.sellerCode ||
+            `SELLER #${(targetShop.slug || resolvedName)
+              .toUpperCase()
+              .replace(/[^A-Z0-9]/g, '')
+              .slice(0, 3)}-${String(resolvedShopId).replace(/[^0-9]/g, '').slice(-4) || '8021'}`
+
+          const newSellerInfo = {
+            id: resolvedShopId,
+            shopId: resolvedShopId,
+            shopName: resolvedName,
+            sellerCode: resolvedCode,
+            currency: targetShop.currency || 'VND (₫)',
+            logo: targetShop.logo || '/assets/logo.png',
+            slug: targetShop.slug
+          }
+
+          setSellerInfo(newSellerInfo)
+          localStorage.setItem('fashora_current_shop', JSON.stringify(newSellerInfo))
+          return
+        }
+      } catch (error) {
+        console.error('SellerLayout: Lỗi xác định thông tin shop:', error)
+      }
+
+      // 4. Nếu không gọi được API, kiểm tra dữ liệu lưu tạm trong localStorage
+      try {
+        const savedShop = localStorage.getItem('fashora_current_shop')
+        if (savedShop && isMounted) {
+          const parsed = JSON.parse(savedShop)
+          setSellerInfo(parsed)
+        }
+      } catch {
+        // Giữ nguyên sellerInfo
+      }
+    }
+
+    resolveSellerShop()
+
+    const handleStorageChange = () => {
       try {
         const savedShop = localStorage.getItem('fashora_current_shop')
         if (savedShop) {
           setSellerInfo(JSON.parse(savedShop))
         }
       } catch {
-        // Giữ mặc định M STUDIO
+        // ignore
       }
     }
 
-    loadShopInfo()
-    window.addEventListener('storage', loadShopInfo)
-    return () => window.removeEventListener('storage', loadShopInfo)
-  }, [])
+    window.addEventListener('storage', handleStorageChange)
+    return () => {
+      isMounted = false
+      window.removeEventListener('storage', handleStorageChange)
+    }
+  }, [currentUser])
 
   // Đổi tiêu đề Dashboard / Products / Orders tùy theo URL
   const getPageTitle = () => {
@@ -63,6 +181,8 @@ export default function SellerLayout() {
     return <Navigate to="/login" state={{ from: location }} replace />
   }
 
+  const activeShopId = sellerInfo?.shopId || sellerInfo?.id || currentUser?.shopId || 'shop_m_studio'
+
   return (
     <div className="min-h-screen flex flex-col bg-[#f9f9f9]">
       {/* Drawer menu Mobile */}
@@ -73,9 +193,9 @@ export default function SellerLayout() {
             onClick={() => setIsMobileMenuOpen(false)}
           />
           <aside className="relative z-10 w-72 max-w-[80vw] h-full shadow-2xl animate-in slide-in-from-left duration-200">
-            <SellerSidebar 
-              sellerInfo={sellerInfo} 
-              onCloseMobile={() => setIsMobileMenuOpen(false)} 
+            <SellerSidebar
+              sellerInfo={sellerInfo}
+              onCloseMobile={() => setIsMobileMenuOpen(false)}
             />
           </aside>
         </div>
@@ -92,22 +212,22 @@ export default function SellerLayout() {
         <div className="flex-1 min-w-0 flex flex-col justify-between">
           <div>
             {/* Header đen của Seller */}
-            <SellerHeader 
-              shopName={sellerInfo.shopName} 
+            <SellerHeader
+              shopName={sellerInfo.shopName}
               pageTitle={getPageTitle()}
               onOpenMobile={() => setIsMobileMenuOpen(true)}
             />
 
-            {/* Ruột trang thay đổi theo từng trang */}
+            {/* Ruột trang thay đổi theo từng trang - truyền context sellerInfo & currentShopId */}
             <main className="p-6 sm:p-10">
-              <Outlet />
+              <Outlet context={{ sellerInfo, currentShopId: activeShopId }} />
             </main>
           </div>
 
           {/* Footer đen dưới cùng */}
-          <SellerFooter 
-            shopName={sellerInfo.shopName} 
-            currency={sellerInfo.currency} 
+          <SellerFooter
+            shopName={sellerInfo.shopName}
+            currency={sellerInfo.currency}
           />
         </div>
       </div>

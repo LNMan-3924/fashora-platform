@@ -28,6 +28,7 @@ export default function OrderFilters({
   currentPage = 1,
   itemsPerPage = 10,
   onResetFilters,
+  shopName = 'M STUDIO',
 }) {
   const isFilteringActive =
     Boolean(searchQuery.trim()) || selectedStatus !== 'ALL'
@@ -86,7 +87,7 @@ export default function OrderFilters({
           </span>{' '}
           of <span className="font-semibold text-black">{filteredCount}</span> orders{' '}
           <span className="text-neutral-400">
-            (Total {totalCount} in M STUDIO)
+            (Total {totalCount} in {shopName})
           </span>
         </div>
 

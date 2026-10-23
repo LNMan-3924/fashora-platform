@@ -302,7 +302,7 @@ export default function Home() {
         <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-black/20 pointer-events-none" />
 
         {/* Nội dung Hero Banner */}
-        <div className="relative h-full max-w-[1440px] mx-auto px-4 sm:px-8 lg:px-12 flex flex-col justify-end pb-12 sm:pb-16 lg:pb-20 z-10">
+        <div className="relative h-full max-w-[1560px] mx-auto px-4 sm:px-8 lg:px-12 flex flex-col justify-end pb-12 sm:pb-16 lg:pb-20 z-10">
           <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-8 sm:gap-10">
             {/* CỤM BÊN TRÁI */}
             <div className="max-w-2xl text-left">
@@ -360,7 +360,7 @@ export default function Home() {
             + Giữ hiệu ứng chuyển mượt từ ảnh chính sang ảnh phụ khi hover
             + Nút xem thêm dưới dạng link "View more" tối giản kèm icon mũi tên
           ========================================================================= */}
-      <section className="max-w-[1560px] mx-auto px-3 sm:px-6 lg:px-8 pt-6 pb-8 sm:pt-8 sm:pb-10">
+      <section className="max-w-[1560px] mx-auto px-4 sm:px-8 lg:px-12 py-10 sm:py-14">
         {/* Lưới 6 sản phẩm Set */}
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-3 lg:gap-4">
           {setProducts.map((product) => {
@@ -578,7 +578,7 @@ export default function Home() {
           - Tích hợp trực tiếp component CompleteTheLook
           - Kết nối callback onQuickAdd để mở QuickAddModal mượt mà
           ========================================================================= */}
-      <section className="max-w-[1560px] mx-auto px-4 sm:px-8 pb-10 sm:pb-16">
+      <section className="max-w-[1560px] mx-auto px-4 sm:px-8 lg:px-12 pb-10 sm:pb-16">
         <CompleteTheLook
           onQuickAdd={handleOpenQuickAdd}
           title="COMPLETE THE LOOK"

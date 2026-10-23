@@ -1,16 +1,26 @@
 import { useState, useRef } from 'react'
-import { X, Check, Upload, Loader2 } from 'lucide-react'
+import { X, Check, Upload, Loader2, Image as ImageIcon } from 'lucide-react'
 import { createProduct, updateProduct } from '../../services/api'
-import { handleImageError, FALLBACK_IMAGE } from '../../constants/commerce'
+import { handleImageError } from '../../constants/commerce'
 import { uploadImage } from '../../utils/imageUpload'
 
 /**
  * Component ProductFormContent: Nội dung biểu mẫu tạo mới hoặc chỉnh sửa sản phẩm
- * - Khởi tạo state trực tiếp từ props mà không cần useEffect (chuẩn React recommended pattern).
- * - Sử dụng key trên component cha để tự động reset form khi sản phẩm thay đổi.
- * - Hỗ trợ nhập trực tiếp URL hoặc TẢI ẢNH TỪ MÁY TÍNH sử dụng module Node.js fs qua API chung.
+ * - Khởi tạo state trực tiếp từ props mà không cần useEffect (chuẩn React pattern).
+ * - Tải ảnh từ máy tính cá nhân sử dụng module Node.js fs qua API chung (không dùng ô nhập URL thủ công).
+ * - Hỗ trợ đầy đủ các trường dữ liệu khớp chuẩn db.json:
+ *   + careInstructions: Hướng dẫn bảo quản / giặt ủi
+ *   + details.material: Thành phần chất liệu
+ *   + details.specifications: Danh sách thông số kỹ thuật (dạng gạch đầu dòng)
+ *   + details.origin: Nguồn gốc, xuất xứ hoặc xưởng chế tác
  */
-function ProductFormContent({ productToEdit, onClose, onSaveSuccess }) {
+function ProductFormContent({
+  productToEdit,
+  onClose,
+  onSaveSuccess,
+  shopId = 'shop_m_studio',
+  shopName = 'M STUDIO',
+}) {
   const isEditMode = Boolean(productToEdit?.id)
   const fileInputRef = useRef(null)
 
@@ -24,13 +34,19 @@ function ProductFormContent({ productToEdit, onClose, onSaveSuccess }) {
     imageUrl: productToEdit?.images?.[0] || productToEdit?.image || '',
     badge: productToEdit?.badge || '',
     description: productToEdit?.description || '',
+    careInstructions: productToEdit?.careInstructions || '',
+    material: productToEdit?.details?.material || '',
+    specifications: Array.isArray(productToEdit?.details?.specifications)
+      ? productToEdit.details.specifications.join('\n')
+      : '',
+    origin: productToEdit?.details?.origin || '',
   }))
 
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isUploading, setIsUploading] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
 
-  // Xử lý thay đổi dữ liệu các trường input text / select thông thường
+  // Xử lý thay đổi dữ liệu các trường input text / select / textarea
   const handleChange = (e) => {
     const { name, value } = e.target
     setFormData((prev) => ({
@@ -45,7 +61,7 @@ function ProductFormContent({ productToEdit, onClose, onSaveSuccess }) {
    * - Truyền vào tham số category (SHIRT, PANTS, SET, SHOES, ACCESSORIES, DRESS, JACKET...).
    * - Node.js fs sẽ tự động tạo thư mục con (nếu chưa có) và ghi file nhị phân vào:
    *   public/images/products/<category>/<tên-file-timestamp>.jpg
-   * - Nhận lại đường dẫn web tĩnh và tự động điền vào ô formData.imageUrl.
+   * - Nhận lại đường dẫn web tĩnh và tự động gán vào formData.imageUrl.
    */
   const handleImageUpload = async (e) => {
     const file = e.target.files?.[0]
@@ -96,9 +112,22 @@ function ProductFormContent({ productToEdit, onClose, onSaveSuccess }) {
       return
     }
 
+    if (!formData.imageUrl.trim()) {
+      setErrorMessage('Vui lòng tải lên hình ảnh sản phẩm từ máy tính.')
+      return
+    }
+
     setIsSubmitting(true)
 
     try {
+      // Phân tách specifications từ chuỗi nhập nhiều dòng thành mảng string
+      const specsArray = formData.specifications
+        ? formData.specifications
+            .split('\n')
+            .map((s) => s.trim())
+            .filter(Boolean)
+        : []
+
       const payload = {
         name: formData.name.trim(),
         category: formData.category,
@@ -108,23 +137,33 @@ function ProductFormContent({ productToEdit, onClose, onSaveSuccess }) {
         isSoldOut: stockNum === 0,
         badge: formData.badge || null,
         description: formData.description.trim(),
-        shopId: 'shop_m_studio',
-        shopName: 'M STUDIO',
-        images: formData.imageUrl.trim()
-          ? [formData.imageUrl.trim()]
-          : ['/images/products/shirt/shirt-01.jpg'],
+        careInstructions: formData.careInstructions.trim() || null,
+        details: {
+          material: formData.material.trim() || null,
+          specifications: specsArray,
+          origin: formData.origin.trim() || null,
+        },
+        shopId: productToEdit?.shopId || shopId,
+        shopName: productToEdit?.shopName || shopName,
+        images: [formData.imageUrl.trim()],
       }
 
       let res
       if (isEditMode) {
-        // Cập nhật sản phẩm qua API PUT /products/:id
+        // Cập nhật sản phẩm qua API PUT /products/:id (bảo toàn sizes, colors hoặc các trường mở rộng cũ)
         res = await updateProduct(productToEdit.id, {
           ...productToEdit,
           ...payload,
+          details: {
+            ...(productToEdit.details || {}),
+            ...payload.details,
+          },
         })
       } else {
         // Tạo sản phẩm mới qua API POST /products
         payload.id = `prd_${Date.now()}`
+        payload.sizes = ['One Size']
+        payload.colors = ['Black']
         res = await createProduct(payload)
       }
 
@@ -142,9 +181,9 @@ function ProductFormContent({ productToEdit, onClose, onSaveSuccess }) {
   }
 
   return (
-    <div className="bg-white border border-neutral-200 rounded-[2px] shadow-2xl w-full max-w-xl max-h-[90vh] overflow-y-auto">
+    <div className="bg-white border border-neutral-200 rounded-[2px] shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
       {/* Tiêu đề Modal */}
-      <div className="flex items-center justify-between px-6 py-4 border-b border-neutral-100 bg-neutral-50/50">
+      <div className="flex items-center justify-between px-6 py-4 border-b border-neutral-100 bg-neutral-50/50 sticky top-0 z-10 backdrop-blur-xs">
         <div>
           <h3 className="text-xs font-bold uppercase tracking-[0.2em] text-black font-mono">
             {isEditMode ? 'EDIT GARMENT' : 'ADD NEW GARMENT'}
@@ -152,14 +191,14 @@ function ProductFormContent({ productToEdit, onClose, onSaveSuccess }) {
           <p className="text-[11px] text-neutral-400 mt-0.5">
             {isEditMode
               ? `Updating ID: ${productToEdit.id}`
-              : 'Create a new design piece for M STUDIO catalog'}
+              : `Create a new design piece for ${shopName} catalog`}
           </p>
         </div>
 
         <button
           type="button"
           onClick={onClose}
-          className="p-1 text-neutral-400 hover:text-black transition-colors"
+          className="p-1 text-neutral-400 hover:text-black transition-colors cursor-pointer"
         >
           <X className="w-4 h-4" />
         </button>
@@ -194,7 +233,7 @@ function ProductFormContent({ productToEdit, onClose, onSaveSuccess }) {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div className="space-y-1">
             <label className="block font-semibold uppercase tracking-wider text-neutral-700 font-mono text-[11px]">
-              Category
+              Category *
             </label>
             <select
               name="category"
@@ -226,6 +265,7 @@ function ProductFormContent({ productToEdit, onClose, onSaveSuccess }) {
               <option value="NEW">NEW</option>
               <option value="HOT">HOT</option>
               <option value="LIMITED">LIMITED</option>
+              <option value="SALE">SALE</option>
             </select>
           </div>
         </div>
@@ -277,71 +317,110 @@ function ProductFormContent({ productToEdit, onClose, onSaveSuccess }) {
           </div>
         </div>
 
-        {/* Hàng 4: Đường dẫn ảnh + Nút tải ảnh lên từ máy tính (FS Node.js) + Khung xem trước */}
+        {/* Hàng 4: Tải ảnh sản phẩm từ máy tính qua Node.js fs (Không dùng ô nhập URL) */}
         <div className="space-y-1.5">
           <div className="flex items-center justify-between">
             <label className="block font-semibold uppercase tracking-wider text-neutral-700 font-mono text-[11px]">
-              Image URL / Upload *
+              Garment Image *
             </label>
             <span className="text-[10px] text-neutral-400 font-mono">
               Auto-saves to: public/images/products/{formData.category.toLowerCase()}
             </span>
           </div>
 
-          <div className="flex gap-2 items-center">
-            <input
-              type="text"
-              name="imageUrl"
-              value={formData.imageUrl}
-              onChange={handleChange}
-              placeholder="e.g. /images/products/shirt/shirt-01.jpg"
-              className="flex-1 px-3 py-2 border border-neutral-200 rounded-[2px] font-mono text-[11px] focus:border-black focus:outline-none"
-            />
+          {/* Input file ẩn kích hoạt bởi nhãn tải ảnh */}
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            id="product-image-file-input"
+            onChange={handleImageUpload}
+            disabled={isUploading || isSubmitting}
+          />
 
-            {/* Input file ẩn kích hoạt bởi nút bấm Upload */}
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/*"
-              className="hidden"
-              id="product-image-file-input"
-              onChange={handleImageUpload}
-              disabled={isUploading || isSubmitting}
-            />
+          {formData.imageUrl ? (
+            /* Khi đã có ảnh: Hiển thị khung xem trước kèm đường dẫn và nút đổi ảnh / xóa */
+            <div className="flex items-center gap-3 p-3 bg-neutral-50 border border-neutral-200 rounded-[2px]">
+              <div className="w-14 h-16 bg-neutral-100 border border-neutral-200 rounded-[2px] overflow-hidden shrink-0">
+                <img
+                  src={formData.imageUrl}
+                  alt="Preview"
+                  onError={handleImageError}
+                  className="w-full h-full object-cover"
+                />
+              </div>
 
+              <div className="flex-1 min-w-0 space-y-1">
+                <p className="text-[11px] font-mono text-neutral-700 truncate" title={formData.imageUrl}>
+                  {formData.imageUrl}
+                </p>
+                <div className="flex items-center gap-2">
+                  <label
+                    htmlFor="product-image-file-input"
+                    className={`inline-flex items-center gap-1 text-[11px] font-mono uppercase tracking-wider text-black hover:underline cursor-pointer ${
+                      isUploading ? 'opacity-50 pointer-events-none' : ''
+                    }`}
+                  >
+                    {isUploading ? (
+                      <>
+                        <Loader2 className="w-3 h-3 animate-spin" />
+                        <span>Uploading...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Upload className="w-3 h-3" />
+                        <span>Change Photo</span>
+                      </>
+                    )}
+                  </label>
+
+                  <span className="text-neutral-300">|</span>
+
+                  <button
+                    type="button"
+                    onClick={() => setFormData((prev) => ({ ...prev, imageUrl: '' }))}
+                    disabled={isUploading || isSubmitting}
+                    className="text-[11px] font-mono uppercase tracking-wider text-red-500 hover:underline cursor-pointer disabled:opacity-50"
+                  >
+                    Remove
+                  </button>
+                </div>
+              </div>
+            </div>
+          ) : (
+            /* Khi chưa có ảnh: Khung chọn tệp từ máy tính */
             <label
               htmlFor="product-image-file-input"
-              className={`inline-flex items-center gap-1.5 px-3 py-2 border border-neutral-300 rounded-[2px] text-neutral-700 hover:border-black hover:text-black font-mono text-[11px] uppercase tracking-wider cursor-pointer transition-colors shrink-0 ${
+              className={`flex flex-col items-center justify-center p-6 border-2 border-dashed border-neutral-200 hover:border-black rounded-[2px] bg-neutral-50/50 hover:bg-neutral-50 cursor-pointer transition-colors ${
                 isUploading ? 'opacity-50 pointer-events-none' : ''
               }`}
-              title="Upload image from computer via Node.js fs"
             >
               {isUploading ? (
-                <>
-                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                  <span>Saving...</span>
-                </>
+                <div className="flex flex-col items-center gap-2 text-neutral-600">
+                  <Loader2 className="w-5 h-5 animate-spin text-black" />
+                  <span className="font-mono text-xs uppercase tracking-wider">
+                    Uploading image to Node.js fs...
+                  </span>
+                </div>
               ) : (
-                <>
-                  <Upload className="w-3.5 h-3.5" />
-                  <span>Upload</span>
-                </>
+                <div className="flex flex-col items-center gap-1.5 text-center">
+                  <div className="p-2.5 bg-white border border-neutral-200 rounded-[2px] shadow-xs">
+                    <ImageIcon className="w-5 h-5 text-neutral-700" />
+                  </div>
+                  <span className="font-mono text-xs font-semibold text-black uppercase tracking-wider mt-1">
+                    Upload from computer
+                  </span>
+                  <span className="text-[11px] text-neutral-400">
+                    PNG, JPG, WEBP (Max 10MB) — Saves to /public/images/products/{formData.category.toLowerCase()}
+                  </span>
+                </div>
               )}
             </label>
-
-            {/* Khung xem trước ảnh nhỏ kèm xử lý lỗi */}
-            <div className="w-10 h-10 bg-neutral-100 border border-neutral-200 rounded-[2px] overflow-hidden shrink-0">
-              <img
-                src={formData.imageUrl || FALLBACK_IMAGE}
-                alt="Preview"
-                onError={handleImageError}
-                className="w-full h-full object-cover"
-              />
-            </div>
-          </div>
+          )}
         </div>
 
-        {/* Mô tả sản phẩm */}
+        {/* Mô tả sản phẩm (Description) */}
         <div className="space-y-1">
           <label className="block font-semibold uppercase tracking-wider text-neutral-700 font-mono text-[11px]">
             Description
@@ -356,13 +435,93 @@ function ProductFormContent({ productToEdit, onClose, onSaveSuccess }) {
           />
         </div>
 
+        {/* =========================================================================
+            KHỐI DỮ LIỆU BỔ SUNG: DETAILS & CARE INSTRUCTIONS (KHỚP CHUẨN DB.JSON)
+            ========================================================================= */}
+        <div className="pt-3 border-t border-neutral-100 space-y-3.5">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-neutral-400 font-mono">
+              SPECIFICATIONS & CARE (KHỚP DB.JSON)
+            </span>
+            <span className="text-[10px] text-neutral-400 font-mono">
+              Rendered on product page tabs
+            </span>
+          </div>
+
+          {/* Hàng: Material (Chất liệu) + Origin (Xuất xứ / Xưởng chế tác) */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="space-y-1">
+              <label className="block font-semibold uppercase tracking-wider text-neutral-700 font-mono text-[11px]">
+                Material (details.material)
+              </label>
+              <input
+                type="text"
+                name="material"
+                value={formData.material}
+                onChange={handleChange}
+                placeholder="e.g. 100% Raw Japanese Selvedge Cotton"
+                className="w-full px-3 py-2 border border-neutral-200 rounded-[2px] font-mono text-[11px] focus:border-black focus:outline-none"
+              />
+            </div>
+
+            <div className="space-y-1">
+              <label className="block font-semibold uppercase tracking-wider text-neutral-700 font-mono text-[11px]">
+                Origin (details.origin)
+              </label>
+              <input
+                type="text"
+                name="origin"
+                value={formData.origin}
+                onChange={handleChange}
+                placeholder="e.g. Crafted at M STUDIO Atelier, HCMC"
+                className="w-full px-3 py-2 border border-neutral-200 rounded-[2px] font-mono text-[11px] focus:border-black focus:outline-none"
+              />
+            </div>
+          </div>
+
+          {/* Thông số kỹ thuật chi tiết (details.specifications - Mỗi dòng 1 mục) */}
+          <div className="space-y-1">
+            <div className="flex items-center justify-between">
+              <label className="block font-semibold uppercase tracking-wider text-neutral-700 font-mono text-[11px]">
+                Specifications (details.specifications)
+              </label>
+              <span className="text-[10px] text-neutral-400 font-mono">
+                One bullet point per line
+              </span>
+            </div>
+            <textarea
+              name="specifications"
+              value={formData.specifications}
+              onChange={handleChange}
+              rows="3"
+              placeholder={`Asymmetrical multi-panel geometric silhouette.\nConcealed front zipper with branded metal pull.\nReinforced stitching at stress points.`}
+              className="w-full px-3 py-2 border border-neutral-200 rounded-[2px] font-mono text-[11px] focus:border-black focus:outline-none leading-relaxed"
+            />
+          </div>
+
+          {/* Hướng dẫn bảo quản / giặt ủi (careInstructions) */}
+          <div className="space-y-1">
+            <label className="block font-semibold uppercase tracking-wider text-neutral-700 font-mono text-[11px]">
+              Care Instructions (careInstructions)
+            </label>
+            <textarea
+              name="careInstructions"
+              value={formData.careInstructions}
+              onChange={handleChange}
+              rows="2"
+              placeholder="e.g. Dry clean only. Store in protective garment dust bag. Do not tumble dry."
+              className="w-full px-3 py-2 border border-neutral-200 rounded-[2px] font-mono text-[11px] focus:border-black focus:outline-none"
+            />
+          </div>
+        </div>
+
         {/* Nút hành động */}
         <div className="flex items-center justify-end gap-2 pt-3 border-t border-neutral-100">
           <button
             type="button"
             onClick={onClose}
             disabled={isSubmitting || isUploading}
-            className="px-4 py-2 text-xs font-semibold uppercase tracking-wider border border-neutral-200 text-neutral-700 rounded-[2px] hover:bg-neutral-50 transition-colors"
+            className="px-4 py-2 text-xs font-semibold uppercase tracking-wider border border-neutral-200 text-neutral-700 rounded-[2px] hover:bg-neutral-50 transition-colors cursor-pointer"
           >
             Cancel
           </button>
@@ -389,6 +548,8 @@ export default function ProductFormModal({
   onClose,
   productToEdit = null,
   onSaveSuccess,
+  shopId = 'shop_m_studio',
+  shopName = 'M STUDIO',
 }) {
   if (!isOpen) return null
 
@@ -399,6 +560,8 @@ export default function ProductFormModal({
         productToEdit={productToEdit}
         onClose={onClose}
         onSaveSuccess={onSaveSuccess}
+        shopId={shopId}
+        shopName={shopName}
       />
     </div>
   )

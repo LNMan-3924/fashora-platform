@@ -28,14 +28,16 @@ export function AuthGuard({ children }) {
 
 /**
  * 2. SellerGuard: Bảo vệ nghiêm ngặt toàn bộ Kênh Người Bán (/seller/*)
- * - Nghiêm cấm tuyệt đối người chưa đăng nhập truy cập vào trang người bán bằng đường dẫn trực tiếp (URL) hoặc bất kỳ cách nào khác.
+ * - Nghiêm cấm tuyệt đối người chưa đăng nhập truy cập vào trang người bán bằng đường dẫn trực tiếp (URL).
  * - Khi chưa đăng nhập (hoặc phiên đăng nhập không hợp lệ), lập tức chuyển hướng về trang /login.
- * - Sau khi người dùng đăng nhập thành công, hệ thống sẽ tự động đưa người dùng trở lại đúng trang seller ban đầu.
+ * - Sau khi đăng nhập: Chỉ người dùng có vai trò Người Bán (role: 'seller' hoặc có shopId) mới được phép vào Kênh Người Bán.
+ * - Nếu là khách hàng thông thường (role: 'customer', chưa có shop) -> Chuyển hướng sang trang /become-seller.
  */
 export function SellerGuard({ children }) {
   const location = useLocation()
   const { currentUser, isAuthenticated, loading } = useAuth()
 
+  // 1. Đang tải phiên xác thực
   if (loading) {
     return (
       <div className="w-full min-h-screen flex items-center justify-center bg-[#f9f9f9]">
@@ -44,8 +46,24 @@ export function SellerGuard({ children }) {
     )
   }
 
+  // 2. Kiểm tra đăng nhập: Chưa đăng nhập -> Chuyển về /login
   if (!currentUser || !isAuthenticated) {
     return <Navigate to="/login" state={{ from: location }} replace />
+  }
+
+  // 3. Kiểm tra vai trò: Phải là SELLER hoặc tài khoản đã liên kết shopId
+  const userRole = String(currentUser.role || '').toLowerCase()
+  const hasSellerRole =
+    userRole === 'seller' ||
+    (Array.isArray(currentUser.roles) &&
+      currentUser.roles.map((r) => String(r).toLowerCase()).includes('seller'))
+  const hasShopId = Boolean(currentUser.shopId && String(currentUser.shopId).trim() !== '')
+
+  const isSeller = hasSellerRole || hasShopId
+
+  // Nếu không phải người bán -> Chuyển hướng sang trang mở shop /become-seller
+  if (!isSeller) {
+    return <Navigate to="/become-seller" replace />
   }
 
   return children || <Outlet />

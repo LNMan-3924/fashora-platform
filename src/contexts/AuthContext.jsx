@@ -56,6 +56,16 @@ export function AuthProvider({ children }) {
 
   const logoutUser = () => {
     localStorage.removeItem('currentUserId')
+    localStorage.removeItem('fashora_current_shop')
+    try {
+      Object.keys(sessionStorage).forEach((key) => {
+        if (key.startsWith('fashora_seller_onboarding_draft')) {
+          sessionStorage.removeItem(key)
+        }
+      })
+    } catch {
+      // ignore
+    }
     setCurrentUser(null)
   }
 

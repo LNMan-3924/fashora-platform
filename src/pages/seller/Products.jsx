@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react'
+import { useOutletContext } from 'react-router-dom'
 import { Package, CheckCircle2, AlertTriangle, Layers, Check } from 'lucide-react'
+import { useAuth } from '../../contexts/AuthContext'
 import { getProductsByShop } from '../../services/api'
 import { Pagination } from '../../components/common'
 import {
@@ -21,6 +23,7 @@ const ITEMS_PER_PAGE = 10
  *   + ProductTable: Bảng sản phẩm hiển thị ảnh (kèm onError), thông tin, giá, tồn kho và các nút thao tác.
  *   + ProductFormModal: Modal Thêm mới hoặc Cập nhật sản phẩm qua API (POST/PUT).
  *   + ProductDeleteModal: Hộp thoại xác nhận xóa sản phẩm qua API (DELETE).
+ * - Tự động nhận diện Shop ID và Shop Name từ SellerLayout / AuthContext (Hỗ trợ đa shop độc lập).
  * - Tối ưu hiệu năng: Lấy trực tiếp danh sách sản phẩm theo ID Shop qua API (GET /products?shopId=...),
  *   thay vì tải toàn bộ kho dữ liệu rồi lọc ở client.
  * - Loại bỏ lạm dụng useMemo cho các phép tính mảng nhỏ để tối ưu hóa bộ nhớ RAM.
@@ -28,36 +31,45 @@ const ITEMS_PER_PAGE = 10
  * - Không dùng chấm tròn trạng thái, các badge đều có kích thước cố định, căn chuẩn thiết kế tối giản Fashora.
  */
 export default function Products() {
-  // 1. State lưu trữ dữ liệu sản phẩm từ API
+  const outletContext = useOutletContext() || {}
+  const { currentUser } = useAuth()
+
+  // 1. Xác định Shop ID và Shop Name của shop hiện tại
+  let fallbackShopId = 'shop_m_studio'
+  let fallbackShopName = 'M STUDIO'
+  try {
+    const savedShop = JSON.parse(localStorage.getItem('fashora_current_shop') || '{}')
+    if (savedShop.shopId || savedShop.id) fallbackShopId = savedShop.shopId || savedShop.id
+    if (savedShop.shopName || savedShop.name) fallbackShopName = savedShop.shopName || savedShop.name
+  } catch {
+    // ignore
+  }
+
+  const currentShopId = outletContext.currentShopId || currentUser?.shopId || fallbackShopId
+  const sellerInfo = outletContext.sellerInfo || {}
+  const shopName = sellerInfo.shopName || fallbackShopName
+
+  // 2. State lưu trữ dữ liệu sản phẩm từ API
   const [products, setProducts] = useState([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState(null)
   const [successToast, setSuccessToast] = useState('')
 
-  // 2. State điều khiển bộ lọc, tìm kiếm & phân trang (10 sản phẩm/trang)
+  // 3. State điều khiển bộ lọc, tìm kiếm & phân trang (10 sản phẩm/trang)
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('ALL')
   const [selectedStockStatus, setSelectedStockStatus] = useState('ALL')
   const [currentPage, setCurrentPage] = useState(1)
 
-  // 3. State điều khiển các modal Thêm / Sửa / Xóa
+  // 4. State điều khiển các modal Thêm / Sửa / Xóa
   const [isFormModalOpen, setIsFormModalOpen] = useState(false)
   const [productToEdit, setProductToEdit] = useState(null)
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
   const [productToDelete, setProductToDelete] = useState(null)
 
-  // 4. Tải danh sách sản phẩm từ API theo ID Shop (tối ưu hiệu năng, giảm tải mạng và RAM)
+  // 5. Tải danh sách sản phẩm từ API theo ID Shop (tối ưu hiệu năng, giảm tải mạng và RAM)
   useEffect(() => {
     let isMounted = true
-
-    // Lấy shopId hiện tại (mặc định 'shop_m_studio' hoặc từ shop đã lưu)
-    let currentShopId = 'shop_m_studio'
-    try {
-      const savedShop = JSON.parse(localStorage.getItem('fashora_current_shop') || '{}')
-      if (savedShop.id) currentShopId = savedShop.id
-    } catch {
-      // ignore
-    }
 
     getProductsByShop(currentShopId)
       .then((res) => {
@@ -80,7 +92,7 @@ export default function Products() {
     return () => {
       isMounted = false
     }
-  }, [])
+  }, [currentShopId])
 
   // Tự động tắt thông báo thành công sau 4 giây
   useEffect(() => {
@@ -90,12 +102,12 @@ export default function Products() {
     }
   }, [successToast])
 
-  // 5. Trích xuất danh sách tất cả các danh mục độc nhất (unique categories)
+  // 6. Trích xuất danh sách tất cả các danh mục độc nhất (unique categories)
   const uniqueCategories = Array.from(
     new Set(products.map((p) => p.category).filter(Boolean))
   ).sort()
 
-  // 6. Tính toán 4 chỉ số thống kê kho hàng (KPIs)
+  // 7. Tính toán 4 chỉ số thống kê kho hàng (KPIs)
   const stats = {
     total: products.length,
     inStock: 0,
@@ -114,15 +126,19 @@ export default function Products() {
     }
   })
 
-  // 7. Lọc danh sách sản phẩm theo từ khóa tìm kiếm và bộ lọc đã chọn
+  // 8. Lọc danh sách sản phẩm theo Search Query, Category và Stock Status
   const filteredProducts = products.filter((p) => {
-    // Lọc theo từ khóa tìm kiếm (Tên sản phẩm hoặc Mã ID)
+    // Lọc theo từ khóa tìm kiếm (tên sản phẩm, danh mục, giá)
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase().trim()
       const matchName = (p.name || '').toLowerCase().includes(query)
-      const matchId = (p.id || '').toLowerCase().includes(query)
-      const matchCat = (p.category || '').toLowerCase().includes(query)
-      if (!matchName && !matchId && !matchCat) return false
+      const matchCategory = (p.category || '').toLowerCase().includes(query)
+      const matchPrice = String(p.price || '').includes(query)
+      const matchId = String(p.id || '').toLowerCase().includes(query)
+
+      if (!matchName && !matchCategory && !matchPrice && !matchId) {
+        return false
+      }
     }
 
     // Lọc theo Danh mục
@@ -143,7 +159,7 @@ export default function Products() {
     return true
   })
 
-  // 8. Đặt lại bộ lọc hoặc thay đổi tiêu chí tìm kiếm -> tự động quay về trang 1
+  // 9. Đặt lại bộ lọc hoặc thay đổi tiêu chí tìm kiếm -> tự động quay về trang 1
   const handleSearchChange = (query) => {
     setSearchQuery(query)
     setCurrentPage(1)
@@ -166,30 +182,30 @@ export default function Products() {
     setCurrentPage(1)
   }
 
-  // 9. Tính toán phân trang: Chỉ hiển thị đúng 10 sản phẩm cho trang hiện tại
+  // 10. Tính toán phân trang: Chỉ hiển thị đúng 10 sản phẩm cho trang hiện tại
   const totalPages = Math.ceil(filteredProducts.length / ITEMS_PER_PAGE) || 1
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE
   const paginatedProducts = filteredProducts.slice(startIndex, startIndex + ITEMS_PER_PAGE)
 
-  // 10. Xử lý mở modal Thêm mới sản phẩm
+  // 11. Xử lý mở modal Thêm mới sản phẩm
   const handleOpenAddModal = () => {
     setProductToEdit(null)
     setIsFormModalOpen(true)
   }
 
-  // 11. Xử lý mở modal Sửa sản phẩm
+  // 12. Xử lý mở modal Sửa sản phẩm
   const handleOpenEditModal = (product) => {
     setProductToEdit(product)
     setIsFormModalOpen(true)
   }
 
-  // 12. Xử lý mở modal Xóa sản phẩm
+  // 13. Xử lý mở modal Xóa sản phẩm
   const handleOpenDeleteModal = (product) => {
     setProductToDelete(product)
     setIsDeleteModalOpen(true)
   }
 
-  // 13. Xử lý sau khi lưu thành công (Thêm mới hoặc Cập nhật)
+  // 14. Xử lý sau khi lưu thành công (Thêm mới hoặc Cập nhật)
   const handleSaveSuccess = (savedProduct, isEditMode) => {
     if (isEditMode) {
       setProducts((prev) =>
@@ -202,7 +218,7 @@ export default function Products() {
     }
   }
 
-  // 14. Xử lý sau khi xóa sản phẩm thành công
+  // 15. Xử lý sau khi xóa sản phẩm thành công
   const handleDeleteSuccess = (deletedId) => {
     setProducts((prev) => prev.filter((p) => p.id !== deletedId))
     setSuccessToast('Đã xóa sản phẩm khỏi danh mục của shop thành công.')
@@ -310,6 +326,8 @@ export default function Products() {
         onClose={() => setIsFormModalOpen(false)}
         productToEdit={productToEdit}
         onSaveSuccess={handleSaveSuccess}
+        shopId={currentShopId}
+        shopName={shopName}
       />
 
       {/* 5. MODAL XÁC NHẬN XÓA SẢN PHẨM */}

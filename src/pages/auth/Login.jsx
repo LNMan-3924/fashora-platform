@@ -65,7 +65,12 @@ export default function Login() {
       loginUser(foundUser)
 
       // Điều hướng thông minh dựa theo quyền thực tế của tài khoản:
-      const isSeller = foundUser.role === 'seller' || (Array.isArray(foundUser.roles) && foundUser.roles.includes('seller'))
+      const userRole = String(foundUser.role || '').toLowerCase()
+      const isSeller =
+        userRole === 'seller' ||
+        Boolean(foundUser.shopId) ||
+        (Array.isArray(foundUser.roles) &&
+          foundUser.roles.map((r) => String(r).toLowerCase()).includes('seller'))
       const previousPath = location.state?.from?.pathname || (typeof location.state?.from === 'string' ? location.state.from : null)
       const previousState = location.state?.selectedItems
         ? { selectedItems: location.state.selectedItems }

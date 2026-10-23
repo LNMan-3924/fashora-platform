@@ -18,6 +18,7 @@ import OrderStatusBadge from './OrderStatusBadge'
 export default function OrderTable({
   orders = [],
   loading = false,
+  shopName = 'M STUDIO',
 }) {
   return (
     <div className="bg-white border border-neutral-200 rounded-[2px] shadow-xs overflow-hidden">
@@ -201,7 +202,7 @@ export default function OrderTable({
                       {displayId}
                     </span>
                     <span className="text-[10px] font-mono text-neutral-400">
-                      / M STUDIO
+                      / {shopName}
                     </span>
                   </div>
                   <OrderStatusBadge status={order.status} />

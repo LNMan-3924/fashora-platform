@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react'
+import { useOutletContext } from 'react-router-dom'
 import { CreditCard, Package, CheckCircle2 } from 'lucide-react'
+import { useAuth } from '../../contexts/AuthContext'
 import { formatVND } from '../../constants/commerce'
 import { getOrders, getProductsByShop } from '../../services/api'
 import {
@@ -14,28 +16,38 @@ import {
  *   + MetricCard: Khung hiển thị từng chỉ số hiệu suất bán hàng (Revenue, Orders, Products Sold).
  *   + RecentOrdersTable: Bảng danh sách các đơn hàng gần đây với badge trạng thái chuẩn màu.
  *   + BestSellingProducts: Lưới hiển thị top 4 sản phẩm bán chạy kèm cơ chế kiểm tra lỗi ảnh (onError).
+ * - Tự động nhận diện Shop ID và Shop Name từ SellerLayout / AuthContext (Hỗ trợ đa shop độc lập).
  * - Sử dụng dữ liệu thực tế 100% từ API backend theo ID shop (GET /products?shopId=...), KHÔNG dùng mockData tĩnh.
  * - Tính toán trực tiếp không lạm dụng useMemo gây tốn bộ nhớ RAM.
  */
 export default function Dashboard() {
-  // 1. State lưu danh sách đơn hàng và sản phẩm từ API
+  const outletContext = useOutletContext() || {}
+  const { currentUser } = useAuth()
+
+  // 1. Xác định Shop ID và Shop Name đang hoạt động
+  let fallbackShopId = 'shop_m_studio'
+  let fallbackShopName = 'M STUDIO'
+  try {
+    const savedShop = JSON.parse(localStorage.getItem('fashora_current_shop') || '{}')
+    if (savedShop.shopId || savedShop.id) fallbackShopId = savedShop.shopId || savedShop.id
+    if (savedShop.shopName || savedShop.name) fallbackShopName = savedShop.shopName || savedShop.name
+  } catch {
+    // ignore
+  }
+
+  const currentShopId = outletContext.currentShopId || currentUser?.shopId || fallbackShopId
+  const sellerInfo = outletContext.sellerInfo || {}
+  const shopName = sellerInfo.shopName || fallbackShopName
+
+  // 2. State lưu danh sách đơn hàng và sản phẩm từ API
   const [orders, setOrders] = useState([])
   const [products, setProducts] = useState([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState(null)
 
-  // 2. Tự động tải dữ liệu từ API khi vào trang Dashboard
+  // 3. Tự động tải dữ liệu từ API khi vào trang Dashboard hoặc khi chuyển đổi shop
   useEffect(() => {
     let isMounted = true
-
-    // Xác định shopId của shop hiện tại
-    let currentShopId = 'shop_m_studio'
-    try {
-      const savedShop = JSON.parse(localStorage.getItem('fashora_current_shop') || '{}')
-      if (savedShop.id) currentShopId = savedShop.id
-    } catch {
-      // ignore
-    }
 
     // Gọi đồng thời 2 API lấy danh sách đơn hàng và sản phẩm theo ID Shop từ json-server (port 5000)
     Promise.all([getOrders(), getProductsByShop(currentShopId)])
@@ -63,14 +75,24 @@ export default function Dashboard() {
     return () => {
       isMounted = false
     }
-  }, [])
+  }, [currentShopId])
 
   // =========================================================================
-  // BƯỚC 1: LỌC ĐƠN HÀNG THUỘC VỀ SHOP HIỆN TẠI (M STUDIO)
+  // BƯỚC 1: LỌC ĐƠN HÀNG THUỘC VỀ SHOP HIỆN TẠI (ĐA SHOP ĐỘC LẬP)
   // =========================================================================
-  const shopOrders = orders.filter(
-    (o) => !o.shopName || o.shopName === 'M STUDIO' || o.shopId === 'shop_m_studio'
-  )
+  const shopOrders = orders.filter((o) => {
+    // 1. Khớp chính xác shopId của đơn
+    if (o.shopId && o.shopId === currentShopId) return true
+    // 2. Khớp theo từng sản phẩm trong đơn nếu có shopId
+    if (Array.isArray(o.items) && o.items.some((item) => item.shopId === currentShopId)) return true
+    // 3. Khớp theo shopName nếu có
+    if (o.shopName && shopName && o.shopName.trim().toLowerCase() === shopName.trim().toLowerCase()) return true
+    // 4. Nếu là shop M STUDIO, nhận các đơn cũ trong db chưa có shopId
+    if (currentShopId === 'shop_m_studio') {
+      return !o.shopId || o.shopName === 'M STUDIO'
+    }
+    return false
+  })
 
   // =========================================================================
   // BƯỚC 2: TÍNH TOÁN CÁC CHỈ SỐ KPI CHÍNH
@@ -160,12 +182,14 @@ export default function Dashboard() {
         orders={shopOrders}
         loading={isLoading}
         maxDisplay={5}
+        shopName={shopName}
       />
 
       {/* 3. LƯỚI TOP 4 SẢN PHẨM BÁN CHẠY NHẤT (BEST SELLING PRODUCTS) */}
       <BestSellingProducts
         products={bestSellingProducts}
         loading={isLoading}
+        shopName={shopName}
       />
     </div>
   )

@@ -1788,35 +1788,41 @@
       "id": "OG_o5LL7lOM",
       "fullName": "Lê Ngọc Mẫn",
       "email": "leman200x@gmail.com",
-      "phoneNumber": "",
+      "phoneNumber": "0783734808",
       "password": "123456789",
       "dob": "03/09/2004",
       "gender": "Male",
-      "role": "customer",
-      "shopId": null,
+      "role": "seller",
+      "shopId": "shop_l-obscur-atelier_8158",
       "address": {
         "fullName": "Lê Ngọc Mẫn",
-        "phone": "0987245673",
-        "address": "143",
-        "ward": "ben nghe",
-        "district": "quan 1",
-        "city": "ho chi minh"
+        "phone": "0783734808",
+        "address": "124A, Yên Hạ",
+        "ward": "Phường Cái Răng",
+        "district": "",
+        "city": "Thành phố Cần Thơ"
       },
       "shippingAddresses": [
         {
           "id": "ADDR-6687",
           "name": "Lê Ngọc Mẫn",
-          "phone": "0987245673",
-          "street": "143",
-          "address": "143",
-          "ward": "ben nghe",
-          "district": "quan 1",
-          "city": "ho chi minh",
+          "phone": "0783734808",
+          "street": "124A, Yên Hạ",
+          "address": "124A, Yên Hạ",
+          "ward": "Phường Cái Răng",
+          "district": "",
+          "city": "Thành phố Cần Thơ",
           "isDefault": true,
           "isVerified": true
         }
       ],
-      "createdAt": "2026-10-16T08:37:09.764Z"
+      "createdAt": "2026-10-16T08:37:09.764Z",
+      "name": "Lê Ngọc Mẫn",
+      "phone": "0783734808",
+      "roles": [
+        "customer",
+        "seller"
+      ]
     },
     {
       "id": "upkuSobx8os",
@@ -1854,6 +1860,26 @@
       "avatarUrl": "/images/avatars/avatar-1792732140230.jpg",
       "name": "Nguyen Thien An",
       "phone": "0912345678"
+    },
+    {
+      "id": "UtJushvds_M",
+      "fullName": "Ngô Bảo Ngọc",
+      "email": "Ngoc@gmail.com",
+      "phoneNumber": "0777712345",
+      "password": "ngoc123",
+      "dob": "05/10/2005",
+      "gender": "Female",
+      "role": "customer",
+      "shopId": null,
+      "address": {
+        "fullName": "Ngô Bảo Ngọc",
+        "phone": "0777712345",
+        "address": "",
+        "ward": "",
+        "city": ""
+      },
+      "shippingAddresses": [],
+      "createdAt": "2026-10-20T20:12:38.278Z"
     }
   ],
   "cart": [],
@@ -2136,5 +2162,43 @@
       "id": "feph2CAXUIw"
     }
   ],
-  "$schema": "./node_modules/json-server/schema.json"
+  "$schema": "./node_modules/json-server/schema.json",
+  "shops": [
+    {
+      "id": "shop_m_studio",
+      "name": "M STUDIO",
+      "slug": "m-studio",
+      "sellerCode": "SELLER #MS-8021",
+      "currency": "VND (₫)",
+      "tagline": "Modern Tailoring & Monochromatic Atelier",
+      "description": "M STUDIO is an avant-garde design house dedicated to sculptural silhouettes, industrial chrome hardware, and experimental monochrome fashion.",
+      "logo": "/assets/logo.png",
+      "coverImage": "/images/products/set/set-05.jpg",
+      "rating": 4.9,
+      "reviewsCount": 148,
+      "location": "Ho Chi Minh City, Vietnam",
+      "joinedDate": "October 2026",
+      "status": "ACTIVE",
+      "ownerId": "upkuSobx8os",
+      "ownerEmail": "an@gmail.com"
+    },
+    {
+      "id": "shop_l-obscur-atelier_8158",
+      "name": "L'OBSCUR ATELIER",
+      "slug": "l-obscur-atelier",
+      "sellerCode": "SELLER #LOB-8158",
+      "currency": "VND (₫)",
+      "tagline": "Avant-Garde Architectural Fashion & Tailoring",
+      "description": "L'OBSCUR ATELIER - Independent designer atelier on FASHORA.",
+      "logo": "/assets/logo.png",
+      "coverImage": "/images/products/set/set-05.jpg",
+      "rating": 5,
+      "reviewsCount": 0,
+      "location": "Can Tho, Vietnam",
+      "joinedDate": "October 2026",
+      "status": "ACTIVE",
+      "ownerId": "OG_o5LL7lOM",
+      "ownerEmail": "leman200x@gmail.com"
+    }
+  ]
 }

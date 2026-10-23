@@ -13,11 +13,13 @@ import { formatDate } from '../../constants/commerce'
  * - status: Trạng thái đơn hàng
  * - createdAt: Thời gian tạo đơn
  * - waybill: Mã vận đơn (tracking number)
+ * - shopName: Tên Shop hiện tại
  */
 export default function OrderTimeline({
   status = 'PENDING',
   createdAt = '',
   waybill = 'VN-EXP-884928',
+  shopName = 'M STUDIO',
 }) {
   const normalized = String(status || 'PENDING').toUpperCase()
   const isCompleted = normalized === 'COMPLETED'
@@ -31,34 +33,35 @@ export default function OrderTimeline({
         <h4 className="text-xs font-bold uppercase tracking-[0.2em] text-black font-mono">
           FULFILLMENT TIMELINE
         </h4>
-        <span className="text-[10px] font-mono uppercase tracking-wider text-neutral-400">
-          TRACKING: {waybill || 'VN-EXP-884928'}
+        <span className="text-[10px] font-mono text-neutral-400 uppercase">
+          WAYBILL #{waybill}
         </span>
       </div>
 
-      {/* Dòng sự kiện kết nối dọc */}
-      <div className="relative pl-6 space-y-6 before:absolute before:left-[11px] before:top-2 before:bottom-2 before:w-0.5 before:bg-neutral-200">
-        {/* Sự kiện 1: Đã giao hàng thành công (chỉ hiện khi COMPLETED) */}
-        {isCompleted && (
-          <div className="relative flex items-start gap-3">
-            <div className="absolute -left-6 top-0.5 w-5 h-5 rounded-[2px] bg-black text-white flex items-center justify-center text-[10px]">
-              <Check className="w-3 h-3" />
-            </div>
-            <div>
-              <div className="text-xs font-bold uppercase tracking-wider text-black">
-                Order Delivered
-              </div>
-              <p className="text-[11px] text-neutral-500 mt-0.5 leading-relaxed">
-                Package handover complete. Recipient signed delivery voucher at residential address.
-              </p>
-              <span className="text-[9px] font-mono text-neutral-400 block mt-1">
-                Completed • Delivery Verified
-              </span>
-            </div>
+      <div className="relative pl-6 space-y-6 before:absolute before:left-2.5 before:top-2 before:bottom-2 before:w-[1px] before:bg-neutral-200">
+        {/* Sự kiện 1: Đã giao hàng thành công */}
+        <div
+          className={`relative flex items-start gap-3 ${
+            !isCompleted ? 'opacity-40' : ''
+          }`}
+        >
+          <div className="absolute -left-6 top-0.5 w-5 h-5 rounded-[2px] bg-black text-white flex items-center justify-center text-[10px]">
+            <Check className="w-3 h-3 text-emerald-400" />
           </div>
-        )}
+          <div>
+            <div className="text-xs font-bold uppercase tracking-wider text-black">
+              Order Delivered &amp; Settled
+            </div>
+            <p className="text-[11px] text-neutral-500 mt-0.5 leading-relaxed">
+              Package successfully handed over to client with signature verification.
+            </p>
+            <span className="text-[9px] font-mono text-neutral-400 block mt-1">
+              Final Milestone • SPX Express
+            </span>
+          </div>
+        </div>
 
-        {/* Sự kiện 2: Đang giao hàng / Bàn giao đơn vị vận chuyển */}
+        {/* Sự kiện 2: Đang giao hàng */}
         <div
           className={`relative flex items-start gap-3 ${
             !isShippingOrMore ? 'opacity-40' : ''
@@ -69,13 +72,13 @@ export default function OrderTimeline({
           </div>
           <div>
             <div className="text-xs font-bold uppercase tracking-wider text-black">
-              Handed to Express Courier
+              Express Courier Dispatch
             </div>
             <p className="text-[11px] text-neutral-500 mt-0.5 leading-relaxed">
-              Package in transit to Ho Chi Minh City Distribution Center (District 1 Hub).
+              Consignment handed to courier hub for domestic transit.
             </p>
             <span className="text-[9px] font-mono text-neutral-400 block mt-1">
-              Logistics Hub • SPX Express
+              Tracking Waybill: {waybill}
             </span>
           </div>
         </div>
@@ -94,10 +97,10 @@ export default function OrderTimeline({
               Order Confirmed &amp; Packaged
             </div>
             <p className="text-[11px] text-neutral-500 mt-0.5 leading-relaxed">
-              Quality inspection completed by M STUDIO Atelier Vietnam team.
+              Quality inspection completed by {shopName} team.
             </p>
             <span className="text-[9px] font-mono text-neutral-400 block mt-1">
-              Atelier Saigon • Ready for dispatch
+              Atelier Ready for dispatch
             </span>
           </div>
         </div>
@@ -123,4 +126,3 @@ export default function OrderTimeline({
     </section>
   )
 }
-

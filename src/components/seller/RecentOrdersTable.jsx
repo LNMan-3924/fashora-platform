@@ -15,6 +15,7 @@ export default function RecentOrdersTable({
   orders = [],
   loading = false,
   maxDisplay = 5,
+  shopName = 'M STUDIO',
 }) {
   // Lấy danh sách giới hạn theo maxDisplay
   const displayOrders = orders.slice(0, maxDisplay)
@@ -28,7 +29,7 @@ export default function RecentOrdersTable({
             RECENT ORDERS
           </h3>
           <p className="text-xs text-neutral-400 mt-1">
-            Latest purchase requests for M STUDIO collection garments
+            Latest purchase requests for {shopName} collection garments
           </p>
         </div>
 

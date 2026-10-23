@@ -9,6 +9,42 @@ const api = axios.create({
 
 // ================= SHOP & BANNERS =================
 export const getShopInfo = () => api.get('/shop');
+export const getShops = () => api.get('/shops');
+
+/**
+ * Lấy thông tin chi tiết một Shop theo shopId
+ * Ưu tiên tìm trong collection /shops, nếu không có thì fallback về /shop
+ */
+export const getShopById = async (shopId) => {
+  if (!shopId) return api.get('/shop');
+  try {
+    const res = await api.get(`/shops/${shopId}`);
+    if (res?.data) return res;
+  } catch {
+    try {
+      const resQuery = await api.get(`/shops?id=${shopId}`);
+      if (Array.isArray(resQuery?.data) && resQuery.data.length > 0) {
+        return { data: resQuery.data[0] };
+      }
+    } catch {
+      // fallback
+    }
+  }
+  return api.get('/shop');
+};
+
+export const createOrUpdateShop = async (shopData) => {
+  try {
+    return await api.post('/shops', shopData);
+  } catch {
+    try {
+      return await api.put(`/shops/${shopData.id}`, shopData);
+    } catch {
+      return await api.patch('/shop', shopData);
+    }
+  }
+};
+
 export const getHeroBanner = () => api.get('/heroBanner');
 export const getCarouselItems = () => api.get('/carouselItems');
 
@@ -33,6 +69,7 @@ export const registerUser = (userData) => api.post('/users', userData);
 export const updateUser = (userId, data) => api.patch(`/users/${userId}`, data);
 export const updateUserRoleToSeller = (userId, shopId) =>
   api.patch(`/users/${userId}`, {
+    role: 'seller',
     roles: ['customer', 'seller'],
     shopId,
   });
@@ -51,26 +88,21 @@ export const updateOrderStatus = (id, status) => api.patch(`/orders/${id}`, { st
 
 export default api;
 
-/* ==========================================================================
-   ADDED FOR FEATURE: SHOP & PRODUCT LISTING
-   - Added: getProducts API helper for fetching all catalog products
-   ========================================================================== */
-
 /**
  * Lấy thông tin tài khoản người dùng theo ID từ db.json (JSON-Server port 5000)
  */
 export const getCurrentUser = async (userId) => {
   try {
-    const res = await getUserById(userId)
-    return res.data || null
+    const res = await getUserById(userId);
+    return res.data || null;
   } catch {
     try {
-      const allRes = await getUsers()
-      const users = allRes.data || []
-      return users.find((u) => u.id === userId) || null
+      const allRes = await getUsers();
+      const users = allRes.data || [];
+      return users.find((u) => u.id === userId) || null;
     } catch (error) {
-      console.warn('api.js getCurrentUser error:', error)
-      return null
+      console.warn('api.js getCurrentUser error:', error);
+      return null;
     }
   }
-}
+};

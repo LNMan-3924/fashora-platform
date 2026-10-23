@@ -114,6 +114,7 @@ export default function Profile() {
     return () => {
       isMounted = false
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentUser?.id])
 
   const showToast = (message) => {
@@ -127,6 +128,48 @@ export default function Profile() {
     if (!currentUser?.id) return
 
     try {
+      // 1. Tự động đồng bộ số điện thoại và họ tên mới xuống địa chỉ giao hàng mặc định ban đầu
+      let updatedAddresses = addresses
+      if (Array.isArray(addresses) && addresses.length > 0) {
+        const hasDefault = addresses.some((a) => a.isDefault)
+        updatedAddresses = addresses.map((addr, idx) => {
+          const isTargetDefault = addr.isDefault || (!hasDefault && idx === 0)
+          if (isTargetDefault) {
+            return {
+              ...addr,
+              name: newProfile.name || addr.name,
+              phone: newProfile.phone,
+            }
+          }
+          return addr
+        })
+      }
+
+      // 2. Đồng bộ thông tin người nhận vào user.address
+      const def = updatedAddresses.find((a) => a.isDefault) || updatedAddresses[0]
+      const updatedAddress = currentUser?.address
+        ? {
+            ...currentUser.address,
+            fullName: newProfile.name || currentUser.address.fullName || '',
+            phone: newProfile.phone,
+            ...(def && {
+              address: def.street || def.address || currentUser.address.address || '',
+              ward: def.ward || currentUser.address.ward || '',
+              district: def.district || currentUser.address.district || '',
+              city: def.city || currentUser.address.city || '',
+            }),
+          }
+        : def
+        ? {
+            fullName: newProfile.name || def.name || '',
+            phone: newProfile.phone,
+            address: def.street || def.address || '',
+            ward: def.ward || '',
+            district: def.district || '',
+            city: def.city || '',
+          }
+        : null
+
       const payload = {
         fullName: newProfile.name,
         name: newProfile.name,
@@ -135,12 +178,15 @@ export default function Profile() {
         email: newProfile.email,
         dob: newProfile.dob,
         gender: newProfile.gender,
+        shippingAddresses: updatedAddresses,
+        ...(updatedAddress && { address: updatedAddress }),
       }
 
       const res = await updateUser(currentUser.id, payload)
       const updatedUser = res?.data || res
 
       setProfile(newProfile)
+      setAddresses(updatedAddresses)
       setIsEditingProfile(false)
       updateCurrentUser(updatedUser)
       showToast('Information updated')

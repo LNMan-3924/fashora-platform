@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react'
+import { useOutletContext } from 'react-router-dom'
 import { Package, Clock, Truck, CreditCard } from 'lucide-react'
+import { useAuth } from '../../contexts/AuthContext'
 import { getOrders } from '../../services/api'
 import { formatVND } from '../../constants/commerce'
 import { Pagination } from '../../components/common'
@@ -18,22 +20,41 @@ const ITEMS_PER_PAGE = 10
  *   + MetricCard: Khung hiển thị 4 chỉ số hiệu suất đơn hàng (Total Orders, Pending, In Shipping, Settled Revenue).
  *   + OrderFilters: Thanh tìm kiếm từ khóa, bộ lọc trạng thái và thống kê số lượng đơn.
  *   + OrderTable: Bảng danh sách đơn hàng chi tiết, bấm "VIEW DETAILS" chuyển sang trang chi tiết riêng (/seller/orders/:id).
+ * - Tự động nhận diện Shop ID và Shop Name từ SellerLayout / AuthContext (Đa shop độc lập).
  * - Tái sử dụng component phân trang Pagination (PREVIOUS [1] 2 3 ... 8 NEXT).
  * - Sử dụng dữ liệu thực tế 100% từ API JSON-Server (GET /orders), KHÔNG dùng mockData.
  * - Tính toán trực tiếp, loại bỏ lạm dụng useMemo gây tốn bộ nhớ RAM.
  */
 export default function Orders() {
-  // 1. State lưu danh sách đơn hàng và trạng thái API
+  const outletContext = useOutletContext() || {}
+  const { currentUser } = useAuth()
+
+  // 1. Xác định Shop ID và Shop Name của shop hiện tại
+  let fallbackShopId = 'shop_m_studio'
+  let fallbackShopName = 'M STUDIO'
+  try {
+    const savedShop = JSON.parse(localStorage.getItem('fashora_current_shop') || '{}')
+    if (savedShop.shopId || savedShop.id) fallbackShopId = savedShop.shopId || savedShop.id
+    if (savedShop.shopName || savedShop.name) fallbackShopName = savedShop.shopName || savedShop.name
+  } catch {
+    // ignore
+  }
+
+  const currentShopId = outletContext.currentShopId || currentUser?.shopId || fallbackShopId
+  const sellerInfo = outletContext.sellerInfo || {}
+  const shopName = sellerInfo.shopName || fallbackShopName
+
+  // 2. State lưu danh sách đơn hàng và trạng thái API
   const [orders, setOrders] = useState([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState(null)
 
-  // 2. State điều khiển bộ lọc & phân trang
+  // 3. State điều khiển bộ lọc & phân trang
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedStatus, setSelectedStatus] = useState('ALL')
   const [currentPage, setCurrentPage] = useState(1)
 
-  // 3. Tải danh sách đơn hàng từ API khi vào trang
+  // 4. Tải danh sách đơn hàng từ API khi vào trang hoặc khi thay đổi shop
   useEffect(() => {
     let isMounted = true
 
@@ -41,11 +62,17 @@ export default function Orders() {
       .then((res) => {
         if (!isMounted) return
         const data = res?.data || res || []
-        // Lọc các đơn hàng thuộc về shop M STUDIO
+        // Lọc các đơn hàng thuộc về shop hiện tại
         const shopOrders = Array.isArray(data)
-          ? data.filter(
-              (o) => !o.shopName || o.shopName === 'M STUDIO' || o.shopId === 'shop_m_studio'
-            )
+          ? data.filter((o) => {
+            if (o.shopId && o.shopId === currentShopId) return true
+            if (Array.isArray(o.items) && o.items.some((item) => item.shopId === currentShopId)) return true
+            if (o.shopName && shopName && o.shopName.trim().toLowerCase() === shopName.trim().toLowerCase()) return true
+            if (currentShopId === 'shop_m_studio') {
+              return !o.shopId || o.shopName === 'M STUDIO'
+            }
+            return false
+          })
           : []
         setOrders(shopOrders)
       })
@@ -64,9 +91,9 @@ export default function Orders() {
     return () => {
       isMounted = false
     }
-  }, [])
+  }, [currentShopId, shopName])
 
-  // 4. Tính toán 4 chỉ số thống kê đơn hàng (KPI Bento Cards)
+  // 5. Tính toán 4 chỉ số thống kê đơn hàng (KPI Bento Cards)
   const stats = {
     total: orders.length,
     pendingCount: 0,
@@ -93,7 +120,7 @@ export default function Orders() {
     }
   })
 
-  // 5. Lọc danh sách đơn hàng theo từ khóa tìm kiếm và trạng thái
+  // 6. Lọc danh sách đơn hàng theo từ khóa tìm kiếm và trạng thái
   const filteredOrders = orders.filter((order) => {
     // Lọc theo từ khóa tìm kiếm (Mã đơn, Tên khách hàng, Email, Tên sản phẩm)
     if (searchQuery.trim()) {
@@ -124,7 +151,7 @@ export default function Orders() {
     return true
   })
 
-  // 6. Xử lý khi thay đổi bộ lọc -> tự động quay về trang 1
+  // 7. Xử lý khi thay đổi bộ lọc -> tự động quay về trang 1
   const handleSearchChange = (query) => {
     setSearchQuery(query)
     setCurrentPage(1)
@@ -141,7 +168,7 @@ export default function Orders() {
     setCurrentPage(1)
   }
 
-  // 7. Tính toán phân trang: Chỉ hiển thị 10 đơn hàng trên mỗi trang
+  // 8. Tính toán phân trang: Chỉ hiển thị 10 đơn hàng trên mỗi trang
   const totalPages = Math.ceil(filteredOrders.length / ITEMS_PER_PAGE) || 1
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE
   const paginatedOrders = filteredOrders.slice(startIndex, startIndex + ITEMS_PER_PAGE)
@@ -201,12 +228,14 @@ export default function Orders() {
         currentPage={currentPage}
         itemsPerPage={ITEMS_PER_PAGE}
         onResetFilters={handleResetFilters}
+        shopName={shopName}
       />
 
       {/* 3. BẢNG DANH SÁCH ĐƠN HÀNG (10 ĐƠN / TRANG) */}
       <OrderTable
         orders={paginatedOrders}
         loading={isLoading}
+        shopName={shopName}
       />
 
       {/* 4. THÀNH PHẦN PHÂN TRANG (TÁI SỬ DỤNG PAGINATION) */}
@@ -221,3 +250,4 @@ export default function Orders() {
     </div>
   )
 }
+

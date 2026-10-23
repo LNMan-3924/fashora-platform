@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useParams, Link } from 'react-router-dom'
+import { useParams, Link, useOutletContext } from 'react-router-dom'
 import { ArrowLeft, Check, AlertCircle } from 'lucide-react'
 import { getOrderById, getOrders, updateOrderStatus } from '../../services/api'
 import { formatDate } from '../../constants/commerce'
@@ -33,15 +33,31 @@ import {
  */
 export default function OrderDetail() {
   const { id } = useParams()
+  const outletContext = useOutletContext() || {}
 
-  // 1. State lưu trữ đơn hàng & trạng thái xử lý
+  // 1. Xác định Shop ID và Shop Name từ SellerLayout
+  let fallbackShopName = 'M STUDIO'
+  let fallbackSellerCode = 'SELLER #MS-8021'
+  try {
+    const savedShop = JSON.parse(localStorage.getItem('fashora_current_shop') || '{}')
+    if (savedShop.shopName || savedShop.name) fallbackShopName = savedShop.shopName || savedShop.name
+    if (savedShop.sellerCode) fallbackSellerCode = savedShop.sellerCode
+  } catch {
+    // ignore
+  }
+
+  const sellerInfo = outletContext.sellerInfo || {}
+  const shopName = sellerInfo.shopName || fallbackShopName
+  const sellerCode = sellerInfo.sellerCode || fallbackSellerCode
+
+  // 2. State lưu trữ đơn hàng & trạng thái xử lý
   const [order, setOrder] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState(null)
   const [isUpdating, setIsUpdating] = useState(false)
   const [toastMessage, setToastMessage] = useState('')
 
-  // 2. Tải dữ liệu đơn hàng từ API JSON-Server khi vào trang
+  // 3. Tải dữ liệu đơn hàng từ API JSON-Server khi vào trang
   useEffect(() => {
     let isMounted = true
 
@@ -96,38 +112,41 @@ export default function OrderDetail() {
     }
   }, [toastMessage])
 
-  // 3. Xử lý cập nhật trạng thái đơn hàng qua API (chỉ tiến tới hoặc hủy trước shipping)
+  // 4. Xử lý cập nhật trạng thái đơn hàng qua API (chỉ tiến tới hoặc hủy trước shipping)
   const handleStatusUpdate = async (nextStatus) => {
-    if (!order?.id || !nextStatus) return
-    setIsUpdating(true)
+    if (!order || !order.id || isUpdating) return
 
     try {
+      setIsUpdating(true)
       await updateOrderStatus(order.id, nextStatus)
-      setOrder((prev) => ({ ...prev, status: nextStatus }))
-      setToastMessage(`Order status successfully updated to "${nextStatus}".`)
+
+      setOrder((prev) => ({
+        ...prev,
+        status: nextStatus,
+      }))
+
+      setToastMessage(
+        `Order ${order.orderNumber || order.id} status successfully transitioned to "${nextStatus}".`
+      )
     } catch (err) {
-      console.error('Error updating order status:', err)
-      setToastMessage('An error occurred while updating status. Please try again.')
+      console.error('Error updating order status in API:', err)
+      alert('Failed to update order status. Please check your backend connection.')
     } finally {
       setIsUpdating(false)
     }
   }
 
-  // 4. Trạng thái Skeleton Loading khi đang tải
+  // 5. Trạng thái tải dữ liệu
   if (isLoading) {
     return (
-      <div className="space-y-6 animate-pulse">
-        <div className="h-6 w-48 bg-neutral-100 rounded-[2px]" />
-        <div className="h-24 bg-neutral-100 rounded-[2px]" />
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          <div className="lg:col-span-7 h-96 bg-neutral-100 rounded-[2px]" />
-          <div className="lg:col-span-5 h-96 bg-neutral-100 rounded-[2px]" />
-        </div>
+      <div className="p-12 text-center text-xs font-mono text-neutral-400 space-y-3">
+        <div className="inline-block w-6 h-6 border-2 border-black border-t-transparent rounded-[2px] animate-spin" />
+        <p>RETRIEVING ORDER RECORD FROM ATELIER DATABASE...</p>
       </div>
     )
   }
 
-  // 5. Trạng thái lỗi không tìm thấy đơn hàng
+  // 6. Trạng thái lỗi không tìm thấy đơn hàng
   if (error || !order) {
     return (
       <div className="p-10 bg-white border border-neutral-200 rounded-[2px] space-y-4 font-mono text-center">
@@ -136,7 +155,7 @@ export default function OrderDetail() {
           {error || 'ORDER NOT FOUND'}
         </h3>
         <p className="text-xs text-neutral-400">
-          The requested order does not exist or has been removed from M STUDIO records.
+          The requested order does not exist or has been removed from {shopName} records.
         </p>
         <Link
           to="/seller/orders"
@@ -199,7 +218,7 @@ export default function OrderDetail() {
       <section className="bg-white border border-neutral-200 rounded-[2px] p-6 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <div className="text-[11px] font-mono uppercase tracking-widest text-neutral-500 mb-1">
-            ORDER DETAIL • M STUDIO (#MS-8021)
+            ORDER DETAIL • {shopName} ({sellerCode})
           </div>
           <div className="flex flex-wrap items-center gap-3">
             <h3 className="text-2xl sm:text-3xl font-bold tracking-tight text-black font-mono">
@@ -245,6 +264,7 @@ export default function OrderDetail() {
             status={order.status}
             createdAt={order.createdAt || order.date}
             waybill={order.logistics?.waybill || 'VN-EXP-884928'}
+            shopName={shopName}
           />
         </div>
 
@@ -256,6 +276,7 @@ export default function OrderDetail() {
             customerNote={order.customerNote || order.note}
             paymentMethod={paymentMethod}
             orderStatus={order.status}
+            shopName={shopName}
           />
         </div>
       </div>

@@ -1,3 +1,5 @@
+import { Link } from 'react-router-dom'
+
 export default function SellerHeader({
     shopName = 'M STUDIO',
     pageTitle = 'DASHBOARD',
@@ -11,7 +13,7 @@ export default function SellerHeader({
                 <button
                     type="button"
                     onClick={onOpenMobile}
-                    className="p-1.5 text-neutral-800 hover:text-black focus:outline-none z-10"
+                    className="p-1.5 text-neutral-800 hover:text-black focus:outline-none z-10 cursor-pointer"
                     aria-label="Open sidebar menu"
                 >
                     <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -19,10 +21,14 @@ export default function SellerHeader({
                     </svg>
                 </button>
 
-                {/* Logo FASHORA CĂN GIỮA TUYỆT ĐỐI */}
-                <span className="absolute left-1/2 -translate-x-1/2 font-bold tracking-[0.25em] text-sm uppercase text-black pointer-events-none select-none">
+                {/* Logo FASHORA CĂN GIỮA TUYỆT ĐỐI - Bấm chuyển về trang chủ (/) */}
+                <Link
+                    to="/"
+                    className="absolute left-1/2 -translate-x-1/2 font-bold tracking-[0.25em] text-sm uppercase text-black select-none hover:opacity-80 transition-opacity"
+                    title="Back to Home (/)"
+                >
                     FASHORA
-                </span>
+                </Link>
 
                 {/* Badge tên Shop bên phải */}
                 <div className="inline-flex items-center px-2 py-0.5 border border-neutral-300 rounded text-[10px] font-medium text-neutral-700 bg-neutral-50 z-10">
@@ -30,7 +36,7 @@ export default function SellerHeader({
                 </div>
             </header>
 
-            {/* 2. THANH BANNER ĐEN HEADER DESKTOP (KHỚP 100% [ẢNH 1]) */}
+            {/* 2. THANH BANNER ĐEN HEADER DESKTOP */}
             <div className="bg-[#0e0e0e] text-white px-6 sm:px-10 py-6 border-b border-neutral-800 flex flex-col md:flex-row md:items-center justify-between gap-4">
                 {/* Cụm chữ bên trái */}
                 <div>
@@ -52,10 +58,8 @@ export default function SellerHeader({
                 </div>
 
                 {/* Cụm trạng thái bên phải */}
-                <div className="flex items-center">
-                    <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-[#171717] border border-neutral-700/80 rounded text-[11px] font-medium text-neutral-300 tracking-wider">
-                        <span className="font-semibold text-emerald-400">ACTIVE</span>
-                    </div>
+                <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-[#171717] border border-neutral-700/80 rounded text-[11px] font-medium text-neutral-300 tracking-wider">
+                    <span className="font-semibold text-emerald-400">ACTIVE</span>
                 </div>
             </div>
         </>

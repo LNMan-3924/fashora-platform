@@ -193,6 +193,7 @@ function CheckoutFormContent({
         city: (formData.city || '').trim(),
       },
       shopName: displayItems[0]?.shopName || 'M STUDIO',
+      shopId: displayItems[0]?.shopId || 'shop_m_studio',
       items: displayItems.map((item) => ({
         id: item.id,
         name: item.name,
@@ -201,6 +202,8 @@ function CheckoutFormContent({
         selectedSize: item.selectedSize || 'Standard',
         selectedColor: item.selectedColor || 'Standard',
         image: item.image || item.images?.[0] || FALLBACK_IMAGE,
+        shopId: item.shopId || displayItems[0]?.shopId || 'shop_m_studio',
+        shopName: item.shopName || displayItems[0]?.shopName || 'M STUDIO',
       })),
       shippingFee: shippingMethod,
       shippingMethod:

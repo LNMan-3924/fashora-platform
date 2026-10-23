@@ -11,6 +11,7 @@
  * - customerNote: Ghi chú giao hàng của khách
  * - paymentMethod: Hình thức thanh toán (COD, Thẻ, VNPay...)
  * - orderStatus: Trạng thái hiện tại của đơn hàng
+ * - shopName: Tên của Shop hiện tại
  */
 export default function OrderCustomerInfo({
   recipient = {},
@@ -18,6 +19,7 @@ export default function OrderCustomerInfo({
   customerNote = '',
   paymentMethod = 'Cash on Delivery (COD)',
   orderStatus = 'PENDING',
+  shopName = 'M STUDIO',
 }) {
   const normalizedStatus = String(orderStatus || 'PENDING').toUpperCase()
   const isCompleted = normalizedStatus === 'COMPLETED'
@@ -197,14 +199,13 @@ export default function OrderCustomerInfo({
           {/* Hộp thông báo quyết toán */}
           <div className="mt-3 pt-3 border-t border-neutral-100 text-[11px] text-neutral-500 leading-relaxed bg-neutral-50 p-3 rounded-[2px] border border-neutral-200/80">
             {isCompleted
-              ? 'Cash payment was received and verified by courier at delivery. Settlement funds are scheduled for payout to M STUDIO seller account on T+2 cycle.'
+              ? `Cash payment was received and verified by courier at delivery. Settlement funds are scheduled for payout to ${shopName} seller account on T+2 cycle.`
               : isCancelled
               ? 'Order is cancelled. No collection or payout will occur.'
-              : 'Payment to be collected in cash by courier upon package handover. The funds will be credited to M STUDIO seller account balance following delivery reconciliation.'}
+              : `Payment to be collected in cash by courier upon package handover. The funds will be credited to ${shopName} seller account balance following delivery reconciliation.`}
           </div>
         </div>
       </section>
     </div>
   )
 }
-
