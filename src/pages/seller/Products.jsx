@@ -1,6 +1,6 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect } from 'react'
 import { Package, CheckCircle2, AlertTriangle, Layers, Check } from 'lucide-react'
-import { getProducts } from '../../services/api'
+import { getProductsByShop } from '../../services/api'
 import { Pagination } from '../../components/common'
 import {
   MetricCard,
@@ -21,7 +21,9 @@ const ITEMS_PER_PAGE = 10
  *   + ProductTable: Bảng sản phẩm hiển thị ảnh (kèm onError), thông tin, giá, tồn kho và các nút thao tác.
  *   + ProductFormModal: Modal Thêm mới hoặc Cập nhật sản phẩm qua API (POST/PUT).
  *   + ProductDeleteModal: Hộp thoại xác nhận xóa sản phẩm qua API (DELETE).
- * - Sử dụng dữ liệu thực tế 100% từ API JSON-Server (GET /products), KHÔNG sử dụng mockData.
+ * - Tối ưu hiệu năng: Lấy trực tiếp danh sách sản phẩm theo ID Shop qua API (GET /products?shopId=...),
+ *   thay vì tải toàn bộ kho dữ liệu rồi lọc ở client.
+ * - Loại bỏ lạm dụng useMemo cho các phép tính mảng nhỏ để tối ưu hóa bộ nhớ RAM.
  * - Xử lý bắt lỗi ảnh tự động (handleImageError / FALLBACK_IMAGE) trên toàn bộ sản phẩm.
  * - Không dùng chấm tròn trạng thái, các badge đều có kích thước cố định, căn chuẩn thiết kế tối giản Fashora.
  */
@@ -44,22 +46,27 @@ export default function Products() {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
   const [productToDelete, setProductToDelete] = useState(null)
 
-  // 4. Tải danh sách sản phẩm từ API khi vào trang
+  // 4. Tải danh sách sản phẩm từ API theo ID Shop (tối ưu hiệu năng, giảm tải mạng và RAM)
   useEffect(() => {
     let isMounted = true
 
-    getProducts()
+    // Lấy shopId hiện tại (mặc định 'shop_m_studio' hoặc từ shop đã lưu)
+    let currentShopId = 'shop_m_studio'
+    try {
+      const savedShop = JSON.parse(localStorage.getItem('fashora_current_shop') || '{}')
+      if (savedShop.id) currentShopId = savedShop.id
+    } catch {
+      // ignore
+    }
+
+    getProductsByShop(currentShopId)
       .then((res) => {
         if (!isMounted) return
         const data = res?.data || res || []
-        // Lọc các sản phẩm thuộc về shop M STUDIO
-        const shopProducts = Array.isArray(data)
-          ? data.filter((p) => !p.shopName || p.shopName === 'M STUDIO' || p.shopId === 'shop_m_studio')
-          : []
-        setProducts(shopProducts)
+        setProducts(Array.isArray(data) ? data : [])
       })
       .catch((err) => {
-        console.error('Lỗi khi tải sản phẩm từ API:', err)
+        console.error('Lỗi khi tải sản phẩm từ API theo Shop ID:', err)
         if (isMounted) {
           setError('Không thể tải danh sách sản phẩm từ máy chủ API. Vui lòng kiểm tra json-server.')
         }
@@ -84,65 +91,57 @@ export default function Products() {
   }, [successToast])
 
   // 5. Trích xuất danh sách tất cả các danh mục độc nhất (unique categories)
-  const uniqueCategories = useMemo(() => {
-    const set = new Set()
-    products.forEach((p) => {
-      if (p.category) set.add(p.category)
-    })
-    return Array.from(set).sort()
-  }, [products])
+  const uniqueCategories = Array.from(
+    new Set(products.map((p) => p.category).filter(Boolean))
+  ).sort()
 
   // 6. Tính toán 4 chỉ số thống kê kho hàng (KPIs)
-  const stats = useMemo(() => {
-    const total = products.length
-    let inStock = 0
-    let lowStock = 0
-    let outOfStock = 0
+  const stats = {
+    total: products.length,
+    inStock: 0,
+    lowStock: 0,
+    outOfStock: 0,
+  }
 
-    products.forEach((p) => {
-      const stock = Number(p.stock || 0)
-      if (p.isSoldOut || stock <= 0) {
-        outOfStock++
-      } else if (stock <= 5) {
-        lowStock++
-      } else {
-        inStock++
-      }
-    })
-
-    return { total, inStock, lowStock, outOfStock }
-  }, [products])
+  products.forEach((p) => {
+    const stock = Number(p.stock || 0)
+    if (p.isSoldOut || stock <= 0) {
+      stats.outOfStock++
+    } else if (stock <= 5) {
+      stats.lowStock++
+    } else {
+      stats.inStock++
+    }
+  })
 
   // 7. Lọc danh sách sản phẩm theo từ khóa tìm kiếm và bộ lọc đã chọn
-  const filteredProducts = useMemo(() => {
-    return products.filter((p) => {
-      // Lọc theo từ khóa tìm kiếm (Tên sản phẩm hoặc Mã ID)
-      if (searchQuery.trim()) {
-        const query = searchQuery.toLowerCase().trim()
-        const matchName = (p.name || '').toLowerCase().includes(query)
-        const matchId = (p.id || '').toLowerCase().includes(query)
-        const matchCat = (p.category || '').toLowerCase().includes(query)
-        if (!matchName && !matchId && !matchCat) return false
-      }
+  const filteredProducts = products.filter((p) => {
+    // Lọc theo từ khóa tìm kiếm (Tên sản phẩm hoặc Mã ID)
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase().trim()
+      const matchName = (p.name || '').toLowerCase().includes(query)
+      const matchId = (p.id || '').toLowerCase().includes(query)
+      const matchCat = (p.category || '').toLowerCase().includes(query)
+      if (!matchName && !matchId && !matchCat) return false
+    }
 
-      // Lọc theo Danh mục
-      if (selectedCategory !== 'ALL' && p.category !== selectedCategory) {
-        return false
-      }
+    // Lọc theo Danh mục
+    if (selectedCategory !== 'ALL' && p.category !== selectedCategory) {
+      return false
+    }
 
-      // Lọc theo Trạng thái kho hàng
-      const stock = Number(p.stock || 0)
-      const isOut = p.isSoldOut || stock <= 0
-      const isLow = !isOut && stock <= 5
-      const isIn = !isOut && stock > 5
+    // Lọc theo Trạng thái kho hàng
+    const stock = Number(p.stock || 0)
+    const isOut = p.isSoldOut || stock <= 0
+    const isLow = !isOut && stock <= 5
+    const isIn = !isOut && stock > 5
 
-      if (selectedStockStatus === 'IN_STOCK' && !isIn) return false
-      if (selectedStockStatus === 'LOW_STOCK' && !isLow) return false
-      if (selectedStockStatus === 'OUT_OF_STOCK' && !isOut) return false
+    if (selectedStockStatus === 'IN_STOCK' && !isIn) return false
+    if (selectedStockStatus === 'LOW_STOCK' && !isLow) return false
+    if (selectedStockStatus === 'OUT_OF_STOCK' && !isOut) return false
 
-      return true
-    })
-  }, [products, searchQuery, selectedCategory, selectedStockStatus])
+    return true
+  })
 
   // 8. Đặt lại bộ lọc hoặc thay đổi tiêu chí tìm kiếm -> tự động quay về trang 1
   const handleSearchChange = (query) => {
@@ -169,31 +168,28 @@ export default function Products() {
 
   // 9. Tính toán phân trang: Chỉ hiển thị đúng 10 sản phẩm cho trang hiện tại
   const totalPages = Math.ceil(filteredProducts.length / ITEMS_PER_PAGE) || 1
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE
+  const paginatedProducts = filteredProducts.slice(startIndex, startIndex + ITEMS_PER_PAGE)
 
-  const paginatedProducts = useMemo(() => {
-    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE
-    return filteredProducts.slice(startIndex, startIndex + ITEMS_PER_PAGE)
-  }, [filteredProducts, currentPage])
-
-  // 9. Xử lý mở modal Thêm mới sản phẩm
+  // 10. Xử lý mở modal Thêm mới sản phẩm
   const handleOpenAddModal = () => {
     setProductToEdit(null)
     setIsFormModalOpen(true)
   }
 
-  // 10. Xử lý mở modal Sửa sản phẩm
+  // 11. Xử lý mở modal Sửa sản phẩm
   const handleOpenEditModal = (product) => {
     setProductToEdit(product)
     setIsFormModalOpen(true)
   }
 
-  // 11. Xử lý mở modal Xóa sản phẩm
+  // 12. Xử lý mở modal Xóa sản phẩm
   const handleOpenDeleteModal = (product) => {
     setProductToDelete(product)
     setIsDeleteModalOpen(true)
   }
 
-  // 12. Xử lý sau khi lưu thành công (Thêm mới hoặc Cập nhật)
+  // 13. Xử lý sau khi lưu thành công (Thêm mới hoặc Cập nhật)
   const handleSaveSuccess = (savedProduct, isEditMode) => {
     if (isEditMode) {
       setProducts((prev) =>
@@ -206,7 +202,7 @@ export default function Products() {
     }
   }
 
-  // 13. Xử lý sau khi xóa sản phẩm thành công
+  // 14. Xử lý sau khi xóa sản phẩm thành công
   const handleDeleteSuccess = (deletedId) => {
     setProducts((prev) => prev.filter((p) => p.id !== deletedId))
     setSuccessToast('Đã xóa sản phẩm khỏi danh mục của shop thành công.')

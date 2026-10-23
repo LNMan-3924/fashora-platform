@@ -1,15 +1,18 @@
-import { useState } from 'react'
-import { X, Check } from 'lucide-react'
+import { useState, useRef } from 'react'
+import { X, Check, Upload, Loader2 } from 'lucide-react'
 import { createProduct, updateProduct } from '../../services/api'
 import { handleImageError, FALLBACK_IMAGE } from '../../constants/commerce'
+import { uploadImage } from '../../utils/imageUpload'
 
 /**
  * Component ProductFormContent: Nội dung biểu mẫu tạo mới hoặc chỉnh sửa sản phẩm
  * - Khởi tạo state trực tiếp từ props mà không cần useEffect (chuẩn React recommended pattern).
  * - Sử dụng key trên component cha để tự động reset form khi sản phẩm thay đổi.
+ * - Hỗ trợ nhập trực tiếp URL hoặc TẢI ẢNH TỪ MÁY TÍNH sử dụng module Node.js fs qua API chung.
  */
 function ProductFormContent({ productToEdit, onClose, onSaveSuccess }) {
   const isEditMode = Boolean(productToEdit?.id)
+  const fileInputRef = useRef(null)
 
   // Khởi tạo state form từ productToEdit nếu có
   const [formData, setFormData] = useState(() => ({
@@ -24,15 +27,50 @@ function ProductFormContent({ productToEdit, onClose, onSaveSuccess }) {
   }))
 
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isUploading, setIsUploading] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
 
-  // Xử lý thay đổi dữ liệu các trường input
+  // Xử lý thay đổi dữ liệu các trường input text / select thông thường
   const handleChange = (e) => {
     const { name, value } = e.target
     setFormData((prev) => ({
       ...prev,
       [name]: value,
     }))
+  }
+
+  /**
+   * Xử lý tải ảnh từ máy tính cá nhân lên thư mục public/ qua Node.js fs:
+   * - Sử dụng hàm dùng chung uploadImage() từ src/utils/imageUpload.js.
+   * - Truyền vào tham số category (SHIRT, PANTS, SET, SHOES, ACCESSORIES, DRESS, JACKET...).
+   * - Node.js fs sẽ tự động tạo thư mục con (nếu chưa có) và ghi file nhị phân vào:
+   *   public/images/products/<category>/<tên-file-timestamp>.jpg
+   * - Nhận lại đường dẫn web tĩnh và tự động điền vào ô formData.imageUrl.
+   */
+  const handleImageUpload = async (e) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    setIsUploading(true)
+    setErrorMessage('')
+
+    try {
+      const result = await uploadImage(file, { category: formData.category })
+      if (result?.url) {
+        setFormData((prev) => ({
+          ...prev,
+          imageUrl: result.url,
+        }))
+      }
+    } catch (err) {
+      console.error('Lỗi khi tải ảnh sản phẩm lên Node.js fs:', err)
+      setErrorMessage(err.message || 'Không thể tải ảnh lên. Vui lòng thử lại.')
+    } finally {
+      setIsUploading(false)
+      if (fileInputRef.current) {
+        fileInputRef.current.value = ''
+      }
+    }
   }
 
   // Xử lý gửi form lên API
@@ -239,12 +277,18 @@ function ProductFormContent({ productToEdit, onClose, onSaveSuccess }) {
           </div>
         </div>
 
-        {/* Hàng 4: Đường dẫn ảnh + Khung xem trước */}
-        <div className="space-y-1">
-          <label className="block font-semibold uppercase tracking-wider text-neutral-700 font-mono text-[11px]">
-            Image URL
-          </label>
-          <div className="flex gap-3 items-center">
+        {/* Hàng 4: Đường dẫn ảnh + Nút tải ảnh lên từ máy tính (FS Node.js) + Khung xem trước */}
+        <div className="space-y-1.5">
+          <div className="flex items-center justify-between">
+            <label className="block font-semibold uppercase tracking-wider text-neutral-700 font-mono text-[11px]">
+              Image URL / Upload *
+            </label>
+            <span className="text-[10px] text-neutral-400 font-mono">
+              Auto-saves to: public/images/products/{formData.category.toLowerCase()}
+            </span>
+          </div>
+
+          <div className="flex gap-2 items-center">
             <input
               type="text"
               name="imageUrl"
@@ -254,8 +298,39 @@ function ProductFormContent({ productToEdit, onClose, onSaveSuccess }) {
               className="flex-1 px-3 py-2 border border-neutral-200 rounded-[2px] font-mono text-[11px] focus:border-black focus:outline-none"
             />
 
+            {/* Input file ẩn kích hoạt bởi nút bấm Upload */}
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              id="product-image-file-input"
+              onChange={handleImageUpload}
+              disabled={isUploading || isSubmitting}
+            />
+
+            <label
+              htmlFor="product-image-file-input"
+              className={`inline-flex items-center gap-1.5 px-3 py-2 border border-neutral-300 rounded-[2px] text-neutral-700 hover:border-black hover:text-black font-mono text-[11px] uppercase tracking-wider cursor-pointer transition-colors shrink-0 ${
+                isUploading ? 'opacity-50 pointer-events-none' : ''
+              }`}
+              title="Upload image from computer via Node.js fs"
+            >
+              {isUploading ? (
+                <>
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  <span>Saving...</span>
+                </>
+              ) : (
+                <>
+                  <Upload className="w-3.5 h-3.5" />
+                  <span>Upload</span>
+                </>
+              )}
+            </label>
+
             {/* Khung xem trước ảnh nhỏ kèm xử lý lỗi */}
-            <div className="w-10 h-12 bg-neutral-100 border border-neutral-200 rounded-[2px] overflow-hidden shrink-0">
+            <div className="w-10 h-10 bg-neutral-100 border border-neutral-200 rounded-[2px] overflow-hidden shrink-0">
               <img
                 src={formData.imageUrl || FALLBACK_IMAGE}
                 alt="Preview"
@@ -286,7 +361,7 @@ function ProductFormContent({ productToEdit, onClose, onSaveSuccess }) {
           <button
             type="button"
             onClick={onClose}
-            disabled={isSubmitting}
+            disabled={isSubmitting || isUploading}
             className="px-4 py-2 text-xs font-semibold uppercase tracking-wider border border-neutral-200 text-neutral-700 rounded-[2px] hover:bg-neutral-50 transition-colors"
           >
             Cancel
@@ -294,7 +369,7 @@ function ProductFormContent({ productToEdit, onClose, onSaveSuccess }) {
 
           <button
             type="submit"
-            disabled={isSubmitting}
+            disabled={isSubmitting || isUploading}
             className="inline-flex items-center gap-1.5 px-5 py-2 text-xs font-semibold uppercase tracking-wider bg-black text-white rounded-[2px] hover:bg-neutral-800 transition-colors disabled:opacity-50 cursor-pointer"
           >
             <Check className="w-3.5 h-3.5" />
@@ -328,4 +403,3 @@ export default function ProductFormModal({
     </div>
   )
 }
-

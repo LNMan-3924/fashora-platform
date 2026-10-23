@@ -1,4 +1,4 @@
-import { useState, useMemo, useRef } from 'react'
+import { useState, useRef } from 'react'
 import { useNavigate, useLocation, Navigate, Link } from 'react-router-dom'
 import { useCartStore } from '../../stores/useCartStore'
 import { createOrder, updateUser } from '../../services/api'
@@ -38,10 +38,8 @@ function CheckoutFormContent({
   const removeItemsFromCart = useCartStore((state) => state.removeItemsFromCart)
   const clearCart = useCartStore((state) => state.clearCart)
 
-  // Danh sách địa chỉ đã lưu: Trích xuất từ currentUser (API backend)
-  const savedAddresses = useMemo(() => {
-    return getSavedAddresses(currentUser)
-  }, [currentUser])
+  // Danh sách địa chỉ đã lưu: Trích xuất từ currentUser (API backend, không lạm dụng useMemo)
+  const savedAddresses = getSavedAddresses(currentUser)
 
   // State quản lý thông tin người nhận hàng: Khởi tạo từ địa chỉ mặc định hoặc hồ sơ người dùng
   const [formData, setFormData] = useState(() => {
@@ -93,13 +91,11 @@ function CheckoutFormContent({
     setErrors({})
   }
 
-  // Tính toán tổng tiền hàng và tổng thanh toán
-  const subtotal = useMemo(() => {
-    return displayItems.reduce(
-      (sum, item) => sum + item.price * (item.quantity || 1),
-      0
-    )
-  }, [displayItems])
+  // Tính toán tổng tiền hàng và tổng thanh toán (tính trực tiếp, không tốn RAM memoize)
+  const subtotal = displayItems.reduce(
+    (sum, item) => sum + item.price * (item.quantity || 1),
+    0
+  )
 
   const orderTotal = subtotal + shippingMethod
 
@@ -400,18 +396,15 @@ export default function Checkout() {
   // Lấy dữ liệu người dùng xác thực từ AuthContext (gọi API)
   const { currentUser, loading: authLoading, updateCurrentUser } = useAuth()
 
-  // Lấy danh sách sản phẩm được tick chọn để thanh toán:
-  // - Ưu tiên 1: Lấy từ state do trang Cart truyền sang (location.state.selectedItems)
-  // - Ưu tiên 2: Lấy từ sessionStorage (nếu người dùng F5 tải lại trang Checkout)
-  // - Ưu tiên 3: Nếu vào trực tiếp mà giỏ có hàng thì lấy toàn bộ cartItems
-  const selectedCheckoutItems = useMemo(() => {
-    if (
-      location.state?.selectedItems &&
-      Array.isArray(location.state.selectedItems) &&
-      location.state.selectedItems.length > 0
-    ) {
-      return location.state.selectedItems
-    }
+  // Lấy danh sách sản phẩm được tick chọn để thanh toán (tính trực tiếp, không memoize thừa)
+  let selectedCheckoutItems = cartItems
+  if (
+    location.state?.selectedItems &&
+    Array.isArray(location.state.selectedItems) &&
+    location.state.selectedItems.length > 0
+  ) {
+    selectedCheckoutItems = location.state.selectedItems
+  } else {
     try {
       const saved = JSON.parse(
         sessionStorage.getItem(COMMERCE_STORAGE_KEYS.CHECKOUT_ITEMS) || '[]'
@@ -426,13 +419,12 @@ export default function Checkout() {
               (c.selectedColor || 'Standard') === (s.selectedColor || 'Standard')
           )
         )
-        if (validItems.length > 0) return validItems
+        if (validItems.length > 0) selectedCheckoutItems = validItems
       }
     } catch {
       // ignore
     }
-    return cartItems
-  }, [location.state, cartItems])
+  }
 
   // Danh sách sản phẩm thực tế cần thanh toán
   const displayItems = selectedCheckoutItems
@@ -494,4 +486,3 @@ export default function Checkout() {
     />
   )
 }
-

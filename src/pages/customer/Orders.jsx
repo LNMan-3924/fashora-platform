@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Modal, Toast, EmptyState } from '../../components/common'
 import {
@@ -98,43 +98,39 @@ export default function Orders() {
 
   // =========================================================================
   // BƯỚC 2: TÍNH TOÁN SỐ LƯỢNG ĐƠN HÀNG THEO TỪNG TAB TRẠNG THÁI
+  // Tính trực tiếp, tránh lạm dụng useMemo gây tốn bộ nhớ RAM không cần thiết
   // =========================================================================
-  const statusCounts = useMemo(() => {
-    const counts = {
-      all: orders.length,
-      pending: 0,
-      confirmed: 0,
-      shipping: 0,
-      completed: 0,
-      cancelled: 0,
-    }
+  const statusCounts = {
+    all: orders.length,
+    pending: 0,
+    confirmed: 0,
+    shipping: 0,
+    completed: 0,
+    cancelled: 0,
+  }
 
-    orders.forEach((order) => {
-      const statusKey = (order.status || 'PENDING').toLowerCase()
-      if (statusKey === 'pending') counts.pending += 1
-      else if (statusKey === 'confirmed' || statusKey === 'processing') counts.confirmed += 1
-      else if (statusKey === 'shipping') counts.shipping += 1
-      else if (statusKey === 'completed') counts.completed += 1
-      else if (statusKey === 'cancelled') counts.cancelled += 1
-    })
-
-    return counts
-  }, [orders])
+  orders.forEach((order) => {
+    const statusKey = (order.status || 'PENDING').toLowerCase()
+    if (statusKey === 'pending') statusCounts.pending += 1
+    else if (statusKey === 'confirmed' || statusKey === 'processing') statusCounts.confirmed += 1
+    else if (statusKey === 'shipping') statusCounts.shipping += 1
+    else if (statusKey === 'completed') statusCounts.completed += 1
+    else if (statusKey === 'cancelled') statusCounts.cancelled += 1
+  })
 
   // =========================================================================
   // BƯỚC 3: LỌC DANH SÁCH ĐƠN HÀNG THEO TAB ĐANG CHỌN
   // =========================================================================
-  const filteredOrders = useMemo(() => {
-    if (activeTab === 'all') return orders
-
-    return orders.filter((order) => {
-      const statusKey = (order.status || 'PENDING').toLowerCase()
-      if (activeTab === 'confirmed') {
-        return statusKey === 'confirmed' || statusKey === 'processing'
-      }
-      return statusKey === activeTab
-    })
-  }, [orders, activeTab])
+  const filteredOrders =
+    activeTab === 'all'
+      ? orders
+      : orders.filter((order) => {
+          const statusKey = (order.status || 'PENDING').toLowerCase()
+          if (activeTab === 'confirmed') {
+            return statusKey === 'confirmed' || statusKey === 'processing'
+          }
+          return statusKey === activeTab
+        })
 
   // =========================================================================
   // BƯỚC 4: CÁC HÀM XỬ LÝ TIỆN ÍCH & TƯƠNG TÁC

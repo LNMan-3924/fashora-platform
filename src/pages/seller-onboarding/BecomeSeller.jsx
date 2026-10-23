@@ -5,5 +5,4 @@ function BecomeSeller() {
     </div>
   )
 }
-
 export default BecomeSeller

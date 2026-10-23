@@ -206,13 +206,23 @@ function Header({ hideNav = false }) {
                                             >
                                                 MY ORDERS
                                             </Link>
-                                            <Link
-                                                to="/become-seller"
-                                                onClick={() => setAccountMenuOpen(false)}
-                                                className="block px-4 py-2 font-mono uppercase text-[11px] tracking-wider font-semibold text-white hover:bg-neutral-800 transition-colors"
-                                            >
-                                                BECOME A SELLER
-                                            </Link>
+                                            {String(currentUser?.role || '').toLowerCase() === 'seller' || Boolean(currentUser?.shopId) ? (
+                                                <Link
+                                                    to="/seller/dashboard"
+                                                    onClick={() => setAccountMenuOpen(false)}
+                                                    className="block px-4 py-2 font-mono uppercase text-[11px] tracking-wider font-semibold text-white hover:bg-neutral-800 transition-colors"
+                                                >
+                                                    SELLER CHANNEL
+                                                </Link>
+                                            ) : (
+                                                <Link
+                                                    to="/become-seller"
+                                                    onClick={() => setAccountMenuOpen(false)}
+                                                    className="block px-4 py-2 font-mono uppercase text-[11px] tracking-wider font-semibold text-white hover:bg-neutral-800 transition-colors"
+                                                >
+                                                    BECOME A SELLER
+                                                </Link>
+                                            )}
                                             <div className="my-1 border-t border-neutral-800" />
                                             <button
                                                 type="button"

@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect } from 'react'
 import { Package, Clock, Truck, CreditCard } from 'lucide-react'
 import { getOrders } from '../../services/api'
 import { formatVND } from '../../constants/commerce'
@@ -20,7 +20,7 @@ const ITEMS_PER_PAGE = 10
  *   + OrderTable: Bảng danh sách đơn hàng chi tiết, bấm "VIEW DETAILS" chuyển sang trang chi tiết riêng (/seller/orders/:id).
  * - Tái sử dụng component phân trang Pagination (PREVIOUS [1] 2 3 ... 8 NEXT).
  * - Sử dụng dữ liệu thực tế 100% từ API JSON-Server (GET /orders), KHÔNG dùng mockData.
- * - Không sử dụng bất kỳ dấu chấm tròn nào trên giao diện, giữ kích thước badge đồng bộ và sắc sảo.
+ * - Tính toán trực tiếp, loại bỏ lạm dụng useMemo gây tốn bộ nhớ RAM.
  */
 export default function Orders() {
   // 1. State lưu danh sách đơn hàng và trạng thái API
@@ -67,62 +67,62 @@ export default function Orders() {
   }, [])
 
   // 4. Tính toán 4 chỉ số thống kê đơn hàng (KPI Bento Cards)
-  const stats = useMemo(() => {
-    const total = orders.length
-    let pendingCount = 0
-    let inShippingCount = 0
-    let settledRevenue = 0
+  const stats = {
+    total: orders.length,
+    pendingCount: 0,
+    inShippingCount: 0,
+    settledRevenue: 0,
+  }
 
-    orders.forEach((o) => {
-      const statusUpper = (o.status || '').toUpperCase()
+  orders.forEach((o) => {
+    const statusUpper = (o.status || '').toUpperCase()
 
-      // Đơn chờ xác nhận
-      if (statusUpper === 'PENDING') {
-        pendingCount++
-      }
+    // Đơn chờ xác nhận
+    if (statusUpper === 'PENDING') {
+      stats.pendingCount++
+    }
 
-      // Đơn đang giao hàng hoặc đã xác nhận
-      if (statusUpper === 'SHIPPING' || statusUpper === 'CONFIRMED') {
-        inShippingCount++
-      }
+    // Đơn đang giao hàng hoặc đã xác nhận
+    if (statusUpper === 'SHIPPING' || statusUpper === 'CONFIRMED') {
+      stats.inShippingCount++
+    }
 
-      // Doanh thu chỉ tính các đơn hàng không bị hủy
-      if (statusUpper !== 'CANCELLED') {
-        settledRevenue += Number(o.total ?? o.totalAmount ?? 0)
-      }
-    })
-
-    return { total, pendingCount, inShippingCount, settledRevenue }
-  }, [orders])
+    // Doanh thu chỉ tính các đơn hàng không bị hủy
+    if (statusUpper !== 'CANCELLED') {
+      stats.settledRevenue += Number(o.total ?? o.totalAmount ?? 0)
+    }
+  })
 
   // 5. Lọc danh sách đơn hàng theo từ khóa tìm kiếm và trạng thái
-  const filteredOrders = useMemo(() => {
-    return orders.filter((order) => {
-      // Lọc theo từ khóa tìm kiếm (Mã đơn, Tên khách hàng, Email, Tên sản phẩm)
-      if (searchQuery.trim()) {
-        const query = searchQuery.toLowerCase().trim()
-        const matchId = String(order.id || '').toLowerCase().includes(query)
-        const matchOrderNumber = String(order.orderNumber || '').toLowerCase().includes(query)
-        const matchCustomer = String(order.recipient?.fullName || order.customerName || order.customer || '').toLowerCase().includes(query)
-        const matchEmail = String(order.customerEmail || order.email || '').toLowerCase().includes(query)
-        const matchItem = Array.isArray(order.items) && order.items.some((it) => (it.name || '').toLowerCase().includes(query))
+  const filteredOrders = orders.filter((order) => {
+    // Lọc theo từ khóa tìm kiếm (Mã đơn, Tên khách hàng, Email, Tên sản phẩm)
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase().trim()
+      const matchId = String(order.id || '').toLowerCase().includes(query)
+      const matchOrderNumber = String(order.orderNumber || '').toLowerCase().includes(query)
+      const matchCustomer = String(
+        order.recipient?.fullName || order.customerName || order.customer || ''
+      ).toLowerCase().includes(query)
+      const matchEmail = String(order.customerEmail || order.email || '').toLowerCase().includes(query)
+      const matchItem =
+        Array.isArray(order.items) &&
+        order.items.some((it) => (it.name || '').toLowerCase().includes(query))
 
-        if (!matchId && !matchOrderNumber && !matchCustomer && !matchEmail && !matchItem) {
-          return false
-        }
+      if (!matchId && !matchOrderNumber && !matchCustomer && !matchEmail && !matchItem) {
+        return false
       }
+    }
 
-      // Lọc theo Trạng thái đơn hàng
-      if (selectedStatus !== 'ALL') {
-        const statusUpper = (order.status || '').toUpperCase()
-        if (statusUpper !== selectedStatus) {
-          return false
-        }
+    // Lọc theo Trạng thái đơn hàng
+    if (selectedStatus !== 'ALL') {
+      const statusUpper = (order.status || '').toUpperCase()
+      if (statusUpper !== selectedStatus) {
+        return false
       }
+    }
 
-      return true
-    })
-  }, [orders, searchQuery, selectedStatus])
+    return true
+  })
 
   // 6. Xử lý khi thay đổi bộ lọc -> tự động quay về trang 1
   const handleSearchChange = (query) => {
@@ -143,11 +143,8 @@ export default function Orders() {
 
   // 7. Tính toán phân trang: Chỉ hiển thị 10 đơn hàng trên mỗi trang
   const totalPages = Math.ceil(filteredOrders.length / ITEMS_PER_PAGE) || 1
-
-  const paginatedOrders = useMemo(() => {
-    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE
-    return filteredOrders.slice(startIndex, startIndex + ITEMS_PER_PAGE)
-  }, [filteredOrders, currentPage])
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE
+  const paginatedOrders = filteredOrders.slice(startIndex, startIndex + ITEMS_PER_PAGE)
 
   return (
     <div className="space-y-8 animate-in fade-in duration-200">

@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { ArrowRight, Trash2 } from 'lucide-react'
 
@@ -61,21 +61,18 @@ export default function Cart() {
 
   // =========================================================================
   // BƯỚC 4: TÍNH TOÁN & XỬ LÝ DỮ LIỆU CHỌN SẢN PHẨM (SELECTION LOGIC)
+  // Không lạm dụng useMemo cho mảng nhỏ 1-10 món đồ để tiết kiệm bộ nhớ RAM
   // =========================================================================
   // Tái sử dụng hàm tạo key duy nhất từ src/constants (ID + Size + Màu sắc)
   const getItemKey = getCartItemKey
 
   // Danh sách toàn bộ key của tất cả sản phẩm đang có trong giỏ
-  const allItemKeys = useMemo(() => {
-    return cartItems.map(getItemKey)
-  }, [cartItems])
+  const allItemKeys = cartItems.map(getItemKey)
 
   // Danh sách các key thực sự đang được chọn:
   // - Nếu selectedKeys là null -> mặc định chọn toàn bộ sản phẩm
   // - Nếu người dùng đã click chọn/bỏ chọn -> lấy theo mảng selectedKeys
-  const activeSelectedKeys = useMemo(() => {
-    return selectedKeys !== null ? selectedKeys : allItemKeys
-  }, [selectedKeys, allItemKeys])
+  const activeSelectedKeys = selectedKeys !== null ? selectedKeys : allItemKeys
 
   // Kiểm tra xem tất cả sản phẩm đã được chọn hết chưa
   const isAllSelected =
@@ -85,31 +82,26 @@ export default function Cart() {
   // BƯỚC 5: GOM NHÓM SẢN PHẨM THEO SHOP & TÍNH TỔNG TIỀN TẠM TÍNH
   // =========================================================================
   // Gom nhóm sản phẩm theo tên thương hiệu (mặc định là 'M STUDIO')
-  const groupedByShop = useMemo(() => {
-    const groups = {}
-    cartItems.forEach((item) => {
-      const shopName = item.shopName || 'M STUDIO'
-      if (!groups[shopName]) groups[shopName] = []
-      groups[shopName].push(item)
-    })
-    return groups
-  }, [cartItems])
+  const groupedByShop = {}
+  cartItems.forEach((item) => {
+    const shopName = item.shopName || 'M STUDIO'
+    if (!groupedByShop[shopName]) groupedByShop[shopName] = []
+    groupedByShop[shopName].push(item)
+  })
 
   // Tính tổng tiền tạm tính (Subtotal) CHỈ DỰA TRÊN các sản phẩm đang được tick chọn
-  const subtotal = useMemo(() => {
-    return cartItems.reduce((total, item) => {
-      const key = getItemKey(item)
-      if (activeSelectedKeys.includes(key)) {
-        return total + (item.price || 0) * (item.quantity || 1)
-      }
-      return total
-    }, 0)
-  }, [cartItems, activeSelectedKeys])
+  const subtotal = cartItems.reduce((total, item) => {
+    const key = getItemKey(item)
+    if (activeSelectedKeys.includes(key)) {
+      return total + (item.price || 0) * (item.quantity || 1)
+    }
+    return total
+  }, 0)
 
   // Danh sách các sản phẩm đang được tick chọn thực tế để chuyển sang trang Checkout
-  const selectedCartItems = useMemo(() => {
-    return cartItems.filter((item) => activeSelectedKeys.includes(getItemKey(item)))
-  }, [cartItems, activeSelectedKeys])
+  const selectedCartItems = cartItems.filter((item) =>
+    activeSelectedKeys.includes(getItemKey(item))
+  )
 
   // =========================================================================
   // BƯỚC 6: CÁC HÀM XỬ LÝ SỰ KIỆN TƯƠNG TÁC (HANDLERS)
