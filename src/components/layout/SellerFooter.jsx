@@ -1,4 +1,4 @@
-export default function SellerFooter({ shopName = 'M STUDIO' }) {
+export default function SellerFooter({ shopName = 'MY ATELIER' }) {
   return (
     <footer className="bg-black text-white px-4 sm:px-6 md:px-10 py-3.5 md:py-4 border-t border-neutral-900 text-[10px] md:text-[11px] text-neutral-400">
       <div className="flex flex-col md:flex-row items-center justify-between gap-2 md:gap-3 text-center md:text-left">

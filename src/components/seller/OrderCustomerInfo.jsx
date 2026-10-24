@@ -19,7 +19,7 @@ export default function OrderCustomerInfo({
   customerNote = '',
   paymentMethod = 'Cash on Delivery (COD)',
   orderStatus = 'PENDING',
-  shopName = 'M STUDIO',
+  shopName = '',
 }) {
   const normalizedStatus = String(orderStatus || 'PENDING').toUpperCase()
   const isCompleted = normalizedStatus === 'COMPLETED'

@@ -35,20 +35,10 @@ export default function OrderDetail() {
   const { id } = useParams()
   const outletContext = useOutletContext() || {}
 
-  // 1. Xác định Shop ID và Shop Name từ SellerLayout
-  let fallbackShopName = 'M STUDIO'
-  let fallbackSellerCode = 'SELLER #MS-8021'
-  try {
-    const savedShop = JSON.parse(localStorage.getItem('fashora_current_shop') || '{}')
-    if (savedShop.shopName || savedShop.name) fallbackShopName = savedShop.shopName || savedShop.name
-    if (savedShop.sellerCode) fallbackSellerCode = savedShop.sellerCode
-  } catch {
-    // ignore
-  }
-
+  // 1. Xác định Shop ID và Shop Name từ SellerLayout (Single Source of Truth suy từ currentUser)
   const sellerInfo = outletContext.sellerInfo || {}
-  const shopName = sellerInfo.shopName || fallbackShopName
-  const sellerCode = sellerInfo.sellerCode || fallbackSellerCode
+  const shopName = sellerInfo.shopName || ''
+  const sellerCode = sellerInfo.sellerCode || ''
 
   // 2. State lưu trữ đơn hàng & trạng thái xử lý
   const [order, setOrder] = useState(null)

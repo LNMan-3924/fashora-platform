@@ -11,7 +11,7 @@ import { formatVND, FALLBACK_IMAGE, handleImageError } from '../../constants/com
 export default function BestSellingProducts({
   products = [],
   loading = false,
-  shopName = 'M STUDIO',
+  shopName = '',
 }) {
   const displayProducts = products.slice(0, 4)
 

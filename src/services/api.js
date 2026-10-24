@@ -40,8 +40,19 @@ export const createOrUpdateShop = async (shopData) => {
     try {
       return await api.put(`/shops/${shopData.id}`, shopData);
     } catch {
-      return await api.patch('/shop', shopData);
+      return await api.patch('/shops/' + shopData.id, shopData);
     }
+  }
+};
+
+export const updateShop = (shopId, patchData) => api.patch(`/shops/${shopId}`, patchData);
+
+export const updateShopStatus = async (shopId, status) => {
+  try {
+    return await api.patch(`/shops/${shopId}`, { status });
+  } catch (err) {
+    console.warn('API updateShopStatus patch error:', err);
+    throw err;
   }
 };
 

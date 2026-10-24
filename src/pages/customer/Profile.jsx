@@ -137,6 +137,7 @@ export default function Profile() {
           if (isTargetDefault) {
             return {
               ...addr,
+              address: addr.address || addr.street || '',
               name: newProfile.name || addr.name,
               phone: newProfile.phone,
             }
@@ -144,31 +145,6 @@ export default function Profile() {
           return addr
         })
       }
-
-      // 2. Đồng bộ thông tin người nhận vào user.address
-      const def = updatedAddresses.find((a) => a.isDefault) || updatedAddresses[0]
-      const updatedAddress = currentUser?.address
-        ? {
-            ...currentUser.address,
-            fullName: newProfile.name || currentUser.address.fullName || '',
-            phone: newProfile.phone,
-            ...(def && {
-              address: def.street || def.address || currentUser.address.address || '',
-              ward: def.ward || currentUser.address.ward || '',
-              district: def.district || currentUser.address.district || '',
-              city: def.city || currentUser.address.city || '',
-            }),
-          }
-        : def
-        ? {
-            fullName: newProfile.name || def.name || '',
-            phone: newProfile.phone,
-            address: def.street || def.address || '',
-            ward: def.ward || '',
-            district: def.district || '',
-            city: def.city || '',
-          }
-        : null
 
       const payload = {
         fullName: newProfile.name,
@@ -179,7 +155,6 @@ export default function Profile() {
         dob: newProfile.dob,
         gender: newProfile.gender,
         shippingAddresses: updatedAddresses,
-        ...(updatedAddress && { address: updatedAddress }),
       }
 
       const res = await updateUser(currentUser.id, payload)
@@ -240,8 +215,12 @@ export default function Profile() {
     let updatedList
     const isEdit = addresses.some((a) => a.id === addr.id)
 
+    const cleanAddr = { ...addr }
+    cleanAddr.address = cleanAddr.address || cleanAddr.street || ''
+    delete cleanAddr.street
+
     const resolvedAddr = {
-      ...addr,
+      ...cleanAddr,
       name: addr.name || profile.name || currentUser?.fullName || currentUser?.name || '',
       phone: addr.phone || profile.phone || currentUser?.phoneNumber || currentUser?.phone || '',
     }
@@ -262,19 +241,8 @@ export default function Profile() {
       updatedList = [...formattedList, { ...resolvedAddr, isDefault: willBeDefault }]
     }
 
-    const def = updatedList.find((a) => a.isDefault) || updatedList[0]
     const payload = {
       shippingAddresses: updatedList,
-      ...(def && {
-        address: {
-          fullName: def.name || profile.name || currentUser?.fullName || '',
-          phone: def.phone || profile.phone || currentUser?.phoneNumber || '',
-          address: def.street || def.address || '',
-          ward: def.ward || '',
-          district: def.district || '',
-          city: def.city || '',
-        },
-      }),
     }
 
     try {
@@ -299,19 +267,8 @@ export default function Profile() {
       isDefault: a.id === targetId,
     }))
 
-    const def = updatedList.find((a) => a.id === targetId)
     const payload = {
       shippingAddresses: updatedList,
-      ...(def && {
-        address: {
-          fullName: def.name,
-          phone: def.phone,
-          address: def.street,
-          ward: def.ward,
-          district: def.district,
-          city: def.city,
-        },
-      }),
     }
 
     try {
@@ -347,19 +304,8 @@ export default function Profile() {
       remaining[0].isDefault = true
     }
 
-    const def = remaining.find((a) => a.isDefault) || remaining[0]
     const payload = {
       shippingAddresses: remaining,
-      address: def
-        ? {
-            fullName: def.name,
-            phone: def.phone,
-            address: def.street,
-            ward: def.ward,
-            district: def.district,
-            city: def.city,
-          }
-        : null,
     }
 
     try {

@@ -49,7 +49,7 @@ export function getDefaultShippingAddress(user) {
     return {
       name: user.address.fullName || user.fullName || user.name || '',
       phone: user.address.phone || user.phoneNumber || user.phone || '',
-      street: user.address.address || '',
+      address: user.address.address || '',
       ward: user.address.ward || '',
       district: user.address.district || '',
       city: user.address.city || '',

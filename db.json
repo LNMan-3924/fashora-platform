@@ -1782,7 +1782,8 @@
       "email": "customer@fashora.vn",
       "phoneNumber": "0901234567",
       "role": "customer",
-      "shopId": null
+      "shopId": null,
+      "shippingAddresses": []
     },
     {
       "id": "OG_o5LL7lOM",
@@ -1794,20 +1795,11 @@
       "gender": "Male",
       "role": "seller",
       "shopId": "shop_l-obscur-atelier_8158",
-      "address": {
-        "fullName": "Lê Ngọc Mẫn",
-        "phone": "0783734808",
-        "address": "124A, Yên Hạ",
-        "ward": "Phường Cái Răng",
-        "district": "",
-        "city": "Thành phố Cần Thơ"
-      },
       "shippingAddresses": [
         {
           "id": "ADDR-6687",
           "name": "Lê Ngọc Mẫn",
           "phone": "0783734808",
-          "street": "124A, Yên Hạ",
           "address": "124A, Yên Hạ",
           "ward": "Phường Cái Răng",
           "district": "",
@@ -1834,24 +1826,15 @@
       "gender": "Male",
       "role": "seller",
       "shopId": "shop_m_studio",
-      "address": {
-        "fullName": "Nguyen Thien An",
-        "phone": "0912345678",
-        "address": "123",
-        "ward": "Đặc khu Phú Quốc",
-        "district": "",
-        "city": "Tỉnh An Giang"
-      },
       "shippingAddresses": [
         {
           "id": "ADDR-1735",
           "name": "Nguyen Thien An",
           "phone": "0912345678",
-          "street": "123",
           "address": "123",
-          "ward": "Đặc khu Phú Quốc",
+          "ward": "Phường Bình Thủy",
           "district": "",
-          "city": "Tỉnh An Giang",
+          "city": "Thành phố Cần Thơ",
           "isDefault": true,
           "isVerified": true
         }
@@ -1871,15 +1854,158 @@
       "gender": "Female",
       "role": "customer",
       "shopId": null,
-      "address": {
-        "fullName": "Ngô Bảo Ngọc",
-        "phone": "0777712345",
-        "address": "",
-        "ward": "",
-        "city": ""
-      },
       "shippingAddresses": [],
       "createdAt": "2026-10-20T20:12:38.278Z"
+    },
+    {
+      "id": "usr_helena",
+      "fullName": "Helena Vance",
+      "name": "Helena Vance",
+      "email": "helena.vance@example.com",
+      "phoneNumber": "0912345678",
+      "phone": "0912345678",
+      "password": "123456",
+      "dob": "15/04/1996",
+      "gender": "Female",
+      "role": "customer",
+      "roles": [
+        "customer"
+      ],
+      "shopId": null,
+      "shippingAddresses": [
+        {
+          "id": "ADDR-9041",
+          "name": "Helena Vance",
+          "phone": "0912345678",
+          "address": "128 Le Duan Boulevard, Floor 4",
+          "ward": "Ben Nghe Ward",
+          "district": "District 1",
+          "city": "Ho Chi Minh City",
+          "isDefault": true,
+          "isVerified": true
+        }
+      ],
+      "createdAt": "2026-10-18T10:15:00.000Z"
+    },
+    {
+      "id": "usr_alexander",
+      "fullName": "Alexander Wright",
+      "name": "Alexander Wright",
+      "email": "alexander.wright@example.com",
+      "phoneNumber": "0908765432",
+      "phone": "0908765432",
+      "password": "123456",
+      "dob": "22/08/1994",
+      "gender": "Male",
+      "role": "customer",
+      "roles": [
+        "customer"
+      ],
+      "shopId": null,
+      "shippingAddresses": [
+        {
+          "id": "ADDR-9038",
+          "name": "Alexander Wright",
+          "phone": "0908765432",
+          "address": "88 Dong Khoi Street",
+          "ward": "Ben Nghe Ward",
+          "district": "District 1",
+          "city": "Ho Chi Minh City",
+          "isDefault": true,
+          "isVerified": true
+        }
+      ],
+      "createdAt": "2026-10-18T09:30:00.000Z"
+    },
+    {
+      "id": "usr_klara",
+      "fullName": "Klara Chen",
+      "name": "Klara Chen",
+      "email": "klara.chen@example.com",
+      "phoneNumber": "0934567890",
+      "phone": "0934567890",
+      "password": "123456",
+      "dob": "11/11/1997",
+      "gender": "Female",
+      "role": "customer",
+      "roles": [
+        "customer"
+      ],
+      "shopId": null,
+      "shippingAddresses": [
+        {
+          "id": "ADDR-9029",
+          "name": "Klara Chen",
+          "phone": "0934567890",
+          "address": "15 Le Thanh Ton Street",
+          "ward": "Ben Nghe Ward",
+          "district": "District 1",
+          "city": "Ho Chi Minh City",
+          "isDefault": true,
+          "isVerified": true
+        }
+      ],
+      "createdAt": "2026-10-17T16:20:00.000Z"
+    },
+    {
+      "id": "usr_marc",
+      "fullName": "Marc Dupont",
+      "name": "Marc Dupont",
+      "email": "marc.dupont@example.com",
+      "phoneNumber": "0977889900",
+      "phone": "0977889900",
+      "password": "123456",
+      "dob": "05/03/1993",
+      "gender": "Male",
+      "role": "customer",
+      "roles": [
+        "customer"
+      ],
+      "shopId": null,
+      "shippingAddresses": [
+        {
+          "id": "ADDR-9014",
+          "name": "Marc Dupont",
+          "phone": "0977889900",
+          "address": "22 Pasteur Street",
+          "ward": "Nguyen Thai Binh Ward",
+          "district": "District 1",
+          "city": "Ho Chi Minh City",
+          "isDefault": true,
+          "isVerified": true
+        }
+      ],
+      "createdAt": "2026-10-17T11:00:00.000Z"
+    },
+    {
+      "id": "usr_elena",
+      "fullName": "Elena Rostova",
+      "name": "Elena Rostova",
+      "email": "elena.rostova@example.com",
+      "phoneNumber": "0911223344",
+      "phone": "0911223344",
+      "password": "123456",
+      "dob": "28/09/1995",
+      "gender": "Female",
+      "role": "customer",
+      "roles": [
+        "customer"
+      ],
+      "shopId": null,
+      "shippingAddresses": [
+        {
+          "id": "ADDR-8992",
+          "name": "Elena Rostova",
+          "phone": "0911223344",
+          "address": "50 Nam Ky Khoi Nghia",
+          "ward": "Vo Thi Sau Ward",
+          "district": "District 3",
+          "city": "Ho Chi Minh City",
+          "isDefault": true,
+          "isVerified": true
+        }
+      ],
+      "createdAt": "2026-10-16T15:45:00.000Z"
     }
   ],
   "cart": [],
@@ -1937,7 +2063,8 @@
         "courier": "SPX Express",
         "waybill": "VN8291041VN"
       },
-      "id": "ord_9041"
+      "id": "ord_9041",
+      "shopId": "shop_m_studio"
     },
     {
       "orderNumber": "#ORD-9038",
@@ -1974,7 +2101,8 @@
         "courier": "SPX Express",
         "waybill": "VN8291038VN"
       },
-      "id": "ord_9038"
+      "id": "ord_9038",
+      "shopId": "shop_m_studio"
     },
     {
       "orderNumber": "#ORD-9029",
@@ -2011,7 +2139,8 @@
         "courier": "SPX Express",
         "waybill": "VN8291029VN"
       },
-      "id": "ord_9029"
+      "id": "ord_9029",
+      "shopId": "shop_m_studio"
     },
     {
       "orderNumber": "#ORD-9014",
@@ -2048,7 +2177,8 @@
         "courier": "SPX Express",
         "waybill": "VN8291014VN"
       },
-      "id": "ord_9014"
+      "id": "ord_9014",
+      "shopId": "shop_m_studio"
     },
     {
       "orderNumber": "#ORD-8992",
@@ -2085,7 +2215,8 @@
         "courier": "SPX Express",
         "waybill": "VN8298992VN"
       },
-      "id": "ord_8992"
+      "id": "ord_8992",
+      "shopId": "shop_m_studio"
     },
     {
       "orderNumber": "#SPXVN881002530",
@@ -2122,7 +2253,8 @@
         "courier": "SPX Express",
         "waybill": "VN53341799VN"
       },
-      "id": "5REo4Pvisao"
+      "id": "5REo4Pvisao",
+      "shopId": "shop_m_studio"
     },
     {
       "orderNumber": "#SPXVN998075994",
@@ -2159,10 +2291,10 @@
         "courier": "SPX Express",
         "waybill": "VN54797189VN"
       },
-      "id": "feph2CAXUIw"
+      "id": "feph2CAXUIw",
+      "shopId": "shop_m_studio"
     }
   ],
-  "$schema": "./node_modules/json-server/schema.json",
   "shops": [
     {
       "id": "shop_m_studio",
@@ -2200,5 +2332,6 @@
       "ownerId": "OG_o5LL7lOM",
       "ownerEmail": "leman200x@gmail.com"
     }
-  ]
+  ],
+  "$schema": "./node_modules/json-server/schema.json"
 }

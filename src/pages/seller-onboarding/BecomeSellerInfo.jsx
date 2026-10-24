@@ -261,7 +261,7 @@ export default function BecomeSellerInfo() {
               type="text"
               value={formData.shopName || ''}
               onChange={handleNameChange}
-              placeholder="e.g. ATELIER VANCE, M STUDIO..."
+              placeholder="e.g. ATELIER VANCE, MAISON NOIR..."
               className={`w-full bg-white border px-3.5 py-2.5 text-xs sm:text-sm text-black placeholder:text-neutral-400 focus:outline-none transition-colors ${
                 errors.shopName ? 'border-red-500 focus:border-red-500' : 'border-neutral-300 focus:border-black'
               }`}

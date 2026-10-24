@@ -122,13 +122,6 @@ export default function Register() {
         gender: formData.gender,
         role: 'customer',
         shopId: null,
-        address: {
-          fullName: formData.fullName.trim(),
-          phone: contactType === 'phone' ? formData.phoneNumber.trim() : '',
-          address: '',
-          ward: '',
-          city: '',
-        },
         shippingAddresses: [],
         createdAt: new Date().toISOString(),
       }

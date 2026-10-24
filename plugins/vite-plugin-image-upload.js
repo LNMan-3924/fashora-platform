@@ -122,8 +122,9 @@ export default function imageUploadPlugin() {
             fs.mkdirSync(diskPath, { recursive: true })
           }
 
-          // 4. Tạo tên tệp độc nhất bằng timestamp để không bao giờ bị ghi đè
-          const safeName = `${prefix}-${Date.now()}.${extension}`
+          // 4. Tạo tên tệp độc nhất bằng timestamp và random id để không bao giờ bị trùng khi tải nhiều ảnh đồng thời
+          const uniqueSuffix = `${Date.now()}-${Math.floor(1000 + Math.random() * 9000)}`
+          const safeName = `${prefix}-${uniqueSuffix}.${extension}`
           const fullDiskFilePath = path.join(diskPath, safeName)
 
           // 5. Sử dụng fs.writeFileSync để ghi dữ liệu nhị phân của ảnh xuống ổ đĩa

@@ -49,8 +49,11 @@ export default function BecomeSellerReview() {
 
     try {
       const shopId = `shop_${slug}_${Date.now().toString().slice(-4)}`
+      const sellerCode = 'SELLER #' + (slug || 'SHOP').toUpperCase().slice(0, 3) + '-' + Math.floor(1000 + Math.random() * 9000)
       const shopData = {
         id: shopId,
+        sellerCode: sellerCode,
+        currency: 'VND (₫)',
         name: cleanName,
         slug: slug,
         tagline: formData.shopDescription ? formData.shopDescription.slice(0, 80) : 'Atelier Designer House',
@@ -78,23 +81,10 @@ export default function BecomeSellerReview() {
         console.warn('Shop sync backend notice:', shopErr)
       }
 
-      // 3. Sync with SellerLayout via localStorage key fashora_current_shop
-      const sellerLayoutInfo = {
-        shopName: cleanName,
-        sellerCode: `SELLER #${slug.toUpperCase().slice(0, 3)}-${Math.floor(1000 + Math.random() * 9000)}`,
-        currency: 'VND (₫)',
-        id: shopId,
-        shopId: shopId,
-        slug: slug,
-        logo: shopData.logo,
-        category: shopData.category,
-      }
-      localStorage.setItem('fashora_current_shop', JSON.stringify(sellerLayoutInfo))
-
-      // 4. Save to sessionStorage for Success screen
+      // 3. Save to sessionStorage for Success screen
       sessionStorage.setItem('fashora_newly_registered_shop', JSON.stringify({
         ...shopData,
-        sellerCode: sellerLayoutInfo.sellerCode,
+        sellerCode: sellerCode,
       }))
 
       // 5. Clear draft for current user

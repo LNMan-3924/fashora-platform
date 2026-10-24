@@ -28,7 +28,7 @@ export default function OrderFilters({
   currentPage = 1,
   itemsPerPage = 10,
   onResetFilters,
-  shopName = 'M STUDIO',
+  shopName = '',
 }) {
   const isFilteringActive =
     Boolean(searchQuery.trim()) || selectedStatus !== 'ALL'

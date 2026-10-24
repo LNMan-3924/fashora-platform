@@ -16,12 +16,12 @@ const cachedWardsMap = new Map()
 export const normalizeLocationName = (str = '') => {
   if (!str) return ''
   return String(str)
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .toLowerCase()
-    .replace(/^(thanh pho|tinh|tp\.|tp)\s+/i, '')
-    .replace(/^(phuong|xa|thi tran|p\.|x\.)\s+/i, '')
-    .replace(/^(quan|huyen|thi xa|q\.|h\.)\s+/i, '')
+    .normalize('NFD')                     // 1. Tách dấu thanh ra khỏi chữ cái gốc
+    .replace(/[\u0300-\u036f]/g, '')     // 2. Xóa sạch các dấu huyền, sắc, hỏi, ngã, nặng
+    .toLowerCase()                        // 3. Đưa về chữ thường
+    .replace(/^(thanh pho|tinh|tp\.|tp)\s+/i, '')     // 4. Cắt bỏ tiền tố "thành phố", "tỉnh", "tp"
+    .replace(/^(phuong|xa|thi tran|p\.|x\.)\s+/i, '') // 5. Cắt bỏ "phường", "xã"
+    .replace(/^(quan|huyen|thi xa|q\.|h\.)\s+/i, '')  // 6. Cắt bỏ "quận", "huyện"
     .trim()
 }
 

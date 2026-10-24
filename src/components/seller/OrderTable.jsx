@@ -18,7 +18,7 @@ import OrderStatusBadge from './OrderStatusBadge'
 export default function OrderTable({
   orders = [],
   loading = false,
-  shopName = 'M STUDIO',
+  shopName = '',
 }) {
   return (
     <div className="bg-white border border-neutral-200 rounded-[2px] shadow-xs overflow-hidden">

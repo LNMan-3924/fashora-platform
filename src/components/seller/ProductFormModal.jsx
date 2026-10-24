@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react'
-import { X, Check, Upload, Loader2, Image as ImageIcon } from 'lucide-react'
+import { X, Check, Upload, Loader2, Image as ImageIcon, Trash2, Plus, Star } from 'lucide-react'
 import { createProduct, updateProduct } from '../../services/api'
 import { handleImageError } from '../../constants/commerce'
 import { uploadImage } from '../../utils/imageUpload'
@@ -7,8 +7,9 @@ import { uploadImage } from '../../utils/imageUpload'
 /**
  * Component ProductFormContent: Nội dung biểu mẫu tạo mới hoặc chỉnh sửa sản phẩm
  * - Khởi tạo state trực tiếp từ props mà không cần useEffect (chuẩn React pattern).
- * - Tải ảnh từ máy tính cá nhân sử dụng module Node.js fs qua API chung (không dùng ô nhập URL thủ công).
+ * - Tải ảnh từ máy tính cá nhân sử dụng module Node.js fs qua API chung (hỗ trợ chọn nhiều ảnh đồng thời).
  * - Hỗ trợ đầy đủ các trường dữ liệu khớp chuẩn db.json:
+ *   + images: Mảng danh sách đường dẫn ảnh [path1, path2, ...]
  *   + careInstructions: Hướng dẫn bảo quản / giặt ủi
  *   + details.material: Thành phần chất liệu
  *   + details.specifications: Danh sách thông số kỹ thuật (dạng gạch đầu dòng)
@@ -18,32 +19,42 @@ function ProductFormContent({
   productToEdit,
   onClose,
   onSaveSuccess,
-  shopId = 'shop_m_studio',
-  shopName = 'M STUDIO',
+  shopId = '',
+  shopName = '',
 }) {
   const isEditMode = Boolean(productToEdit?.id)
   const fileInputRef = useRef(null)
 
-  // Khởi tạo state form từ productToEdit nếu có
-  const [formData, setFormData] = useState(() => ({
-    name: productToEdit?.name || '',
-    category: productToEdit?.category || 'SHIRT',
-    price: productToEdit?.price || '',
-    originalPrice: productToEdit?.originalPrice || '',
-    stock: productToEdit?.stock ?? 10,
-    imageUrl: productToEdit?.images?.[0] || productToEdit?.image || '',
-    badge: productToEdit?.badge || '',
-    description: productToEdit?.description || '',
-    careInstructions: productToEdit?.careInstructions || '',
-    material: productToEdit?.details?.material || '',
-    specifications: Array.isArray(productToEdit?.details?.specifications)
-      ? productToEdit.details.specifications.join('\n')
-      : '',
-    origin: productToEdit?.details?.origin || '',
-  }))
+  // Khởi tạo state form từ productToEdit nếu có (images luôn là mảng chuẩn)
+  const [formData, setFormData] = useState(() => {
+    let initialImages = []
+    if (Array.isArray(productToEdit?.images) && productToEdit.images.length > 0) {
+      initialImages = productToEdit.images.filter(Boolean)
+    } else if (productToEdit?.image) {
+      initialImages = [productToEdit.image]
+    }
+
+    return {
+      name: productToEdit?.name || '',
+      category: productToEdit?.category || 'SHIRT',
+      price: productToEdit?.price || '',
+      originalPrice: productToEdit?.originalPrice || '',
+      stock: productToEdit?.stock ?? 10,
+      images: initialImages,
+      badge: productToEdit?.badge || '',
+      description: productToEdit?.description || '',
+      careInstructions: productToEdit?.careInstructions || '',
+      material: productToEdit?.details?.material || '',
+      specifications: Array.isArray(productToEdit?.details?.specifications)
+        ? productToEdit.details.specifications.join('\n')
+        : '',
+      origin: productToEdit?.details?.origin || '',
+    }
+  })
 
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isUploading, setIsUploading] = useState(false)
+  const [uploadProgressText, setUploadProgressText] = useState('')
   const [errorMessage, setErrorMessage] = useState('')
 
   // Xử lý thay đổi dữ liệu các trường input text / select / textarea
@@ -56,26 +67,34 @@ function ProductFormContent({
   }
 
   /**
-   * Xử lý tải ảnh từ máy tính cá nhân lên thư mục public/ qua Node.js fs:
+   * Xử lý tải nhiều ảnh từ máy tính cá nhân lên thư mục public/ qua Node.js fs:
+   * - Hỗ trợ chọn đồng thời nhiều file cùng lúc (<input type="file" multiple />).
    * - Sử dụng hàm dùng chung uploadImage() từ src/utils/imageUpload.js.
-   * - Truyền vào tham số category (SHIRT, PANTS, SET, SHOES, ACCESSORIES, DRESS, JACKET...).
-   * - Node.js fs sẽ tự động tạo thư mục con (nếu chưa có) và ghi file nhị phân vào:
-   *   public/images/products/<category>/<tên-file-timestamp>.jpg
-   * - Nhận lại đường dẫn web tĩnh và tự động gán vào formData.imageUrl.
+   * - Node.js fs sẽ tự động lưu vào public/images/products/<category>/<tên-file>.jpg.
+   * - Thêm các đường dẫn ảnh mới vào mảng formData.images.
    */
   const handleImageUpload = async (e) => {
-    const file = e.target.files?.[0]
-    if (!file) return
+    const files = Array.from(e.target.files || [])
+    if (files.length === 0) return
 
     setIsUploading(true)
     setErrorMessage('')
+    setUploadProgressText(`Uploading 1/${files.length}...`)
 
     try {
-      const result = await uploadImage(file, { category: formData.category })
-      if (result?.url) {
+      const newUrls = []
+      for (let i = 0; i < files.length; i++) {
+        setUploadProgressText(`Uploading ${i + 1}/${files.length}...`)
+        const result = await uploadImage(files[i], { category: formData.category })
+        if (result?.url) {
+          newUrls.push(result.url)
+        }
+      }
+
+      if (newUrls.length > 0) {
         setFormData((prev) => ({
           ...prev,
-          imageUrl: result.url,
+          images: [...prev.images, ...newUrls],
         }))
       }
     } catch (err) {
@@ -83,10 +102,30 @@ function ProductFormContent({
       setErrorMessage(err.message || 'Không thể tải ảnh lên. Vui lòng thử lại.')
     } finally {
       setIsUploading(false)
+      setUploadProgressText('')
       if (fileInputRef.current) {
         fileInputRef.current.value = ''
       }
     }
+  }
+
+  // Xóa một ảnh cụ thể khỏi mảng images
+  const handleRemoveImage = (indexToRemove) => {
+    setFormData((prev) => ({
+      ...prev,
+      images: prev.images.filter((_, idx) => idx !== indexToRemove),
+    }))
+  }
+
+  // Đặt một ảnh làm ảnh bìa chính (Cover) - đưa lên vị trí đầu tiên trong mảng
+  const handleSetCoverImage = (index) => {
+    if (index === 0) return
+    setFormData((prev) => {
+      const updated = [...prev.images]
+      const [chosen] = updated.splice(index, 1)
+      updated.unshift(chosen)
+      return { ...prev, images: updated }
+    })
   }
 
   // Xử lý gửi form lên API
@@ -112,8 +151,8 @@ function ProductFormContent({
       return
     }
 
-    if (!formData.imageUrl.trim()) {
-      setErrorMessage('Vui lòng tải lên hình ảnh sản phẩm từ máy tính.')
+    if (!formData.images || formData.images.length === 0) {
+      setErrorMessage('Vui lòng tải lên ít nhất một hình ảnh sản phẩm từ máy tính.')
       return
     }
 
@@ -127,6 +166,8 @@ function ProductFormContent({
             .map((s) => s.trim())
             .filter(Boolean)
         : []
+
+      const cleanImages = formData.images.map((img) => img.trim()).filter(Boolean)
 
       const payload = {
         name: formData.name.trim(),
@@ -145,7 +186,7 @@ function ProductFormContent({
         },
         shopId: productToEdit?.shopId || shopId,
         shopName: productToEdit?.shopName || shopName,
-        images: [formData.imageUrl.trim()],
+        images: cleanImages,
       }
 
       let res
@@ -317,102 +358,166 @@ function ProductFormContent({
           </div>
         </div>
 
-        {/* Hàng 4: Tải ảnh sản phẩm từ máy tính qua Node.js fs (Không dùng ô nhập URL) */}
-        <div className="space-y-1.5">
+        {/* Hàng 4: Bộ sưu tập ảnh sản phẩm (Chọn nhiều ảnh từ máy tính qua Node.js fs) */}
+        <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <label className="block font-semibold uppercase tracking-wider text-neutral-700 font-mono text-[11px]">
-              Garment Image *
-            </label>
-            <span className="text-[10px] text-neutral-400 font-mono">
-              Auto-saves to: public/images/products/{formData.category.toLowerCase()}
+            <div className="flex items-center gap-2">
+              <label className="block font-semibold uppercase tracking-wider text-neutral-700 font-mono text-[11px]">
+                Garment Images *
+              </label>
+              <span className="text-[10px] font-mono px-1.5 py-0.5 bg-neutral-100 text-neutral-600 rounded-[2px] border border-neutral-200">
+                {formData.images.length} {formData.images.length === 1 ? 'photo' : 'photos'}
+              </span>
+            </div>
+            <span className="text-[10px] text-neutral-400 font-mono hidden sm:inline">
+              Folder: public/images/products/{formData.category.toLowerCase()}
             </span>
           </div>
 
-          {/* Input file ẩn kích hoạt bởi nhãn tải ảnh */}
+          {/* Input file ẩn hỗ trợ chọn nhiều ảnh (multiple) */}
           <input
             ref={fileInputRef}
             type="file"
             accept="image/*"
+            multiple
             className="hidden"
             id="product-image-file-input"
             onChange={handleImageUpload}
             disabled={isUploading || isSubmitting}
           />
 
-          {formData.imageUrl ? (
-            /* Khi đã có ảnh: Hiển thị khung xem trước kèm đường dẫn và nút đổi ảnh / xóa */
-            <div className="flex items-center gap-3 p-3 bg-neutral-50 border border-neutral-200 rounded-[2px]">
-              <div className="w-14 h-16 bg-neutral-100 border border-neutral-200 rounded-[2px] overflow-hidden shrink-0">
-                <img
-                  src={formData.imageUrl}
-                  alt="Preview"
-                  onError={handleImageError}
-                  className="w-full h-full object-cover"
-                />
+          {formData.images.length > 0 ? (
+            <div className="space-y-2.5">
+              {/* Lưới hiển thị danh sách các ảnh đã chọn */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 p-3 bg-neutral-50/80 border border-neutral-200 rounded-[2px]">
+                {formData.images.map((imgUrl, idx) => {
+                  const isCover = idx === 0
+                  return (
+                    <div
+                      key={`${imgUrl}-${idx}`}
+                      className="group relative aspect-3/4 bg-neutral-100 border border-neutral-200 rounded-[2px] overflow-hidden shadow-xs hover:border-black transition-colors"
+                    >
+                      <img
+                        src={imgUrl}
+                        alt={`Garment view ${idx + 1}`}
+                        onError={handleImageError}
+                        className="w-full h-full object-cover"
+                      />
+
+                      {/* Huy hiệu COVER cho ảnh đầu tiên */}
+                      {isCover ? (
+                        <div className="absolute top-1.5 left-1.5 z-10 inline-flex items-center gap-1 bg-black text-white text-[9px] font-bold font-mono px-1.5 py-0.5 rounded-[1px] tracking-wider uppercase shadow-xs">
+                          <Star className="w-2.5 h-2.5 fill-white" />
+                          <span>COVER</span>
+                        </div>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => handleSetCoverImage(idx)}
+                          disabled={isUploading || isSubmitting}
+                          title="Đặt làm ảnh bìa chính (Cover)"
+                          className="absolute top-1.5 left-1.5 z-10 opacity-0 group-hover:opacity-100 transition-opacity bg-white/95 hover:bg-white text-black text-[9px] font-mono px-1.5 py-0.5 rounded-[1px] tracking-wider uppercase shadow-xs cursor-pointer hover:font-bold"
+                        >
+                          Set Cover
+                        </button>
+                      )}
+
+                      {/* Nút xóa ảnh */}
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveImage(idx)}
+                        disabled={isUploading || isSubmitting}
+                        title="Xóa ảnh này"
+                        className="absolute top-1.5 right-1.5 z-10 opacity-0 group-hover:opacity-100 transition-opacity p-1 bg-red-600/90 hover:bg-red-600 text-white rounded-[2px] shadow-xs cursor-pointer"
+                      >
+                        <Trash2 className="w-3 h-3" />
+                      </button>
+
+                      {/* Số thứ tự ảnh góc dưới */}
+                      <div className="absolute bottom-1 right-1 bg-black/60 text-white text-[9px] font-mono px-1 py-0.5 rounded-[1px]">
+                        #{idx + 1}
+                      </div>
+                    </div>
+                  )
+                })}
+
+                {/* Ô nút Thêm ảnh bổ sung trong lưới */}
+                <label
+                  htmlFor="product-image-file-input"
+                  className={`aspect-3/4 flex flex-col items-center justify-center p-3 border-2 border-dashed border-neutral-300 hover:border-black rounded-[2px] bg-white hover:bg-neutral-50 cursor-pointer transition-colors text-center ${
+                    isUploading ? 'opacity-50 pointer-events-none' : ''
+                  }`}
+                  title="Chọn thêm ảnh từ máy tính (Có thể chọn nhiều ảnh)"
+                >
+                  {isUploading ? (
+                    <div className="flex flex-col items-center gap-1 text-neutral-600">
+                      <Loader2 className="w-4 h-4 animate-spin text-black" />
+                      <span className="text-[10px] font-mono uppercase tracking-wider">
+                        {uploadProgressText || 'Uploading...'}
+                      </span>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col items-center gap-1 text-neutral-600 group-hover:text-black">
+                      <div className="p-1.5 rounded-full bg-neutral-100 group-hover:bg-neutral-200 transition-colors">
+                        <Plus className="w-4 h-4 text-neutral-800" />
+                      </div>
+                      <span className="text-[10px] font-mono font-semibold uppercase tracking-wider mt-1 text-neutral-800">
+                        Add Photos
+                      </span>
+                      <span className="text-[9px] text-neutral-400 font-mono">
+                        Multi-select
+                      </span>
+                    </div>
+                  )}
+                </label>
               </div>
 
-              <div className="flex-1 min-w-0 space-y-1">
-                <p className="text-[11px] font-mono text-neutral-700 truncate" title={formData.imageUrl}>
-                  {formData.imageUrl}
-                </p>
-                <div className="flex items-center gap-2">
-                  <label
-                    htmlFor="product-image-file-input"
-                    className={`inline-flex items-center gap-1 text-[11px] font-mono uppercase tracking-wider text-black hover:underline cursor-pointer ${
-                      isUploading ? 'opacity-50 pointer-events-none' : ''
-                    }`}
-                  >
-                    {isUploading ? (
-                      <>
-                        <Loader2 className="w-3 h-3 animate-spin" />
-                        <span>Uploading...</span>
-                      </>
-                    ) : (
-                      <>
-                        <Upload className="w-3 h-3" />
-                        <span>Change Photo</span>
-                      </>
-                    )}
-                  </label>
-
-                  <span className="text-neutral-300">|</span>
-
-                  <button
-                    type="button"
-                    onClick={() => setFormData((prev) => ({ ...prev, imageUrl: '' }))}
-                    disabled={isUploading || isSubmitting}
-                    className="text-[11px] font-mono uppercase tracking-wider text-red-500 hover:underline cursor-pointer disabled:opacity-50"
-                  >
-                    Remove
-                  </button>
-                </div>
+              {/* Thanh thao tác dưới lưới ảnh */}
+              <div className="flex items-center justify-between text-[11px] font-mono text-neutral-500 pt-0.5 px-1">
+                <span className="text-[10px]">
+                  Tip: Ảnh đầu tiên (COVER) được chọn làm ảnh hiển thị chính trong danh mục.
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setFormData((prev) => ({ ...prev, images: [] }))}
+                  disabled={isUploading || isSubmitting}
+                  className="text-red-500 hover:text-red-700 hover:underline uppercase text-[10px] tracking-wider cursor-pointer disabled:opacity-50"
+                >
+                  Clear All Photos
+                </button>
               </div>
             </div>
           ) : (
-            /* Khi chưa có ảnh: Khung chọn tệp từ máy tính */
+            /* Khi chưa có ảnh nào: Khung dropzone kích thước lớn hướng dẫn chọn nhiều ảnh */
             <label
               htmlFor="product-image-file-input"
-              className={`flex flex-col items-center justify-center p-6 border-2 border-dashed border-neutral-200 hover:border-black rounded-[2px] bg-neutral-50/50 hover:bg-neutral-50 cursor-pointer transition-colors ${
+              className={`flex flex-col items-center justify-center p-8 border-2 border-dashed border-neutral-300 hover:border-black rounded-[2px] bg-neutral-50/60 hover:bg-neutral-50 cursor-pointer transition-colors ${
                 isUploading ? 'opacity-50 pointer-events-none' : ''
               }`}
             >
               {isUploading ? (
                 <div className="flex flex-col items-center gap-2 text-neutral-600">
-                  <Loader2 className="w-5 h-5 animate-spin text-black" />
+                  <Loader2 className="w-6 h-6 animate-spin text-black" />
                   <span className="font-mono text-xs uppercase tracking-wider">
-                    Uploading image to Node.js fs...
+                    {uploadProgressText || 'Uploading images to Node.js fs...'}
                   </span>
                 </div>
               ) : (
-                <div className="flex flex-col items-center gap-1.5 text-center">
-                  <div className="p-2.5 bg-white border border-neutral-200 rounded-[2px] shadow-xs">
-                    <ImageIcon className="w-5 h-5 text-neutral-700" />
+                <div className="flex flex-col items-center gap-2 text-center">
+                  <div className="p-3 bg-white border border-neutral-200 rounded-[2px] shadow-xs">
+                    <ImageIcon className="w-6 h-6 text-neutral-700" />
                   </div>
-                  <span className="font-mono text-xs font-semibold text-black uppercase tracking-wider mt-1">
-                    Upload from computer
-                  </span>
-                  <span className="text-[11px] text-neutral-400">
-                    PNG, JPG, WEBP (Max 10MB) — Saves to /public/images/products/{formData.category.toLowerCase()}
+                  <div>
+                    <span className="font-mono text-xs font-bold text-black uppercase tracking-wider block">
+                      Upload photos from computer (Multi-select)
+                    </span>
+                    <span className="text-[11px] text-neutral-500 mt-0.5 block">
+                      Hold Ctrl or Shift to select multiple images at once (PNG, JPG, WEBP)
+                    </span>
+                  </div>
+                  <span className="mt-2 inline-flex items-center gap-1.5 px-3 py-1 bg-black text-white text-[10px] font-mono uppercase tracking-wider rounded-[2px] hover:bg-neutral-800 transition-colors">
+                    <Upload className="w-3 h-3" />
+                    <span>Browse Image Files</span>
                   </span>
                 </div>
               )}
@@ -473,7 +578,7 @@ function ProductFormContent({
                 name="origin"
                 value={formData.origin}
                 onChange={handleChange}
-                placeholder="e.g. Crafted at M STUDIO Atelier, HCMC"
+                placeholder="e.g. Crafted at Atelier, HCMC"
                 className="w-full px-3 py-2 border border-neutral-200 rounded-[2px] font-mono text-[11px] focus:border-black focus:outline-none"
               />
             </div>
@@ -548,8 +653,8 @@ export default function ProductFormModal({
   onClose,
   productToEdit = null,
   onSaveSuccess,
-  shopId = 'shop_m_studio',
-  shopName = 'M STUDIO',
+  shopId = '',
+  shopName = '',
 }) {
   if (!isOpen) return null
 

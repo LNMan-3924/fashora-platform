@@ -31,9 +31,7 @@ export function useVietnamLocations(selectedCity = '', selectedWard = '') {
   }, [])
 
   // 2. Tự động so khớp tỉnh/thành hiện tại từ tên đã chọn
-  const selectedProvince = useMemo(() => {
-    return matchProvince(selectedCity, provinces)
-  }, [selectedCity, provinces])
+  const selectedProvince = matchProvince(selectedCity, provinces)
 
   const selectedProvinceId = selectedProvince?.idProvince || ''
 
@@ -65,12 +63,10 @@ export function useVietnamLocations(selectedCity = '', selectedWard = '') {
   }, [selectedProvinceId])
 
   // 4. Danh sách options cho Select Tỉnh/Thành phố
-  const provinceOptions = useMemo(() => {
-    return provinces.map((p) => ({
-      value: p.name,
-      label: p.name,
-    }))
-  }, [provinces])
+  const provinceOptions = provinces.map((p) => ({
+    value: p.name,
+    label: p.name,
+  }))
 
   // 5. Danh sách options cho Select Phường/Xã (kèm fallback giữ lại giá trị cũ nếu chưa có trong danh mục mới)
   const wardOptions = useMemo(() => {

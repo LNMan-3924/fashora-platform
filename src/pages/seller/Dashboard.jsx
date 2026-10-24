@@ -24,20 +24,10 @@ export default function Dashboard() {
   const outletContext = useOutletContext() || {}
   const { currentUser } = useAuth()
 
-  // 1. Xác định Shop ID và Shop Name đang hoạt động
-  let fallbackShopId = 'shop_m_studio'
-  let fallbackShopName = 'M STUDIO'
-  try {
-    const savedShop = JSON.parse(localStorage.getItem('fashora_current_shop') || '{}')
-    if (savedShop.shopId || savedShop.id) fallbackShopId = savedShop.shopId || savedShop.id
-    if (savedShop.shopName || savedShop.name) fallbackShopName = savedShop.shopName || savedShop.name
-  } catch {
-    // ignore
-  }
-
-  const currentShopId = outletContext.currentShopId || currentUser?.shopId || fallbackShopId
+  // 1. Xác định Shop ID và Shop Name từ SellerLayout (Single Source of Truth suy từ currentUser)
   const sellerInfo = outletContext.sellerInfo || {}
-  const shopName = sellerInfo.shopName || fallbackShopName
+  const currentShopId = outletContext.currentShopId || sellerInfo.shopId || sellerInfo.id || currentUser?.shopId || ''
+  const shopName = sellerInfo.shopName || currentUser?.shopName || currentUser?.fullName || ''
 
   // 2. State lưu danh sách đơn hàng và sản phẩm từ API
   const [orders, setOrders] = useState([])
@@ -82,15 +72,11 @@ export default function Dashboard() {
   // =========================================================================
   const shopOrders = orders.filter((o) => {
     // 1. Khớp chính xác shopId của đơn
-    if (o.shopId && o.shopId === currentShopId) return true
+    if (o.shopId && currentShopId && o.shopId === currentShopId) return true
     // 2. Khớp theo từng sản phẩm trong đơn nếu có shopId
-    if (Array.isArray(o.items) && o.items.some((item) => item.shopId === currentShopId)) return true
+    if (Array.isArray(o.items) && currentShopId && o.items.some((item) => item.shopId === currentShopId)) return true
     // 3. Khớp theo shopName nếu có
     if (o.shopName && shopName && o.shopName.trim().toLowerCase() === shopName.trim().toLowerCase()) return true
-    // 4. Nếu là shop M STUDIO, nhận các đơn cũ trong db chưa có shopId
-    if (currentShopId === 'shop_m_studio') {
-      return !o.shopId || o.shopName === 'M STUDIO'
-    }
     return false
   })
 

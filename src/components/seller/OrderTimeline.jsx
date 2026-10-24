@@ -19,7 +19,7 @@ export default function OrderTimeline({
   status = 'PENDING',
   createdAt = '',
   waybill = 'VN-EXP-884928',
-  shopName = 'M STUDIO',
+  shopName = '',
 }) {
   const normalized = String(status || 'PENDING').toUpperCase()
   const isCompleted = normalized === 'COMPLETED'

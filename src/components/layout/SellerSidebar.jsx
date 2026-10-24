@@ -1,8 +1,8 @@
 import { NavLink, Link } from 'react-router-dom'
 
 export default function SellerSidebar({ sellerInfo, onCloseMobile }) {
-  const shopName = sellerInfo?.shopName || 'M STUDIO'
-  const sellerCode = sellerInfo?.sellerCode || 'SELLER #MS-8021'
+  const shopName = sellerInfo?.shopName || 'MY ATELIER'
+  const sellerCode = sellerInfo?.sellerCode || 'SELLER'
   const firstLetter = shopName.charAt(0).toUpperCase()
 
   const navItems = [
@@ -77,8 +77,13 @@ export default function SellerSidebar({ sellerInfo, onCloseMobile }) {
           </Link>
 
           {/* BADGE TỰ ĐỘNG ĐỔI TÊN SHOP KHI ĐĂNG KÝ */}
-          <div className="mt-3 inline-flex items-center px-2.5 py-1 bg-neutral-100 border border-neutral-200/80 rounded text-[11px] font-semibold text-neutral-800">
-            <span className="truncate max-w-[140px]">{shopName}</span>
+          <div className="mt-3 inline-flex items-center gap-1.5 px-2.5 py-1 bg-neutral-100 border border-neutral-200/80 rounded text-[11px] font-semibold text-neutral-800">
+            <span
+              className={`w-1.5 h-1.5 rounded-full ${
+                sellerInfo?.status === 'PAUSED' ? 'bg-amber-500' : 'bg-emerald-500'
+              }`}
+            />
+            <span className="truncate max-w-[130px]">{shopName}</span>
           </div>
         </div>
 

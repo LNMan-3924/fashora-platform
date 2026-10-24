@@ -226,27 +226,16 @@ function CheckoutFormContent({
       const res = await createOrder(orderPayload)
       const savedOrder = res?.data || res
 
-      // Yêu cầu: Khi account không có địa chỉ mà nhập địa chỉ trong checkout thì lưu luôn vào address trong API
+      // Yêu cầu: Khi account không có địa chỉ mà nhập địa chỉ trong checkout thì lưu luôn vào shippingAddresses trong API
       const hasAccountAddress =
-        Boolean(currentUser?.address?.address && currentUser.address.address.trim()) ||
-        (Array.isArray(currentUser?.shippingAddresses) && currentUser.shippingAddresses.length > 0)
+        Array.isArray(currentUser?.shippingAddresses) && currentUser.shippingAddresses.length > 0
 
       if (currentUser?.id && !hasAccountAddress && formData.address?.trim()) {
         try {
-          const newRecipient = {
-            fullName: formData.fullName.trim(),
-            phone: formData.phone.trim(),
-            address: formData.address.trim(),
-            ward: (formData.ward || '').trim(),
-            district: (formData.district || '').trim(),
-            city: (formData.city || '').trim(),
-          }
-
           const newShippingAddr = {
             id: `ADDR-${Math.floor(1000 + Math.random() * 9000)}`,
             name: formData.fullName.trim(),
             phone: formData.phone.trim(),
-            street: formData.address.trim(),
             address: formData.address.trim(),
             ward: (formData.ward || '').trim(),
             district: (formData.district || '').trim(),
@@ -256,7 +245,6 @@ function CheckoutFormContent({
           }
 
           const userPayload = {
-            address: newRecipient,
             shippingAddresses: [newShippingAddr],
           }
 

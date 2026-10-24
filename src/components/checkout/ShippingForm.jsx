@@ -81,7 +81,7 @@ export default function ShippingForm({
             {savedAddresses.map((addr, idx) => {
               const addrName = addr.name || addr.fullName || ''
               const addrPhone = addr.phone || addr.phoneNumber || ''
-              const addrStreet = addr.street || addr.address || ''
+              const addrStreet = addr.address || addr.street || ''
               const isSelected =
                 (formData.fullName || '') === addrName &&
                 (formData.phone || '') === addrPhone &&
