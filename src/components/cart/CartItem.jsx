@@ -108,8 +108,10 @@ export default function CartItem({
             <button
               type="button"
               aria-label="Increase quantity"
+              disabled={typeof item.stock === 'number' && item.quantity >= item.stock}
               onClick={() => onUpdateQuantity?.(item.quantity + 1)}
-              className="w-8 h-8 flex items-center justify-center font-mono text-sm text-[#111111] hover:bg-neutral-200 transition-colors select-none cursor-pointer"
+              title={typeof item.stock === 'number' && item.quantity >= item.stock ? `Maximum available stock reached (${item.stock})` : 'Increase quantity'}
+              className="w-8 h-8 flex items-center justify-center font-mono text-sm text-[#111111] hover:bg-neutral-200 transition-colors select-none cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
             >
               +
             </button>

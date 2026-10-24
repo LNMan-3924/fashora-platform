@@ -139,7 +139,7 @@ export default function Profile() {
               ...addr,
               address: addr.address || addr.street || '',
               name: newProfile.name || addr.name,
-              phone: newProfile.phone,
+              phone: newProfile.phone || addr.phone,
             }
           }
           return addr
@@ -221,8 +221,8 @@ export default function Profile() {
 
     const resolvedAddr = {
       ...cleanAddr,
-      name: addr.name || profile.name || currentUser?.fullName || currentUser?.name || '',
-      phone: addr.phone || profile.phone || currentUser?.phoneNumber || currentUser?.phone || '',
+      name: (addr.name || '').trim() || profile.name || currentUser?.fullName || currentUser?.name || '',
+      phone: (addr.phone || '').trim() || profile.phone || currentUser?.phoneNumber || currentUser?.phone || '',
     }
 
     if (isEdit) {

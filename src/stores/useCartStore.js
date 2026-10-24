@@ -32,8 +32,9 @@ export const useCartStore = create(
           : (raw.image ? [raw.image] : ['/assets/fallback.png']);
         const safeImage = safeImages[0] || raw.image || '/assets/fallback.png';
         const safeCategory = raw.category || 'SET';
-        const safeShopName = raw.shopName || 'M STUDIO';
-        const safeShopId = raw.shopId || 'shop_m_studio';
+        const safeShopName = raw.shopName || raw.shop?.name || 'FASHORA ATELIER';
+        const safeShopId = raw.shopId || raw.shop?.id || 'shop_fashora';
+        const safeShopSlug = raw.shopSlug || raw.shop?.slug || (safeShopId.replace(/^shop_/, '')) || 'fashora';
 
         const existingIndex = cartItems.findIndex(
           (item) =>
@@ -73,6 +74,7 @@ export const useCartStore = create(
                 category: safeCategory,
                 shopId: safeShopId,
                 shopName: safeShopName,
+                shopSlug: safeShopSlug,
                 selectedSize,
                 selectedColor,
                 quantity: targetQty,

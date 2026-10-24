@@ -80,25 +80,54 @@ export default function Dashboard() {
     return false
   })
 
+  // Sắp xếp đơn hàng theo thứ tự mới nhất giảm dần theo thời gian tạo
+  const sortedShopOrders = [...shopOrders].sort((a, b) => {
+    const dateA = new Date(a.createdAt || a.date || 0).getTime()
+    const dateB = new Date(b.createdAt || b.date || 0).getTime()
+    return dateB - dateA
+  })
+
   // =========================================================================
   // BƯỚC 2: TÍNH TOÁN CÁC CHỈ SỐ KPI CHÍNH
-  // Tính toán trực tiếp, tránh lưu trữ quá nhiều closure và mảng đệm vào RAM
+  // Tính toán trực tiếp, chuẩn xác cho từng shop (không bị cộng gộp đơn đa shop)
   // =========================================================================
 
-  // 1. Tổng doanh thu (Chỉ tính các đơn hàng hợp lệ, không cộng các đơn đã bị HỦY - CANCELLED)
+  // 1. Tổng doanh thu (Chỉ tính các món đồ thuộc quyền quản lý của shop trong các đơn không bị HỦY)
   const totalRevenue = shopOrders
     .filter((o) => (o.status || '').toUpperCase() !== 'CANCELLED')
-    .reduce((sum, o) => sum + Number(o.total ?? o.totalAmount ?? 0), 0)
+    .reduce((sum, o) => {
+      const items = Array.isArray(o.items) ? o.items : []
+      const shopItems = items.filter(
+        (item) =>
+          !item.shopId ||
+          item.shopId === currentShopId ||
+          (item.shopName && shopName && item.shopName.trim().toLowerCase() === shopName.trim().toLowerCase()) ||
+          o.shopId === currentShopId
+      )
+      if (shopItems.length === 0) return sum
+      const shopSubtotal = shopItems.reduce(
+        (acc, it) => acc + (Number(it.price) || 0) * (Number(it.quantity) || 1),
+        0
+      )
+      return sum + shopSubtotal
+    }, 0)
 
   // 2. Tổng số lượng đơn hàng của Shop
   const totalOrdersCount = shopOrders.length
 
-  // 3. Tổng số lượng sản phẩm đã bán ra (Tổng quantity của tất cả món đồ trong các đơn hợp lệ)
+  // 3. Tổng số lượng sản phẩm đã bán ra (Chỉ tính số lượng các món của shop trong các đơn hợp lệ)
   const totalProductsSoldCount = shopOrders
     .filter((o) => (o.status || '').toUpperCase() !== 'CANCELLED')
     .reduce((sum, o) => {
-      const items = o.items || []
-      return sum + items.reduce((itemSum, item) => itemSum + Number(item.quantity || 1), 0)
+      const items = Array.isArray(o.items) ? o.items : []
+      const shopItems = items.filter(
+        (item) =>
+          !item.shopId ||
+          item.shopId === currentShopId ||
+          (item.shopName && shopName && item.shopName.trim().toLowerCase() === shopName.trim().toLowerCase()) ||
+          o.shopId === currentShopId
+      )
+      return sum + shopItems.reduce((itemSum, item) => itemSum + Number(item.quantity || 1), 0)
     }, 0)
 
   // =========================================================================
@@ -108,7 +137,10 @@ export default function Dashboard() {
   shopOrders.forEach((o) => {
     if ((o.status || '').toUpperCase() !== 'CANCELLED') {
       (o.items || []).forEach((item) => {
-        if (item.id) {
+        if (
+          item.id &&
+          (!item.shopId || item.shopId === currentShopId || o.shopId === currentShopId)
+        ) {
           salesMap[item.id] = (salesMap[item.id] || 0) + Number(item.quantity || 1)
         }
       })
@@ -163,9 +195,9 @@ export default function Dashboard() {
         />
       </div>
 
-      {/* 2. BẢNG 5 ĐƠN HÀNG MỚI NHẤT (RECENT ORDERS) */}
+      {/* 2. BẢNG 5 ĐƠN HÀNG MỚI NHẤT (RECENT ORDERS - Đã sắp xếp theo thời gian mới nhất) */}
       <RecentOrdersTable
-        orders={shopOrders}
+        orders={sortedShopOrders}
         loading={isLoading}
         maxDisplay={5}
         shopName={shopName}

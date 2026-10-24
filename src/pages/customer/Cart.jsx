@@ -36,6 +36,7 @@ export default function Cart() {
   const addToCart = useCartStore((state) => state.addToCart)
   const updateQuantity = useCartStore((state) => state.updateQuantity)
   const removeFromCart = useCartStore((state) => state.removeFromCart)
+  const removeItemsFromCart = useCartStore((state) => state.removeItemsFromCart)
 
   // =========================================================================
   // BƯỚC 2: QUẢN LÝ TRẠNG THÁI GIAO DIỆN (UI STATE)
@@ -85,7 +86,7 @@ export default function Cart() {
   // Gom nhóm sản phẩm theo tên thương hiệu (mặc định là 'M STUDIO')
   const groupedByShop = {}
   cartItems.forEach((item) => {
-    const shopName = item.shopName || 'M STUDIO'
+    const shopName = item.shopName || 'FASHORA ATELIER'
     if (!groupedByShop[shopName]) groupedByShop[shopName] = []
     groupedByShop[shopName].push(item)
   })
@@ -150,13 +151,17 @@ export default function Cart() {
       return
     }
 
-    // Duyệt qua giỏ hàng và xóa những món đang được chọn
-    cartItems.forEach((item) => {
-      const key = getItemKey(item)
-      if (activeSelectedKeys.includes(key)) {
-        removeFromCart(item.id, item.selectedSize, item.selectedColor)
-      }
-    })
+    // Xóa hàng loạt các món đang được chọn bằng hàm batch trong store
+    if (removeItemsFromCart) {
+      removeItemsFromCart(selectedCartItems)
+    } else {
+      cartItems.forEach((item) => {
+        const key = getItemKey(item)
+        if (activeSelectedKeys.includes(key)) {
+          removeFromCart(item.id, item.selectedSize, item.selectedColor)
+        }
+      })
+    }
 
     setSelectedKeys([])
     showToast('Selected items removed from cart.')
@@ -288,6 +293,7 @@ export default function Cart() {
               <CartShopGroup
                 key={shopName}
                 shopName={shopName}
+                shopSlug={items[0]?.shopSlug || items[0]?.shopId?.replace(/^shop_/, '') || 'fashora'}
                 items={items}
                 selectedItemIds={activeSelectedKeys}
                 onToggleShopSelect={handleToggleShop}

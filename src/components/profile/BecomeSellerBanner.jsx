@@ -10,6 +10,8 @@ export default function BecomeSellerBanner() {
   const { currentUser } = useAuth()
   const isSeller =
     String(currentUser?.role || '').toLowerCase() === 'seller' ||
+    (Array.isArray(currentUser?.roles) &&
+      currentUser.roles.map((r) => String(r).toLowerCase()).includes('seller')) ||
     Boolean(currentUser?.shopId)
 
   // Nếu người dùng đã là người bán -> Biến mất hoàn toàn theo yêu cầu

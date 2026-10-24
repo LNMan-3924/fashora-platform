@@ -12,6 +12,8 @@ function AddressModalContent({ addressData, onClose, onSave }) {
   const isEdit = Boolean(addressData?.id)
 
   const [formData, setFormData] = useState(() => ({
+    name: addressData?.name || addressData?.fullName || '',
+    phone: addressData?.phone || addressData?.phoneNumber || '',
     address: addressData?.address || addressData?.street || '',
     ward: addressData?.ward || '',
     district: addressData?.district || '',
@@ -78,6 +80,8 @@ function AddressModalContent({ addressData, onClose, onSave }) {
 
     onSave?.({
       ...cleanBase,
+      name: (formData.name || '').trim(),
+      phone: (formData.phone || '').trim(),
       address: (formData.address || '').trim(),
       ward: (formData.ward || '').trim(),
       district: (formData.district || '').trim(),
@@ -114,6 +118,26 @@ function AddressModalContent({ addressData, onClose, onSave }) {
         onSubmit={handleSubmit}
         className="overflow-y-auto p-6 md:p-8 flex flex-col gap-4 text-left flex-1"
       >
+        {/* Tùy chọn Tên & Số điện thoại người nhận */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <Input
+            label="RECIPIENT NAME (OPTIONAL)"
+            name="name"
+            value={formData.name}
+            onChange={handleChange}
+            placeholder="Defaults to profile name"
+          />
+          <Input
+            label="RECIPIENT PHONE (OPTIONAL)"
+            name="phone"
+            value={formData.phone}
+            onChange={handleChange}
+            onBlur={handleBlur}
+            error={errors.phone}
+            placeholder="Defaults to profile phone"
+          />
+        </div>
+
         <div>
           <Input
             label="HOUSE NUMBER / STREET *"

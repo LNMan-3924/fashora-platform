@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react'
 import { useNavigate, useLocation, Navigate, Link } from 'react-router-dom'
 import { useCartStore } from '../../stores/useCartStore'
-import { createOrder, updateUser } from '../../services/api'
+import { createOrder, updateUser, patchProduct } from '../../services/api'
 import { useAuth } from '../../contexts/AuthContext'
 import {
   CheckoutSteps,
@@ -57,7 +57,7 @@ function CheckoutFormContent({
         currentUser?.phoneNumber ||
         currentUser?.phone ||
         '',
-      address: defaultAddr?.street || defaultAddr?.address || '',
+      address: defaultAddr?.address || defaultAddr?.street || '',
       ward: defaultAddr?.ward || '',
       district: defaultAddr?.district || '',
       city: defaultAddr?.city || '',
@@ -83,7 +83,7 @@ function CheckoutFormContent({
     setFormData({
       fullName: addr.name || addr.fullName || '',
       phone: addr.phone || addr.phoneNumber || '',
-      address: addr.street || addr.address || '',
+      address: addr.address || addr.street || '',
       ward: addr.ward || '',
       district: addr.district || '',
       city: addr.city || '',
@@ -192,8 +192,8 @@ function CheckoutFormContent({
         district: (formData.district || '').trim(),
         city: (formData.city || '').trim(),
       },
-      shopName: displayItems[0]?.shopName || 'M STUDIO',
-      shopId: displayItems[0]?.shopId || 'shop_m_studio',
+      shopName: displayItems[0]?.shopName || 'FASHORA ATELIER',
+      shopId: displayItems[0]?.shopId || 'shop_fashora',
       items: displayItems.map((item) => ({
         id: item.id,
         name: item.name,
@@ -202,8 +202,8 @@ function CheckoutFormContent({
         selectedSize: item.selectedSize || 'Standard',
         selectedColor: item.selectedColor || 'Standard',
         image: item.image || item.images?.[0] || FALLBACK_IMAGE,
-        shopId: item.shopId || displayItems[0]?.shopId || 'shop_m_studio',
-        shopName: item.shopName || displayItems[0]?.shopName || 'M STUDIO',
+        shopId: item.shopId || displayItems[0]?.shopId || 'shop_fashora',
+        shopName: item.shopName || displayItems[0]?.shopName || 'FASHORA ATELIER',
       })),
       shippingFee: shippingMethod,
       shippingMethod:
@@ -257,6 +257,22 @@ function CheckoutFormContent({
           console.warn('Checkout: Không thể tự động lưu địa chỉ vào tài khoản qua API:', addrErr)
         }
       }
+
+      // Tự động trừ tồn kho (Inventory Deduction) cho các sản phẩm đã đặt
+      displayItems.forEach(async (item) => {
+        try {
+          if (item?.id) {
+            const currentStock = typeof item.stock === 'number' ? item.stock : 10
+            const newStock = Math.max(0, currentStock - (Number(item.quantity) || 1))
+            await patchProduct(item.id, {
+              stock: newStock,
+              isSoldOut: newStock === 0,
+            })
+          }
+        } catch (stockErr) {
+          console.warn('Checkout: Không thể trừ tồn kho sản phẩm:', item?.id, stockErr)
+        }
+      })
 
       // Đồng bộ vào LocalStorage bằng hàm dùng chung (Single Source of Truth)
       storeUserOrder(savedOrder || orderPayload)
