@@ -7,6 +7,7 @@ import {
   OrderQuickModal,
 } from '../../components/order'
 import { getOrders, updateOrderStatus } from '../../services/api'
+import { isOrderOwnedByUser } from '../../constants'
 import { useAuth } from '../../contexts/AuthContext'
 
 /**
@@ -63,18 +64,8 @@ export default function Orders() {
           return
         }
 
-        // Lọc nghiêm ngặt: CHỈ lấy đơn hàng thuộc về chính tài khoản đang đăng nhập
-        // 1. Trùng khớp với userId
-        // 2. Hoặc trùng khớp với customerEmail của tài khoản
-        const userOrders = apiList.filter((o) => {
-          const matchUserId = Boolean(o.userId && String(o.userId) === String(currentUser.id))
-          const matchEmail = Boolean(
-            currentUser.email &&
-            o.customerEmail &&
-            o.customerEmail.trim().toLowerCase() === currentUser.email.trim().toLowerCase()
-          )
-          return matchUserId || matchEmail
-        })
+        // Lọc nghiêm ngặt đơn hàng thuộc tài khoản đang đăng nhập (Tái sử dụng isOrderOwnedByUser SSOT)
+        const userOrders = apiList.filter((o) => isOrderOwnedByUser(o, currentUser))
 
         // Sắp xếp đơn mới nhất lên đầu
         const sorted = [...userOrders].sort(
@@ -94,7 +85,7 @@ export default function Orders() {
     return () => {
       isMounted = false
     }
-  }, [currentUser?.id, currentUser?.email])
+  }, [currentUser])
 
   // =========================================================================
   // BƯỚC 2: TÍNH TOÁN SỐ LƯỢNG ĐƠN HÀNG THEO TỪNG TAB TRẠNG THÁI

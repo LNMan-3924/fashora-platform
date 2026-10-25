@@ -124,11 +124,11 @@ export default function OrderCustomerInfo({
             <p className="text-neutral-800 font-medium leading-relaxed">
               {customerName}
               <br />
-              {recipient.address || '128 Le Duan Boulevard, Floor 4'}
+              {recipient.address || '—'}
               <br />
-              {recipient.ward || 'Ben Nghe Ward'}, {recipient.district || 'District 1'}
+              {[recipient.ward, recipient.district].filter(Boolean).join(', ') || '—'}
               <br />
-              {recipient.city || 'Ho Chi Minh City, Vietnam'}
+              {recipient.city || '—'}
             </p>
           </div>
 
@@ -138,7 +138,7 @@ export default function OrderCustomerInfo({
                 DISTRICT / WARD
               </span>
               <span className="font-bold text-black text-[11px] mt-0.5 block truncate">
-                {recipient.district || 'District 1'} / {recipient.ward || 'Ben Nghe'}
+                {[recipient.district, recipient.ward].filter(Boolean).join(' / ') || '—'}
               </span>
             </div>
 
@@ -147,7 +147,7 @@ export default function OrderCustomerInfo({
                 PROVINCE / CITY
               </span>
               <span className="font-bold text-black text-[11px] mt-0.5 block truncate">
-                {recipient.city || 'Ho Chi Minh City'}
+                {recipient.city || '—'}
               </span>
             </div>
           </div>

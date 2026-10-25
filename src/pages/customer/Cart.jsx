@@ -19,7 +19,7 @@ import {
   CompleteTheLook,
   QuickAddModal,
 } from '../../components/product'
-import { getCartItemKey, COMMERCE_STORAGE_KEYS } from '../../constants'
+import { getCartItemKey, COMMERCE_STORAGE_KEYS, groupItemsByShop } from '../../constants'
 
 // Tái sử dụng hàm tạo key duy nhất từ src/constants (ID + Size + Màu sắc)
 const getItemKey = getCartItemKey
@@ -83,13 +83,8 @@ export default function Cart() {
   // =========================================================================
   // BƯỚC 5: GOM NHÓM SẢN PHẨM THEO SHOP & TÍNH TỔNG TIỀN TẠM TÍNH
   // =========================================================================
-  // Gom nhóm sản phẩm theo tên thương hiệu (mặc định là 'M STUDIO')
-  const groupedByShop = {}
-  cartItems.forEach((item) => {
-    const shopName = item.shopName || 'FASHORA ATELIER'
-    if (!groupedByShop[shopName]) groupedByShop[shopName] = []
-    groupedByShop[shopName].push(item)
-  })
+  // Gom nhóm sản phẩm theo Shop từ hàm SSOT
+  const shopGroups = Object.values(groupItemsByShop(cartItems))
 
   // Tính tổng tiền tạm tính (Subtotal) CHỈ DỰA TRÊN các sản phẩm đang được tick chọn
   const subtotal = cartItems.reduce((total, item) => {
@@ -289,12 +284,12 @@ export default function Cart() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
           {/* CỘT TRÁI (8 cột): Danh sách sản phẩm gom nhóm theo từng Shop */}
           <div className="lg:col-span-8 space-y-6">
-            {Object.entries(groupedByShop).map(([shopName, items]) => (
+            {shopGroups.map((group) => (
               <CartShopGroup
-                key={shopName}
-                shopName={shopName}
-                shopSlug={items[0]?.shopSlug || items[0]?.shopId?.replace(/^shop_/, '') || 'fashora'}
-                items={items}
+                key={group.shopId}
+                shopName={group.shopName}
+                shopSlug={group.items[0]?.shopSlug || group.shopId.replace(/^shop_/, '') || 'fashora'}
+                items={group.items}
                 selectedItemIds={activeSelectedKeys}
                 onToggleShopSelect={handleToggleShop}
                 onToggleItemSelect={handleToggleItem}

@@ -1,3 +1,4 @@
+import { COMMERCE_STORAGE_KEYS } from '../../constants'
 import { Navigate, useLocation, Outlet } from 'react-router-dom'
 import { useCartStore } from '../../stores/useCartStore'
 import { useAuth } from '../../contexts/AuthContext'
@@ -96,7 +97,7 @@ export function CheckoutGuard({ children }) {
   const selectedItems = location.state?.selectedItems || []
   let savedItems = []
   try {
-    savedItems = JSON.parse(sessionStorage.getItem('fashora_checkout_items') || '[]')
+    savedItems = JSON.parse(sessionStorage.getItem(COMMERCE_STORAGE_KEYS.CHECKOUT_ITEMS) || '[]')
   } catch {
     // ignore
   }

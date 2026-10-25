@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useParams, Link, useOutletContext } from 'react-router-dom'
 import { ArrowLeft, Check, AlertCircle } from 'lucide-react'
-import { getOrderById, getOrders, updateOrderStatus } from '../../services/api'
+import { fetchOrderByIdOrNumber, updateOrderStatus } from '../../services/api'
 import { formatDate } from '../../constants/commerce'
 import {
   OrderStatusBadge,
@@ -53,20 +53,7 @@ export default function OrderDetail() {
 
     const fetchOrder = async () => {
       try {
-        let foundOrder = null
-        try {
-          const res = await getOrderById(id)
-          foundOrder = res?.data || res
-        } catch {
-          // Dự phòng: Tìm theo orderNumber hoặc id trong toàn bộ danh sách đơn hàng
-          const allRes = await getOrders()
-          const allOrders = allRes?.data || allRes || []
-          foundOrder = allOrders.find(
-            (o) =>
-              String(o.id) === String(id) ||
-              String(o.orderNumber).replace('#', '') === String(id).replace('#', '')
-          )
-        }
+        const foundOrder = await fetchOrderByIdOrNumber(id)
 
         if (!isMounted) return
 

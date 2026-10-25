@@ -86,17 +86,41 @@ export const updateUserRoleToSeller = (userId, shopId) =>
     shopId,
   });
 
-// ================= CART =================
-export const getCart = () => api.get('/cart');
-export const addToCart = (item) => api.post('/cart', item);
-export const updateCartItem = (id, data) => api.put(`/cart/${id}`, data);
-export const removeCartItem = (id) => api.delete(`/cart/${id}`);
-
 // ================= ORDERS =================
 export const getOrders = () => api.get('/orders');
 export const getOrderById = (id) => api.get(`/orders/${id}`);
 export const createOrder = (orderData) => api.post('/orders', orderData);
 export const updateOrderStatus = (id, status) => api.patch(`/orders/${id}`, { status });
+
+/**
+ * Tra cứu đơn hàng theo ID kỹ thuật hoặc OrderNumber (VD: 'ord_9041_1' hoặc '#SPXVN881002530')
+ */
+export const fetchOrderByIdOrNumber = async (id) => {
+  if (!id) return null;
+  try {
+    const res = await getOrderById(id);
+    if (res?.data) return res.data;
+    if (res && res.id) return res;
+  } catch {
+    // Dự phòng tìm kiếm qua danh sách orders
+  }
+
+  try {
+    const allRes = await getOrders();
+    const allOrders = allRes?.data || allRes || [];
+    const cleanId = String(id).replace('#', '').trim();
+    return (
+      allOrders.find(
+        (o) =>
+          String(o.id) === String(id) ||
+          String(o.orderNumber || '').replace('#', '').trim() === cleanId
+      ) || null
+    );
+  } catch (err) {
+    console.warn('api.js fetchOrderByIdOrNumber error:', err);
+    return null;
+  }
+};
 
 export default api;
 

@@ -1,5 +1,5 @@
 import { BadgeCheck, Lock } from 'lucide-react'
-import { formatVND, FALLBACK_IMAGE, handleImageError } from '../../constants'
+import { formatVND, FALLBACK_IMAGE, handleImageError, groupItemsByShop, getCartItemKey } from '../../constants'
 
 /**
  * Component CheckoutOrderSummary: Cột tóm tắt giỏ hàng bên phải (Sticky Summary).
@@ -36,40 +36,29 @@ export default function CheckoutOrderSummary({ items = [], shippingFee = 0 }) {
           </span>
         </div>
 
-        {/* Danh sách các sản phẩm trong đơn hàng gom nhóm theo từng Shop / Atelier */}
+        {/* Danh sách các sản phẩm trong đơn hàng gom nhóm theo từng Shop / Atelier (Tái sử dụng groupItemsByShop) */}
         {(() => {
-          const groupedByShop = items.reduce((acc, item) => {
-            const sName =
-              item.shopName ||
-              (item.shopId === 'shop_l-obscur-atelier_8158'
-                ? "L'OBSCUR ATELIER"
-                : 'M STUDIO')
-            if (!acc[sName]) acc[sName] = []
-            acc[sName].push(item)
-            return acc
-          }, {})
-
-          const shopEntries = Object.entries(groupedByShop)
+          const shopEntries = Object.values(groupItemsByShop(items))
 
           return (
             <div className="max-h-[380px] overflow-y-auto pr-1 space-y-4">
-              {shopEntries.map(([shopName, shopItems], groupIdx) => (
-                <div key={shopName} className={groupIdx > 0 ? 'pt-3 border-t border-neutral-200/80' : ''}>
+              {shopEntries.map((shopGroup, groupIdx) => (
+                <div key={shopGroup.shopId} className={groupIdx > 0 ? 'pt-3 border-t border-neutral-200/80' : ''}>
                   {shopEntries.length > 1 && (
                     <div className="flex items-center justify-between pb-2 mb-2 border-b border-neutral-100">
                       <span className="text-[11px] font-bold uppercase tracking-wider text-[#111111] flex items-center gap-1.5 font-mono">
                         <span className="w-1.5 h-1.5 bg-black inline-block"></span>
-                        {shopName}
+                        {shopGroup.shopName}
                       </span>
                       <span className="text-[10px] font-mono uppercase tracking-wider text-neutral-400">
-                        {shopItems.length} {shopItems.length > 1 ? 'ITEMS' : 'ITEM'}
+                        {shopGroup.items.length} {shopGroup.items.length > 1 ? 'ITEMS' : 'ITEM'}
                       </span>
                     </div>
                   )}
 
                   <div className="divide-y divide-neutral-100">
-                    {shopItems.map((item, index) => {
-                      const itemKey = `${item.id || index}-${item.selectedSize || ''}-${item.selectedColor || ''}`
+                    {shopGroup.items.map((item, index) => {
+                      const itemKey = getCartItemKey(item) || `item-${item.id || index}`
                       const itemTotal = (item.price || 0) * (item.quantity || 1)
 
                       return (

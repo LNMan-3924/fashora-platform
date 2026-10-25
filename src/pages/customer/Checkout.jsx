@@ -21,6 +21,7 @@ import {
   FALLBACK_IMAGE,
   validateField,
   validateShippingAddress,
+  groupItemsByShop,
 } from '../../constants'
 
 /**
@@ -175,24 +176,8 @@ function CheckoutFormContent({
     submittingRef.current = true
     setIsSubmitting(true)
 
-    // 3. Phân nhóm các sản phẩm theo từng Shop (Mô hình Multi-Shop Split Orders)
-    const itemsByShop = {}
-    displayItems.forEach((item) => {
-      const sId = item.shopId || 'shop_m_studio'
-      if (!itemsByShop[sId]) {
-        itemsByShop[sId] = {
-          shopId: sId,
-          shopName:
-            item.shopName ||
-            (sId === 'shop_l-obscur-atelier_8158'
-              ? "L'OBSCUR ATELIER"
-              : 'M STUDIO'),
-          items: [],
-        }
-      }
-      itemsByShop[sId].items.push(item)
-    })
-
+    // 3. Phân nhóm các sản phẩm theo từng Shop (Mô hình Multi-Shop Split Orders - Tái sử dụng SSOT)
+    const itemsByShop = groupItemsByShop(displayItems)
     const shopEntries = Object.values(itemsByShop)
     const isMultiShop = shopEntries.length > 1
     const baseRandomDigits = Math.floor(100000000 + Math.random() * 900000000)
@@ -261,15 +246,49 @@ function CheckoutFormContent({
       }
     })
 
+    // Hàm dọn dẹp giỏ hàng và trừ tồn kho dùng chung (chống trùng lặp giữa try và catch)
+    const performPostCheckoutCleanup = () => {
+      displayItems.forEach(async (item) => {
+        try {
+          if (item?.id) {
+            const currentStock = typeof item.stock === 'number' ? item.stock : 10
+            const newStock = Math.max(0, currentStock - (Number(item.quantity) || 1))
+            await patchProduct(item.id, {
+              stock: newStock,
+              isSoldOut: newStock === 0,
+            })
+          }
+        } catch (stockErr) {
+          console.warn('Checkout: Không thể trừ tồn kho sản phẩm:', item?.id, stockErr)
+        }
+      })
+
+      if (removeItemsFromCart && selectedCheckoutItems.length > 0) {
+        removeItemsFromCart(selectedCheckoutItems)
+      } else {
+        clearCart()
+      }
+      try {
+        sessionStorage.removeItem(COMMERCE_STORAGE_KEYS.CHECKOUT_ITEMS)
+      } catch {
+        // ignore
+      }
+    }
+
+    let finalOrders = orderPayloads
+
     try {
-      // Gửi các đơn hàng lên máy chủ db.json qua API POST /orders song song
+      // 1. Gửi các đơn hàng lên máy chủ db.json qua API POST /orders song song
       const savedOrders = await Promise.all(
         orderPayloads.map((payload) =>
           createOrder(payload).then((res) => res?.data || res)
         )
       )
+      if (Array.isArray(savedOrders) && savedOrders.length > 0) {
+        finalOrders = savedOrders
+      }
 
-      // Yêu cầu: Khi account không có địa chỉ mà nhập địa chỉ trong checkout thì lưu luôn vào shippingAddresses trong API
+      // 2. Tự động lưu địa chỉ vào tài khoản nếu user chưa có địa chỉ lưu sẵn
       const hasAccountAddress =
         Array.isArray(currentUser?.shippingAddresses) && currentUser.shippingAddresses.length > 0
 
@@ -300,105 +319,40 @@ function CheckoutFormContent({
           console.warn('Checkout: Không thể tự động lưu địa chỉ vào tài khoản qua API:', addrErr)
         }
       }
-
-      // Tự động trừ tồn kho (Inventory Deduction) cho các sản phẩm đã đặt
-      displayItems.forEach(async (item) => {
-        try {
-          if (item?.id) {
-            const currentStock = typeof item.stock === 'number' ? item.stock : 10
-            const newStock = Math.max(0, currentStock - (Number(item.quantity) || 1))
-            await patchProduct(item.id, {
-              stock: newStock,
-              isSoldOut: newStock === 0,
-            })
-          }
-        } catch (stockErr) {
-          console.warn('Checkout: Không thể trừ tồn kho sản phẩm:', item?.id, stockErr)
-        }
-      })
-
-      // Đồng bộ từng đơn hàng vào LocalStorage bằng hàm dùng chung (Single Source of Truth)
-      savedOrders.forEach((so) => storeUserOrder(so))
-
-      // Xóa các sản phẩm đã được thanh toán khỏi giỏ hàng
-      if (removeItemsFromCart && selectedCheckoutItems.length > 0) {
-        removeItemsFromCart(selectedCheckoutItems)
-      } else {
-        clearCart()
-      }
-      try {
-        sessionStorage.removeItem(COMMERCE_STORAGE_KEYS.CHECKOUT_ITEMS)
-      } catch {
-        // ignore
-      }
-
-      submittingRef.current = false
-      setIsSubmitting(false)
-      window.scrollTo({ top: 0, left: 0, behavior: 'instant' })
-
-      navigate('/order-success', {
-        state: {
-          orderNumber: savedOrders.map((o) => o.orderNumber).join(', '),
-          orderNumbers: savedOrders.map((o) => ({
-            orderNumber: o.orderNumber,
-            shopName: o.shopName,
-            total: o.total,
-          })),
-          total: orderTotal,
-          orderId: savedOrders[0]?.id,
-        },
-      })
     } catch (err) {
       console.warn(
-        'Checkout: Khong the ket noi API db.json, luu don hang offline:',
+        'Checkout: Không thể kết nối API db.json, lưu đơn hàng offline:',
         err?.message
       )
-
-      orderPayloads.forEach((payload) => storeUserOrder(payload))
-
-      if (removeItemsFromCart && selectedCheckoutItems.length > 0) {
-        removeItemsFromCart(selectedCheckoutItems)
-      } else {
-        clearCart()
-      }
-      try {
-        sessionStorage.removeItem(COMMERCE_STORAGE_KEYS.CHECKOUT_ITEMS)
-      } catch {
-        // ignore
-      }
-
-      displayItems.forEach(async (item) => {
-        try {
-          if (item?.id) {
-            const currentStock = typeof item.stock === 'number' ? item.stock : 10
-            const newStock = Math.max(0, currentStock - (Number(item.quantity) || 1))
-            await patchProduct(item.id, {
-              stock: newStock,
-              isSoldOut: newStock === 0,
-            })
-          }
-        } catch {
-          // ignore
-        }
-      })
-
-      submittingRef.current = false
-      setIsSubmitting(false)
-      window.scrollTo({ top: 0, left: 0, behavior: 'instant' })
-
-      navigate('/order-success', {
-        state: {
-          orderNumber: orderPayloads.map((o) => o.orderNumber).join(', '),
-          orderNumbers: orderPayloads.map((o) => ({
-            orderNumber: o.orderNumber,
-            shopName: o.shopName,
-            total: o.total,
-          })),
-          total: orderTotal,
-          orderId: orderPayloads[0]?.id,
-        },
-      })
     }
+
+    // =========================================================================
+    // HOÀN TẤT ĐẶT HÀNG DÙNG CHUNG (KHỬ TRÙNG LẶP CODE TRY/CATCH)
+    // =========================================================================
+    // 1. Đồng bộ từng đơn hàng vào LocalStorage (Single Source of Truth)
+    finalOrders.forEach((so) => storeUserOrder(so))
+
+    // 2. Thực thi trừ tồn kho và dọn dẹp giỏ hàng
+    performPostCheckoutCleanup()
+
+    // 3. Reset cờ submit và cuộn màn hình
+    submittingRef.current = false
+    setIsSubmitting(false)
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' })
+
+    // 4. Chuẩn hóa dữ liệu và điều hướng sang trang xác nhận thành công
+    navigate('/order-success', {
+      state: {
+        orderNumber: finalOrders.map((o) => o.orderNumber).join(', '),
+        orderNumbers: finalOrders.map((o) => ({
+          orderNumber: o.orderNumber,
+          shopName: o.shopName,
+          total: o.total,
+        })),
+        total: orderTotal,
+        orderId: finalOrders[0]?.id,
+      },
+    })
   }
 
   return (

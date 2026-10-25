@@ -3,7 +3,7 @@ import { useOutletContext } from 'react-router-dom'
 import { Package, Clock, Truck, CreditCard } from 'lucide-react'
 import { useAuth } from '../../contexts/AuthContext'
 import { getOrders } from '../../services/api'
-import { formatVND } from '../../constants/commerce'
+import { formatVND, filterOrdersByShop } from '../../constants/commerce'
 import { Pagination } from '../../components/common'
 import {
   MetricCard,
@@ -52,15 +52,8 @@ export default function Orders() {
       .then((res) => {
         if (!isMounted) return
         const data = res?.data || res || []
-        // Lọc các đơn hàng thuộc về shop hiện tại
-        const shopOrders = Array.isArray(data)
-          ? data.filter((o) => {
-            if (o.shopId && currentShopId && o.shopId === currentShopId) return true
-            if (Array.isArray(o.items) && currentShopId && o.items.some((item) => item.shopId === currentShopId)) return true
-            if (o.shopName && shopName && o.shopName.trim().toLowerCase() === shopName.trim().toLowerCase()) return true
-            return false
-          })
-          : []
+        // Lọc các đơn hàng thuộc về shop hiện tại (Tái sử dụng filterOrdersByShop SSOT)
+        const shopOrders = filterOrdersByShop(data, currentShopId, shopName)
         setOrders(shopOrders)
       })
       .catch((err) => {

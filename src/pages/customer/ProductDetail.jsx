@@ -1,3 +1,4 @@
+import { COMMERCE_STORAGE_KEYS } from '../../constants'
 import { useState, useEffect, useMemo } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import {
@@ -189,7 +190,7 @@ export default function ProductDetail() {
     }
 
     try {
-      sessionStorage.setItem('fashora_checkout_items', JSON.stringify([buyNowItem]))
+      sessionStorage.setItem(COMMERCE_STORAGE_KEYS.CHECKOUT_ITEMS, JSON.stringify([buyNowItem]))
     } catch {
       // ignore
     }

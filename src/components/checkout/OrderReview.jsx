@@ -1,3 +1,4 @@
+import { formatFullAddress, groupItemsByShop } from '../../constants'
 import { CheckCircle2, ShieldCheck } from 'lucide-react'
 import { Button } from '../common'
 
@@ -25,24 +26,11 @@ export default function OrderReview({
   isSubmitting = false,
   onSubmit,
 }) {
-  // Trích xuất danh sách các Atelier có sản phẩm trong đơn hàng
-  const uniqueShopNames = Array.from(
-    new Set(
-      items.map(
-        (it) =>
-          it.shopName ||
-          (it.shopId === 'shop_l-obscur-atelier_8158'
-            ? "L'OBSCUR ATELIER"
-            : 'M STUDIO')
-      )
-    )
-  )
+  // Trích xuất danh sách các Atelier và địa chỉ từ SSOT
+  const shopEntries = Object.values(groupItemsByShop(items))
+  const uniqueShopNames = shopEntries.map((g) => g.shopName)
   const isMultiShop = uniqueShopNames.length > 1
-  // Gộp địa chỉ đầy đủ thành chuỗi ngăn cách bởi dấu phẩy
-  const fullAddress =
-    [formData.address, formData.ward, formData.district, formData.city]
-      .filter((item) => item && item.trim().length > 0)
-      .join(', ') || 'No address provided'
+  const fullAddress = formatFullAddress(formData)
 
   // Nhãn hiển thị cho gói giao hàng
   const shippingLabel =

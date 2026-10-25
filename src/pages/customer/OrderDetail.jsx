@@ -2,12 +2,13 @@ import { useState, useEffect } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import { ArrowLeft, Copy } from 'lucide-react'
 import { Badge, Toast, Modal, Button } from '../../components/common'
-import { getOrderById, getOrders, updateOrderStatus } from '../../services/api'
+import { fetchOrderByIdOrNumber, updateOrderStatus } from '../../services/api'
 import { useAuth } from '../../contexts/AuthContext'
 import {
   STATUS_CONFIG,
   formatDate,
   canCancelOrder,
+  isOrderOwnedByUser,
   OrderTimeline,
   OrderStatusNotice,
   OrderItemsList,
@@ -52,84 +53,37 @@ export default function OrderDetail() {
   }, [])
 
   // =========================================================================
-  // 1. TẢI CHI TIẾT ĐƠN HÀNG TỪ API DB.JSON VÀ XÁC THỰC QUYỀN SỞ HỮU
+  // 1. TẢI CHI TIẾT ĐƠN HÀNG TỪ API DB.JSON VÀ XÁC THỰC QUYỀN SỞ HỮU (Tái sử dụng fetchOrderByIdOrNumber)
   // =========================================================================
   useEffect(() => {
     let isMounted = true
 
-    // Hàm kiểm tra quyền sở hữu đơn hàng của tài khoản đang đăng nhập
-    const isOrderOwnedByCurrentUser = (ord) => {
-      if (!ord || !currentUser) return false
-      const matchUserId = Boolean(ord.userId && String(ord.userId) === String(currentUser.id))
-      const matchEmail = Boolean(
-        currentUser.email &&
-        ord.customerEmail &&
-        ord.customerEmail.trim().toLowerCase() === currentUser.email.trim().toLowerCase()
-      )
-      return matchUserId || matchEmail
-    }
+    const loadOrder = async () => {
+      try {
+        const foundOrder = await fetchOrderByIdOrNumber(id)
+        if (!isMounted) return
 
-    const handleOrderData = (data) => {
-      if (data && (data.id || data.orderNumber)) {
-        if (isOrderOwnedByCurrentUser(data)) {
-          setOrder(data)
+        if (foundOrder && isOrderOwnedByUser(foundOrder, currentUser)) {
+          setOrder(foundOrder)
           setNotFound(false)
+        } else {
+          setOrder(null)
+          setNotFound(true)
+        }
+      } catch (err) {
+        console.error('OrderDetail: Lỗi tải đơn hàng từ API:', err)
+        if (isMounted) {
+          setOrder(null)
+          setNotFound(true)
+        }
+      } finally {
+        if (isMounted) {
           setLoading(false)
-          return true
         }
       }
-      return false
     }
 
-    // 1. Gọi API lấy đơn hàng theo ID
-    getOrderById(id)
-      .then((res) => {
-        if (!isMounted) return
-        const data = res?.data || res
-        if (handleOrderData(data)) {
-          return
-        }
-        return getOrders()
-      })
-      .then((res) => {
-        if (!isMounted || !res) return
-        const list = res?.data || res
-        if (Array.isArray(list)) {
-          const found = list.find((o) => o.id === id || o.orderNumber === id)
-          if (handleOrderData(found)) {
-            return
-          }
-        }
-        setOrder(null)
-        setNotFound(true)
-        setLoading(false)
-      })
-      .catch(() => {
-        if (!isMounted) return
-        // Khi getOrderById lỗi (ví dụ id là mã đơn #SPXVN...), fallback tìm qua getOrders()
-        getOrders()
-          .then((res) => {
-            if (!isMounted) return
-            const list = res?.data || res
-            if (Array.isArray(list)) {
-              const found = list.find((o) => o.id === id || o.orderNumber === id)
-              if (handleOrderData(found)) {
-                return
-              }
-            }
-            setOrder(null)
-            setNotFound(true)
-            setLoading(false)
-          })
-          .catch((finalErr) => {
-            console.error('OrderDetail: Lỗi tải đơn hàng từ API:', finalErr)
-            if (isMounted) {
-              setOrder(null)
-              setNotFound(true)
-              setLoading(false)
-            }
-          })
-      })
+    loadOrder()
 
     return () => {
       isMounted = false

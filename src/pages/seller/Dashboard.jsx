@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { useOutletContext } from 'react-router-dom'
 import { CreditCard, Package, CheckCircle2 } from 'lucide-react'
 import { useAuth } from '../../contexts/AuthContext'
-import { formatVND } from '../../constants/commerce'
+import { formatVND, filterOrdersByShop } from '../../constants/commerce'
 import { getOrders, getProductsByShop } from '../../services/api'
 import {
   MetricCard,
@@ -68,17 +68,9 @@ export default function Dashboard() {
   }, [currentShopId])
 
   // =========================================================================
-  // BƯỚC 1: LỌC ĐƠN HÀNG THUỘC VỀ SHOP HIỆN TẠI (ĐA SHOP ĐỘC LẬP)
+  // BƯỚC 1: LỌC ĐƠN HÀNG THUỘC VỀ SHOP HIỆN TẠI (Tái sử dụng filterOrdersByShop SSOT)
   // =========================================================================
-  const shopOrders = orders.filter((o) => {
-    // 1. Khớp chính xác shopId của đơn
-    if (o.shopId && currentShopId && o.shopId === currentShopId) return true
-    // 2. Khớp theo từng sản phẩm trong đơn nếu có shopId
-    if (Array.isArray(o.items) && currentShopId && o.items.some((item) => item.shopId === currentShopId)) return true
-    // 3. Khớp theo shopName nếu có
-    if (o.shopName && shopName && o.shopName.trim().toLowerCase() === shopName.trim().toLowerCase()) return true
-    return false
-  })
+  const shopOrders = filterOrdersByShop(orders, currentShopId, shopName)
 
   // Sắp xếp đơn hàng theo thứ tự mới nhất giảm dần theo thời gian tạo
   const sortedShopOrders = [...shopOrders].sort((a, b) => {

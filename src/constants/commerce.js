@@ -257,3 +257,68 @@ export const findStoredOrder = (idOrNumber) => {
   )
 }
 
+// ============================================================================
+// 7. TIỆN ÍCH DÙNG CHUNG CHO SHOP, PHÂN NHÓM & PHÂN QUYỀN ĐƠN HÀNG (SSOT)
+// ============================================================================
+
+/**
+ * Trích xuất Shop ID và Shop Name chuẩn từ đối tượng sản phẩm hoặc item trong giỏ/đơn
+ */
+export const getShopInfoFromItem = (item) => {
+  const shopId = item?.shopId || ''
+  const shopName =
+    item?.shopName || ''
+  return { shopId, shopName }
+}
+
+/**
+ * Gom nhóm danh sách sản phẩm theo từng Shop (Mô hình Multi-Shop Split Orders)
+ * @param {Array} items - Danh sách sản phẩm trong giỏ hoặc checkout
+ * @returns {Record<string, { shopId: string, shopName: string, items: Array }>}
+ */
+export const groupItemsByShop = (items = []) => {
+  const groups = {}
+  if (!Array.isArray(items)) return groups
+
+  items.forEach((item) => {
+    const { shopId, shopName } = getShopInfoFromItem(item)
+    if (!groups[shopId]) {
+      groups[shopId] = {
+        shopId,
+        shopName,
+        items: [],
+      }
+    }
+    groups[shopId].items.push(item)
+  })
+  return groups
+}
+
+/**
+ * Lọc danh sách đơn hàng thuộc về một Shop cụ thể (Seller Portal)
+ */
+export const filterOrdersByShop = (orders = [], shopId = '', shopName = '') => {
+  if (!Array.isArray(orders)) return []
+  const normalizedShopName = (shopName || '').trim().toLowerCase()
+  return orders.filter((o) => {
+    if (o.shopId && shopId && o.shopId === shopId) return true
+    if (Array.isArray(o.items) && shopId && o.items.some((item) => item.shopId === shopId)) return true
+    if (o.shopName && normalizedShopName && o.shopName.trim().toLowerCase() === normalizedShopName) return true
+    return false
+  })
+}
+
+/**
+ * Kiểm tra xem một đơn hàng có thuộc quyền sở hữu của người dùng đang đăng nhập hay không
+ */
+export const isOrderOwnedByUser = (order, user) => {
+  if (!order || !user) return false
+  const matchUserId = Boolean(order.userId && String(order.userId) === String(user.id))
+  const matchEmail = Boolean(
+    user.email &&
+    order.customerEmail &&
+    order.customerEmail.trim().toLowerCase() === user.email.trim().toLowerCase()
+  )
+  return matchUserId || matchEmail
+}
+
