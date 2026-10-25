@@ -660,8 +660,8 @@
     },
     {
       "id": "prd_set_01",
-      "shopId": "shop_m_studio",
-      "shopName": "M STUDIO",
+      "shopId": "shop_l-obscur-atelier_8158",
+      "shopName": "L'OBSCUR ATELIER",
       "name": "Military Officer Jacket & Shorts Set",
       "category": "SET",
       "price": 1250000,
@@ -696,8 +696,8 @@
     },
     {
       "id": "prd_set_02",
-      "shopId": "shop_m_studio",
-      "shopName": "M STUDIO",
+      "shopId": "shop_l-obscur-atelier_8158",
+      "shopName": "L'OBSCUR ATELIER",
       "name": "Quilted Biker Jacket & Flare Denim Set",
       "category": "SET",
       "price": 1480000,
@@ -732,8 +732,8 @@
     },
     {
       "id": "prd_set_03",
-      "shopId": "shop_m_studio",
-      "shopName": "M STUDIO",
+      "shopId": "shop_l-obscur-atelier_8158",
+      "shopName": "L'OBSCUR ATELIER",
       "name": "Shearling Leather Jacket & Cable Knit Skirt Set",
       "category": "SET",
       "price": 1590000,
@@ -767,8 +767,8 @@
     },
     {
       "id": "prd_set_04",
-      "shopId": "shop_m_studio",
-      "shopName": "M STUDIO",
+      "shopId": "shop_l-obscur-atelier_8158",
+      "shopName": "L'OBSCUR ATELIER",
       "name": "Double Collar Denim Jacket & Baggy Jeans Set",
       "category": "SET",
       "price": 1350000,
@@ -803,8 +803,8 @@
     },
     {
       "id": "prd_set_05",
-      "shopId": "shop_m_studio",
-      "shopName": "M STUDIO",
+      "shopId": "shop_l-obscur-atelier_8158",
+      "shopName": "L'OBSCUR ATELIER",
       "name": "Architectural Funnel Leather Jacket & Zip Pants Set",
       "category": "SET",
       "price": 1680000,
@@ -838,8 +838,8 @@
     },
     {
       "id": "prd_set_06",
-      "shopId": "shop_m_studio",
-      "shopName": "M STUDIO",
+      "shopId": "shop_l-obscur-atelier_8158",
+      "shopName": "L'OBSCUR ATELIER",
       "name": "Colorblock Buckled Cardigan & Leather Pants Set",
       "category": "SET",
       "price": 1390000,
@@ -874,8 +874,8 @@
     },
     {
       "id": "prd_set_07",
-      "shopId": "shop_m_studio",
-      "shopName": "M STUDIO",
+      "shopId": "shop_l-obscur-atelier_8158",
+      "shopName": "L'OBSCUR ATELIER",
       "name": "Cyber Hooded Moto Jacket & Eyelet Skirt Set",
       "category": "SET",
       "price": 1550000,
@@ -909,8 +909,8 @@
     },
     {
       "id": "prd_set_08",
-      "shopId": "shop_m_studio",
-      "shopName": "M STUDIO",
+      "shopId": "shop_l-obscur-atelier_8158",
+      "shopName": "L'OBSCUR ATELIER",
       "name": "Metallic Racing Leather Jacket & Mini Skirt Set",
       "category": "SET",
       "price": 1290000,
@@ -945,8 +945,8 @@
     },
     {
       "id": "prd_set_09",
-      "shopId": "shop_m_studio",
-      "shopName": "M STUDIO",
+      "shopId": "shop_l-obscur-atelier_8158",
+      "shopName": "L'OBSCUR ATELIER",
       "name": "Cropped Biker Leather Jacket & Wide Jeans Set",
       "category": "SET",
       "price": 1420000,
@@ -2011,7 +2011,8 @@
   "cart": [],
   "orders": [
     {
-      "orderNumber": "#ORD-9041",
+      "id": "ord_9041_1",
+      "orderNumber": "#ORD-9041-1",
       "userId": "usr_helena",
       "customerEmail": "helena.vance@example.com",
       "recipient": {
@@ -2022,6 +2023,7 @@
         "district": "District 1",
         "city": "Ho Chi Minh City"
       },
+      "shopId": "shop_m_studio",
       "shopName": "M STUDIO",
       "items": [
         {
@@ -2031,7 +2033,9 @@
           "quantity": 1,
           "selectedSize": "M",
           "selectedColor": "Onyx Black",
-          "image": "/images/products/shirt/shirt-01.jpg"
+          "image": "/images/products/shirt/shirt-01.jpg",
+          "shopId": "shop_m_studio",
+          "shopName": "M STUDIO"
         },
         {
           "id": "prd_acc_02",
@@ -2040,33 +2044,65 @@
           "quantity": 1,
           "selectedSize": "Freesize",
           "selectedColor": "Matte Silver",
-          "image": "/images/products/accessories/acc-02.jpg"
-        },
-        {
-          "id": "prd_acc_01",
-          "name": "Liquid Thorn Sunglasses",
-          "price": 450000,
-          "quantity": 1,
-          "selectedSize": "One Size",
-          "selectedColor": "Silver Chrome",
-          "image": "/images/products/accessories/acc-01.jpg"
+          "image": "/images/products/accessories/acc-02.jpg",
+          "shopId": "shop_m_studio",
+          "shopName": "M STUDIO"
         }
       ],
-      "shippingFee": 50000,
-      "shippingMethod": "Standard Delivery",
+      "shippingFee": 0,
+      "shippingMethod": "Standard Delivery (Complimentary)",
       "paymentMethod": "Cash on Delivery (COD)",
-      "subtotal": 1210000,
-      "total": 1260000,
+      "subtotal": 760000,
+      "total": 760000,
       "status": "PENDING",
       "createdAt": "2026-10-18T10:15:00.000Z",
       "logistics": {
         "courier": "SPX Express",
-        "waybill": "VN8291041VN"
-      },
-      "id": "ord_9041",
-      "shopId": "shop_m_studio"
+        "waybill": "VN82910411VN"
+      }
     },
     {
+      "id": "ord_9041_2",
+      "orderNumber": "#ORD-9041-2",
+      "userId": "usr_helena",
+      "customerEmail": "helena.vance@example.com",
+      "recipient": {
+        "fullName": "Helena Vance",
+        "phone": "0912345678",
+        "address": "128 Le Duan Boulevard, Floor 4",
+        "ward": "Ben Nghe Ward",
+        "district": "District 1",
+        "city": "Ho Chi Minh City"
+      },
+      "shopId": "shop_l-obscur-atelier_8158",
+      "shopName": "L'OBSCUR ATELIER",
+      "items": [
+        {
+          "id": "prd_set_01",
+          "name": "Military Officer Jacket & Shorts Set",
+          "price": 1250000,
+          "quantity": 1,
+          "selectedSize": "S",
+          "selectedColor": "Black",
+          "image": "/images/products/set/set-01.jpg",
+          "shopId": "shop_l-obscur-atelier_8158",
+          "shopName": "L'OBSCUR ATELIER"
+        }
+      ],
+      "shippingFee": 0,
+      "shippingMethod": "Standard Delivery (Complimentary)",
+      "paymentMethod": "Cash on Delivery (COD)",
+      "subtotal": 1250000,
+      "total": 1250000,
+      "status": "CONFIRMED",
+      "createdAt": "2026-10-18T10:15:00.000Z",
+      "logistics": {
+        "courier": "SPX Express",
+        "waybill": "VN82910412VN"
+      }
+    },
+    {
+      "id": "ord_9038",
       "orderNumber": "#ORD-9038",
       "userId": "usr_alexander",
       "customerEmail": "alexander.wright@example.com",
@@ -2078,6 +2114,7 @@
         "district": "District 1",
         "city": "Ho Chi Minh City"
       },
+      "shopId": "shop_m_studio",
       "shopName": "M STUDIO",
       "items": [
         {
@@ -2087,24 +2124,25 @@
           "quantity": 1,
           "selectedSize": "One Size",
           "selectedColor": "Chrome Silver",
-          "image": "/images/products/accessories/acc-05.jpg"
+          "image": "/images/products/accessories/acc-05.jpg",
+          "shopId": "shop_m_studio",
+          "shopName": "M STUDIO"
         }
       ],
-      "shippingFee": 60000,
-      "shippingMethod": "Express Courier",
+      "shippingFee": 35000,
+      "shippingMethod": "Express Courier (+₫35,000)",
       "paymentMethod": "Cash on Delivery (COD)",
       "subtotal": 620000,
-      "total": 680000,
+      "total": 655000,
       "status": "CONFIRMED",
       "createdAt": "2026-10-18T09:30:00.000Z",
       "logistics": {
         "courier": "SPX Express",
         "waybill": "VN8291038VN"
-      },
-      "id": "ord_9038",
-      "shopId": "shop_m_studio"
+      }
     },
     {
+      "id": "ord_9029",
       "orderNumber": "#ORD-9029",
       "userId": "usr_klara",
       "customerEmail": "klara.chen@example.com",
@@ -2116,16 +2154,19 @@
         "district": "District 1",
         "city": "Ho Chi Minh City"
       },
-      "shopName": "M STUDIO",
+      "shopId": "shop_l-obscur-atelier_8158",
+      "shopName": "L'OBSCUR ATELIER",
       "items": [
         {
-          "id": "prd_set_01",
+          "id": "prd_set_02",
           "name": "Quilted Biker Jacket & Flare Denim Set",
           "price": 1890000,
           "quantity": 1,
           "selectedSize": "S",
           "selectedColor": "Charcoal Black",
-          "image": "/images/products/set/set-01.jpg"
+          "image": "/images/products/set/set-02.jpg",
+          "shopId": "shop_l-obscur-atelier_8158",
+          "shopName": "L'OBSCUR ATELIER"
         }
       ],
       "shippingFee": 0,
@@ -2138,11 +2179,10 @@
       "logistics": {
         "courier": "SPX Express",
         "waybill": "VN8291029VN"
-      },
-      "id": "ord_9029",
-      "shopId": "shop_m_studio"
+      }
     },
     {
+      "id": "ord_9014",
       "orderNumber": "#ORD-9014",
       "userId": "usr_marc",
       "customerEmail": "marc.dupont@example.com",
@@ -2154,6 +2194,7 @@
         "district": "District 1",
         "city": "Ho Chi Minh City"
       },
+      "shopId": "shop_m_studio",
       "shopName": "M STUDIO",
       "items": [
         {
@@ -2163,7 +2204,9 @@
           "quantity": 1,
           "selectedSize": "L",
           "selectedColor": "Jet Black",
-          "image": "/images/products/shirt/shirt-02.jpg"
+          "image": "/images/products/shirt/shirt-02.jpg",
+          "shopId": "shop_m_studio",
+          "shopName": "M STUDIO"
         }
       ],
       "shippingFee": 0,
@@ -2176,11 +2219,10 @@
       "logistics": {
         "courier": "SPX Express",
         "waybill": "VN8291014VN"
-      },
-      "id": "ord_9014",
-      "shopId": "shop_m_studio"
+      }
     },
     {
+      "id": "ord_8992",
       "orderNumber": "#ORD-8992",
       "userId": "usr_elena",
       "customerEmail": "elena.rostova@example.com",
@@ -2192,6 +2234,7 @@
         "district": "District 3",
         "city": "Ho Chi Minh City"
       },
+      "shopId": "shop_m_studio",
       "shopName": "M STUDIO",
       "items": [
         {
@@ -2201,35 +2244,77 @@
           "quantity": 1,
           "selectedSize": "One Size",
           "selectedColor": "Silver Chrome",
-          "image": "/images/products/accessories/acc-01.jpg"
+          "image": "/images/products/accessories/acc-01.jpg",
+          "shopId": "shop_m_studio",
+          "shopName": "M STUDIO"
         }
       ],
-      "shippingFee": 40000,
-      "shippingMethod": "Standard Delivery",
+      "shippingFee": 35000,
+      "shippingMethod": "Express Courier (+₫35,000)",
       "paymentMethod": "Cash on Delivery (COD)",
       "subtotal": 450000,
-      "total": 490000,
+      "total": 485000,
       "status": "CANCELLED",
       "createdAt": "2026-10-16T15:45:00.000Z",
       "logistics": {
         "courier": "SPX Express",
         "waybill": "VN8298992VN"
-      },
-      "id": "ord_8992",
-      "shopId": "shop_m_studio"
+      }
     },
     {
+      "id": "ord_8985",
+      "orderNumber": "#ORD-8985",
+      "userId": "usr_marc",
+      "customerEmail": "marc.dupont@example.com",
+      "recipient": {
+        "fullName": "Marc Dupont",
+        "phone": "0977889900",
+        "address": "22 Pasteur Street",
+        "ward": "Nguyen Thai Binh Ward",
+        "district": "District 1",
+        "city": "Ho Chi Minh City"
+      },
+      "shopId": "shop_l-obscur-atelier_8158",
+      "shopName": "L'OBSCUR ATELIER",
+      "items": [
+        {
+          "id": "prd_set_05",
+          "name": "Architectural Funnel Leather Jacket & Zip Pants Set",
+          "price": 1650000,
+          "quantity": 1,
+          "selectedSize": "M",
+          "selectedColor": "Raw Charcoal",
+          "image": "/images/products/set/set-05.jpg",
+          "shopId": "shop_l-obscur-atelier_8158",
+          "shopName": "L'OBSCUR ATELIER"
+        }
+      ],
+      "shippingFee": 0,
+      "shippingMethod": "Standard Delivery (Complimentary)",
+      "paymentMethod": "Cash on Delivery (COD)",
+      "subtotal": 1650000,
+      "total": 1650000,
+      "status": "COMPLETED",
+      "createdAt": "2026-10-15T14:30:00.000Z",
+      "logistics": {
+        "courier": "SPX Express",
+        "waybill": "VN8298985VN"
+      }
+    },
+    {
+      "id": "ord_8801",
       "orderNumber": "#SPXVN881002530",
       "userId": "upkuSobx8os",
       "customerEmail": "an@gmail.com",
       "recipient": {
         "fullName": "Nguyen Thien An",
         "phone": "0912345678",
-        "address": "123",
-        "ward": "binh thuong",
-        "district": "quan 7",
-        "city": "long an"
+        "address": "123 Binh Thuong",
+        "ward": "Binh Thuan Ward",
+        "district": "District 7",
+        "city": "Ho Chi Minh City"
       },
+      "shopId": "shop_m_studio",
       "shopName": "M STUDIO",
       "items": [
         {
@@ -2239,7 +2324,9 @@
           "quantity": 1,
           "selectedSize": "One Size",
           "selectedColor": "Washed Black",
-          "image": "/images/products/accessories/acc-04.jpg"
+          "image": "/images/products/accessories/acc-04.jpg",
+          "shopId": "shop_m_studio",
+          "shopName": "M STUDIO"
         }
       ],
       "shippingFee": 0,
@@ -2252,22 +2339,22 @@
       "logistics": {
         "courier": "SPX Express",
         "waybill": "VN53341799VN"
-      },
-      "id": "5REo4Pvisao",
-      "shopId": "shop_m_studio"
+      }
     },
     {
+      "id": "ord_8802",
       "orderNumber": "#SPXVN998075994",
       "userId": "OG_o5LL7lOM",
       "customerEmail": "leman200x@gmail.com",
       "recipient": {
-        "fullName": "Lê Ngọc Mẫn",
+        "fullName": "Le Ngoc Man",
         "phone": "0987245673",
-        "address": "143",
-        "ward": "ben nghe",
-        "district": "quan 1",
-        "city": "ho chi minh"
+        "address": "143 Ben Nghe",
+        "ward": "Ben Nghe Ward",
+        "district": "District 1",
+        "city": "Ho Chi Minh City"
       },
+      "shopId": "shop_m_studio",
       "shopName": "M STUDIO",
       "items": [
         {
@@ -2277,7 +2364,9 @@
           "quantity": 1,
           "selectedSize": "One Size",
           "selectedColor": "Glossy Black",
-          "image": "/images/products/accessories/acc-03.jpg"
+          "image": "/images/products/accessories/acc-03.jpg",
+          "shopId": "shop_m_studio",
+          "shopName": "M STUDIO"
         }
       ],
       "shippingFee": 0,
@@ -2290,9 +2379,7 @@
       "logistics": {
         "courier": "SPX Express",
         "waybill": "VN54797189VN"
-      },
-      "id": "feph2CAXUIw",
-      "shopId": "shop_m_studio"
+      }
     }
   ],
   "shops": [

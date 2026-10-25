@@ -175,56 +175,99 @@ function CheckoutFormContent({
     submittingRef.current = true
     setIsSubmitting(true)
 
-    // Tạo mã đơn hàng độc nhất theo chuẩn SPXVN + 9 chữ số ngẫu nhiên
-    const randomDigits = Math.floor(100000000 + Math.random() * 900000000)
-    const generatedOrderNumber = `#SPXVN${randomDigits}`
+    // 3. Phân nhóm các sản phẩm theo từng Shop (Mô hình Multi-Shop Split Orders)
+    const itemsByShop = {}
+    displayItems.forEach((item) => {
+      const sId = item.shopId || 'shop_m_studio'
+      if (!itemsByShop[sId]) {
+        itemsByShop[sId] = {
+          shopId: sId,
+          shopName:
+            item.shopName ||
+            (sId === 'shop_l-obscur-atelier_8158'
+              ? "L'OBSCUR ATELIER"
+              : 'M STUDIO'),
+          items: [],
+        }
+      }
+      itemsByShop[sId].items.push(item)
+    })
 
-    // 3. Chuẩn bị payload đơn hàng đầy đủ
-    const orderPayload = {
-      orderNumber: generatedOrderNumber,
-      userId: currentUser?.id || null,
-      customerEmail: currentUser?.email || null,
-      recipient: {
-        fullName: formData.fullName.trim(),
-        phone: formData.phone.trim(),
-        address: formData.address.trim(),
-        ward: (formData.ward || '').trim(),
-        district: (formData.district || '').trim(),
-        city: (formData.city || '').trim(),
-      },
-      shopName: displayItems[0]?.shopName || 'FASHORA ATELIER',
-      shopId: displayItems[0]?.shopId || 'shop_fashora',
-      items: displayItems.map((item) => ({
-        id: item.id,
-        name: item.name,
-        price: item.price,
-        quantity: item.quantity || 1,
-        selectedSize: item.selectedSize || 'Standard',
-        selectedColor: item.selectedColor || 'Standard',
-        image: item.image || item.images?.[0] || FALLBACK_IMAGE,
-        shopId: item.shopId || displayItems[0]?.shopId || 'shop_fashora',
-        shopName: item.shopName || displayItems[0]?.shopName || 'FASHORA ATELIER',
-      })),
-      shippingFee: shippingMethod,
-      shippingMethod:
+    const shopEntries = Object.values(itemsByShop)
+    const isMultiShop = shopEntries.length > 1
+    const baseRandomDigits = Math.floor(100000000 + Math.random() * 900000000)
+    const nowTime = Date.now()
+
+    // Tạo payload đơn hàng độc lập cho từng shop
+    const orderPayloads = shopEntries.map((shopGroup, index) => {
+      // Phí vận chuyển: Nếu có phí Express và mua từ nhiều shop thì chia đều theo shop, hoặc miễn phí Standard
+      const groupShippingFee =
         shippingMethod > 0
-          ? 'Express Courier (+₫35,000)'
-          : 'Standard Delivery (Complimentary)',
-      paymentMethod: 'Cash on Delivery (COD)',
-      subtotal,
-      total: orderTotal,
-      status: 'PENDING',
-      createdAt: new Date().toISOString(),
-      logistics: {
-        courier: 'SPX Express',
-        waybill: `VN${Date.now().toString().slice(-8)}VN`,
-      },
-    }
+          ? isMultiShop
+            ? Math.round(shippingMethod / shopEntries.length)
+            : shippingMethod
+          : 0
+
+      const groupSubtotal = shopGroup.items.reduce(
+        (acc, item) => acc + (Number(item.price) || 0) * (Number(item.quantity) || 1),
+        0
+      )
+      const groupTotal = groupSubtotal + groupShippingFee
+
+      // Mã đơn hàng: Nếu 1 shop -> #SPXVN123456789. Nếu nhiều shop -> #SPXVN123456789-1, #SPXVN123456789-2
+      const orderNumber = isMultiShop
+        ? `#SPXVN${baseRandomDigits}-${index + 1}`
+        : `#SPXVN${baseRandomDigits}`
+
+      return {
+        orderNumber,
+        userId: currentUser?.id || null,
+        customerEmail: currentUser?.email || null,
+        recipient: {
+          fullName: formData.fullName.trim(),
+          phone: formData.phone.trim(),
+          address: formData.address.trim(),
+          ward: (formData.ward || '').trim(),
+          district: (formData.district || '').trim(),
+          city: (formData.city || '').trim(),
+        },
+        shopId: shopGroup.shopId,
+        shopName: shopGroup.shopName,
+        items: shopGroup.items.map((item) => ({
+          id: item.id,
+          name: item.name,
+          price: item.price,
+          quantity: item.quantity || 1,
+          selectedSize: item.selectedSize || 'Standard',
+          selectedColor: item.selectedColor || 'Standard',
+          image: item.image || item.images?.[0] || FALLBACK_IMAGE,
+          shopId: shopGroup.shopId,
+          shopName: shopGroup.shopName,
+        })),
+        shippingFee: groupShippingFee,
+        shippingMethod:
+          shippingMethod > 0
+            ? 'Express Courier (+₫35,000)'
+            : 'Standard Delivery (Complimentary)',
+        paymentMethod: 'Cash on Delivery (COD)',
+        subtotal: groupSubtotal,
+        total: groupTotal,
+        status: 'PENDING',
+        createdAt: new Date().toISOString(),
+        logistics: {
+          courier: 'SPX Express',
+          waybill: `VN${String(nowTime).slice(-7)}${index + 1}VN`,
+        },
+      }
+    })
 
     try {
-      // Gửi đơn hàng lên máy chủ db.json qua API POST /orders
-      const res = await createOrder(orderPayload)
-      const savedOrder = res?.data || res
+      // Gửi các đơn hàng lên máy chủ db.json qua API POST /orders song song
+      const savedOrders = await Promise.all(
+        orderPayloads.map((payload) =>
+          createOrder(payload).then((res) => res?.data || res)
+        )
+      )
 
       // Yêu cầu: Khi account không có địa chỉ mà nhập địa chỉ trong checkout thì lưu luôn vào shippingAddresses trong API
       const hasAccountAddress =
@@ -274,8 +317,8 @@ function CheckoutFormContent({
         }
       })
 
-      // Đồng bộ vào LocalStorage bằng hàm dùng chung (Single Source of Truth)
-      storeUserOrder(savedOrder || orderPayload)
+      // Đồng bộ từng đơn hàng vào LocalStorage bằng hàm dùng chung (Single Source of Truth)
+      savedOrders.forEach((so) => storeUserOrder(so))
 
       // Xóa các sản phẩm đã được thanh toán khỏi giỏ hàng
       if (removeItemsFromCart && selectedCheckoutItems.length > 0) {
@@ -295,9 +338,14 @@ function CheckoutFormContent({
 
       navigate('/order-success', {
         state: {
-          orderNumber: savedOrder?.orderNumber || generatedOrderNumber,
-          total: savedOrder?.total || orderTotal,
-          orderId: savedOrder?.id,
+          orderNumber: savedOrders.map((o) => o.orderNumber).join(', '),
+          orderNumbers: savedOrders.map((o) => ({
+            orderNumber: o.orderNumber,
+            shopName: o.shopName,
+            total: o.total,
+          })),
+          total: orderTotal,
+          orderId: savedOrders[0]?.id,
         },
       })
     } catch (err) {
@@ -306,7 +354,7 @@ function CheckoutFormContent({
         err?.message
       )
 
-      storeUserOrder(orderPayload)
+      orderPayloads.forEach((payload) => storeUserOrder(payload))
 
       if (removeItemsFromCart && selectedCheckoutItems.length > 0) {
         removeItemsFromCart(selectedCheckoutItems)
@@ -319,14 +367,35 @@ function CheckoutFormContent({
         // ignore
       }
 
+      displayItems.forEach(async (item) => {
+        try {
+          if (item?.id) {
+            const currentStock = typeof item.stock === 'number' ? item.stock : 10
+            const newStock = Math.max(0, currentStock - (Number(item.quantity) || 1))
+            await patchProduct(item.id, {
+              stock: newStock,
+              isSoldOut: newStock === 0,
+            })
+          }
+        } catch {
+          // ignore
+        }
+      })
+
       submittingRef.current = false
       setIsSubmitting(false)
       window.scrollTo({ top: 0, left: 0, behavior: 'instant' })
 
       navigate('/order-success', {
         state: {
-          orderNumber: generatedOrderNumber,
+          orderNumber: orderPayloads.map((o) => o.orderNumber).join(', '),
+          orderNumbers: orderPayloads.map((o) => ({
+            orderNumber: o.orderNumber,
+            shopName: o.shopName,
+            total: o.total,
+          })),
           total: orderTotal,
+          orderId: orderPayloads[0]?.id,
         },
       })
     }
@@ -372,6 +441,7 @@ function CheckoutFormContent({
             formData={formData}
             shippingMethod={shippingMethod}
             paymentMethod={paymentMethod}
+            items={displayItems}
             isSubmitting={isSubmitting}
             onSubmit={handleSubmitOrder}
           />

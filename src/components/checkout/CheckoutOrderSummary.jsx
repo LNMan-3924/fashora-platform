@@ -36,52 +36,87 @@ export default function CheckoutOrderSummary({ items = [], shippingFee = 0 }) {
           </span>
         </div>
 
-        {/* Danh sách các sản phẩm trong đơn hàng */}
-        <div className="divide-y divide-neutral-200 max-h-[380px] overflow-y-auto pr-1">
-          {items.map((item, index) => {
-            const itemKey = `${item.id || index}-${item.selectedSize || ''}-${item.selectedColor || ''}`
-            const itemTotal = (item.price || 0) * (item.quantity || 1)
+        {/* Danh sách các sản phẩm trong đơn hàng gom nhóm theo từng Shop / Atelier */}
+        {(() => {
+          const groupedByShop = items.reduce((acc, item) => {
+            const sName =
+              item.shopName ||
+              (item.shopId === 'shop_l-obscur-atelier_8158'
+                ? "L'OBSCUR ATELIER"
+                : 'M STUDIO')
+            if (!acc[sName]) acc[sName] = []
+            acc[sName].push(item)
+            return acc
+          }, {})
 
-            return (
-              <div key={itemKey} className="py-4 first:pt-0 last:pb-0 flex gap-4">
-                {/* Ảnh sản phẩm với cơ chế fallback về FALLBACK_IMAGE nếu hỏng */}
-                <div className="w-16 h-20 bg-neutral-100 shrink-0 overflow-hidden border border-neutral-200">
-                  <img
-                    src={item.image || FALLBACK_IMAGE}
-                    alt={item.name || 'Product item'}
-                    onError={handleImageError}
-                    className="w-full h-full object-cover object-top"
-                  />
-                </div>
+          const shopEntries = Object.entries(groupedByShop)
 
-                {/* Thông tin chi tiết sản phẩm */}
-                <div className="flex-1 flex flex-col justify-between min-w-0">
-                  <div>
-                    <h4 className="text-xs uppercase tracking-wider font-medium text-[#111111] truncate">
-                      {item.name}
-                    </h4>
-                    <p className="text-[11px] text-neutral-500 mt-0.5 truncate uppercase">
-                      {[
-                        item.selectedSize ? `SIZE: ${item.selectedSize}` : null,
-                        item.selectedColor ? item.selectedColor : null,
-                      ]
-                        .filter(Boolean)
-                        .join(' • ')}
-                    </p>
-                    <p className="text-[11px] text-neutral-500 font-mono mt-0.5">
-                      QTY: {item.quantity || 1}
-                      {item.quantity > 1 ? ` (${formatVND(item.price)} EA)` : ''}
-                    </p>
+          return (
+            <div className="max-h-[380px] overflow-y-auto pr-1 space-y-4">
+              {shopEntries.map(([shopName, shopItems], groupIdx) => (
+                <div key={shopName} className={groupIdx > 0 ? 'pt-3 border-t border-neutral-200/80' : ''}>
+                  {shopEntries.length > 1 && (
+                    <div className="flex items-center justify-between pb-2 mb-2 border-b border-neutral-100">
+                      <span className="text-[11px] font-bold uppercase tracking-wider text-[#111111] flex items-center gap-1.5 font-mono">
+                        <span className="w-1.5 h-1.5 bg-black inline-block"></span>
+                        {shopName}
+                      </span>
+                      <span className="text-[10px] font-mono uppercase tracking-wider text-neutral-400">
+                        {shopItems.length} {shopItems.length > 1 ? 'ITEMS' : 'ITEM'}
+                      </span>
+                    </div>
+                  )}
+
+                  <div className="divide-y divide-neutral-100">
+                    {shopItems.map((item, index) => {
+                      const itemKey = `${item.id || index}-${item.selectedSize || ''}-${item.selectedColor || ''}`
+                      const itemTotal = (item.price || 0) * (item.quantity || 1)
+
+                      return (
+                        <div key={itemKey} className="py-3 first:pt-0 last:pb-0 flex gap-4">
+                          {/* Ảnh sản phẩm với cơ chế fallback về FALLBACK_IMAGE nếu hỏng */}
+                          <div className="w-16 h-20 bg-neutral-100 shrink-0 overflow-hidden border border-neutral-200">
+                            <img
+                              src={item.image || FALLBACK_IMAGE}
+                              alt={item.name || 'Product item'}
+                              onError={handleImageError}
+                              className="w-full h-full object-cover object-top"
+                            />
+                          </div>
+
+                          {/* Thông tin chi tiết sản phẩm */}
+                          <div className="flex-1 flex flex-col justify-between min-w-0">
+                            <div>
+                              <h4 className="text-xs uppercase tracking-wider font-medium text-[#111111] truncate">
+                                {item.name}
+                              </h4>
+                              <p className="text-[11px] text-neutral-500 mt-0.5 truncate uppercase">
+                                {[
+                                  item.selectedSize ? `SIZE: ${item.selectedSize}` : null,
+                                  item.selectedColor ? item.selectedColor : null,
+                                ]
+                                  .filter(Boolean)
+                                  .join(' • ')}
+                              </p>
+                              <p className="text-[11px] text-neutral-500 font-mono mt-0.5">
+                                QTY: {item.quantity || 1}
+                                {item.quantity > 1 ? ` (${formatVND(item.price)} EA)` : ''}
+                              </p>
+                            </div>
+
+                            <p className="text-xs font-semibold text-[#111111] font-mono mt-1">
+                              {formatVND(itemTotal)}
+                            </p>
+                          </div>
+                        </div>
+                      )
+                    })}
                   </div>
-
-                  <p className="text-xs font-semibold text-[#111111] font-mono mt-1">
-                    {formatVND(itemTotal)}
-                  </p>
                 </div>
-              </div>
-            )
-          })}
-        </div>
+              ))}
+            </div>
+          )
+        })()}
 
         {/* Bảng tính chi phí chi tiết */}
         <div className="border-t border-neutral-200 pt-4 space-y-2.5 text-xs">
