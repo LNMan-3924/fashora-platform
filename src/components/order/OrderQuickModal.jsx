@@ -52,6 +52,20 @@ export default function OrderQuickModal({
 
         {/* Nội dung Modal */}
         <div className="p-5 sm:p-6 overflow-y-auto space-y-6 text-xs text-neutral-700">
+          {/* Thông báo lý do nếu đơn đã bị hủy */}
+          {order.status === 'CANCELLED' && order.cancelReason && (
+            <div className="p-3 bg-red-50 border border-red-200 text-red-800 text-xs rounded-[2px] space-y-0.5">
+              <span className="font-semibold font-mono uppercase tracking-wider block">
+                [!] Lý do hủy đơn:
+              </span>
+              <span>{order.cancelReason}</span>
+              {order.cancelledBy && (
+                <span className="text-[10px] text-neutral-500 block pt-0.5 font-mono">
+                  (Bởi: {order.cancelledBy === 'seller' ? 'Người bán' : 'Người mua'})
+                </span>
+              )}
+            </div>
+          )}
           {/* Thông tin giao hàng & Vận chuyển */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pb-4 border-b border-neutral-100">
             <div>

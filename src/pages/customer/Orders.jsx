@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { Modal, Toast, EmptyState } from '../../components/common'
+import { Toast, EmptyState } from '../../components/common'
 import {
   OrderStatusTabs,
   OrderCard,
   OrderQuickModal,
+  CancelOrderModal,
 } from '../../components/order'
 import { getOrders, getOrdersByUserId, updateOrderStatus } from '../../services/api'
 import { isOrderOwnedByUser } from '../../constants'
@@ -36,6 +37,7 @@ export default function Orders() {
 
   // 4. State quản lý đơn hàng đang yêu cầu xác nhận hủy (null = đóng modal hủy)
   const [orderToCancel, setOrderToCancel] = useState(null)
+  const [isCancelling, setIsCancelling] = useState(false)
 
   // 5. State quản lý thông báo Toast nổi
   const [toast, setToast] = useState({ visible: false, message: '' })
@@ -140,33 +142,39 @@ export default function Orders() {
     showToast(`Order ${orderNum} copied to clipboard`)
   }
 
-  // Xử lý xác nhận HỦY đơn hàng qua API
-  const handleConfirmCancelOrder = async () => {
+  // Xử lý xác nhận HỦY đơn hàng qua API kèm lý do
+  const handleConfirmCancelOrder = async ({ reason }) => {
     if (!orderToCancel) return
     const targetId = orderToCancel.id
     const targetOrderNumber = orderToCancel.orderNumber
 
     try {
-      // 1. Gửi request PATCH /orders/:id lên API server (db.json)
-      if (targetId) {
-        await updateOrderStatus(targetId, 'CANCELLED')
+      setIsCancelling(true)
+      const extraData = {
+        cancelReason: reason,
+        cancelledBy: 'customer',
+        cancelledAt: new Date().toISOString(),
       }
 
-      // 2. Cập nhật state giao diện
+      if (targetId) {
+        await updateOrderStatus(targetId, 'CANCELLED', extraData)
+      }
+
       setOrders((prev) =>
         prev.map((o) =>
           o.id === targetId || o.orderNumber === targetOrderNumber
-            ? { ...o, status: 'CANCELLED' }
+            ? { ...o, status: 'CANCELLED', ...extraData }
             : o
         )
       )
 
-      // 3. Đóng modal và báo thành công
       setOrderToCancel(null)
-      showToast(`Order ${targetOrderNumber} has been cancelled.`)
+      showToast(`Đơn hàng ${targetOrderNumber} đã được hủy thành công.`)
     } catch (err) {
       console.error('Orders: Lỗi hủy đơn hàng qua API:', err)
-      showToast('Failed to cancel order. Please try again.')
+      showToast('Không thể hủy đơn hàng. Vui lòng thử lại.')
+    } finally {
+      setIsCancelling(false)
     }
   }
 
@@ -246,31 +254,15 @@ export default function Orders() {
         }}
       />
 
-      {/* 5. MODAL XÁC NHẬN HỦY ĐƠN HÀNG (TÁI SỬ DỤNG TỪ COMMON) */}
-      {orderToCancel && (
-        <Modal
-          isOpen={Boolean(orderToCancel)}
-          onClose={() => setOrderToCancel(null)}
-          title="CANCEL ORDER CONFIRMATION"
-          confirmText="YES, CANCEL ORDER"
-          cancelText="KEEP ORDER"
-          onConfirm={handleConfirmCancelOrder}
-          confirmVariant="danger"
-        >
-          <div className="space-y-3 text-xs sm:text-sm text-neutral-600">
-            <p>
-              Are you sure you want to cancel order{' '}
-              <strong className="text-black font-mono">
-                {orderToCancel.orderNumber}
-              </strong>
-              ?
-            </p>
-            <p className="text-xs text-neutral-500 bg-neutral-100 p-3 border border-neutral-200">
-              Note: Once cancelled, the atelier reservation for these items will be released back to public archive inventory immediately.
-            </p>
-          </div>
-        </Modal>
-      )}
+      {/* 5. MODAL CHỌN LÝ DO HỦY ĐƠN HÀNG (TÁI SỬ DỤNG CancelOrderModal) */}
+      <CancelOrderModal
+        isOpen={Boolean(orderToCancel)}
+        onClose={() => setOrderToCancel(null)}
+        order={orderToCancel}
+        role="customer"
+        loading={isCancelling}
+        onConfirm={handleConfirmCancelOrder}
+      />
 
       {/* 6. THÔNG BÁO TOAST DÙNG CHUNG */}
       <Toast

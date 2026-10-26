@@ -89,17 +89,18 @@ export default function OrderDetail() {
     }
   }, [toastMessage])
 
-  // 4. Xử lý cập nhật trạng thái đơn hàng qua API (chỉ tiến tới hoặc hủy trước shipping)
-  const handleStatusUpdate = async (nextStatus) => {
+  // 4. Xử lý cập nhật trạng thái đơn hàng qua API (chỉ tiến tới hoặc hủy trước shipping kèm lý do)
+  const handleStatusUpdate = async (nextStatus, extraData = {}) => {
     if (!order || !order.id || isUpdating) return
 
     try {
       setIsUpdating(true)
-      await updateOrderStatus(order.id, nextStatus)
+      await updateOrderStatus(order.id, nextStatus, extraData)
 
       setOrder((prev) => ({
         ...prev,
         status: nextStatus,
+        ...extraData,
       }))
 
       setToastMessage(
@@ -211,6 +212,23 @@ export default function OrderDetail() {
 
       {/* 3. THANH TIẾN TRÌNH HOÀN TẤT ĐƠN HÀNG (FULFILLMENT PROGRESSION) */}
       <OrderProgressTracker status={order.status} />
+
+      {/* Hiển thị thông báo lý do hủy đơn nếu đơn đã bị hủy */}
+      {order.status === 'CANCELLED' && order.cancelReason && (
+        <div className="p-4 bg-red-50 border border-red-200 text-xs text-red-800 rounded-[2px] space-y-1">
+          <p className="font-semibold uppercase tracking-wider font-mono">
+            [!] LÝ DO HỦY ĐƠN HÀNG:
+          </p>
+          <p className="text-neutral-800">
+            {order.cancelReason}
+          </p>
+          {order.cancelledBy && (
+            <p className="text-[11px] text-neutral-500 font-mono">
+              (Thực hiện bởi: {order.cancelledBy === 'seller' ? 'Người bán (Shop)' : 'Khách hàng'})
+            </p>
+          )}
+        </div>
+      )}
 
       {/* 4. KHỐI ĐIỀU KHIỂN CẬP NHẬT TRẠNG THÁI NGHIÊM NGẶT (CHỈ TIẾN TỚI HOẶC HỦY TRƯỚC SHIPPING) */}
       <OrderStatusController

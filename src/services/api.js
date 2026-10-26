@@ -94,7 +94,8 @@ export const getOrdersByUserId = (userId) => api.get('/orders', { params: { user
 export const getOrdersByShop = (shopId) => api.get('/orders', { params: { shopId } });
 export const getOrderById = (id) => api.get(`/orders/${id}`);
 export const createOrder = (orderData) => api.post('/orders', orderData);
-export const updateOrderStatus = (id, status) => api.patch(`/orders/${id}`, { status });
+export const updateOrderStatus = (id, status, extraData = {}) =>
+  api.patch(`/orders/${id}`, { status, ...extraData });
 
 /**
  * Tra cứu đơn hàng theo ID kỹ thuật hoặc OrderNumber (VD: 'ord_9041_1' hoặc '#SPXVN881002530')

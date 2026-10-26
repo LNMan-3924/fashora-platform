@@ -322,3 +322,27 @@ export const isOrderOwnedByUser = (order, user) => {
   return matchUserId || matchEmail
 }
 
+
+/**
+ * Danh sách lý do hủy đơn hàng chuẩn hóa cho Người mua (Customer)
+ */
+export const CUSTOMER_CANCEL_REASONS = [
+  'Muốn thay đổi sản phẩm (kích thước, màu sắc, số lượng)',
+  'Muốn cập nhật lại địa chỉ nhận hàng hoặc số điện thoại',
+  'Đổi ý, không còn nhu cầu mua sản phẩm này nữa',
+  'Tìm thấy sản phẩm ở nơi khác với mức giá phù hợp hơn',
+  'Thời gian giao hàng dự kiến quá lâu',
+  'Lý do khác',
+]
+
+/**
+ * Danh sách lý do hủy đơn hàng chuẩn hóa cho Người bán (Seller)
+ */
+export const SELLER_CANCEL_REASONS = [
+  'Sản phẩm tạm thời hết hàng trong kho atelier',
+  'Không thể liên hệ được với người mua để xác nhận thông tin đơn',
+  'Địa chỉ nhận hàng của khách không hợp lệ hoặc ngoài vùng hỗ trợ',
+  'Phát hiện sự cố chất lượng hoặc lỗi hoàn thiện trong khâu đóng gói',
+  'Khách hàng chủ động yêu cầu shop hủy đơn qua tin nhắn',
+  'Lý do khác',
+]
