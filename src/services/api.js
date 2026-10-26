@@ -79,6 +79,8 @@ export const getUsers = () => api.get('/users');
 export const getUserById = (id) => api.get(`/users/${id}`);
 export const registerUser = (userData) => api.post('/users', userData);
 export const updateUser = (userId, data) => api.patch(`/users/${userId}`, data);
+export const getUserByEmail = (email) => api.get('/users', { params: { email } });
+export const getUserByPhone = (phoneNumber) => api.get('/users', { params: { phoneNumber } });
 export const updateUserRoleToSeller = (userId, shopId) =>
   api.patch(`/users/${userId}`, {
     role: 'seller',
@@ -87,7 +89,9 @@ export const updateUserRoleToSeller = (userId, shopId) =>
   });
 
 // ================= ORDERS =================
-export const getOrders = () => api.get('/orders');
+export const getOrders = (params) => api.get('/orders', { params });
+export const getOrdersByUserId = (userId) => api.get('/orders', { params: { userId } });
+export const getOrdersByShop = (shopId) => api.get('/orders', { params: { shopId } });
 export const getOrderById = (id) => api.get(`/orders/${id}`);
 export const createOrder = (orderData) => api.post('/orders', orderData);
 export const updateOrderStatus = (id, status) => api.patch(`/orders/${id}`, { status });
@@ -102,7 +106,24 @@ export const fetchOrderByIdOrNumber = async (id) => {
     if (res?.data) return res.data;
     if (res && res.id) return res;
   } catch {
-    // Dự phòng tìm kiếm qua danh sách orders
+    // ID kỹ thuật không khớp, tiếp tục thử tra cứu qua orderNumber
+  }
+
+  // Ưu tiên truy vấn trực tiếp server-side theo orderNumber thay vì tải toàn bộ orders
+  try {
+    const rawNumber = String(id).trim();
+    const cleanId = rawNumber.replace('#', '').trim();
+    const queries = [rawNumber, `#${cleanId}`, cleanId];
+
+    for (const q of queries) {
+      const qRes = await api.get('/orders', { params: { orderNumber: q } });
+      const foundList = qRes?.data || [];
+      if (Array.isArray(foundList) && foundList.length > 0) {
+        return foundList[0];
+      }
+    }
+  } catch {
+    // Dự phòng tìm kiếm qua danh sách orders nếu query param thất bại
   }
 
   try {
@@ -133,9 +154,14 @@ export const getCurrentUser = async (userId) => {
     return res.data || null;
   } catch {
     try {
+      const qRes = await api.get('/users', { params: { id: userId } });
+      const users = qRes?.data || [];
+      if (Array.isArray(users) && users.length > 0) {
+        return users[0];
+      }
       const allRes = await getUsers();
-      const users = allRes.data || [];
-      return users.find((u) => u.id === userId) || null;
+      const allUsers = allRes.data || [];
+      return allUsers.find((u) => u.id === userId) || null;
     } catch (error) {
       console.warn('api.js getCurrentUser error:', error);
       return null;

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext'
+import { getUserByEmail, getUserByPhone, getUsers } from '../../services/api'
 
 export default function Login() {
   const navigate = useNavigate()
@@ -35,18 +36,44 @@ export default function Login() {
     setIsLoading(true)
 
     try {
-      const res = await fetch('http://localhost:5000/users')
-      if (!res.ok) throw new Error('Cannot connect to authentication service.')
-      const users = await res.json()
-
       const cleanInput = identifier.trim().toLowerCase()
+      const rawInput = identifier.trim()
 
-      // Khớp theo Email hoặc Số điện thoại
-      const foundUser = users.find((u) => {
-        const emailMatch = u.email && u.email.toLowerCase() === cleanInput
-        const phoneMatch = u.phoneNumber && u.phoneNumber === identifier.trim()
-        return emailMatch || phoneMatch
-      })
+      let foundUser = null
+      try {
+        const emailRes = await getUserByEmail(cleanInput)
+        if (Array.isArray(emailRes?.data) && emailRes.data.length > 0) {
+          foundUser = emailRes.data[0]
+        }
+      } catch {
+        // query email thất bại
+      }
+
+      if (!foundUser) {
+        try {
+          const phoneRes = await getUserByPhone(rawInput)
+          if (Array.isArray(phoneRes?.data) && phoneRes.data.length > 0) {
+            foundUser = phoneRes.data[0]
+          }
+        } catch {
+          // query phone thất bại
+        }
+      }
+
+      // Dự phòng nếu query param không ra kết quả
+      if (!foundUser) {
+        try {
+          const allRes = await getUsers()
+          const users = allRes?.data || []
+          foundUser = users.find((u) => {
+            const emailMatch = u.email && u.email.toLowerCase() === cleanInput
+            const phoneMatch = u.phoneNumber && u.phoneNumber === rawInput
+            return emailMatch || phoneMatch
+          })
+        } catch {
+          // fetch all users fallback thất bại
+        }
+      }
 
       if (!foundUser) {
         setError('Account not found. Please register or verify your credentials.')

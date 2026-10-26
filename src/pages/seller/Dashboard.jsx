@@ -3,7 +3,7 @@ import { useOutletContext } from 'react-router-dom'
 import { CreditCard, Package, CheckCircle2 } from 'lucide-react'
 import { useAuth } from '../../contexts/AuthContext'
 import { formatVND, filterOrdersByShop } from '../../constants/commerce'
-import { getOrders, getProductsByShop } from '../../services/api'
+import { getOrders, getOrdersByShop, getProductsByShop } from '../../services/api'
 import {
   MetricCard,
   RecentOrdersTable,
@@ -39,8 +39,9 @@ export default function Dashboard() {
   useEffect(() => {
     let isMounted = true
 
-    // Gọi đồng thời 2 API lấy danh sách đơn hàng và sản phẩm theo ID Shop từ json-server (port 5000)
-    Promise.all([getOrders(), getProductsByShop(currentShopId)])
+    // Tối ưu hiệu năng: Tải trực tiếp đơn hàng theo shopId (/orders?shopId=...) thay vì tải tất cả đơn
+    const ordersPromise = currentShopId ? getOrdersByShop(currentShopId) : getOrders()
+    Promise.all([ordersPromise, getProductsByShop(currentShopId)])
       .then(([ordersRes, productsRes]) => {
         if (!isMounted) return
 

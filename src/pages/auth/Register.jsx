@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext'
-import { getUsers, registerUser } from '../../services/api'
+import { getUserByEmail, getUserByPhone, registerUser } from '../../services/api'
 import { nanoid } from 'nanoid'
 
 export default function Register() {
@@ -92,18 +92,15 @@ export default function Register() {
 
     try {
       // 2. Kiểm tra trùng lặp trong db.json
-      const checkRes = await getUsers()
-      const existingUsers = checkRes.data || []
-
-      const isDuplicate = existingUsers.some((u) => {
-        if (contactType === 'email' && u.email) {
-          return u.email.toLowerCase() === formData.email.trim().toLowerCase()
-        }
-        if (contactType === 'phone' && u.phoneNumber) {
-          return u.phoneNumber === formData.phoneNumber.trim()
-        }
-        return false
-      })
+      // Tối ưu hiệu năng: Kiểm tra trùng lặp trực tiếp phía server qua query param (/users?email=... hoặc /users?phoneNumber=...)
+      let isDuplicate = false
+      if (contactType === 'email') {
+        const checkRes = await getUserByEmail(formData.email.trim().toLowerCase())
+        isDuplicate = Array.isArray(checkRes?.data) && checkRes.data.length > 0
+      } else {
+        const checkRes = await getUserByPhone(formData.phone.trim())
+        isDuplicate = Array.isArray(checkRes?.data) && checkRes.data.length > 0
+      }
 
       if (isDuplicate) {
         setError(`This ${contactType === 'email' ? 'email' : 'phone number'} is already registered.`)

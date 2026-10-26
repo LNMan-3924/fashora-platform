@@ -6,7 +6,7 @@ import {
   OrderCard,
   OrderQuickModal,
 } from '../../components/order'
-import { getOrders, updateOrderStatus } from '../../services/api'
+import { getOrders, getOrdersByUserId, updateOrderStatus } from '../../services/api'
 import { isOrderOwnedByUser } from '../../constants'
 import { useAuth } from '../../contexts/AuthContext'
 
@@ -51,7 +51,9 @@ export default function Orders() {
   useEffect(() => {
     let isMounted = true
 
-    getOrders()
+    // Tối ưu hiệu năng: Gọi trực tiếp /orders?userId=... thay vì tải toàn bộ đơn hàng của sàn
+    const fetchPromise = currentUser?.id ? getOrdersByUserId(currentUser.id) : getOrders()
+    fetchPromise
       .then((res) => {
         if (!isMounted) return
         const apiData = res?.data || res

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { useOutletContext } from 'react-router-dom'
 import { Package, Clock, Truck, CreditCard } from 'lucide-react'
 import { useAuth } from '../../contexts/AuthContext'
-import { getOrders } from '../../services/api'
+import { getOrders, getOrdersByShop } from '../../services/api'
 import { formatVND, filterOrdersByShop } from '../../constants/commerce'
 import { Pagination } from '../../components/common'
 import {
@@ -48,7 +48,9 @@ export default function Orders() {
   useEffect(() => {
     let isMounted = true
 
-    getOrders()
+    // Tối ưu hiệu năng: Tải trực tiếp đơn hàng theo shopId (/orders?shopId=...)
+    const fetchOrdersPromise = currentShopId ? getOrdersByShop(currentShopId) : getOrders()
+    fetchOrdersPromise
       .then((res) => {
         if (!isMounted) return
         const data = res?.data || res || []
