@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useOutletContext } from 'react-router-dom'
+import { useOutletContext, useSearchParams } from 'react-router-dom'
 import { Package, Clock, Truck, CreditCard } from 'lucide-react'
 import { useAuth } from '../../contexts/AuthContext'
 import { getOrders, getOrdersByShop } from '../../services/api'
@@ -23,7 +23,7 @@ const ITEMS_PER_PAGE = 10
  * - Tự động nhận diện Shop ID và Shop Name từ SellerLayout / AuthContext (Đa shop độc lập).
  * - Tái sử dụng component phân trang Pagination (PREVIOUS [1] 2 3 ... 8 NEXT).
  * - Sử dụng dữ liệu thực tế 100% từ API JSON-Server (GET /orders), KHÔNG dùng mockData.
- * - Tính toán trực tiếp, loại bỏ lạm dụng useMemo gây tốn bộ nhớ RAM.
+ * - Tính toán trực tiếp, đồng bộ 100% logic tính doanh thu với Dashboard (chỉ tính các item của shop).
  */
 export default function Orders() {
   const outletContext = useOutletContext() || {}
@@ -39,10 +39,34 @@ export default function Orders() {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState(null)
 
-  // 3. State điều khiển bộ lọc & phân trang
-  const [searchQuery, setSearchQuery] = useState('')
-  const [selectedStatus, setSelectedStatus] = useState('ALL')
-  const [currentPage, setCurrentPage] = useState(1)
+  // 3. Đồng bộ bộ lọc, tìm kiếm & phân trang với URL Search Params (Dynamic Navigation)
+  const [searchParams, setSearchParams] = useSearchParams()
+  const searchQuery = searchParams.get('q') || ''
+  const selectedStatus = searchParams.get('status') || 'ALL'
+  const currentPage = Math.max(1, Number(searchParams.get('page')) || 1)
+
+  const updateFilters = (newParams) => {
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev)
+        Object.entries(newParams).forEach(([key, val]) => {
+          if (
+            val === undefined ||
+            val === null ||
+            val === '' ||
+            val === 'ALL' ||
+            (key === 'page' && Number(val) <= 1)
+          ) {
+            next.delete(key)
+          } else {
+            next.set(key, String(val))
+          }
+        })
+        return next
+      },
+      { replace: true }
+    )
+  }
 
   // 4. Tải danh sách đơn hàng từ API khi vào trang hoặc khi thay đổi shop
   useEffect(() => {
@@ -96,9 +120,25 @@ export default function Orders() {
       stats.inShippingCount++
     }
 
-    // Doanh thu chỉ tính các đơn hàng không bị hủy
+    // Doanh thu chỉ tính các mặt hàng thuộc về shop trong các đơn không bị HỦY (đồng bộ chuẩn xác với Dashboard)
     if (statusUpper !== 'CANCELLED') {
-      stats.settledRevenue += Number(o.total ?? o.totalAmount ?? 0)
+      const items = Array.isArray(o.items) ? o.items : []
+      const shopItems = items.filter(
+        (item) =>
+          !item.shopId ||
+          item.shopId === currentShopId ||
+          (item.shopName && shopName && item.shopName.trim().toLowerCase() === shopName.trim().toLowerCase()) ||
+          o.shopId === currentShopId
+      )
+      if (shopItems.length > 0) {
+        const shopSubtotal = shopItems.reduce(
+          (acc, it) => acc + (Number(it.price) || 0) * (Number(it.quantity) || 1),
+          0
+        )
+        stats.settledRevenue += shopSubtotal
+      } else {
+        stats.settledRevenue += Number(o.total ?? o.totalAmount ?? 0)
+      }
     }
   })
 
@@ -133,21 +173,21 @@ export default function Orders() {
     return true
   })
 
-  // 7. Xử lý khi thay đổi bộ lọc -> tự động quay về trang 1
+  // 7. Cập nhật bộ lọc qua URL SearchParams -> tự động quay về trang 1
   const handleSearchChange = (query) => {
-    setSearchQuery(query)
-    setCurrentPage(1)
+    updateFilters({ q: query, page: 1 })
   }
 
   const handleStatusChange = (status) => {
-    setSelectedStatus(status)
-    setCurrentPage(1)
+    updateFilters({ status, page: 1 })
   }
 
   const handleResetFilters = () => {
-    setSearchQuery('')
-    setSelectedStatus('ALL')
-    setCurrentPage(1)
+    setSearchParams({}, { replace: true })
+  }
+
+  const handlePageChange = (page) => {
+    updateFilters({ page })
   }
 
   // 8. Tính toán phân trang: Chỉ hiển thị 10 đơn hàng trên mỗi trang
@@ -193,7 +233,7 @@ export default function Orders() {
         <MetricCard
           label="SETTLED REVENUE"
           value={formatVND(stats.settledRevenue)}
-          subtext="Revenue from valid orders"
+          subtext="Revenue from valid shop items"
           icon={CreditCard}
           loading={isLoading}
         />
@@ -225,11 +265,10 @@ export default function Orders() {
         currentPage={currentPage}
         totalPages={totalPages}
         onPageChange={(page) => {
-          setCurrentPage(page)
+          handlePageChange(page)
           window.scrollTo({ top: 250, behavior: 'smooth' })
         }}
       />
     </div>
   )
 }
-

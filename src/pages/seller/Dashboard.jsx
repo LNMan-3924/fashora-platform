@@ -52,9 +52,9 @@ export default function Dashboard() {
         setProducts(Array.isArray(productsData) ? productsData : [])
       })
       .catch((err) => {
-        console.error('Seller Dashboard: Lỗi tải dữ liệu từ API:', err)
+        console.error('Seller Dashboard: Error loading data from API:', err)
         if (isMounted) {
-          setError('Không thể tải dữ liệu từ máy chủ API. Vui lòng kiểm tra kết nối.')
+          setError('Unable to load data from API server. Please check connection.')
         }
       })
       .finally(() => {
@@ -157,6 +157,8 @@ export default function Dashboard() {
           {error}
         </div>
       )}
+
+
 
       {/* 1. HÀNG 3 THẺ CHỈ SỐ HIỆU SUẤT (KPI METRICS) */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

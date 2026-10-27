@@ -166,7 +166,7 @@ export default function Profile() {
       updateCurrentUser(updatedUser)
       showToast('Information updated')
     } catch (err) {
-      console.error('Lỗi cập nhật hồ sơ qua API:', err)
+      console.error('Error updating profile via API:', err)
       showToast('Failed to update information. Please try again.')
     }
   }
@@ -183,7 +183,7 @@ export default function Profile() {
       updateCurrentUser(updatedUser)
       showToast('Profile photo updated')
     } catch (err) {
-      console.error('Lỗi cập nhật ảnh đại diện qua API:', err)
+      console.error('Error updating avatar via API:', err)
       showToast('Failed to update profile photo.')
     }
   }
@@ -200,7 +200,7 @@ export default function Profile() {
       updateCurrentUser(updatedUser)
       showToast('Profile photo removed')
     } catch (err) {
-      console.error('Lỗi xóa ảnh đại diện qua API:', err)
+      console.error('Error removing avatar via API:', err)
       showToast('Failed to remove profile photo.')
     }
   }
@@ -253,7 +253,7 @@ export default function Profile() {
       updateCurrentUser(updatedUser)
       showToast(isEdit ? 'Address updated' : 'New address added')
     } catch (err) {
-      console.error('Lỗi lưu địa chỉ qua API:', err)
+      console.error('Error saving address via API:', err)
       showToast('Failed to save address. Please try again.')
     }
   }
@@ -279,7 +279,7 @@ export default function Profile() {
       updateCurrentUser(updatedUser)
       showToast('Default shipping address updated')
     } catch (err) {
-      console.error('Lỗi đặt địa chỉ mặc định qua API:', err)
+      console.error('Error setting default address via API:', err)
       showToast('Failed to set default address.')
     }
   }
@@ -316,7 +316,7 @@ export default function Profile() {
       updateCurrentUser(updatedUser)
       showToast('Address removed')
     } catch (err) {
-      console.error('Lỗi xóa địa chỉ qua API:', err)
+      console.error('Error deleting address via API:', err)
       showToast('Failed to remove address.')
     }
   }

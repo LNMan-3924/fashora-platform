@@ -51,7 +51,7 @@ export default function ProductFilters({
             type="text"
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
-            placeholder="Search garments by name or code..."
+            placeholder="Search products by name or code..."
             className="w-full pl-9 pr-8 py-2 text-xs border border-neutral-200 rounded-[2px] bg-neutral-50/50 focus:bg-white focus:border-black focus:outline-none transition-colors font-sans"
           />
           {searchQuery && (
@@ -116,7 +116,7 @@ export default function ProductFilters({
             {filteredCount > 0 ? (currentPage - 1) * itemsPerPage + 1 : 0} -{' '}
             {Math.min(currentPage * itemsPerPage, filteredCount)}
           </span>{' '}
-          of <span className="font-semibold text-black">{filteredCount}</span> garments{' '}
+          of <span className="font-semibold text-black">{filteredCount}</span> products{' '}
           <span className="text-neutral-400">
             (Total {totalCount} in catalog)
           </span>

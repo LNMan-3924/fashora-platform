@@ -56,31 +56,36 @@ export default function SellerLayout() {
         let targetShop = null
         const targetShopId = currentUser.shopId
 
-        // 1. Thử lấy thông tin shop theo shopId được liên kết trong currentUser
-        if (targetShopId) {
+        // 1. Ưu tiên hàng đầu: Tìm trong collection /shops theo quan hệ sở hữu 1-1 với currentUser
+        // Khớp chính xác ownerId hoặc ownerEmail của tài khoản đang đăng nhập
+        try {
+          const shopsRes = await getShops()
+          const shopsList = Array.isArray(shopsRes?.data) ? shopsRes.data : []
+          targetShop = shopsList.find(
+            (s) =>
+              (currentUser.id && s.ownerId === currentUser.id) ||
+              (currentUser.email && s.ownerEmail && s.ownerEmail.toLowerCase() === currentUser.email.toLowerCase()) ||
+              (targetShopId && (s.id === targetShopId || s.slug === targetShopId))
+          )
+        } catch (err) {
+          console.warn('SellerLayout: getShops resolution notice:', err)
+        }
+
+        // 2. Nếu chưa tìm thấy và có targetShopId, thử truy vấn getShopById
+        if (!targetShop && targetShopId) {
           try {
             const res = await getShopById(targetShopId)
-            if (res?.data && (res.data.id === targetShopId || res.data._id === targetShopId || res.data.slug)) {
+            if (
+              res?.data &&
+              (res.data.id === targetShopId ||
+                res.data._id === targetShopId ||
+                res.data.ownerId === currentUser.id ||
+                res.data.ownerEmail === currentUser.email)
+            ) {
               targetShop = res.data
             }
           } catch (err) {
             console.warn('SellerLayout: getShopById fallback notice:', err)
-          }
-        }
-
-        // 2. Nếu chưa có kết quả, truy vấn danh sách /shops tìm bản ghi khớp quan hệ 1-1 với currentUser
-        if (!targetShop) {
-          try {
-            const shopsRes = await getShops()
-            const shopsList = Array.isArray(shopsRes?.data) ? shopsRes.data : []
-            targetShop = shopsList.find(
-              (s) =>
-                (currentUser.id && s.ownerId === currentUser.id) ||
-                (currentUser.email && s.ownerEmail === currentUser.email) ||
-                (targetShopId && s.id === targetShopId)
-            )
-          } catch (err) {
-            console.warn('SellerLayout: getShops fallback notice:', err)
           }
         }
 
@@ -101,7 +106,14 @@ export default function SellerLayout() {
             sellerCode: resolvedCode,
             currency: targetShop.currency || 'VND (₫)',
             logo: targetShop.logo || '/assets/logo.png',
+            coverImage: targetShop.coverImage || '',
             slug: targetShop.slug || '',
+            tagline: targetShop.tagline || '',
+            description: targetShop.description || '',
+            category: targetShop.category || 'FASHION & APPAREL',
+            location: targetShop.location || '',
+            phone: targetShop.phone || '',
+            payoutAccount: targetShop.payoutAccount || null,
             status: targetShop.status || 'ACTIVE',
             ownerId: targetShop.ownerId || currentUser.id,
             ownerEmail: targetShop.ownerEmail || currentUser.email,
@@ -110,10 +122,10 @@ export default function SellerLayout() {
           return
         }
       } catch (error) {
-        console.error('SellerLayout: Lỗi truy xuất shop từ currentUser:', error)
+        console.error('SellerLayout: Error resolving shop from currentUser:', error)
       }
 
-      // 3. Fallback an toàn suy ra trực tiếp từ dữ liệu của currentUser (KHÔNG dùng dữ liệu giả/hardcode)
+      // 3. Fallback an toàn suy ra trực tiếp từ dữ liệu của currentUser
       if (isMounted) {
         const fallbackId = currentUser.shopId || `shop_${currentUser.id}`
         const fallbackName = currentUser.shopName || currentUser.fullName || 'MY ATELIER'
@@ -123,8 +135,15 @@ export default function SellerLayout() {
           shopName: fallbackName,
           sellerCode: `SELLER #${String(currentUser.id || 'SHOP').slice(-4).toUpperCase()}`,
           currency: 'VND (₫)',
-          logo: '/assets/logo.png',
+          logo: currentUser.avatarUrl || '/assets/logo.png',
+          coverImage: currentUser.coverImage || '',
           slug: '',
+          tagline: '',
+          description: '',
+          category: 'FASHION & APPAREL',
+          location: '',
+          phone: '',
+          payoutAccount: null,
           status: 'ACTIVE',
           ownerId: currentUser.id,
           ownerEmail: currentUser.email,
@@ -140,10 +159,11 @@ export default function SellerLayout() {
     }
   }, [currentUser])
 
-  // Đổi tiêu đề Dashboard / Products / Orders tùy theo URL
+  // Đổi tiêu đề Dashboard / Products / Orders / Settings tùy theo URL
   const getPageTitle = () => {
     if (location.pathname.includes('/seller/products')) return 'PRODUCTS'
     if (location.pathname.includes('/seller/orders')) return 'ORDERS'
+    if (location.pathname.includes('/seller/settings')) return 'STORE SETTINGS'
     return 'DASHBOARD'
   }
 
@@ -156,7 +176,7 @@ export default function SellerLayout() {
     )
   }
 
-  // 2. Chặn tuyệt đối người chưa đăng nhập: Chuyển hướng ngay về /login kèm vị trí URL muốn truy cập
+  // 2. Chặn tuyệt đối người chưa đăng nhập
   if (!currentUser || !isAuthenticated) {
     return <Navigate to="/login" state={{ from: location }} replace />
   }
@@ -178,9 +198,9 @@ export default function SellerLayout() {
     setSellerInfo(updated)
 
     if (newStatus === 'ACTIVE') {
-      setStatusToast('Cửa hàng đã chuyển sang trạng thái: ACTIVE (HOẠT ĐỘNG)')
+      setStatusToast('Store status updated: ACTIVE (OPERATIONAL)')
     } else {
-      setStatusToast('Cửa hàng đã chuyển sang trạng thái: TẠM NGƯNG HOẠT ĐỘNG')
+      setStatusToast('Store status updated: PAUSED (OPERATIONS SUSPENDED)')
     }
 
     // Đồng bộ trực tiếp lên API server backend (KHÔNG lưu localStorage)
@@ -190,8 +210,15 @@ export default function SellerLayout() {
         await updateShopStatus(shopId, newStatus)
       }
     } catch (err) {
-      console.warn('SellerLayout: Không thể đồng bộ trạng thái shop lên API server:', err)
+      console.warn('SellerLayout: Unable to sync shop status to API server:', err)
     }
+  }
+
+  const handleUpdateSellerInfo = (patch) => {
+    setSellerInfo((prev) => ({
+      ...prev,
+      ...patch,
+    }))
   }
 
   return (
@@ -227,13 +254,21 @@ export default function SellerLayout() {
               shopName={sellerInfo.shopName}
               pageTitle={getPageTitle()}
               status={sellerInfo.status || 'ACTIVE'}
+              shopSlug={sellerInfo.slug}
               onToggleStatus={handleToggleShopStatus}
               onOpenMobile={() => setIsMobileMenuOpen(true)}
             />
 
             {/* Ruột trang thay đổi theo từng trang - truyền context sellerInfo & currentShopId từ currentUser */}
             <main className="p-6 sm:p-10">
-              <Outlet context={{ sellerInfo, currentShopId: activeShopId, toggleShopStatus: handleToggleShopStatus }} />
+              <Outlet
+                context={{
+                  sellerInfo,
+                  setSellerInfo: handleUpdateSellerInfo,
+                  currentShopId: activeShopId,
+                  toggleShopStatus: handleToggleShopStatus,
+                }}
+              />
             </main>
           </div>
 

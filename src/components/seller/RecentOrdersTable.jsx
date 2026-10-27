@@ -32,11 +32,6 @@ export default function RecentOrdersTable({
             Latest purchase requests for {shopName} collection garments
           </p>
         </div>
-
-        {/* Số lượng đơn hàng hiển thị */}
-        <span className="text-[10px] font-mono uppercase tracking-wider text-neutral-400">
-          {loading ? 'LOADING...' : `${displayOrders.length} ORDERS LISTED`}
-        </span>
       </div>
 
       {/* 2. Bảng dữ liệu đơn hàng (Hỗ trợ cuộn ngang trên điện thoại) */}

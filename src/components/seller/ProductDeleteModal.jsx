@@ -40,8 +40,8 @@ export default function ProductDeleteModal({
       }
       onClose()
     } catch (err) {
-      console.error('Lỗi khi xóa sản phẩm:', err)
-      setErrorMessage('Không thể xóa sản phẩm lúc này. Vui lòng thử lại.')
+      console.error('Error deleting product:', err)
+      setErrorMessage('Unable to delete product at this time. Please try again.')
     } finally {
       setIsDeleting(false)
     }
@@ -77,8 +77,8 @@ export default function ProductDeleteModal({
           )}
 
           <p className="text-neutral-600">
-            Bạn có chắc chắn muốn xóa sản phẩm này khỏi bộ sưu tập atelier của cửa hàng?
-            Hành động này <span className="font-semibold text-black">không thể hoàn tác</span>.
+            Are you sure you want to remove this product from your shop catalog?
+            This action <span className="font-semibold text-black">cannot be undone</span>.
           </p>
 
           {/* Chi tiết sản phẩm bị xóa */}
@@ -123,7 +123,7 @@ export default function ProductDeleteModal({
               className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold uppercase tracking-wider bg-red-600 text-white rounded-[2px] hover:bg-red-700 transition-colors disabled:opacity-50"
             >
               <Trash2 className="w-3.5 h-3.5" />
-              <span>{isDeleting ? 'Deleting...' : 'Delete Garment'}</span>
+              <span>{isDeleting ? 'Deleting...' : 'Delete Product'}</span>
             </button>
           </div>
         </div>

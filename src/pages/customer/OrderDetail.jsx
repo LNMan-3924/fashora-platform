@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
+import { safeBack } from '../../utils'
 import { ArrowLeft, Copy } from 'lucide-react'
 import { Badge, Toast, Button } from '../../components/common'
 import { fetchOrderByIdOrNumber, updateOrderStatus } from '../../services/api'
@@ -85,6 +86,55 @@ export default function OrderDetail() {
       }
     }
 
+    // 1. Gọi API lấy đơn hàng theo ID
+    getOrderById(id)
+      .then((res) => {
+        if (!isMounted) return
+        const data = res?.data || res
+        if (handleOrderData(data)) {
+          return
+        }
+        return getOrders()
+      })
+      .then((res) => {
+        if (!isMounted || !res) return
+        const list = res?.data || res
+        if (Array.isArray(list)) {
+          const found = list.find((o) => o.id === id || o.orderNumber === id)
+          if (handleOrderData(found)) {
+            return
+          }
+        }
+        setOrder(null)
+        setNotFound(true)
+        setLoading(false)
+      })
+      .catch(() => {
+        if (!isMounted) return
+        // Khi getOrderById lỗi (ví dụ id là mã đơn #SPXVN...), fallback tìm qua getOrders()
+        getOrders()
+          .then((res) => {
+            if (!isMounted) return
+            const list = res?.data || res
+            if (Array.isArray(list)) {
+              const found = list.find((o) => o.id === id || o.orderNumber === id)
+              if (handleOrderData(found)) {
+                return
+              }
+            }
+            setOrder(null)
+            setNotFound(true)
+            setLoading(false)
+          })
+          .catch((finalErr) => {
+            console.error('OrderDetail: Error loading order from API:', finalErr)
+            if (isMounted) {
+              setOrder(null)
+              setNotFound(true)
+              setLoading(false)
+            }
+          })
+      })
     loadOrder()
 
     return () => {
@@ -130,7 +180,7 @@ export default function OrderDetail() {
       setIsCancelModalOpen(false)
       showToast(`Đơn hàng ${targetOrderNumber || targetId} đã được hủy thành công.`)
     } catch (err) {
-      console.error('OrderDetail: Lỗi hủy đơn hàng qua API:', err)
+      console.error('OrderDetail: Error cancelling order via API:', err)
       showToast('Không thể hủy đơn hàng. Vui lòng thử lại.')
     } finally {
       setIsCancelling(false)
@@ -164,7 +214,7 @@ export default function OrderDetail() {
             <Button
               variant="primary"
               size="md"
-              onClick={() => navigate('/orders')}
+              onClick={() => safeBack(navigate, '/orders')}
               className="w-full sm:w-auto tracking-widest text-xs px-6"
             >
               BACK TO MY ORDERS
@@ -197,13 +247,14 @@ export default function OrderDetail() {
       <div className="border-b border-neutral-200 pb-6 mb-8">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <Link
-              to="/orders"
-              className="inline-flex items-center gap-1.5 text-xs font-mono uppercase tracking-widest text-neutral-500 hover:text-black transition-colors mb-3 group"
+            <button
+              type="button"
+              onClick={() => safeBack(navigate, '/orders')}
+              className="inline-flex items-center gap-1.5 text-xs font-mono uppercase tracking-widest text-neutral-500 hover:text-black transition-colors mb-3 group cursor-pointer"
             >
               <ArrowLeft className="w-3.5 h-3.5 transition-transform group-hover:-translate-x-1" />
               <span>Back to My Orders</span>
-            </Link>
+            </button>
 
             <div className="flex items-center gap-3 flex-wrap">
               <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-neutral-900 font-mono">

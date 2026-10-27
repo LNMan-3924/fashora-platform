@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useOutletContext } from 'react-router-dom'
+import { useOutletContext, useSearchParams } from 'react-router-dom'
 import { Package, CheckCircle2, AlertTriangle, Layers, Check } from 'lucide-react'
 import { useAuth } from '../../contexts/AuthContext'
 import { getProductsByShop } from '../../services/api'
@@ -45,11 +45,35 @@ export default function Products() {
   const [error, setError] = useState(null)
   const [successToast, setSuccessToast] = useState('')
 
-  // 3. State điều khiển bộ lọc, tìm kiếm & phân trang (10 sản phẩm/trang)
-  const [searchQuery, setSearchQuery] = useState('')
-  const [selectedCategory, setSelectedCategory] = useState('ALL')
-  const [selectedStockStatus, setSelectedStockStatus] = useState('ALL')
-  const [currentPage, setCurrentPage] = useState(1)
+  // 3. Đồng bộ bộ lọc, tìm kiếm & phân trang với URL Search Params (Dynamic Navigation)
+  const [searchParams, setSearchParams] = useSearchParams()
+  const searchQuery = searchParams.get('q') || ''
+  const selectedCategory = searchParams.get('category') || 'ALL'
+  const selectedStockStatus = searchParams.get('stock') || 'ALL'
+  const currentPage = Math.max(1, Number(searchParams.get('page')) || 1)
+
+  const updateFilters = (newParams) => {
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev)
+        Object.entries(newParams).forEach(([key, val]) => {
+          if (
+            val === undefined ||
+            val === null ||
+            val === '' ||
+            val === 'ALL' ||
+            (key === 'page' && Number(val) <= 1)
+          ) {
+            next.delete(key)
+          } else {
+            next.set(key, String(val))
+          }
+        })
+        return next
+      },
+      { replace: true }
+    )
+  }
 
   // 4. State điều khiển các modal Thêm / Sửa / Xóa
   const [isFormModalOpen, setIsFormModalOpen] = useState(false)
@@ -68,9 +92,9 @@ export default function Products() {
         setProducts(Array.isArray(data) ? data : [])
       })
       .catch((err) => {
-        console.error('Lỗi khi tải sản phẩm từ API theo Shop ID:', err)
+        console.error('Error loading products from API by Shop ID:', err)
         if (isMounted) {
-          setError('Không thể tải danh sách sản phẩm từ máy chủ API. Vui lòng kiểm tra json-server.')
+          setError('Unable to load products from API server. Please check json-server.')
         }
       })
       .finally(() => {
@@ -149,27 +173,25 @@ export default function Products() {
     return true
   })
 
-  // 9. Đặt lại bộ lọc hoặc thay đổi tiêu chí tìm kiếm -> tự động quay về trang 1
+  // 9. Cập nhật bộ lọc qua URL SearchParams -> tự động quay về trang 1
   const handleSearchChange = (query) => {
-    setSearchQuery(query)
-    setCurrentPage(1)
+    updateFilters({ q: query, page: 1 })
   }
 
   const handleCategoryChange = (category) => {
-    setSelectedCategory(category)
-    setCurrentPage(1)
+    updateFilters({ category, page: 1 })
   }
 
   const handleStockStatusChange = (status) => {
-    setSelectedStockStatus(status)
-    setCurrentPage(1)
+    updateFilters({ stock: status, page: 1 })
   }
 
   const handleResetFilters = () => {
-    setSearchQuery('')
-    setSelectedCategory('ALL')
-    setSelectedStockStatus('ALL')
-    setCurrentPage(1)
+    setSearchParams({}, { replace: true })
+  }
+
+  const handlePageChange = (page) => {
+    updateFilters({ page })
   }
 
   // 10. Tính toán phân trang: Chỉ hiển thị đúng 10 sản phẩm cho trang hiện tại
@@ -201,17 +223,17 @@ export default function Products() {
       setProducts((prev) =>
         prev.map((p) => (p.id === savedProduct.id ? savedProduct : p))
       )
-      setSuccessToast(`Đã cập nhật sản phẩm "${savedProduct.name}" thành công.`)
+      setSuccessToast(`Product "${savedProduct.name}" updated successfully.`)
     } else {
       setProducts((prev) => [savedProduct, ...prev])
-      setSuccessToast(`Đã thêm sản phẩm mới "${savedProduct.name}" vào danh mục.`)
+      setSuccessToast(`New piece "${savedProduct.name}" added to catalog.`)
     }
   }
 
   // 15. Xử lý sau khi xóa sản phẩm thành công
   const handleDeleteSuccess = (deletedId) => {
     setProducts((prev) => prev.filter((p) => p.id !== deletedId))
-    setSuccessToast('Đã xóa sản phẩm khỏi danh mục của shop thành công.')
+    setSuccessToast('Product removed from shop catalog successfully.')
   }
 
   return (
@@ -243,9 +265,9 @@ export default function Products() {
       {/* 1. HÀNG 4 THẺ CHỈ SỐ KHO HÀNG (KPI METRICS) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
         <MetricCard
-          label="TOTAL GARMENTS"
+          label="TOTAL PRODUCTS"
           value={stats.total}
-          subtext="Catalog ensemble designs"
+          subtext="Catalog product designs"
           icon={Package}
           loading={isLoading}
         />
@@ -305,7 +327,7 @@ export default function Products() {
         currentPage={currentPage}
         totalPages={totalPages}
         onPageChange={(page) => {
-          setCurrentPage(page)
+          handlePageChange(page)
           window.scrollTo({ top: 250, behavior: 'smooth' })
         }}
       />

@@ -61,8 +61,8 @@
   "products": [
     {
       "id": "prd_acc_01",
-      "shopId": "shop_m_studio",
-      "shopName": "M STUDIO",
+      "shopId": "shop_enire_5038",
+      "shopName": "enire",
       "name": "Liquid Thorn Sunglasses",
       "category": "ACCESSORIES",
       "price": 450000,
@@ -89,13 +89,13 @@
           "Full spectrum UV400 category 3 sun glare protection.",
           "Laser-etched atelier branding inside temple."
         ],
-        "origin": "Curated by M STUDIO. Precision hardware cast in Veneto, Italy."
+        "origin": "Curated by enire. Precision hardware cast in Veneto, Italy."
       }
     },
     {
       "id": "prd_acc_02",
-      "shopId": "shop_m_studio",
-      "shopName": "M STUDIO",
+      "shopId": "shop_enire_5038",
+      "shopName": "enire",
       "name": "Biomorphic Perforated Ring",
       "category": "ACCESSORIES",
       "price": 180000,
@@ -122,13 +122,13 @@
           "Corrosion and tarnish resistant treatment.",
           "Hand-burnished matte industrial silver texture."
         ],
-        "origin": "Sculpted and cast in collaboration with M STUDIO Metals Workshop."
+        "origin": "Sculpted and cast in collaboration with enire Metals Workshop."
       }
     },
     {
       "id": "prd_acc_03",
-      "shopId": "shop_m_studio",
-      "shopName": "M STUDIO",
+      "shopId": "shop_enire_5038",
+      "shopName": "enire",
       "name": "Sculptural Patent Shoulder Bag",
       "category": "ACCESSORIES",
       "price": 750000,
@@ -155,13 +155,13 @@
           "Concealed magnetic top flap closure with YKK interior zip pouch.",
           "Debossed atelier logo plate on back exterior panel."
         ],
-        "origin": "Handcrafted by artisan leather workshops for M STUDIO."
+        "origin": "Handcrafted by artisan leather workshops for enire."
       }
     },
     {
       "id": "prd_acc_04",
-      "shopId": "shop_m_studio",
-      "shopName": "M STUDIO",
+      "shopId": "shop_enire_5038",
+      "shopName": "enire",
       "name": "Distressed Graphic Baseball Cap",
       "category": "ACCESSORIES",
       "price": 240000,
@@ -188,13 +188,13 @@
           "Embroidered ventilation eyelets and structured crown.",
           "Antique silver metal slider buckle for universal sizing."
         ],
-        "origin": "Textile washed and customized in Vietnam under M STUDIO standards."
+        "origin": "Textile washed and customized in Vietnam under enire standards."
       }
     },
     {
       "id": "prd_acc_05",
-      "shopId": "shop_m_studio",
-      "shopName": "M STUDIO",
+      "shopId": "shop_enire_5038",
+      "shopName": "enire",
       "name": "Metallic Y2K Shoulder Bag",
       "category": "ACCESSORIES",
       "price": 620000,
@@ -221,13 +221,13 @@
           "Detachable dual drape ball chain accessories.",
           "Interior zip slip pocket and reinforced flat base."
         ],
-        "origin": "Curated by M STUDIO. Limited production allocation."
+        "origin": "Curated by enire. Limited production allocation."
       }
     },
     {
       "id": "prd_acc_06",
-      "shopId": "shop_m_studio",
-      "shopName": "M STUDIO",
+      "shopId": "shop_enire_5038",
+      "shopName": "enire",
       "name": "Oval Emblem Leather Belt",
       "category": "ACCESSORIES",
       "price": 320000,
@@ -256,13 +256,13 @@
           "Dual leather strap retaining keepers.",
           "Five precision die-cut sizing holes."
         ],
-        "origin": "Assembled with custom alloy hardware for M STUDIO."
+        "origin": "Assembled with custom alloy hardware for enire."
       }
     },
     {
       "id": "prd_acc_07",
-      "shopId": "shop_m_studio",
-      "shopName": "M STUDIO",
+      "shopId": "shop_enire_5038",
+      "shopName": "enire",
       "name": "Chrome Chain In-Ear Earphones",
       "category": "ACCESSORIES",
       "price": 390000,
@@ -289,13 +289,13 @@
           "Integrated in-line omnidirectional microphone and play/pause remote.",
           "Durable metallic curb chain sheath minimizing tangle."
         ],
-        "origin": "Engineered audio components assembled for M STUDIO Archive."
+        "origin": "Engineered audio components assembled for enire Archive."
       }
     },
     {
       "id": "prd_acc_08",
-      "shopId": "shop_m_studio",
-      "shopName": "M STUDIO",
+      "shopId": "shop_enire_5038",
+      "shopName": "enire",
       "name": "Aerodynamic Wrap Sunglasses",
       "category": "ACCESSORIES",
       "price": 350000,
@@ -322,13 +322,13 @@
           "Aerodynamic vortex groove cutouts on wide temples.",
           "Hypoallergenic soft-touch integrated nose bridges."
         ],
-        "origin": "Precision molded and imported for M STUDIO Eyewear Series."
+        "origin": "Precision molded and imported for enire Eyewear Series."
       }
     },
     {
       "id": "prd_acc_09",
-      "shopId": "shop_m_studio",
-      "shopName": "M STUDIO",
+      "shopId": "shop_enire_5038",
+      "shopName": "enire",
       "name": "Brushed Curb Chain Bracelet",
       "category": "ACCESSORIES",
       "price": 220000,
@@ -356,13 +356,13 @@
           "Heavy-duty spring-loaded lobster clasp.",
           "Rust, oxidation, and sweat proof construction."
         ],
-        "origin": "Fabricated by M STUDIO Metalcraft Lab."
+        "origin": "Fabricated by enire Metalcraft Lab."
       }
     },
     {
       "id": "prd_acc_10",
-      "shopId": "shop_m_studio",
-      "shopName": "M STUDIO",
+      "shopId": "shop_enire_5038",
+      "shopName": "enire",
       "name": "Snake Chain Pendant Necklace",
       "category": "ACCESSORIES",
       "price": 260000,
@@ -389,13 +389,13 @@
           "Secure branded lobster claw fastener with 5cm extension tail.",
           "Anti-tarnish protective lacquer dip."
         ],
-        "origin": "Crafted under M STUDIO Archival Jewelry specifications."
+        "origin": "Crafted under enire Archival Jewelry specifications."
       }
     },
     {
       "id": "prd_acc_11",
-      "shopId": "shop_m_studio",
-      "shopName": "M STUDIO",
+      "shopId": "shop_enire_5038",
+      "shopName": "enire",
       "name": "Gemstone Spiked Crown Ring",
       "category": "ACCESSORIES",
       "price": 280000,
@@ -424,13 +424,13 @@
           "Smooth contoured inner shank for ergonomic daily wear.",
           "Available in fixed jewelers ring sizes US 6, 7, and 8."
         ],
-        "origin": "Cast and hand-polished by M STUDIO Atelier."
+        "origin": "Cast and hand-polished by enire Atelier."
       }
     },
     {
       "id": "prd_acc_12",
-      "shopId": "shop_m_studio",
-      "shopName": "M STUDIO",
+      "shopId": "shop_enire_5038",
+      "shopName": "enire",
       "name": "Ruched Leather Cylinder Shoulder Bag",
       "category": "ACCESSORIES",
       "price": 680000,
@@ -457,13 +457,13 @@
           "Wide comfortable shoulder drop measuring 28cm.",
           "Reinforced zipper top closure with polished hardware."
         ],
-        "origin": "Custom tailored and dyed exclusively for M STUDIO."
+        "origin": "Custom tailored and dyed exclusively for enire."
       }
     },
     {
       "id": "prd_acc_13",
-      "shopId": "shop_m_studio",
-      "shopName": "M STUDIO",
+      "shopId": "shop_enire_5038",
+      "shopName": "enire",
       "name": "Heart Opal Drop Dangle Earrings",
       "category": "ACCESSORIES",
       "price": 190000,
@@ -490,13 +490,13 @@
           "Asymmetric descending fine curb chains with star charms.",
           "Overall drop length: 6.5 cm; weight: 6g per piece."
         ],
-        "origin": "Designed by M STUDIO Studio Collection."
+        "origin": "Designed by enire Studio Collection."
       }
     },
     {
       "id": "prd_acc_14",
-      "shopId": "shop_m_studio",
-      "shopName": "M STUDIO",
+      "shopId": "shop_enire_5038",
+      "shopName": "enire",
       "name": "Gothic Fleur Buckle Leather Backpack",
       "category": "ACCESSORIES",
       "price": 920000,
@@ -523,13 +523,13 @@
           "Padded internal laptop compartment accommodating up to 14-inch devices.",
           "Gothic cross motif leather appliqués on front bellows pocket."
         ],
-        "origin": "Crafted in small batch workshop production for M STUDIO."
+        "origin": "Crafted in small batch workshop production for enire."
       }
     },
     {
       "id": "prd_acc_15",
-      "shopId": "shop_m_studio",
-      "shopName": "M STUDIO",
+      "shopId": "shop_enire_5038",
+      "shopName": "enire",
       "name": "Faux Fur Flap Embroidered Trapper Cap",
       "category": "ACCESSORIES",
       "price": 320000,
@@ -556,13 +556,13 @@
           "Metallic dome rivets framing tonal script cursive embroidery.",
           "Quilted inner insulation lining retaining body heat."
         ],
-        "origin": "Engineered for winter collection by M STUDIO."
+        "origin": "Engineered for winter collection by enire."
       }
     },
     {
       "id": "prd_acc_16",
-      "shopId": "shop_m_studio",
-      "shopName": "M STUDIO",
+      "shopId": "shop_enire_5038",
+      "shopName": "enire",
       "name": "Plaid Trim Chain Beret Hat",
       "category": "ACCESSORIES",
       "price": 290000,
@@ -589,13 +589,13 @@
           "Detachable dual-layer chrome ball chain with swivel lobster clasps.",
           "Embossed military heraldic crest badge on temple."
         ],
-        "origin": "Curated millinery piece produced for M STUDIO."
+        "origin": "Curated millinery piece produced for enire."
       }
     },
     {
       "id": "prd_acc_17",
-      "shopId": "shop_m_studio",
-      "shopName": "M STUDIO",
+      "shopId": "shop_enire_5038",
+      "shopName": "enire",
       "name": "Crystal Studded Pierced Skinny Tie",
       "category": "ACCESSORIES",
       "price": 250000,
@@ -622,13 +622,13 @@
           "Arranged industrial safety pins and prong-set light-catching crystals.",
           "Pre-tied or free tie flexibility with internal keeper loop."
         ],
-        "origin": "Hand-customized by M STUDIO Atelier in Vietnam."
+        "origin": "Hand-customized by enire Atelier in Vietnam."
       }
     },
     {
       "id": "prd_acc_18",
-      "shopId": "shop_m_studio",
-      "shopName": "M STUDIO",
+      "shopId": "shop_enire_5038",
+      "shopName": "enire",
       "name": "Graffiti Charm Distressed Beanie Hat",
       "category": "ACCESSORIES",
       "price": 230000,
@@ -655,7 +655,7 @@
           "Curated charm cluster: safety pins and antique silver finished mini cutlery charms.",
           "Deep crown height fitting snug to slouchy styling."
         ],
-        "origin": "Individually hand-sprayed and embellished by M STUDIO."
+        "origin": "Individually hand-sprayed and embellished by enire."
       }
     },
     {
@@ -1553,8 +1553,8 @@
     },
     {
       "id": "prd_shoes_01",
-      "shopId": "shop_m_studio",
-      "shopName": "M STUDIO",
+      "shopId": "bmiQJ7v54aY",
+      "shopName": "SMOKER",
       "name": "Multi-Buckle Thigh-High Stiletto Boots",
       "category": "SHOES",
       "price": 1150000,
@@ -1585,13 +1585,13 @@
           "Full-length inner medial YKK zipper for effortless slip-on access.",
           "Pointed-toe archetype with reinforced toe box structure."
         ],
-        "origin": "Handcrafted footwear line for M STUDIO Atelier."
+        "origin": "Handcrafted footwear line for SMOKER Atelier."
       }
     },
     {
       "id": "prd_shoes_02",
-      "shopId": "shop_m_studio",
-      "shopName": "M STUDIO",
+      "shopId": "bmiQJ7v54aY",
+      "shopName": "SMOKER",
       "name": "Utility Pocket Distressed Platform Knee Boots",
       "category": "SHOES",
       "price": 1080000,
@@ -1622,13 +1622,13 @@
           "Front 20-eyelet lace-up system with side zip for daily convenience.",
           "Antibacterial breathable microfiber insole lining."
         ],
-        "origin": "Engineered for M STUDIO Gothic Footwear Archives."
+        "origin": "Engineered for SMOKER Gothic Footwear Archives."
       }
     },
     {
       "id": "prd_shoes_03",
-      "shopId": "shop_m_studio",
-      "shopName": "M STUDIO",
+      "shopId": "bmiQJ7v54aY",
+      "shopName": "SMOKER",
       "name": "Bleached Denim Fold-Over Stiletto Boots",
       "category": "SHOES",
       "price": 980000,
@@ -1659,13 +1659,13 @@
           "Razor sharp pointed toe profile.",
           "Full inner lining and cushioned footbed."
         ],
-        "origin": "Custom textile wash footwear produced for M STUDIO."
+        "origin": "Custom textile wash footwear produced for SMOKER."
       }
     },
     {
       "id": "prd_shoes_04",
-      "shopId": "shop_m_studio",
-      "shopName": "M STUDIO",
+      "shopId": "bmiQJ7v54aY",
+      "shopName": "SMOKER",
       "name": "Distressed Leather Metal Toe Cap Derby Shoes",
       "category": "SHOES",
       "price": 890000,
@@ -1696,13 +1696,13 @@
           "Chunky lugged rubber commando sole: 4.5 cm heel elevation.",
           "Goodyear-welted style welt stitching for maximum sole bonding."
         ],
-        "origin": "Assembled with custom foundry hardware for M STUDIO Footwear."
+        "origin": "Assembled with custom foundry hardware for SMOKER Footwear."
       }
     },
     {
       "id": "prd_shoes_05",
-      "shopId": "shop_m_studio",
-      "shopName": "M STUDIO",
+      "shopId": "bmiQJ7v54aY",
+      "shopName": "SMOKER",
       "name": "Heavy Canvas Chunky Lug Combat Boots",
       "category": "SHOES",
       "price": 920000,
@@ -1734,13 +1734,13 @@
           "Heavy metal speed hooks and round waxed cotton cord laces.",
           "Reinforced canvas back pull tab for easy entry."
         ],
-        "origin": "Engineered utility footwear line for M STUDIO."
+        "origin": "Engineered utility footwear line for SMOKER."
       }
     },
     {
       "id": "prd_shoes_06",
-      "shopId": "shop_m_studio",
-      "shopName": "M STUDIO",
+      "shopId": "bmiQJ7v54aY",
+      "shopName": "SMOKER",
       "name": "Chunky Lug Sole Polished Derby Shoes",
       "category": "SHOES",
       "price": 850000,
@@ -1771,20 +1771,11 @@
           "Padded leather collar preventing ankle chafing.",
           "Full leather lining and branded ergonomic arch-support insole."
         ],
-        "origin": "Crafted in Veneto, Italy under M STUDIO Atelier Standards."
+        "origin": "Crafted in Veneto, Italy under SMOKER Atelier Standards."
       }
     }
   ],
   "users": [
-    {
-      "id": "usr_01",
-      "fullName": "Lê Ngọc Mẫn",
-      "email": "customer@fashora.vn",
-      "phoneNumber": "0901234567",
-      "role": "customer",
-      "shopId": null,
-      "shippingAddresses": []
-    },
     {
       "id": "OG_o5LL7lOM",
       "fullName": "Lê Ngọc Mẫn",
@@ -1852,10 +1843,14 @@
       "password": "ngoc123",
       "dob": "05/10/2005",
       "gender": "Female",
-      "role": "customer",
-      "shopId": null,
+      "role": "seller",
+      "shopId": "bmiQJ7v54aY",
       "shippingAddresses": [],
-      "createdAt": "2026-10-20T20:12:38.278Z"
+      "createdAt": "2026-10-20T20:12:38.278Z",
+      "roles": [
+        "customer",
+        "seller"
+      ]
     },
     {
       "id": "usr_helena",
@@ -2006,6 +2001,64 @@
         }
       ],
       "createdAt": "2026-10-16T15:45:00.000Z"
+    },
+    {
+      "id": "nEfjbHOSaE4",
+      "fullName": "Lê Mẫn",
+      "email": "enire_cantho@gmail.com",
+      "phoneNumber": "0777788899",
+      "password": "Enire@123",
+      "dob": "2004-09-03",
+      "gender": "Male",
+      "role": "seller",
+      "roles": [
+        "customer",
+        "seller"
+      ],
+      "shopId": "shop_enire_5038",
+      "shippingAddresses": [
+        {
+          "name": "Lê Mẫn",
+          "phone": "0777788899",
+          "address": "124 3/2",
+          "ward": "Phường Ninh Kiều",
+          "district": "",
+          "city": "Thành phố Cần Thơ",
+          "isDefault": true,
+          "id": "ADDR-3120",
+          "isVerified": true
+        }
+      ],
+      "createdAt": "2026-10-27T08:45:54.267Z"
+    },
+    {
+      "id": "lwuHi8JP0_U",
+      "fullName": "Nguyễn Văn Linh",
+      "email": "swag_kanthor@gmail.com",
+      "phoneNumber": "0788881122",
+      "password": "Swag1234#",
+      "dob": "2002-01-30",
+      "gender": "Female",
+      "role": "seller",
+      "roles": [
+        "customer",
+        "seller"
+      ],
+      "shopId": "R5V7c8-5l5M",
+      "shippingAddresses": [
+        {
+          "name": "Nguyễn Văn Linh",
+          "phone": "0788881122",
+          "address": "124 Cách Mạng Tháng 8",
+          "ward": "Phường An Khánh",
+          "district": "",
+          "city": "Thành phố Hồ Chí Minh",
+          "isDefault": true,
+          "id": "ADDR-7781",
+          "isVerified": true
+        }
+      ],
+      "createdAt": "2026-10-27T10:12:13.461Z"
     }
   ],
   "cart": [],
@@ -2045,8 +2098,8 @@
           "selectedSize": "Freesize",
           "selectedColor": "Matte Silver",
           "image": "/images/products/accessories/acc-02.jpg",
-          "shopId": "shop_m_studio",
-          "shopName": "M STUDIO"
+          "shopId": "shop_enire_5038",
+          "shopName": "enire"
         }
       ],
       "shippingFee": 0,
@@ -2054,7 +2107,7 @@
       "paymentMethod": "Cash on Delivery (COD)",
       "subtotal": 760000,
       "total": 760000,
-      "status": "PENDING",
+      "status": "COMPLETED",
       "createdAt": "2026-10-18T10:15:00.000Z",
       "logistics": {
         "courier": "SPX Express",
@@ -2094,7 +2147,7 @@
       "paymentMethod": "Cash on Delivery (COD)",
       "subtotal": 1250000,
       "total": 1250000,
-      "status": "CONFIRMED",
+      "status": "COMPLETED",
       "createdAt": "2026-10-18T10:15:00.000Z",
       "logistics": {
         "courier": "SPX Express",
@@ -2114,8 +2167,8 @@
         "district": "District 1",
         "city": "Ho Chi Minh City"
       },
-      "shopId": "shop_m_studio",
-      "shopName": "M STUDIO",
+      "shopId": "shop_enire_5038",
+      "shopName": "enire",
       "items": [
         {
           "id": "prd_acc_05",
@@ -2125,8 +2178,8 @@
           "selectedSize": "One Size",
           "selectedColor": "Chrome Silver",
           "image": "/images/products/accessories/acc-05.jpg",
-          "shopId": "shop_m_studio",
-          "shopName": "M STUDIO"
+          "shopId": "shop_enire_5038",
+          "shopName": "enire"
         }
       ],
       "shippingFee": 35000,
@@ -2134,7 +2187,7 @@
       "paymentMethod": "Cash on Delivery (COD)",
       "subtotal": 620000,
       "total": 655000,
-      "status": "CONFIRMED",
+      "status": "COMPLETED",
       "createdAt": "2026-10-18T09:30:00.000Z",
       "logistics": {
         "courier": "SPX Express",
@@ -2234,8 +2287,8 @@
         "district": "District 3",
         "city": "Ho Chi Minh City"
       },
-      "shopId": "shop_m_studio",
-      "shopName": "M STUDIO",
+      "shopId": "shop_enire_5038",
+      "shopName": "enire",
       "items": [
         {
           "id": "prd_acc_01",
@@ -2245,8 +2298,8 @@
           "selectedSize": "One Size",
           "selectedColor": "Silver Chrome",
           "image": "/images/products/accessories/acc-01.jpg",
-          "shopId": "shop_m_studio",
-          "shopName": "M STUDIO"
+          "shopId": "shop_enire_5038",
+          "shopName": "enire"
         }
       ],
       "shippingFee": 35000,
@@ -2314,27 +2367,27 @@
         "district": "District 7",
         "city": "Ho Chi Minh City"
       },
-      "shopId": "shop_m_studio",
-      "shopName": "M STUDIO",
+      "shopId": "bmiQJ7v54aY",
+      "shopName": "SMOKER",
       "items": [
         {
-          "id": "prd_acc_04",
-          "name": "Distressed Graphic Baseball Cap",
-          "price": 240000,
+          "id": "prd_shoes_06",
+          "name": "Chunky Lug Sole Polished Derby Shoes",
+          "price": 2100000,
           "quantity": 1,
-          "selectedSize": "One Size",
-          "selectedColor": "Washed Black",
-          "image": "/images/products/accessories/acc-04.jpg",
-          "shopId": "shop_m_studio",
-          "shopName": "M STUDIO"
+          "selectedSize": "42",
+          "selectedColor": "Polished Jet Black",
+          "image": "/images/products/shoes/shoes-06.jpg",
+          "shopId": "bmiQJ7v54aY",
+          "shopName": "SMOKER"
         }
       ],
       "shippingFee": 0,
       "shippingMethod": "Standard Delivery (Complimentary)",
       "paymentMethod": "Cash on Delivery (COD)",
-      "subtotal": 240000,
-      "total": 240000,
-      "status": "PENDING",
+      "subtotal": 2100000,
+      "total": 2100000,
+      "status": "COMPLETED",
       "createdAt": "2026-10-16T12:22:21.799Z",
       "logistics": {
         "courier": "SPX Express",
@@ -2354,8 +2407,8 @@
         "district": "District 1",
         "city": "Ho Chi Minh City"
       },
-      "shopId": "shop_m_studio",
-      "shopName": "M STUDIO",
+      "shopId": "shop_enire_5038",
+      "shopName": "enire",
       "items": [
         {
           "id": "prd_acc_03",
@@ -2365,8 +2418,8 @@
           "selectedSize": "One Size",
           "selectedColor": "Glossy Black",
           "image": "/images/products/accessories/acc-03.jpg",
-          "shopId": "shop_m_studio",
-          "shopName": "M STUDIO"
+          "shopId": "shop_enire_5038",
+          "shopName": "enire"
         }
       ],
       "shippingFee": 0,
@@ -2391,15 +2444,22 @@
       "currency": "VND (₫)",
       "tagline": "Modern Tailoring & Monochromatic Atelier",
       "description": "M STUDIO is an avant-garde design house dedicated to sculptural silhouettes, industrial chrome hardware, and experimental monochrome fashion.",
-      "logo": "/assets/logo.png",
-      "coverImage": "/images/products/set/set-05.jpg",
+      "logo": "/images/shops/shop-logo-1793084646978-4705.png",
+      "coverImage": "/images/shops/shop-logo-1793084658370-9474.jpg",
       "rating": 4.9,
       "reviewsCount": 148,
       "location": "Ho Chi Minh City, Vietnam",
       "joinedDate": "October 2026",
       "status": "ACTIVE",
       "ownerId": "upkuSobx8os",
-      "ownerEmail": "an@gmail.com"
+      "ownerEmail": "an@gmail.com",
+      "category": "FASHION & APPAREL",
+      "phone": "",
+      "payoutAccount": {
+        "bankName": "Vietcombank (VCB)",
+        "accountNumber": "",
+        "accountName": "Nguyen Thien An"
+      }
     },
     {
       "id": "shop_l-obscur-atelier_8158",
@@ -2407,17 +2467,102 @@
       "slug": "l-obscur-atelier",
       "sellerCode": "SELLER #LOB-8158",
       "currency": "VND (₫)",
-      "tagline": "Avant-Garde Architectural Fashion & Tailoring",
-      "description": "L'OBSCUR ATELIER - Independent designer atelier on FASHORA.",
-      "logo": "/assets/logo.png",
-      "coverImage": "/images/products/set/set-05.jpg",
+      "tagline": "",
+      "description": "",
+      "logo": "/images/shops/shop-logo-1793094935385-5606.jpg",
+      "coverImage": "/images/shops/shop-logo-1793094939909-3214.jpg",
       "rating": 5,
       "reviewsCount": 0,
-      "location": "Can Tho, Vietnam",
+      "location": "",
       "joinedDate": "October 2026",
       "status": "ACTIVE",
       "ownerId": "OG_o5LL7lOM",
-      "ownerEmail": "leman200x@gmail.com"
+      "ownerEmail": "leman200x@gmail.com",
+      "category": "ALL-IN-ONE FASHION",
+      "phone": "",
+      "payoutAccount": {
+        "bankName": "Vietcombank (VCB)",
+        "accountNumber": "",
+        "accountName": "Lê Ngọc Mẫn"
+      }
+    },
+    {
+      "id": "shop_enire_5038",
+      "sellerCode": "SELLER #ENI-1166",
+      "currency": "VND (₫)",
+      "name": "enire",
+      "slug": "enire",
+      "tagline": "enire ✦ cyber jewellery & futuristic forms",
+      "description": "Y3K jewelry blends metallic shine with a futuristic spirit\nA one-of-a-kind visual statement for the new era",
+      "logo": "/images/shops/shop-logo-1793091157944-5138.jpg",
+      "category": "ACCESSORIES & JEWELRY",
+      "rating": 5,
+      "reviewsCount": 0,
+      "location": "124 3/2, Can Tho",
+      "phone": "0777788899",
+      "payoutAccount": {
+        "bankName": "Vietcombank",
+        "accountNumber": "0777788899",
+        "accountName": "Lê Mẫn"
+      },
+      "joinedDate": "October 2026",
+      "status": "ACTIVE",
+      "ownerId": "nEfjbHOSaE4",
+      "ownerName": "Lê Mẫn",
+      "ownerEmail": "enire_cantho@gmail.com",
+      "coverImage": "/images/shops/shop-logo-1793094004183-7876.jpg"
+    },
+    {
+      "id": "bmiQJ7v54aY",
+      "sellerCode": "SELLER #SMO-9117",
+      "currency": "VND (₫)",
+      "name": "SMOKER",
+      "slug": "smoker",
+      "tagline": "SMOKER ✦ footwear & leather goods",
+      "description": "SMOKER ✦ footwear & leather goods",
+      "logo": "/images/shops/shop-logo-1793092026447-4352.png",
+      "category": "FOOTWEAR & LEATHER GOODS",
+      "rating": 5,
+      "reviewsCount": 0,
+      "location": "88 Nguyễn Trãi, Phường Bến Thành, Quận 1, TP. Hồ Chí Minh, Ho Chi Minh City",
+      "phone": "0777712345",
+      "payoutAccount": {
+        "bankName": "MB Bank (MB)",
+        "accountNumber": "0777712345",
+        "accountName": "NGO BAO NGOC"
+      },
+      "joinedDate": "October 2026",
+      "status": "ACTIVE",
+      "ownerId": "UtJushvds_M",
+      "ownerName": "Ngô Bảo Ngọc",
+      "ownerEmail": "Ngoc@gmail.com",
+      "coverImage": "/images/shops/shop-logo-1793092593466-8982.jpg"
+    },
+    {
+      "id": "R5V7c8-5l5M",
+      "sellerCode": "SELLER #SWA-8462",
+      "currency": "VND (₫)",
+      "name": "#SWAG",
+      "slug": "swag",
+      "tagline": "#SWAG ✦ Modern Streetwear & Trendsetter Forms",
+      "description": "The place that shapes contemporary street style: Confident — Bold — Unique.  \nStay updated with the latest designs for today’s youth.",
+      "logo": "/images/shops/shop-logo-1793096272688-8068.jpg",
+      "category": "READY-TO-WEAR & APPAREL",
+      "rating": 5,
+      "reviewsCount": 0,
+      "location": "124 Cách Mạng Tháng 8, Phường An Khánh, Ho Chi Minh City",
+      "phone": "0788881122",
+      "payoutAccount": {
+        "bankName": "Vietcombank",
+        "accountNumber": "0788881122",
+        "accountName": "Nguyen van linh"
+      },
+      "joinedDate": "October 2026",
+      "status": "ACTIVE",
+      "ownerId": "lwuHi8JP0_U",
+      "ownerName": "Nguyễn Văn Linh",
+      "ownerEmail": "swag_kanthor@gmail.com",
+      "coverImage": "/images/shops/shop-logo-1793096528439-3682.jpg"
     }
   ],
   "$schema": "./node_modules/json-server/schema.json"

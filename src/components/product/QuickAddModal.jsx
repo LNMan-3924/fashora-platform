@@ -66,7 +66,7 @@ function QuickAddContent({ product, onClose, onConfirm, onAddToCart }) {
         try {
           addToCart(payload);
         } catch (err) {
-          console.warn('Lỗi khi gọi addToCart:', err);
+          console.warn('Error calling addToCart:', err);
         }
       }
     }

@@ -30,7 +30,7 @@ export function AuthProvider({ children }) {
         }
       })
       .catch((err) => {
-        console.warn('AuthContext: Phiên đăng nhập hết hạn hoặc không tìm thấy user:', err)
+        console.warn('AuthContext: Session expired or user not found:', err)
         localStorage.removeItem('currentUserId')
         if (isMounted) {
           setCurrentUser(null)

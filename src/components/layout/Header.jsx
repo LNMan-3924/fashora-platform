@@ -3,13 +3,15 @@ import { createPortal } from 'react-dom'
 import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { useCartStore } from '../../stores'
 import { useAuth } from '../../contexts/AuthContext'
+import SearchOverlay from './SearchOverlay'
 
 function Header({ hideNav = false }) {
     const [logoSrc, setLogoSrc] = useState('/assets/logo.png')
     const [logoError, setLogoError] = useState(false)
     const [accountMenuOpen, setAccountMenuOpen] = useState(false)
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
-    const [searchQuery, setSearchQuery] = useState('')
+    const [isSignOutModalOpen, setIsSignOutModalOpen] = useState(false)
+    const [isSearchOpen, setIsSearchOpen] = useState(false)
 
     // Lấy trạng thái đăng nhập từ AuthContext
     const { currentUser, isAuthenticated, logoutUser } = useAuth()
@@ -20,6 +22,12 @@ function Header({ hideNav = false }) {
 
     const location = useLocation()
     const navigate = useNavigate()
+
+    const handleConfirmSignOut = () => {
+        logoutUser()
+        setIsSignOutModalOpen(false)
+        navigate('/home')
+    }
     const searchParams = new URLSearchParams(location.search)
     const currentTag = searchParams.get('tag')
     const isShopPath = location.pathname === '/shop'
@@ -61,14 +69,6 @@ function Header({ hideNav = false }) {
         }
     }
 
-    const handleSearchSubmit = (e) => {
-        e.preventDefault()
-        if (searchQuery.trim()) {
-            navigate(`/shop?q=${encodeURIComponent(searchQuery.trim())}`)
-            setIsMobileMenuOpen(false)
-        }
-    }
-
     return (
         <header className="sticky top-0 z-40 bg-black/95 backdrop-blur-sm border-b border-neutral-800">
             {/* TẦNG 1: h-20, grid 3 cột */}
@@ -79,7 +79,7 @@ function Header({ hideNav = false }) {
                     {!hideNav && (
                         <button
                             type="button"
-                            aria-label="Mở menu"
+                            aria-label="Open menu"
                             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                             className="md:hidden mr-3 p-1 text-neutral-300 hover:text-white focus:outline-none cursor-pointer"
                         >
@@ -103,13 +103,15 @@ function Header({ hideNav = false }) {
                         </button>
                     )}
 
-                    {/* Ô tìm kiếm dạng gạch chân tối giản */}
-                    <form
-                        onSubmit={handleSearchSubmit}
-                        className="hidden sm:flex items-center gap-2 border-b border-neutral-700 pb-1 max-w-[220px] w-full"
+                    {/* Ô tìm kiếm dạng gạch chân tối giản - Mở Search Overlay */}
+                    <button
+                        type="button"
+                        onClick={() => setIsSearchOpen(true)}
+                        className="hidden sm:flex items-center gap-2.5 border-b border-neutral-700 hover:border-white pb-1 max-w-[220px] w-full text-left transition-colors cursor-pointer group"
+                        title="Search pieces & ateliers..."
                     >
                         <svg
-                            className="w-3.5 h-3.5 text-neutral-400 shrink-0"
+                            className="w-3.5 h-3.5 text-neutral-400 group-hover:text-white shrink-0 transition-colors"
                             fill="none"
                             stroke="currentColor"
                             viewBox="0 0 24 24"
@@ -121,14 +123,10 @@ function Header({ hideNav = false }) {
                                 d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"
                             />
                         </svg>
-                        <input
-                            type="text"
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            placeholder="SEARCH..."
-                            className="w-full text-xs placeholder:text-neutral-500 tracking-[0.15em] bg-transparent focus:outline-none text-white uppercase"
-                        />
-                    </form>
+                        <span className="w-full text-xs text-neutral-400 group-hover:text-white tracking-[0.15em] font-mono uppercase truncate">
+                            SEARCH ARCHIVE...
+                        </span>
+                    </button>
                 </div>
 
                 {/* Cột giữa: Logo FASHORA căn chính giữa */}
@@ -227,8 +225,8 @@ function Header({ hideNav = false }) {
                                             <button
                                                 type="button"
                                                 onClick={() => {
-                                                    logoutUser()
                                                     setAccountMenuOpen(false)
+                                                    setIsSignOutModalOpen(true)
                                                 }}
                                                 className="w-full text-left px-4 py-2 font-mono uppercase text-[11px] tracking-wider text-red-400 hover:bg-neutral-800 transition-colors cursor-pointer"
                                             >
@@ -261,7 +259,7 @@ function Header({ hideNav = false }) {
                     {/* Icon Giỏ hàng (shopping bag) - Chỉ hiện badge số khi displayCartCount > 0 */}
                     <Link
                         to="/cart"
-                        aria-label="Giỏ hàng"
+                        aria-label="Shopping Cart"
                         className="relative p-1 text-neutral-300 hover:text-white transition-colors flex items-center"
                     >
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -342,31 +340,32 @@ function Header({ hideNav = false }) {
                             </button>
                         </div>
 
-                        {/* 2. Ô Tìm Kiếm */}
-                        <form onSubmit={handleSearchSubmit} className="mt-6 w-full">
-                            <div className="relative flex items-center bg-neutral-900 border border-neutral-800 rounded-lg px-3.5 py-2.5">
-                                <svg
-                                    className="w-4 h-4 text-neutral-400 shrink-0 mr-2.5"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    stroke="currentColor"
-                                >
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth={1.5}
-                                        d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"
-                                    />
-                                </svg>
-                                <input
-                                    type="text"
-                                    value={searchQuery}
-                                    onChange={(e) => setSearchQuery(e.target.value)}
-                                    placeholder="SEARCH ARCHIVE..."
-                                    className="w-full bg-transparent text-[11px] tracking-[0.16em] uppercase placeholder:text-neutral-500 placeholder:tracking-[0.16em] focus:outline-none text-white"
+                        {/* 2. Ô Tìm Kiếm (Mobile - Bấm mở Search Overlay) */}
+                        <button
+                            type="button"
+                            onClick={() => {
+                                setIsMobileMenuOpen(false)
+                                setIsSearchOpen(true)
+                            }}
+                            className="mt-6 w-full relative flex items-center bg-neutral-900 border border-neutral-800 hover:border-neutral-600 rounded-lg px-3.5 py-2.5 transition-colors cursor-pointer text-left"
+                        >
+                            <svg
+                                className="w-4 h-4 text-neutral-400 shrink-0 mr-2.5"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                            >
+                                <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={1.5}
+                                    d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"
                                 />
-                            </div>
-                        </form>
+                            </svg>
+                            <span className="text-[11px] tracking-[0.16em] uppercase text-neutral-400 font-mono">
+                                SEARCH ARCHIVE...
+                            </span>
+                        </button>
 
                         {/* 3. Navigation */}
                         <nav className="mt-8 flex flex-col gap-5">
@@ -405,6 +404,56 @@ function Header({ hideNav = false }) {
                 </div>,
                 document.body
             )}
+
+            {/* SIGN OUT CONFIRMATION MODAL */}
+            {isSignOutModalOpen && typeof document !== 'undefined' && createPortal(
+                <div
+                    className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/70 backdrop-blur-[2px] animate-in fade-in duration-150"
+                    onClick={() => setIsSignOutModalOpen(false)}
+                    role="dialog"
+                    aria-modal="true"
+                    aria-labelledby="sign-out-title"
+                >
+                    <div
+                        className="relative w-full max-w-sm bg-[#0e0e0e] text-white border border-neutral-800 shadow-2xl p-6 rounded-[2px] animate-in zoom-in-95 duration-150"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        {/* Header */}
+                        <div className="mb-3">
+                            <h3 id="sign-out-title" className="text-base font-bold uppercase tracking-wider text-white">
+                                CONFIRM SIGN OUT
+                            </h3>
+                        </div>
+
+                        {/* Description */}
+                        <p className="text-xs text-neutral-300 font-mono mb-6 leading-relaxed">
+                            Are you sure you want to sign out of your FASHORA account? You will be redirected to the home page.
+                        </p>
+
+                        {/* Actions */}
+                        <div className="flex items-center gap-3">
+                            <button
+                                type="button"
+                                onClick={() => setIsSignOutModalOpen(false)}
+                                className="flex-1 py-2.5 border border-neutral-700 hover:border-neutral-400 text-neutral-300 hover:text-white text-xs font-mono uppercase tracking-wider transition-colors cursor-pointer"
+                            >
+                                CANCEL
+                            </button>
+                            <button
+                                type="button"
+                                onClick={handleConfirmSignOut}
+                                className="flex-1 py-2.5 bg-white text-black hover:bg-neutral-200 text-xs font-mono font-bold uppercase tracking-wider transition-colors cursor-pointer shadow-md"
+                            >
+                                SIGN OUT
+                            </button>
+                        </div>
+                    </div>
+                </div>,
+                document.body
+            )}
+
+            {/* Search Overlay Toàn màn hình */}
+            <SearchOverlay isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
         </header>
     )
 }

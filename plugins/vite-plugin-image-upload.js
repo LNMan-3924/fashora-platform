@@ -28,6 +28,15 @@ import process from 'node:process'
  * @returns {{ diskPath: string, webPath: string, prefix: string }}
  */
 function resolveDestination(category, folder) {
+  // 1.5. Trường hợp tải ảnh logo hoặc banner của Shop
+  if (folder === 'shops' || folder === 'logos' || String(category || '').toLowerCase() === 'shop') {
+    return {
+      diskPath: path.resolve(process.cwd(), 'public/images/shops'),
+      webPath: '/images/shops',
+      prefix: 'shop-logo',
+    }
+  }
+
   // 1. Trường hợp tải ảnh đại diện Profile
   if (folder === 'avatars' || String(category || '').toLowerCase() === 'avatar') {
     return {

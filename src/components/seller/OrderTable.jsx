@@ -15,6 +15,15 @@ import OrderStatusBadge from './OrderStatusBadge'
  * - loading: Trạng thái đang tải API
  * - onViewDetails: Callback khi người bán nhấn nút "VIEW DETAILS" để xem chi tiết
  */
+const formatPaymentMethod = (method) => {
+  if (!method) return 'COD'
+  const m = String(method).trim()
+  if (m.toLowerCase().includes('cod') || m.toLowerCase().includes('cash on delivery')) {
+    return 'COD'
+  }
+  return m
+}
+
 export default function OrderTable({
   orders = [],
   loading = false,
@@ -86,9 +95,10 @@ export default function OrderTable({
                 // Tổng tiền đơn hàng
                 const orderTotal = order.total ?? order.totalAmount ?? 0
 
-                // Hình thức thanh toán
-                const paymentMethod =
-                  order.paymentMethod || order.payment || 'Cash on Delivery (COD)'
+                // Hình thức thanh toán (rút gọn thành COD)
+                const paymentMethod = formatPaymentMethod(
+                  order.paymentMethod || order.payment
+                )
 
                 // Mã hiển thị đơn hàng
                 const displayId =
@@ -185,8 +195,9 @@ export default function OrderTable({
 
             const orderTotal = order.total ?? order.totalAmount ?? 0
 
-            const paymentMethod =
-              order.paymentMethod || order.payment || 'Cash on Delivery'
+            const paymentMethod = formatPaymentMethod(
+              order.paymentMethod || order.payment
+            )
 
             const displayId =
               order.orderNumber || (order.id ? (String(order.id).startsWith('#') ? order.id : `#ORD-${order.id}`) : '#ORD-000')

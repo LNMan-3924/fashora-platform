@@ -1,6 +1,9 @@
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 
 export default function Footer() {
+  const location = useLocation()
+  const currentPathState = { from: `${location.pathname}${location.search}` }
+
   return (
     <footer className="bg-black text-white border-t border-neutral-900">
       <div className="max-w-[1560px] mx-auto px-6 sm:px-10 lg:px-16 pt-16 pb-12">
@@ -50,22 +53,22 @@ export default function Footer() {
             </h3>
             <ul className="space-y-2.5 text-neutral-400">
               <li>
-                <Link to="/shopping-guide" className="hover:text-white transition-colors">
+                <Link to="/shopping-guide" state={currentPathState} className="hover:text-white transition-colors">
                   SHOPPING GUIDE
                 </Link>
               </li>
               <li>
-                <Link to="/exchange-policy" className="hover:text-white transition-colors">
+                <Link to="/exchange-policy" state={currentPathState} className="hover:text-white transition-colors">
                   EXCHANGE POLICY
                 </Link>
               </li>
               <li>
-                <Link to="/privacy-policy" className="hover:text-white transition-colors">
+                <Link to="/privacy-policy" state={currentPathState} className="hover:text-white transition-colors">
                   PRIVACY POLICY
                 </Link>
               </li>
               <li>
-                <Link to="/terms-of-use" className="hover:text-white transition-colors">
+                <Link to="/terms-of-use" state={currentPathState} className="hover:text-white transition-colors">
                   TERMS OF USE
                 </Link>
               </li>

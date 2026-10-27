@@ -19,7 +19,7 @@ import {
   CompleteTheLook,
   QuickAddModal,
 } from '../../components/product'
-import { getCartItemKey, COMMERCE_STORAGE_KEYS, groupItemsByShop } from '../../constants'
+import { getCartItemKey, COMMERCE_STORAGE_KEYS, toShopSlug, groupItemsByShop } from '../../constants'
 
 // Tái sử dụng hàm tạo key duy nhất từ src/constants (ID + Size + Màu sắc)
 const getItemKey = getCartItemKey
@@ -203,11 +203,13 @@ export default function Cart() {
     }
 
     if (!currentUser) {
+      showToast('Authentication required: Please sign in or create an account to proceed with checkout.')
       navigate('/login', {
         state: {
           from: {
             pathname: '/checkout',
           },
+          selectedItems: selectedCartItems,
         },
       })
       return
@@ -288,7 +290,7 @@ export default function Cart() {
               <CartShopGroup
                 key={group.shopId}
                 shopName={group.shopName}
-                shopSlug={group.items[0]?.shopSlug || group.shopId.replace(/^shop_/, '') || 'fashora'}
+                shopSlug={group.items[0]?.shopSlug || toShopSlug(shopName) || group.shopId.replace(/^shop_/, '') || 'fashora'}
                 items={group.items}
                 selectedItemIds={activeSelectedKeys}
                 onToggleShopSelect={handleToggleShop}

@@ -316,9 +316,57 @@ function CheckoutFormContent({
             updateCurrentUser(updatedUser)
           }
         } catch (addrErr) {
-          console.warn('Checkout: Không thể tự động lưu địa chỉ vào tài khoản qua API:', addrErr)
+          console.warn('Checkout: Unable to auto-save address to account via API:', addrErr)
         }
       }
+
+      // Tự động trừ tồn kho (Inventory Deduction) cho các sản phẩm đã đặt
+      displayItems.forEach(async (item) => {
+        try {
+          if (item?.id) {
+            const currentStock = typeof item.stock === 'number' ? item.stock : 10
+            const newStock = Math.max(0, currentStock - (Number(item.quantity) || 1))
+            await patchProduct(item.id, {
+              stock: newStock,
+              isSoldOut: newStock === 0,
+            })
+          }
+        } catch (stockErr) {
+          console.warn('Checkout: Unable to deduct product stock:', item?.id, stockErr)
+        }
+      })
+
+      // Đồng bộ từng đơn hàng vào LocalStorage bằng hàm dùng chung (Single Source of Truth)
+      savedOrders.forEach((so) => storeUserOrder(so))
+
+      // Xóa các sản phẩm đã được thanh toán khỏi giỏ hàng
+      if (removeItemsFromCart && selectedCheckoutItems.length > 0) {
+        removeItemsFromCart(selectedCheckoutItems)
+      } else {
+        clearCart()
+      }
+      try {
+        sessionStorage.removeItem(COMMERCE_STORAGE_KEYS.CHECKOUT_ITEMS)
+      } catch {
+        // ignore
+      }
+
+      submittingRef.current = false
+      setIsSubmitting(false)
+      window.scrollTo({ top: 0, left: 0, behavior: 'instant' })
+
+      navigate('/order-success', {
+        state: {
+          orderNumber: savedOrders.map((o) => o.orderNumber).join(', '),
+          orderNumbers: savedOrders.map((o) => ({
+            orderNumber: o.orderNumber,
+            shopName: o.shopName,
+            total: o.total,
+          })),
+          total: orderTotal,
+          orderId: savedOrders[0]?.id,
+        },
+      })
     } catch (err) {
       console.warn(
         'Checkout: Không thể kết nối API db.json, lưu đơn hàng offline:',

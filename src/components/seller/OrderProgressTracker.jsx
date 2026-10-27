@@ -60,19 +60,18 @@ export default function OrderProgressTracker({ status = 'PENDING' }) {
         <span className="text-neutral-700">{summaryText}</span>
       </div>
 
-      {/* Đường kẻ và các nút bước (Step Progression) */}
-      <div className="overflow-x-auto pb-2 pt-1">
-        <div className="min-w-[500px] flex items-center justify-between relative px-6 sm:px-10">
-          {/* Đường kẻ nền xám bên dưới */}
-          <div className="absolute left-10 right-10 top-1/2 -translate-y-1/2 h-0.5 bg-neutral-200 z-0" />
-
-          {/* Đường kẻ đen thể hiện % hoàn thành */}
-          {!isCancelled && (
-            <div
-              className="absolute left-10 top-1/2 -translate-y-1/2 h-0.5 bg-black z-0 transition-all duration-500"
-              style={{ width: progressWidth }}
-            />
-          )}
+      {/* Đường kẻ và các nút bước (Step Progression) - Căn vừa khít khung, không bị tràn thanh trượt */}
+      <div className="pt-2 pb-1 overflow-hidden">
+        <div className="flex items-center justify-between relative px-4 sm:px-8">
+          {/* Đường ray tiến độ: Đường xám nền và đường đen tiến độ lồng bên trong */}
+          <div className="absolute left-8 right-8 sm:left-12 sm:right-12 top-4 -translate-y-1/2 h-0.5 bg-neutral-200 z-0 overflow-hidden">
+            {!isCancelled && (
+              <div
+                className="h-full bg-black transition-all duration-500"
+                style={{ width: progressWidth }}
+              />
+            )}
+          </div>
 
           {/* Render 4 bước */}
           {steps.map((step) => {
@@ -103,7 +102,7 @@ export default function OrderProgressTracker({ status = 'PENDING' }) {
 
                 {/* Nhãn chữ tên bước */}
                 <span
-                  className={`text-[11px] font-mono tracking-wider uppercase ${
+                  className={`text-[10px] sm:text-[11px] font-mono tracking-wider uppercase ${
                     isActive || isCompleted
                       ? 'font-bold text-black'
                       : 'font-medium text-neutral-400'

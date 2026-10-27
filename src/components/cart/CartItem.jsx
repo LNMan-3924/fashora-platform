@@ -52,7 +52,13 @@ export default function CartItem({
         />
         {/* Nhãn đặc biệt nếu có (Ví dụ: LIMITED, SIGNATURE) */}
         {item.badge && (
-          <span className="absolute top-1 left-1 bg-[#111111] text-white text-[8px] font-mono px-1 py-0.5 uppercase tracking-wider">
+          <span
+            className={`absolute top-1 left-1 text-white text-[8px] font-mono px-1 py-0.5 uppercase tracking-wider ${
+              item.badge?.trim().toUpperCase().includes('SALE')
+                ? 'bg-red-600'
+                : 'bg-[#111111]'
+            }`}
+          >
             {item.badge}
           </span>
         )}

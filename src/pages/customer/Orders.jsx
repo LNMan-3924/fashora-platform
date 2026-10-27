@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { Toast, EmptyState } from '../../components/common'
 import {
   OrderStatusTabs,
@@ -30,7 +30,23 @@ export default function Orders() {
   const [isLoading, setIsLoading] = useState(() => Boolean(currentUser?.id))
 
   // 2. State quản lý tab lọc trạng thái hiện tại (mặc định 'all')
-  const [activeTab, setActiveTab] = useState('all')
+  const [searchParams, setSearchParams] = useSearchParams()
+  const activeTab = searchParams.get('tab') || 'all'
+
+  const handleTabChange = (newTab) => {
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev)
+        if (!newTab || newTab === 'all') {
+          next.delete('tab')
+        } else {
+          next.set('tab', newTab)
+        }
+        return next
+      },
+      { replace: true }
+    )
+  }
 
   // 3. State quản lý đơn hàng đang mở trong Modal xem nhanh (null = đóng modal)
   const [selectedOrderForModal, setSelectedOrderForModal] = useState(null)
@@ -79,7 +95,7 @@ export default function Orders() {
         setIsLoading(false)
       })
       .catch((err) => {
-        console.error('Orders: Lỗi tải đơn hàng từ API:', err)
+        console.error('Orders: Error loading orders from API:', err)
         if (isMounted) {
           setOrders([])
           setIsLoading(false)
@@ -120,12 +136,12 @@ export default function Orders() {
     activeTab === 'all'
       ? orders
       : orders.filter((order) => {
-          const statusKey = (order.status || 'PENDING').toLowerCase()
-          if (activeTab === 'confirmed') {
-            return statusKey === 'confirmed' || statusKey === 'processing'
-          }
-          return statusKey === activeTab
-        })
+        const statusKey = (order.status || 'PENDING').toLowerCase()
+        if (activeTab === 'confirmed') {
+          return statusKey === 'confirmed' || statusKey === 'processing'
+        }
+        return statusKey === activeTab
+      })
 
   // =========================================================================
   // BƯỚC 4: CÁC HÀM XỬ LÝ TIỆN ÍCH & TƯƠNG TÁC
@@ -171,7 +187,7 @@ export default function Orders() {
       setOrderToCancel(null)
       showToast(`Đơn hàng ${targetOrderNumber} đã được hủy thành công.`)
     } catch (err) {
-      console.error('Orders: Lỗi hủy đơn hàng qua API:', err)
+      console.error('Orders: Error cancelling order via API:', err)
       showToast('Không thể hủy đơn hàng. Vui lòng thử lại.')
     } finally {
       setIsCancelling(false)
@@ -209,7 +225,7 @@ export default function Orders() {
       {/* 2. CÁC TAB LỌC TRẠNG THÁI ĐƠN HÀNG (TÁCH THÀNH COMPONENT NHỎ) */}
       <OrderStatusTabs
         activeTab={activeTab}
-        onTabChange={setActiveTab}
+        onTabChange={handleTabChange}
         counts={statusCounts}
       />
 

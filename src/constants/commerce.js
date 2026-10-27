@@ -186,7 +186,7 @@ export const getStoredUserOrders = () => {
     const raw = localStorage.getItem(COMMERCE_STORAGE_KEYS.USER_ORDERS)
     return raw ? JSON.parse(raw) : []
   } catch (err) {
-    console.warn('Lỗi đọc đơn hàng từ LocalStorage:', err)
+    console.warn('Error reading orders from LocalStorage:', err)
     return []
   }
 }
@@ -212,7 +212,7 @@ export const storeUserOrder = (order) => {
       JSON.stringify(order)
     )
   } catch (err) {
-    console.warn('Lỗi lưu đơn hàng vào LocalStorage:', err)
+    console.warn('Error storing order to LocalStorage:', err)
   }
 }
 
@@ -236,7 +236,7 @@ export const updateStoredOrderStatus = (orderIdOrNumber, newStatus) => {
       JSON.stringify(updated)
     )
   } catch (err) {
-    console.warn('Lỗi cập nhật trạng thái đơn hàng trong LocalStorage:', err)
+    console.warn('Error updating order status in LocalStorage:', err)
   }
 }
 
@@ -346,3 +346,23 @@ export const SELLER_CANCEL_REASONS = [
   'Khách hàng chủ động yêu cầu shop hủy đơn qua tin nhắn',
   'Lý do khác',
 ]
+
+
+/**
+ * 8. TIỆN ÍCH CHUẨN HÓA SLUG TÊN GIAN HÀNG (ATELIER SLUGIFY)
+ * Chuẩn hóa tên thương hiệu sang slug URL an toàn:
+ * - Chuyển sang chữ thường
+ * - Loại bỏ dấu tiếng Việt (NFD)
+ * - Xóa bỏ dấu nháy đơn, kép, ký tự đặc biệt (VD: "L'OBSCUR ATELIER" -> "l-obscur-atelier")
+ * - Loại bỏ gạch nối thừa ở đầu và cuối
+ */
+export const toShopSlug = (val) => {
+  if (!val) return ''
+  return String(val)
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[đĐ]/g, 'd')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+}

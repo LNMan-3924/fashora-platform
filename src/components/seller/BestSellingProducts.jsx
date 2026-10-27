@@ -27,11 +27,6 @@ export default function BestSellingProducts({
             Top performing garments in {shopName} atelier catalog
           </p>
         </div>
-
-        {/* Số lượng sản phẩm */}
-        <span className="text-[10px] font-mono uppercase tracking-wider text-neutral-400">
-          {loading ? 'LOADING...' : `TOP ${displayProducts.length} ENSEMBLES`}
-        </span>
       </div>
 
       {/* 2. Lưới 4 sản phẩm (Grid 4 cột trên Desktop, 2 cột Tablet, 1 cột Mobile) */}

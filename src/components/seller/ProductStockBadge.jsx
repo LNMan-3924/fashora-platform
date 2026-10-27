@@ -39,7 +39,7 @@ export default function ProductStockBadge({
   return (
     <span
       className={`inline-flex items-center justify-center w-28 shrink-0 py-1 text-[11px] font-medium font-mono border rounded-[2px] tracking-wider select-none text-center ${config.styleClass} ${className}`}
-      title={`Tồn kho: ${stockNum} sản phẩm`}
+      title={`Stock: ${stockNum} units`}
     >
       <span>{config.label}</span>
     </span>

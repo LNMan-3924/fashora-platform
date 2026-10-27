@@ -157,7 +157,7 @@ export default function ShippingForm({
 
         {/* 3. Địa chỉ số nhà / tên đường */}
         <Input
-          label="Street Address / Địa chỉ *"
+          label="Street Address *"
           id="address"
           name="address"
           value={formData.address || ''}

@@ -15,7 +15,7 @@ import { useCartStore } from '../../stores'
 import { useAuth } from '../../contexts/AuthContext'
 
 // Import API kết nối db.json
-import { getProductById } from '../../services/api'
+import { getProductById, getShopById } from '../../services/api'
 
 // Import các component dùng chung đã có sẵn trong dự án
 import { Toast } from '../../components/common'
@@ -23,6 +23,8 @@ import { CompleteTheLook, QuickAddModal } from '../../components/product'
 
 // Import component bảng size
 import SizeMatrixModal from '../../components/product/SizeMatrixModal'
+import { toShopSlug } from '../../constants/commerce'
+import { safeBack } from '../../utils'
 
 export default function ProductDetail() {
   const { id } = useParams()
@@ -35,6 +37,8 @@ export default function ProductDetail() {
   // State dữ liệu sản phẩm
   const [product, setProduct] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [isShopPaused, setIsShopPaused] = useState(false)
+  const [shopSlug, setShopSlug] = useState('')
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
 
   // State lựa chọn biến thể
@@ -111,9 +115,21 @@ export default function ProductDetail() {
         setSelectedSize(formattedData.sizes[2] || formattedData.sizes[0] || 'M')
         setQuantity(1)
         setCurrentImageIndex(0)
+
+        if (data.shopId) {
+          getShopById(data.shopId)
+            .then((sRes) => {
+              const s = sRes?.data || sRes
+              if (s && isMounted) {
+                if (s.slug) setShopSlug(s.slug)
+                if (s.status === 'PAUSED') setIsShopPaused(true)
+              }
+            })
+            .catch(() => {})
+        }
       })
       .catch((err) => {
-        console.error('Lỗi tải sản phẩm:', err)
+        console.error('Error loading product:', err)
         setProduct({
           id: id || 'prd_shirt_01',
           name: 'CROPPED SATIN STRUCTURAL SHIRT',
@@ -168,6 +184,10 @@ export default function ProductDetail() {
   // Thêm vào giỏ hàng
   const handleAddToCart = () => {
     if (!product) return
+    if (isShopPaused) {
+      showToast("Atelier paused: This store is currently suspended and not accepting orders.")
+      return
+    }
     const result = addToCart(product, selectedSize, selectedColor, quantity)
     if (result?.success === false) {
       showToast(result.message)
@@ -179,6 +199,10 @@ export default function ProductDetail() {
   // Mua ngay (BUY NOW)
   const handleBuyNow = () => {
     if (!product) return
+    if (isShopPaused) {
+      showToast("Atelier paused: This store is currently suspended and not accepting orders.")
+      return
+    }
 
     addToCart(product, selectedSize, selectedColor, quantity)
 
@@ -221,6 +245,18 @@ export default function ProductDetail() {
 
   return (
     <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 text-[#111111]">
+      {/* Nút Back quay lại trang trước */}
+      <div className="mb-4">
+        <button
+          type="button"
+          onClick={() => safeBack(navigate, '/explore')}
+          className="inline-flex items-center gap-1.5 text-xs font-mono uppercase tracking-wider text-neutral-500 hover:text-black transition-colors cursor-pointer group"
+        >
+          <ChevronLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
+          <span>Back</span>
+        </button>
+      </div>
+
       {/* 1. KHUNG NỘI DUNG CHÍNH (GALLERY & DETAILS) */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start mb-20">
 
@@ -296,6 +332,21 @@ export default function ProductDetail() {
 
         {/* === CỘT PHẢI (5 CỘT): THÔNG TIN SẢN PHẨM & ACTIONS === */}
         <div className="lg:col-span-5 flex flex-col justify-start">
+          {/* Badge nhãn nếu có (SALE nền đỏ, khác nền đen) */}
+          {product.badge && (
+            <div className="mb-2">
+              <span
+                className={`inline-block text-[10px] font-mono font-bold uppercase tracking-widest px-2.5 py-0.5 rounded-[2px] ${
+                  product.badge.trim().toUpperCase().includes('SALE')
+                    ? 'bg-red-600 text-white'
+                    : 'bg-black text-white'
+                }`}
+              >
+                {product.badge}
+              </span>
+            </div>
+          )}
+
           {/* Tên sản phẩm */}
           <h1 className="text-2xl sm:text-3xl font-bold tracking-tight uppercase leading-tight text-[#111111]">
             {product.name}
@@ -308,7 +359,8 @@ export default function ProductDetail() {
               to={`/store/${
                 product.shopSlug ||
                 product.sellerSlug ||
-                product.shopName?.toLowerCase().replace(/\s+/g, '-') ||
+                shopSlug ||
+                toShopSlug(product.shopName) ||
                 'm-studio'
               }`}
               className="text-[#111111] font-semibold underline hover:opacity-70 transition-opacity"
@@ -322,6 +374,11 @@ export default function ProductDetail() {
             <span className="text-2xl font-bold text-[#111111] tracking-tight">
               {product.price?.toLocaleString('vi-VN')}₫
             </span>
+            {product.originalPrice && product.originalPrice > product.price && (
+              <span className="text-sm font-mono text-neutral-400 line-through">
+                {product.originalPrice?.toLocaleString('vi-VN')}₫
+              </span>
+            )}
             <span className="text-[10px] font-mono tracking-widest text-neutral-400 uppercase">
               VAT INCLUDED
             </span>

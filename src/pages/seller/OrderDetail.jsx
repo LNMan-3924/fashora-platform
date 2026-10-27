@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react'
-import { useParams, Link, useOutletContext } from 'react-router-dom'
+import { useParams, useNavigate, useOutletContext } from 'react-router-dom'
+import { safeBack } from '../../utils'
 import { ArrowLeft, Check, AlertCircle } from 'lucide-react'
-import { fetchOrderByIdOrNumber, updateOrderStatus } from '../../services/api'
+import { fetchOrderByIdOrNumber, updateOrderStatus, getProductById, patchProduct } from '../../services/api'
 import { formatDate } from '../../constants/commerce'
 import {
   OrderStatusBadge,
@@ -17,28 +18,27 @@ import {
  * Trang Quản lý Chi tiết Đơn hàng (Seller Order Detail Page):
  * - Hiển thị riêng biệt trên URL /seller/orders/:id thay vì dùng Modal.
  * - Khớp 100% bố cục và phong cách thiết kế atelier của Fashora:
- *   + Thanh điều hướng: Trở về danh sách đơn (Back to All Orders), không có nút in hóa đơn.
+ *   + Thanh điều hướng: Trở về danh sách đơn (Back to All Orders).
  *   + Thanh mã đơn: Mã đơn hàng (#ORD-...), Trạng thái (OrderStatusBadge), Ngày giờ đặt hàng.
  *   + Thanh tiến trình: FULFILLMENT PROGRESSION (PENDING -> CONFIRMED -> SHIPPING -> COMPLETED).
  *   + Khối cập nhật trạng thái nghiêm ngặt (OrderStatusController):
  *     * Không cho phép tự chọn trạng thái từ dropdown.
  *     * Nút tiến tới chỉ hiển thị tên trạng thái mục tiêu (CONFIRMED, SHIPPING, COMPLETED).
  *     * Chỉ cho phép HỦY (CANCEL) khi đơn ở PENDING hoặc CONFIRMED (trước shipping).
- *     * Khi không thể hủy (SHIPPING, COMPLETED, CANCELLED), ẩn nút hủy chứ không thay bằng nút mới.
+ *     * Khi hủy đơn: Tự động hoàn lại số lượng tồn kho (restock inventory) cho các sản phẩm trong đơn.
  *   + Cột trái (7/12): Danh sách sản phẩm (OrderItemsList), Tổng tiền (OrderTotalSummary), Mốc sự kiện (OrderTimeline).
  *   + Cột phải (5/12): Khách hàng, Địa chỉ giao hàng, Chi tiết thanh toán (OrderCustomerInfo).
  * - Toàn bộ giao diện người dùng hiển thị bằng tiếng Anh.
  * - Tương tác trực tiếp API PATCH /orders/:id khi đổi trạng thái đơn hàng.
- * - Không sử dụng bất kỳ dấu chấm tròn nào trên giao diện.
  */
 export default function OrderDetail() {
   const { id } = useParams()
+  const navigate = useNavigate()
   const outletContext = useOutletContext() || {}
 
   // 1. Xác định Shop ID và Shop Name từ SellerLayout (Single Source of Truth suy từ currentUser)
   const sellerInfo = outletContext.sellerInfo || {}
   const shopName = sellerInfo.shopName || ''
-  const sellerCode = sellerInfo.sellerCode || ''
 
   // 2. State lưu trữ đơn hàng & trạng thái xử lý
   const [order, setOrder] = useState(null)
@@ -97,6 +97,28 @@ export default function OrderDetail() {
       setIsUpdating(true)
       await updateOrderStatus(order.id, nextStatus, extraData)
 
+      // Nếu trạng thái mới là CANCELLED (hủy đơn), tự động hoàn trả lại số lượng tồn kho (restock items)
+      if (nextStatus === 'CANCELLED' && Array.isArray(order.items)) {
+        for (const item of order.items) {
+          if (item.id) {
+            try {
+              const prdRes = await getProductById(item.id)
+              const prd = prdRes?.data || prdRes
+              if (prd) {
+                const currentStock = Number(prd.stock || 0)
+                const restoredStock = currentStock + (Number(item.quantity) || 1)
+                await patchProduct(item.id, {
+                  stock: restoredStock,
+                  isSoldOut: restoredStock <= 0,
+                })
+              }
+            } catch (stockErr) {
+              console.warn('Could not restore stock for item:', item.id, stockErr)
+            }
+          }
+        }
+      }
+
       setOrder((prev) => ({
         ...prev,
         status: nextStatus,
@@ -104,7 +126,9 @@ export default function OrderDetail() {
       }))
 
       setToastMessage(
-        `Order ${order.orderNumber || order.id} status successfully transitioned to "${nextStatus}".`
+        nextStatus === 'CANCELLED'
+          ? `Order ${order.orderNumber || order.id} was cancelled and product inventory has been restored.`
+          : `Order ${order.orderNumber || order.id} status successfully transitioned to "${nextStatus}".`
       )
     } catch (err) {
       console.error('Error updating order status in API:', err)
@@ -135,13 +159,14 @@ export default function OrderDetail() {
         <p className="text-xs text-neutral-400">
           The requested order does not exist or has been removed from {shopName} records.
         </p>
-        <Link
-          to="/seller/orders"
-          className="inline-flex items-center gap-1.5 px-4 py-2 bg-black text-white text-xs font-mono uppercase tracking-wider rounded-[2px] hover:bg-neutral-800 transition-colors mt-2"
+        <button
+          type="button"
+          onClick={() => safeBack(navigate, '/seller/orders')}
+          className="inline-flex items-center gap-1.5 px-4 py-2 bg-black text-white text-xs font-mono uppercase tracking-wider rounded-[2px] hover:bg-neutral-800 transition-colors mt-2 cursor-pointer"
         >
           <ArrowLeft className="w-3.5 h-3.5" />
           <span>Back to All Orders</span>
-        </Link>
+        </button>
       </div>
     )
   }
@@ -181,23 +206,21 @@ export default function OrderDetail() {
         </div>
       )}
 
-      {/* 1. THANH ĐIỀU HƯỚNG QUAY LẠI (ĐÃ LOẠI BỎ NÚT IN HÓA ĐƠN) */}
+      {/* 1. THANH ĐIỀU HƯỚNG QUAY LẠI */}
       <div className="flex items-center justify-between">
-        <Link
-          to="/seller/orders"
-          className="inline-flex items-center gap-1.5 text-xs font-mono uppercase tracking-wider text-neutral-500 hover:text-black transition-colors"
+        <button
+          type="button"
+          onClick={() => safeBack(navigate, '/seller/orders')}
+          className="inline-flex items-center gap-1.5 text-xs font-mono uppercase tracking-wider text-neutral-500 hover:text-black transition-colors cursor-pointer group"
         >
-          <ArrowLeft className="w-4 h-4" />
+          <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
           <span>Back to All Orders</span>
-        </Link>
+        </button>
       </div>
 
       {/* 2. KHỐI ĐỊNH DANH ĐƠN HÀNG (ORDER IDENTIFICATION BAR) */}
       <section className="bg-white border border-neutral-200 rounded-[2px] p-6 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <div className="text-[11px] font-mono uppercase tracking-widest text-neutral-500 mb-1">
-            ORDER DETAIL • {shopName} ({sellerCode})
-          </div>
           <div className="flex flex-wrap items-center gap-3">
             <h3 className="text-2xl sm:text-3xl font-bold tracking-tight text-black font-mono">
               {displayId}
