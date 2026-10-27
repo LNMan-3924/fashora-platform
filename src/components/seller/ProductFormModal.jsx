@@ -1,14 +1,39 @@
 import { useState, useRef } from 'react'
-import { X, Check, Upload, Loader2, Image as ImageIcon, Trash2, Plus, Star } from 'lucide-react'
+import { X, Check, Upload, Loader2, Trash2, Plus, Star } from 'lucide-react'
 import { createProduct, updateProduct } from '../../services/api'
 import { handleImageError } from '../../constants/commerce'
 import { uploadImage } from '../../utils/imageUpload'
+
+const COMMON_SIZES = ['XS', 'S', 'M', 'L', 'XL', 'XXL', 'Free Size', 'One Size']
+const PRESET_COLORS = [
+  { name: 'Black', hex: '#111111' },
+  { name: 'White', hex: '#FFFFFF' },
+  { name: 'Charcoal', hex: '#36454F' },
+  { name: 'Grey', hex: '#808080' },
+  { name: 'Beige', hex: '#F5F5DC' },
+  { name: 'Navy', hex: '#1B263B' },
+  { name: 'Silver', hex: '#C0C0C0' },
+  { name: 'Gold', hex: '#D4AF37' },
+  { name: 'Olive', hex: '#556B2F' },
+  { name: 'Brown', hex: '#6F4E37' },
+  { name: 'Burgundy', hex: '#800020' },
+  { name: 'Cream', hex: '#FFFDD0' },
+]
+
+function getColorHex(colorStr) {
+  if (!colorStr) return '#111111'
+  if (colorStr.startsWith('#')) return colorStr
+  const found = PRESET_COLORS.find((c) => c.name.toLowerCase() === colorStr.toLowerCase())
+  return found ? found.hex : colorStr
+}
 
 /**
  * Component ProductFormContent: Nội dung biểu mẫu tạo mới hoặc chỉnh sửa sản phẩm
  * - Khởi tạo state trực tiếp từ props mà không cần useEffect (chuẩn React pattern).
  * - Tải ảnh từ máy tính cá nhân sử dụng module Node.js fs qua API chung (hỗ trợ chọn nhiều ảnh đồng thời).
  * - Hỗ trợ đầy đủ các trường dữ liệu khớp chuẩn db.json:
+ *   + sizes: Danh sách kích thước tùy chọn linh hoạt (XS, S, M, L, XL, Free Size...)
+ *   + colors: Danh sách phân loại màu sắc (Black, White, Charcoal...)
  *   + images: Mảng danh sách đường dẫn ảnh [path1, path2, ...]
  *   + careInstructions: Hướng dẫn bảo quản / giặt ủi
  *   + details.material: Thành phần chất liệu
@@ -34,12 +59,24 @@ function ProductFormContent({
       initialImages = [productToEdit.image]
     }
 
+    const initialSizes =
+      Array.isArray(productToEdit?.sizes) && productToEdit.sizes.length > 0
+        ? productToEdit.sizes
+        : ['S', 'M', 'L']
+
+    const initialColors =
+      Array.isArray(productToEdit?.colors) && productToEdit.colors.length > 0
+        ? productToEdit.colors
+        : ['Black']
+
     return {
       name: productToEdit?.name || '',
       category: productToEdit?.category || 'SHIRT',
       price: productToEdit?.price || '',
       originalPrice: productToEdit?.originalPrice || '',
       stock: productToEdit?.stock ?? 10,
+      sizes: initialSizes,
+      colors: initialColors,
       images: initialImages,
       badge: productToEdit?.badge || '',
       description: productToEdit?.description || '',
@@ -52,6 +89,7 @@ function ProductFormContent({
     }
   })
 
+  const [customColorInput, setCustomColorInput] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isUploading, setIsUploading] = useState(false)
   const [uploadProgressText, setUploadProgressText] = useState('')
@@ -66,12 +104,40 @@ function ProductFormContent({
     }))
   }
 
+  // Bật/tắt kích thước (Sizes)
+  const toggleSize = (size) => {
+    setFormData((prev) => {
+      const exists = prev.sizes.includes(size)
+      const nextSizes = exists
+        ? prev.sizes.filter((s) => s !== size)
+        : [...prev.sizes, size]
+      return { ...prev, sizes: nextSizes.length > 0 ? nextSizes : [size] }
+    })
+  }
+
+  // Thêm màu sắc mới
+  const handleAddColor = (colorName) => {
+    const trimmed = (colorName || '').trim()
+    if (!trimmed) return
+    setFormData((prev) => {
+      if (prev.colors.map((c) => c.toLowerCase()).includes(trimmed.toLowerCase())) {
+        return prev
+      }
+      return { ...prev, colors: [...prev.colors, trimmed] }
+    })
+    setCustomColorInput('')
+  }
+
+  // Xóa màu sắc
+  const handleRemoveColor = (colorName) => {
+    setFormData((prev) => {
+      const filtered = prev.colors.filter((c) => c !== colorName)
+      return { ...prev, colors: filtered.length > 0 ? filtered : ['Standard'] }
+    })
+  }
+
   /**
    * Xử lý tải nhiều ảnh từ máy tính cá nhân lên thư mục public/ qua Node.js fs:
-   * - Hỗ trợ chọn đồng thời nhiều file cùng lúc (<input type="file" multiple />).
-   * - Sử dụng hàm dùng chung uploadImage() từ src/utils/imageUpload.js.
-   * - Node.js fs sẽ tự động lưu vào public/images/products/<category>/<tên-file>.jpg.
-   * - Thêm các đường dẫn ảnh mới vào mảng formData.images.
    */
   const handleImageUpload = async (e) => {
     const files = Array.from(e.target.files || [])
@@ -98,8 +164,8 @@ function ProductFormContent({
         }))
       }
     } catch (err) {
-      console.error('Lỗi khi tải ảnh sản phẩm lên Node.js fs:', err)
-      setErrorMessage(err.message || 'Không thể tải ảnh lên. Vui lòng thử lại.')
+      console.error('Error uploading product image to Node.js fs:', err)
+      setErrorMessage(err.message || 'Unable to upload image. Please try again.')
     } finally {
       setIsUploading(false)
       setUploadProgressText('')
@@ -117,7 +183,7 @@ function ProductFormContent({
     }))
   }
 
-  // Đặt một ảnh làm ảnh bìa chính (Cover) - đưa lên vị trí đầu tiên trong mảng
+  // Đặt một ảnh làm ảnh bìa chính (Cover)
   const handleSetCoverImage = (index) => {
     if (index === 0) return
     setFormData((prev) => {
@@ -133,33 +199,43 @@ function ProductFormContent({
     e.preventDefault()
     setErrorMessage('')
 
-    // Kiểm tra tính hợp lệ cơ bản
     if (!formData.name.trim()) {
-      setErrorMessage('Vui lòng nhập tên sản phẩm / trang phục.')
+      setErrorMessage('Please enter product name.')
       return
     }
 
     const priceNum = Number(formData.price)
     if (isNaN(priceNum) || priceNum <= 0) {
-      setErrorMessage('Giá bán phải là số hợp lệ và lớn hơn 0.')
+      setErrorMessage('Price must be a valid number greater than 0.')
       return
+    }
+
+    if (formData.originalPrice !== '' && formData.originalPrice !== null && formData.originalPrice !== undefined) {
+      const origPriceNum = Number(formData.originalPrice)
+      if (isNaN(origPriceNum) || origPriceNum <= 0) {
+        setErrorMessage('Original price must be a valid number greater than 0.')
+        return
+      }
+      if (origPriceNum <= priceNum) {
+        setErrorMessage('Original price must be greater than the selling price.')
+        return
+      }
     }
 
     const stockNum = Number(formData.stock)
     if (isNaN(stockNum) || stockNum < 0) {
-      setErrorMessage('Số lượng tồn kho không được âm.')
+      setErrorMessage('Inventory stock quantity cannot be negative.')
       return
     }
 
     if (!formData.images || formData.images.length === 0) {
-      setErrorMessage('Vui lòng tải lên ít nhất một hình ảnh sản phẩm từ máy tính.')
+      setErrorMessage('Please upload at least one product photo from your device.')
       return
     }
 
     setIsSubmitting(true)
 
     try {
-      // Phân tách specifications từ chuỗi nhập nhiều dòng thành mảng string
       const specsArray = formData.specifications
         ? formData.specifications
             .split('\n')
@@ -176,6 +252,8 @@ function ProductFormContent({
         originalPrice: formData.originalPrice ? Number(formData.originalPrice) : null,
         stock: stockNum,
         isSoldOut: stockNum === 0,
+        sizes: formData.sizes && formData.sizes.length > 0 ? formData.sizes : ['One Size'],
+        colors: formData.colors && formData.colors.length > 0 ? formData.colors : ['Black'],
         badge: formData.badge || null,
         description: formData.description.trim(),
         careInstructions: formData.careInstructions.trim() || null,
@@ -191,7 +269,6 @@ function ProductFormContent({
 
       let res
       if (isEditMode) {
-        // Cập nhật sản phẩm qua API PUT /products/:id (bảo toàn sizes, colors hoặc các trường mở rộng cũ)
         res = await updateProduct(productToEdit.id, {
           ...productToEdit,
           ...payload,
@@ -201,10 +278,7 @@ function ProductFormContent({
           },
         })
       } else {
-        // Tạo sản phẩm mới qua API POST /products
         payload.id = `prd_${Date.now()}`
-        payload.sizes = ['One Size']
-        payload.colors = ['Black']
         res = await createProduct(payload)
       }
 
@@ -214,12 +288,25 @@ function ProductFormContent({
       }
       onClose()
     } catch (err) {
-      console.error('Lỗi khi lưu sản phẩm:', err)
-      setErrorMessage('Không thể lưu sản phẩm. Vui lòng kiểm tra API json-server.')
+      console.error('Error saving product:', err)
+      setErrorMessage('Unable to save product. Please check API server connection.')
     } finally {
       setIsSubmitting(false)
     }
   }
+
+  const currentPriceNum = Number(formData.price) || 0
+  const currentOrigPriceNum = Number(formData.originalPrice) || 0
+  const isOriginalPriceInvalid =
+    formData.originalPrice !== '' &&
+    formData.originalPrice !== null &&
+    formData.originalPrice !== undefined &&
+    currentPriceNum > 0 &&
+    currentOrigPriceNum <= currentPriceNum
+  const discountPercent =
+    currentOrigPriceNum > currentPriceNum && currentOrigPriceNum > 0
+      ? Math.round(((currentOrigPriceNum - currentPriceNum) / currentOrigPriceNum) * 100)
+      : 0
 
   return (
     <div className="bg-white border border-neutral-200 rounded-[2px] shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
@@ -227,13 +314,13 @@ function ProductFormContent({
       <div className="flex items-center justify-between px-6 py-4 border-b border-neutral-100 bg-neutral-50/50 sticky top-0 z-10 backdrop-blur-xs">
         <div>
           <h3 className="text-xs font-bold uppercase tracking-[0.2em] text-black font-mono">
-            {isEditMode ? 'EDIT GARMENT' : 'ADD NEW GARMENT'}
+            {isEditMode ? 'EDIT PRODUCT' : 'ADD NEW PRODUCT'}
           </h3>
-          <p className="text-[11px] text-neutral-400 mt-0.5">
-            {isEditMode
-              ? `Updating ID: ${productToEdit.id}`
-              : `Create a new design piece for ${shopName} catalog`}
-          </p>
+          {isEditMode && (
+            <p className="text-[11px] text-neutral-400 mt-0.5">
+              Updating ID: {productToEdit.id}
+            </p>
+          )}
         </div>
 
         <button
@@ -241,36 +328,34 @@ function ProductFormContent({
           onClick={onClose}
           className="p-1 text-neutral-400 hover:text-black transition-colors cursor-pointer"
         >
-          <X className="w-4 h-4" />
+          <X className="w-5 h-5" />
         </button>
       </div>
 
-      {/* Form nhập liệu */}
-      <form onSubmit={handleSubmit} className="p-6 space-y-4 text-xs font-sans">
-        {/* Thông báo lỗi nếu có */}
+      <form onSubmit={handleSubmit} className="p-6 space-y-4 text-xs">
         {errorMessage && (
-          <div className="p-3 bg-red-50 border border-red-200 text-red-700 rounded-[2px] font-mono">
+          <div className="p-3 bg-red-50 border border-red-200 text-red-700 text-xs font-mono rounded-[2px]">
             {errorMessage}
           </div>
         )}
 
-        {/* Tên sản phẩm */}
+        {/* Hàng 1: Tên sản phẩm */}
         <div className="space-y-1">
           <label className="block font-semibold uppercase tracking-wider text-neutral-700 font-mono text-[11px]">
-            Garment Title *
+            Product Name *
           </label>
           <input
             type="text"
             name="name"
             value={formData.name}
             onChange={handleChange}
-            placeholder="e.g. Asymmetrical Tailored Blazer"
+            placeholder="e.g. Sculptural Raw-Edge Denim Jacket"
             className="w-full px-3 py-2 border border-neutral-200 rounded-[2px] focus:border-black focus:outline-none"
             required
           />
         </div>
 
-        {/* Hàng 2: Danh mục + Huy hiệu */}
+        {/* Hàng 2: Danh mục & Badge */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div className="space-y-1">
             <label className="block font-semibold uppercase tracking-wider text-neutral-700 font-mono text-[11px]">
@@ -280,38 +365,74 @@ function ProductFormContent({
               name="category"
               value={formData.category}
               onChange={handleChange}
-              className="w-full px-3 py-2 border border-neutral-200 rounded-[2px] bg-white font-mono focus:border-black focus:outline-none cursor-pointer"
+              className="w-full px-3 py-2 border border-neutral-200 rounded-[2px] focus:border-black focus:outline-none font-mono"
             >
               <option value="SHIRT">SHIRT</option>
-              <option value="SET">SET</option>
               <option value="PANTS">PANTS</option>
-              <option value="ACCESSORIES">ACCESSORIES</option>
+              <option value="SET">SET</option>
               <option value="SHOES">SHOES</option>
+              <option value="ACCESSORIES">ACCESSORIES</option>
               <option value="DRESS">DRESS</option>
               <option value="JACKET">JACKET</option>
             </select>
           </div>
 
           <div className="space-y-1">
-            <label className="block font-semibold uppercase tracking-wider text-neutral-700 font-mono text-[11px]">
-              Badge (Optional)
-            </label>
-            <select
+            <div className="flex items-center justify-between">
+              <label className="block font-semibold uppercase tracking-wider text-neutral-700 font-mono text-[11px]">
+                Badge / Edition (Optional)
+              </label>
+              {formData.badge?.trim() && (
+                <span
+                  className={`text-[9px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-[2px] transition-all ${
+                    formData.badge.trim().toUpperCase().includes('SALE')
+                      ? 'bg-red-600 text-white shadow-2xs'
+                      : 'bg-black text-white'
+                  }`}
+                >
+                  PREVIEW: {formData.badge.trim()}
+                </span>
+              )}
+            </div>
+            <input
+              type="text"
               name="badge"
               value={formData.badge}
               onChange={handleChange}
-              className="w-full px-3 py-2 border border-neutral-200 rounded-[2px] bg-white font-mono focus:border-black focus:outline-none cursor-pointer"
-            >
-              <option value="">None</option>
-              <option value="NEW">NEW</option>
-              <option value="HOT">HOT</option>
-              <option value="LIMITED">LIMITED</option>
-              <option value="SALE">SALE</option>
-            </select>
+              placeholder="e.g. SALE, ARCHIVE, CAPSULE"
+              className="w-full px-3 py-2 border border-neutral-200 rounded-[2px] font-mono focus:border-black focus:outline-none"
+            />
+            {/* Quick Badge Presets (Đồng bộ kiểu dáng tối giản monochrome cho tất cả nút) */}
+            <div className="flex items-center gap-1.5 pt-1">
+              <span className="text-[10px] font-mono text-neutral-400">Quick:</span>
+              {['SALE', 'NEW', 'ARCHIVE', 'CAPSULE'].map((preset) => (
+                <button
+                  key={preset}
+                  type="button"
+                  onClick={() => setFormData((prev) => ({ ...prev, badge: preset }))}
+                  className={`text-[10px] font-mono px-2 py-0.5 rounded-[2px] uppercase tracking-wider cursor-pointer transition-colors ${
+                    formData.badge?.trim().toUpperCase() === preset
+                      ? 'bg-black text-white font-bold'
+                      : 'bg-neutral-100 text-neutral-600 border border-neutral-200 hover:bg-black hover:text-white'
+                  }`}
+                >
+                  {preset}
+                </button>
+              ))}
+              {formData.badge && (
+                <button
+                  type="button"
+                  onClick={() => setFormData((prev) => ({ ...prev, badge: '' }))}
+                  className="text-[10px] font-mono text-neutral-400 hover:text-black underline ml-auto cursor-pointer"
+                >
+                  Clear
+                </button>
+              )}
+            </div>
           </div>
         </div>
 
-        {/* Hàng 3: Giá bán + Giá gốc + Tồn kho */}
+        {/* Hàng 3: Giá bán, Giá gốc, Tồn kho */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <div className="space-y-1">
             <label className="block font-semibold uppercase tracking-wider text-neutral-700 font-mono text-[11px]">
@@ -329,17 +450,33 @@ function ProductFormContent({
           </div>
 
           <div className="space-y-1">
-            <label className="block font-semibold uppercase tracking-wider text-neutral-700 font-mono text-[11px]">
-              Original Price (₫)
-            </label>
+            <div className="flex items-center justify-between">
+              <label className="block font-semibold uppercase tracking-wider text-neutral-700 font-mono text-[11px]">
+                Original Price (₫)
+              </label>
+              {discountPercent > 0 && (
+                <span className="text-[10px] font-mono font-bold text-red-600 bg-red-50 border border-red-200 px-1.5 py-0.2 rounded-[2px]">
+                  -{discountPercent}% OFF
+                </span>
+              )}
+            </div>
             <input
               type="number"
               name="originalPrice"
               value={formData.originalPrice}
               onChange={handleChange}
               placeholder="Optional"
-              className="w-full px-3 py-2 border border-neutral-200 rounded-[2px] font-mono focus:border-black focus:outline-none"
+              className={`w-full px-3 py-2 border rounded-[2px] font-mono focus:outline-none transition-colors ${
+                isOriginalPriceInvalid
+                  ? 'border-red-500 focus:border-red-600 bg-red-50/20'
+                  : 'border-neutral-200 focus:border-black'
+              }`}
             />
+            {isOriginalPriceInvalid && (
+              <p className="text-[10px] font-mono text-red-600 mt-0.5">
+                Must be greater than selling price ({formData.price || 0}₫)
+              </p>
+            )}
           </div>
 
           <div className="space-y-1">
@@ -358,170 +495,217 @@ function ProductFormContent({
           </div>
         </div>
 
-        {/* Hàng 4: Bộ sưu tập ảnh sản phẩm (Chọn nhiều ảnh từ máy tính qua Node.js fs) */}
-        <div className="space-y-2">
+        {/* Hàng 3.5: Available Sizes (Kích cỡ) */}
+        <div className="space-y-1.5 pt-1">
+          <label className="block font-semibold uppercase tracking-wider text-neutral-700 font-mono text-[11px]">
+            Available Sizes *
+          </label>
+          <div className="flex flex-wrap gap-1.5">
+            {COMMON_SIZES.map((size) => {
+              const active = formData.sizes.includes(size)
+              return (
+                <button
+                  key={size}
+                  type="button"
+                  onClick={() => toggleSize(size)}
+                  className={`px-3 py-1 text-xs font-mono uppercase tracking-wider border rounded-[2px] transition-colors cursor-pointer ${
+                    active
+                      ? 'bg-black text-white border-black font-bold'
+                      : 'bg-white text-neutral-600 border-neutral-200 hover:border-black'
+                  }`}
+                >
+                  {size}
+                </button>
+              )
+            })}
+          </div>
+        </div>
+
+        {/* Hàng 3.6: Available Colorways (Màu sắc) */}
+        <div className="space-y-2 pt-1">
+          <label className="block font-semibold uppercase tracking-wider text-neutral-700 font-mono text-[11px]">
+            Available Colorways ({formData.colors.length})
+          </label>
+
+          {/* Dropdown Quick Add & Ô nhập màu tự do */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <select
+              value=""
+              onChange={(e) => {
+                if (e.target.value) {
+                  handleAddColor(e.target.value)
+                }
+              }}
+              className="w-full px-3 py-1.5 border border-neutral-200 rounded-[2px] text-xs font-mono bg-white focus:border-black focus:outline-none cursor-pointer"
+            >
+              <option value="">+ Select preset color to add...</option>
+              {PRESET_COLORS.map((c) => {
+                const isAdded = formData.colors.map((col) => col.toLowerCase()).includes(c.name.toLowerCase())
+                return (
+                  <option key={c.name} value={c.name} disabled={isAdded}>
+                    {c.name} {isAdded ? '(Added)' : ''}
+                  </option>
+                )
+              })}
+            </select>
+
+            <div className="flex gap-1.5">
+              <input
+                type="text"
+                value={customColorInput}
+                onChange={(e) => setCustomColorInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault()
+                    handleAddColor(customColorInput)
+                  }
+                }}
+                placeholder="Or type custom color..."
+                className="flex-1 px-3 py-1.5 border border-neutral-200 rounded-[2px] text-xs font-mono focus:border-black focus:outline-none"
+              />
+              <button
+                type="button"
+                onClick={() => handleAddColor(customColorInput)}
+                className="px-3 py-1.5 bg-neutral-900 text-white text-xs font-mono uppercase tracking-wider hover:bg-black rounded-[2px] cursor-pointer"
+              >
+                Add
+              </button>
+            </div>
+          </div>
+
+          {/* Danh sách các màu đã chọn hiển thị dạng chấm tròn swatch giống ProductDetail */}
+          <div className="flex flex-wrap items-center gap-2 pt-1">
+            {formData.colors.map((color) => {
+              const hex = getColorHex(color)
+              return (
+                <div
+                  key={color}
+                  className="group inline-flex items-center gap-2 px-2.5 py-1.5 bg-white border border-neutral-200 hover:border-black rounded-[2px] transition-all shadow-2xs"
+                >
+                  <span
+                    className="w-4 h-4 rounded-full border border-neutral-300 shadow-2xs shrink-0"
+                    style={{ backgroundColor: hex }}
+                    title={color}
+                  />
+                  <span className="text-xs font-mono font-medium text-neutral-800 uppercase">
+                    {color}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveColor(color)}
+                    className="text-neutral-400 hover:text-black cursor-pointer ml-1"
+                    title={`Remove ${color}`}
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+
+        {/* Hàng 4: Bộ sưu tập ảnh sản phẩm */}
+        <div className="space-y-2 pt-2">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <label className="block font-semibold uppercase tracking-wider text-neutral-700 font-mono text-[11px]">
-                Garment Images *
+                Product Images *
               </label>
               <span className="text-[10px] font-mono px-1.5 py-0.5 bg-neutral-100 text-neutral-600 rounded-[2px] border border-neutral-200">
                 {formData.images.length} {formData.images.length === 1 ? 'photo' : 'photos'}
               </span>
             </div>
-            <span className="text-[10px] text-neutral-400 font-mono hidden sm:inline">
-              Folder: public/images/products/{formData.category.toLowerCase()}
-            </span>
+            {isUploading && (
+              <span className="text-[11px] font-mono text-black flex items-center gap-1.5">
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                <span>{uploadProgressText || 'Uploading...'}</span>
+              </span>
+            )}
           </div>
 
-          {/* Input file ẩn hỗ trợ chọn nhiều ảnh (multiple) */}
           <input
             ref={fileInputRef}
             type="file"
-            accept="image/*"
             multiple
-            className="hidden"
-            id="product-image-file-input"
+            accept="image/*"
             onChange={handleImageUpload}
-            disabled={isUploading || isSubmitting}
+            className="hidden"
           />
 
           {formData.images.length > 0 ? (
-            <div className="space-y-2.5">
-              {/* Lưới hiển thị danh sách các ảnh đã chọn */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 p-3 bg-neutral-50/80 border border-neutral-200 rounded-[2px]">
-                {formData.images.map((imgUrl, idx) => {
-                  const isCover = idx === 0
-                  return (
-                    <div
-                      key={`${imgUrl}-${idx}`}
-                      className="group relative aspect-3/4 bg-neutral-100 border border-neutral-200 rounded-[2px] overflow-hidden shadow-xs hover:border-black transition-colors"
-                    >
-                      <img
-                        src={imgUrl}
-                        alt={`Garment view ${idx + 1}`}
-                        onError={handleImageError}
-                        className="w-full h-full object-cover"
-                      />
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+              {formData.images.map((imgUrl, index) => {
+                const isCover = index === 0
+                return (
+                  <div
+                    key={`${imgUrl}-${index}`}
+                    className="group relative aspect-3/4 bg-neutral-100 border border-neutral-200 rounded-[2px] overflow-hidden shadow-xs hover:border-black transition-colors"
+                  >
+                    <img
+                      src={imgUrl}
+                      alt={`Product view ${index + 1}`}
+                      className="w-full h-full object-cover"
+                      onError={handleImageError}
+                    />
 
-                      {/* Huy hiệu COVER cho ảnh đầu tiên */}
-                      {isCover ? (
-                        <div className="absolute top-1.5 left-1.5 z-10 inline-flex items-center gap-1 bg-black text-white text-[9px] font-bold font-mono px-1.5 py-0.5 rounded-[1px] tracking-wider uppercase shadow-xs">
-                          <Star className="w-2.5 h-2.5 fill-white" />
-                          <span>COVER</span>
-                        </div>
-                      ) : (
+                    {isCover && (
+                      <span className="absolute top-1.5 left-1.5 inline-flex items-center gap-1 px-1.5 py-0.5 bg-black/90 text-white text-[9px] font-mono uppercase tracking-wider rounded-[2px]">
+                        <Star className="w-2.5 h-2.5 fill-white" />
+                        Cover
+                      </span>
+                    )}
+
+                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1.5 p-2">
+                      {!isCover && (
                         <button
                           type="button"
-                          onClick={() => handleSetCoverImage(idx)}
-                          disabled={isUploading || isSubmitting}
-                          title="Đặt làm ảnh bìa chính (Cover)"
-                          className="absolute top-1.5 left-1.5 z-10 opacity-0 group-hover:opacity-100 transition-opacity bg-white/95 hover:bg-white text-black text-[9px] font-mono px-1.5 py-0.5 rounded-[1px] tracking-wider uppercase shadow-xs cursor-pointer hover:font-bold"
+                          onClick={() => handleSetCoverImage(index)}
+                          className="px-2 py-1 bg-white text-black text-[10px] font-mono uppercase tracking-wider rounded-[2px] hover:bg-neutral-100 cursor-pointer shadow-xs"
+                          title="Set as Cover"
                         >
-                          Set Cover
+                          Cover
                         </button>
                       )}
-
-                      {/* Nút xóa ảnh */}
                       <button
                         type="button"
-                        onClick={() => handleRemoveImage(idx)}
-                        disabled={isUploading || isSubmitting}
-                        title="Xóa ảnh này"
-                        className="absolute top-1.5 right-1.5 z-10 opacity-0 group-hover:opacity-100 transition-opacity p-1 bg-red-600/90 hover:bg-red-600 text-white rounded-[2px] shadow-xs cursor-pointer"
+                        onClick={() => handleRemoveImage(index)}
+                        className="p-1 bg-red-600 text-white rounded-[2px] hover:bg-red-700 cursor-pointer shadow-xs"
+                        title="Delete photo"
                       >
-                        <Trash2 className="w-3 h-3" />
+                        <Trash2 className="w-3.5 h-3.5" />
                       </button>
-
-                      {/* Số thứ tự ảnh góc dưới */}
-                      <div className="absolute bottom-1 right-1 bg-black/60 text-white text-[9px] font-mono px-1 py-0.5 rounded-[1px]">
-                        #{idx + 1}
-                      </div>
                     </div>
-                  )
-                })}
+                  </div>
+                )
+              })}
 
-                {/* Ô nút Thêm ảnh bổ sung trong lưới */}
-                <label
-                  htmlFor="product-image-file-input"
-                  className={`aspect-3/4 flex flex-col items-center justify-center p-3 border-2 border-dashed border-neutral-300 hover:border-black rounded-[2px] bg-white hover:bg-neutral-50 cursor-pointer transition-colors text-center ${
-                    isUploading ? 'opacity-50 pointer-events-none' : ''
-                  }`}
-                  title="Chọn thêm ảnh từ máy tính (Có thể chọn nhiều ảnh)"
-                >
-                  {isUploading ? (
-                    <div className="flex flex-col items-center gap-1 text-neutral-600">
-                      <Loader2 className="w-4 h-4 animate-spin text-black" />
-                      <span className="text-[10px] font-mono uppercase tracking-wider">
-                        {uploadProgressText || 'Uploading...'}
-                      </span>
-                    </div>
-                  ) : (
-                    <div className="flex flex-col items-center gap-1 text-neutral-600 group-hover:text-black">
-                      <div className="p-1.5 rounded-full bg-neutral-100 group-hover:bg-neutral-200 transition-colors">
-                        <Plus className="w-4 h-4 text-neutral-800" />
-                      </div>
-                      <span className="text-[10px] font-mono font-semibold uppercase tracking-wider mt-1 text-neutral-800">
-                        Add Photos
-                      </span>
-                      <span className="text-[9px] text-neutral-400 font-mono">
-                        Multi-select
-                      </span>
-                    </div>
-                  )}
-                </label>
-              </div>
-
-              {/* Thanh thao tác dưới lưới ảnh */}
-              <div className="flex items-center justify-between text-[11px] font-mono text-neutral-500 pt-0.5 px-1">
-                <span className="text-[10px]">
-                  Tip: Ảnh đầu tiên (COVER) được chọn làm ảnh hiển thị chính trong danh mục.
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={isUploading}
+                className="aspect-3/4 flex flex-col items-center justify-center p-3 border-2 border-dashed border-neutral-300 hover:border-black rounded-[2px] bg-white hover:bg-neutral-50 cursor-pointer transition-colors text-center"
+              >
+                <Plus className="w-5 h-5 text-neutral-400 group-hover:text-black mb-1" />
+                <span className="text-[10px] font-mono uppercase tracking-wider text-neutral-600 font-bold">
+                  Add Photo
                 </span>
-                <button
-                  type="button"
-                  onClick={() => setFormData((prev) => ({ ...prev, images: [] }))}
-                  disabled={isUploading || isSubmitting}
-                  className="text-red-500 hover:text-red-700 hover:underline uppercase text-[10px] tracking-wider cursor-pointer disabled:opacity-50"
-                >
-                  Clear All Photos
-                </button>
-              </div>
+              </button>
             </div>
           ) : (
-            /* Khi chưa có ảnh nào: Khung dropzone kích thước lớn hướng dẫn chọn nhiều ảnh */
-            <label
-              htmlFor="product-image-file-input"
-              className={`flex flex-col items-center justify-center p-8 border-2 border-dashed border-neutral-300 hover:border-black rounded-[2px] bg-neutral-50/60 hover:bg-neutral-50 cursor-pointer transition-colors ${
-                isUploading ? 'opacity-50 pointer-events-none' : ''
-              }`}
+            <div
+              onClick={() => fileInputRef.current?.click()}
+              className="flex flex-col items-center justify-center p-8 border-2 border-dashed border-neutral-300 hover:border-black rounded-[2px] bg-neutral-50/60 hover:bg-neutral-50 cursor-pointer transition-colors"
             >
-              {isUploading ? (
-                <div className="flex flex-col items-center gap-2 text-neutral-600">
-                  <Loader2 className="w-6 h-6 animate-spin text-black" />
-                  <span className="font-mono text-xs uppercase tracking-wider">
-                    {uploadProgressText || 'Uploading images to Node.js fs...'}
-                  </span>
-                </div>
-              ) : (
-                <div className="flex flex-col items-center gap-2 text-center">
-                  <div className="p-3 bg-white border border-neutral-200 rounded-[2px] shadow-xs">
-                    <ImageIcon className="w-6 h-6 text-neutral-700" />
-                  </div>
-                  <div>
-                    <span className="font-mono text-xs font-bold text-black uppercase tracking-wider block">
-                      Upload photos from computer (Multi-select)
-                    </span>
-                    <span className="text-[11px] text-neutral-500 mt-0.5 block">
-                      Hold Ctrl or Shift to select multiple images at once (PNG, JPG, WEBP)
-                    </span>
-                  </div>
-                  <span className="mt-2 inline-flex items-center gap-1.5 px-3 py-1 bg-black text-white text-[10px] font-mono uppercase tracking-wider rounded-[2px] hover:bg-neutral-800 transition-colors">
-                    <Upload className="w-3 h-3" />
-                    <span>Browse Image Files</span>
-                  </span>
-                </div>
-              )}
-            </label>
+              <div className="w-10 h-10 rounded-full bg-white border border-neutral-200 flex items-center justify-center text-neutral-600 mb-2 shadow-2xs">
+                <Upload className="w-4 h-4 stroke-[1.5]" />
+              </div>
+              <p className="text-xs font-bold uppercase tracking-wider text-black font-mono">
+                Upload Product Images
+              </p>
+              <p className="text-[11px] text-neutral-400 mt-0.5">
+                Supports multiple files (JPG, PNG, WEBP)
+              </p>
+            </div>
           )}
         </div>
 
@@ -540,20 +724,8 @@ function ProductFormContent({
           />
         </div>
 
-        {/* =========================================================================
-            KHỐI DỮ LIỆU BỔ SUNG: DETAILS & CARE INSTRUCTIONS (KHỚP CHUẨN DB.JSON)
-            ========================================================================= */}
+        {/* Details & Care Instructions */}
         <div className="pt-3 border-t border-neutral-100 space-y-3.5">
-          <div className="flex items-center justify-between">
-            <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-neutral-400 font-mono">
-              SPECIFICATIONS & CARE (KHỚP DB.JSON)
-            </span>
-            <span className="text-[10px] text-neutral-400 font-mono">
-              Rendered on product page tabs
-            </span>
-          </div>
-
-          {/* Hàng: Material (Chất liệu) + Origin (Xuất xứ / Xưởng chế tác) */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="space-y-1">
               <label className="block font-semibold uppercase tracking-wider text-neutral-700 font-mono text-[11px]">
@@ -571,7 +743,7 @@ function ProductFormContent({
 
             <div className="space-y-1">
               <label className="block font-semibold uppercase tracking-wider text-neutral-700 font-mono text-[11px]">
-                Origin (details.origin)
+                Provenance & Craftsmanship (details.origin)
               </label>
               <input
                 type="text"
@@ -584,16 +756,11 @@ function ProductFormContent({
             </div>
           </div>
 
-          {/* Thông số kỹ thuật chi tiết (details.specifications - Mỗi dòng 1 mục) */}
+          {/* Specifications (Hiển thị dạng gạch đầu dòng ở mục Material & Specifications) */}
           <div className="space-y-1">
-            <div className="flex items-center justify-between">
-              <label className="block font-semibold uppercase tracking-wider text-neutral-700 font-mono text-[11px]">
-                Specifications (details.specifications)
-              </label>
-              <span className="text-[10px] text-neutral-400 font-mono">
-                One bullet point per line
-              </span>
-            </div>
+            <label className="block font-semibold uppercase tracking-wider text-neutral-700 font-mono text-[11px]">
+              Specifications (details.specifications)
+            </label>
             <textarea
               name="specifications"
               value={formData.specifications}
@@ -604,23 +771,25 @@ function ProductFormContent({
             />
           </div>
 
-          {/* Hướng dẫn bảo quản / giặt ủi (careInstructions) */}
+          {/* Care & Preservation (Hiển thị ở Tab Care Guide: Maintenance & Preservation) */}
           <div className="space-y-1">
             <label className="block font-semibold uppercase tracking-wider text-neutral-700 font-mono text-[11px]">
-              Care Instructions (careInstructions)
+              Care & Preservation (Care Guide)
             </label>
             <textarea
               name="careInstructions"
               value={formData.careInstructions}
               onChange={handleChange}
               rows="2"
-              placeholder="e.g. Dry clean only. Store in protective garment dust bag. Do not tumble dry."
+              placeholder="e.g. Dry clean only. Store in protective dust bag. Do not tumble dry."
               className="w-full px-3 py-2 border border-neutral-200 rounded-[2px] font-mono text-[11px] focus:border-black focus:outline-none"
             />
           </div>
+
+
         </div>
 
-        {/* Nút hành động */}
+        {/* Action buttons */}
         <div className="flex items-center justify-end gap-2 pt-3 border-t border-neutral-100">
           <button
             type="button"

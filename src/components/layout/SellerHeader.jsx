@@ -1,12 +1,14 @@
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 
 export default function SellerHeader({
     shopName = 'MY ATELIER',
     pageTitle = 'DASHBOARD',
     status = 'ACTIVE',
     onToggleStatus,
-    onOpenMobile
+    onOpenMobile,
+    shopSlug = ''
 }) {
+    const location = useLocation()
     const isActive = status === 'ACTIVE'
 
     return (
@@ -27,9 +29,9 @@ export default function SellerHeader({
 
                 {/* Logo FASHORA CĂN GIỮA TUYỆT ĐỐI - Bấm chuyển về trang chủ (/) */}
                 <Link
-                    to="/"
+                    to="/home"
                     className="absolute left-1/2 -translate-x-1/2 font-bold tracking-[0.25em] text-sm uppercase text-black select-none hover:opacity-80 transition-opacity"
-                    title="Back to Home (/)"
+                    title="Back to Home (/home)"
                 >
                     FASHORA
                 </Link>
@@ -43,14 +45,14 @@ export default function SellerHeader({
                                 ? 'border-emerald-300 bg-emerald-50 text-emerald-700 hover:bg-emerald-100'
                                 : 'border-amber-300 bg-amber-50 text-amber-700 hover:bg-amber-100'
                             }`}
-                        title={isActive ? 'Nhấp để tạm ngưng hoạt động' : 'Nhấp để kích hoạt lại'}
-                        aria-label="Chuyển đổi trạng thái shop"
+                        title={isActive ? 'Click to pause store operations' : 'Click to reactivate store'}
+                        aria-label="Toggle store status"
                     >
                         <span
                             className={`w-1.5 h-1.5 rounded-full ${isActive ? 'bg-emerald-500' : 'bg-amber-500'
                                 }`}
                         />
-                        <span>{isActive ? 'ACTIVE' : 'TẠM NGƯNG'}</span>
+                        <span>{isActive ? 'ACTIVE' : 'PAUSED'}</span>
                     </button>
 
                     <div className="inline-flex items-center px-2 py-0.5 border border-neutral-300 rounded text-[10px] font-medium text-neutral-700 bg-neutral-50">
@@ -63,13 +65,7 @@ export default function SellerHeader({
             <div className="bg-[#0e0e0e] text-white px-6 sm:px-10 py-6 border-b border-neutral-800 flex flex-col md:flex-row md:items-center justify-between gap-4">
                 {/* Cụm chữ bên trái */}
                 <div>
-                    <div className="flex items-center gap-2 text-[10px] tracking-[0.22em] text-neutral-400 uppercase font-medium">
-                        <span>SELLER CENTER</span>
-                        <span>/</span>
-                        <span className="text-white font-semibold">{shopName}</span>
-                    </div>
-
-                    <h2 className="text-2xl sm:text-3xl font-extrabold tracking-[0.08em] uppercase text-white mt-1">
+                    <h2 className="text-2xl sm:text-3xl font-extrabold tracking-[0.08em] uppercase text-white">
                         {pageTitle}
                     </h2>
 
@@ -82,6 +78,19 @@ export default function SellerHeader({
 
                 {/* Cụm trạng thái bên phải: Nút chuyển đổi Active / Tạm ngưng hoạt động */}
                 <div className="flex items-center gap-3">
+                    {shopSlug && (
+                        <Link
+                            to={`/store/${shopSlug}`}
+                            state={{ from: `${location.pathname}${location.search}` }}
+                            className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 border border-neutral-700 hover:border-neutral-400 text-neutral-300 hover:text-white rounded text-[11px] font-mono tracking-wider transition-colors"
+                            title="View Public Storefront"
+                        >
+                            <span>VIEW PUBLIC SHOP</span>
+                            <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                            </svg>
+                        </Link>
+                    )}
                     <button
                         type="button"
                         onClick={onToggleStatus}
@@ -91,10 +100,10 @@ export default function SellerHeader({
                             }`}
                         title={
                             isActive
-                                ? 'Cửa hàng đang hoạt động (Nhấp để chuyển sang Tạm ngưng hoạt động)'
-                                : 'Cửa hàng đang tạm ngưng (Nhấp để kích hoạt hoạt động lại)'
+                                ? 'Store is operational (Click to pause operations)'
+                                : 'Store is paused (Click to reactivate)'
                         }
-                        aria-label="Chuyển đổi trạng thái shop"
+                        aria-label="Toggle store status"
                     >
                         {/* Chấm tròn báo trạng thái nhấp nháy khi active */}
                         <span className="relative flex h-2 w-2">
@@ -113,7 +122,7 @@ export default function SellerHeader({
                                 'ACTIVE'
                             ) : (
                                 <>
-                                    TẠM NGƯNG
+                                    PAUSED
                                 </>
                             )}
                         </span>

@@ -6,6 +6,7 @@ import { useCartStore } from '../../stores';
 import { useAuth } from '../../contexts/AuthContext';
 import { Toast } from '../../components/common';
 import SizeMatrixModal from '../../components/product/SizeMatrixModal';
+import { safeBack } from '../../utils';
 // =========================================================================
 // TOÀN BỘ DATA BÀI VIẾT EDITORIAL STORY (5 PHẦN) ĐƯỢC LƯU TRỰC TIẾP TRONG GIAO DIỆN
 // =========================================================================
@@ -588,7 +589,7 @@ export default function StoryDetail() {
           }
         }
       } catch (err) {
-        console.error('Lỗi khi tải chi tiết Set cho StoryDetail:', err);
+        console.error('Error loading Set details for StoryDetail:', err);
       }
     }
     fetchProduct();
@@ -706,13 +707,14 @@ export default function StoryDetail() {
       <section className="max-w-[1560px] mx-auto px-4 sm:px-8 lg:px-12 pt-8 sm:pt-12 pb-16 sm:pb-20">
         {/* Nút thoát nhanh về Explore */}
         <div className="mb-8 sm:mb-10">
-          <Link
-            to="/explore"
-            className="inline-flex items-center gap-2 text-xs font-mono tracking-[0.2em] uppercase text-neutral-500 hover:text-black transition-colors"
+          <button
+            type="button"
+            onClick={() => safeBack(navigate, '/explore')}
+            className="inline-flex items-center gap-2 text-xs font-mono tracking-[0.2em] uppercase text-neutral-500 hover:text-black transition-colors cursor-pointer group"
           >
-            <ArrowLeft className="w-3.5 h-3.5" />
+            <ArrowLeft className="w-3.5 h-3.5 transition-transform group-hover:-translate-x-1" />
             <span>RETURN TO EXPLORE ARCHIVE</span>
-          </Link>
+          </button>
         </div>
 
         {/* Tiêu đề & Phong cách */}
@@ -1039,7 +1041,7 @@ export default function StoryDetail() {
                     <span className="text-lg sm:text-xl font-bold font-mono tracking-tight text-black">
                       {formatVND(price)}
                     </span>
-                    {originalPrice && (
+                    {originalPrice && Number(originalPrice) > Number(price) && (
                       <span className="text-xs font-mono text-neutral-400 line-through">
                         {formatVND(originalPrice)}
                       </span>

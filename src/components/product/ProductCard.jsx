@@ -42,7 +42,14 @@ export default function ProductCard({
 
   if (!currentProduct || !currentProduct.id) return null;
 
-  const { id, name, price, badge, isSoldOut = false } = currentProduct;
+  const { id, name, price, badge } = currentProduct;
+  const isSoldOut = Boolean(
+    currentProduct.isSoldOut ||
+    (currentProduct.stock !== undefined && Number(currentProduct.stock) === 0) ||
+    (typeof currentProduct.badge === 'string' &&
+      (currentProduct.badge.trim().toUpperCase() === 'SOLDOUT' ||
+       currentProduct.badge.trim().toUpperCase() === 'SOLD OUT'))
+  );
 
   // Chuẩn hóa đường dẫn ảnh
   const rawImage =
@@ -80,18 +87,23 @@ export default function ProductCard({
           />
         </Link>
 
-        {/* 2. CÁC BADGE TRẠNG THÁI (ĐÃ CÓ ĐẦY ĐỦ MÀU SẮC) */}
-        <div className="absolute top-2.5 left-2.5 flex flex-col gap-1.5 pointer-events-none z-10">
-          {isSoldOut ? (
-            <span className={`px-2 py-0.5 text-[9px] font-bold tracking-wider uppercase rounded-sm shadow-sm ${getBadgeStyle('soldout')}`}>
+        {/* Lớp nền bóng đen che lên ảnh cho sản phẩm Sold Out (tương tự Public Shop) */}
+        {isSoldOut && (
+          <div className="absolute inset-0 bg-black/60 flex items-center justify-center z-10 pointer-events-none">
+            <span className="text-white text-xs font-mono uppercase tracking-widest font-bold border border-white px-3 py-1">
               SOLD OUT
             </span>
-          ) : badge ? (
+          </div>
+        )}
+
+        {/* 2. CÁC BADGE TRẠNG THÁI */}
+        {!isSoldOut && badge && (
+          <div className="absolute top-2.5 left-2.5 flex flex-col gap-1.5 pointer-events-none z-10">
             <span className={`px-2 py-0.5 text-[9px] font-bold tracking-wider uppercase rounded-sm shadow-sm ${getBadgeStyle(badge)}`}>
               {badge}
             </span>
-          ) : null}
-        </div>
+          </div>
+        )}
 
         {/* Nút Quick Add khi hover */}
         {!isSoldOut && (
@@ -119,9 +131,16 @@ export default function ProductCard({
         >
           {name}
         </Link>
-        <span className="mt-1 text-[15px] font-medium tracking-tight text-neutral-800">
-          {formatPrice(price)}
-        </span>
+        <div className="mt-1 flex items-baseline gap-2">
+          <span className="text-[15px] font-medium tracking-tight text-neutral-800">
+            {formatPrice(price)}
+          </span>
+          {currentProduct.originalPrice && currentProduct.originalPrice > price && (
+            <span className="text-xs font-mono text-neutral-400 line-through">
+              {formatPrice(currentProduct.originalPrice)}
+            </span>
+          )}
+        </div>
       </div>
     </div>
   );

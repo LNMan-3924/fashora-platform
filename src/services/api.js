@@ -19,18 +19,35 @@ export const getShopById = async (shopId) => {
   if (!shopId) return api.get('/shop');
   try {
     const res = await api.get(`/shops/${shopId}`);
-    if (res?.data) return res;
+    if (res?.data && (res.data.id || res.data._id)) return res;
   } catch {
-    try {
-      const resQuery = await api.get(`/shops?id=${shopId}`);
-      if (Array.isArray(resQuery?.data) && resQuery.data.length > 0) {
-        return { data: resQuery.data[0] };
-      }
-    } catch {
-      // fallback
-    }
+    // continue
   }
-  return api.get('/shop');
+  try {
+    const resQuery = await api.get(`/shops?id=${shopId}`);
+    if (Array.isArray(resQuery?.data) && resQuery.data.length > 0) {
+      return { data: resQuery.data[0] };
+    }
+  } catch {
+    // continue
+  }
+  // Tìm kiếm mở rộng trong danh sách /shops theo slug hoặc ownerId
+  try {
+    const allShopsRes = await api.get('/shops');
+    if (Array.isArray(allShopsRes?.data)) {
+      const found = allShopsRes.data.find(
+        (s) => s.id === shopId || s.slug === shopId || s.ownerId === shopId
+      );
+      if (found) return { data: found };
+    }
+  } catch {
+    // continue
+  }
+  // Chỉ fallback về /shop nếu yêu cầu rõ ràng shop_m_studio
+  if (shopId === 'shop_m_studio' || shopId === 'm-studio') {
+    return api.get('/shop');
+  }
+  return { data: null };
 };
 
 export const createOrUpdateShop = async (shopData) => {

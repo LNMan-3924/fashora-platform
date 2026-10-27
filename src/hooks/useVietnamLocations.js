@@ -23,7 +23,7 @@ export function useVietnamLocations(selectedCity = '', selectedWard = '') {
         if (isMounted) setProvinces(list || [])
       })
       .catch((err) => {
-        console.error('Lỗi khi tải danh sách tỉnh thành:', err)
+        console.error('Error loading province list:', err)
       })
     return () => {
       isMounted = false
@@ -50,7 +50,7 @@ export function useVietnamLocations(selectedCity = '', selectedWard = '') {
         }
       })
       .catch((err) => {
-        console.error('Lỗi khi tải danh sách phường xã:', err)
+        console.error('Error loading ward list:', err)
         if (isMounted) {
           setWards([])
           setIsLoadingWards(false)
@@ -77,7 +77,7 @@ export function useVietnamLocations(selectedCity = '', selectedWard = '') {
     if (selectedWard && !list.some((opt) => opt.value === selectedWard)) {
       list.unshift({
         value: selectedWard,
-        label: `${selectedWard} (Đã lưu)`,
+        label: `${selectedWard} (Saved)`,
       })
     }
     return list

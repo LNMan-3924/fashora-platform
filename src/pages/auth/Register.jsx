@@ -12,9 +12,6 @@ export default function Register() {
     window.scrollTo({ top: 0, left: 0, behavior: 'instant' })
   }, [])
 
-  // Chọn loại định danh: Email hoặc Phone
-  const [contactType, setContactType] = useState('email')
-
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
@@ -25,102 +22,165 @@ export default function Register() {
     confirmPassword: '',
   })
 
+  const [errors, setErrors] = useState({})
+  const [serverError, setServerError] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
-
-  const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(false)
+
+  // Ngày hôm nay (dùng để chặn chọn ngày tương lai trên input date)
+  const todayStr = new Date().toISOString().split('T')[0]
+
+  // Tính toán độ mạnh mật khẩu (Password Strength)
+  const getPasswordStrength = (pwd) => {
+    if (!pwd) return { score: 0, label: '', color: 'bg-neutral-200', textColor: 'text-neutral-400' }
+    let score = 0
+    if (pwd.length >= 8) score++
+    if (/[A-Z]/.test(pwd) && /[a-z]/.test(pwd)) score++
+    if (/[0-9]/.test(pwd)) score++
+    if (/[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(pwd)) score++
+
+    if (score <= 1) return { score: 1, label: 'WEAK', color: 'bg-red-500', textColor: 'text-red-500' }
+    if (score === 2) return { score: 2, label: 'FAIR', color: 'bg-amber-500', textColor: 'text-amber-500' }
+    if (score === 3) return { score: 3, label: 'GOOD', color: 'bg-blue-500', textColor: 'text-blue-500' }
+    return { score: 4, label: 'STRONG', color: 'bg-emerald-500', textColor: 'text-emerald-500' }
+  }
+
+  const passwordStrength = getPasswordStrength(formData.password)
 
   const handleInputChange = (e) => {
     const { name, value } = e.target
     setFormData((prev) => ({ ...prev, [name]: value }))
-    if (error) setError('')
+
+    // Xóa lỗi tức thời khi người dùng chỉnh sửa ô đó
+    if (errors[name]) {
+      setErrors((prev) => ({ ...prev, [name]: '' }))
+    }
+    if (serverError) setServerError('')
+  }
+
+  const validateForm = () => {
+    const newErrors = {}
+
+    // 1. Full name
+    if (!formData.fullName.trim()) {
+      newErrors.fullName = 'Full name is required.'
+    } else if (formData.fullName.trim().length < 2) {
+      newErrors.fullName = 'Full name must be at least 2 characters.'
+    }
+
+    // 2. Email Address
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!formData.email.trim()) {
+      newErrors.email = 'Email address is required.'
+    } else if (!emailRegex.test(formData.email.trim())) {
+      newErrors.email = 'Invalid email address format (e.g. name@domain.com).'
+    }
+
+    // 3. Phone Number (Vietnamese standard)
+    const cleanPhone = formData.phoneNumber.trim().replace(/\s+/g, '')
+    const phoneRegex = /^(0|\+84)[3|5|7|8|9][0-9]{8}$/
+    if (!cleanPhone) {
+      newErrors.phoneNumber = 'Phone number is required.'
+    } else if (!phoneRegex.test(cleanPhone)) {
+      newErrors.phoneNumber = 'Invalid phone number (must be 10 digits, e.g. 0901234567).'
+    }
+
+    // 4. Date of Birth (DOB) - Bắt buộc, không chọn tương lai, đủ 16 tuổi trở lên
+    if (!formData.dob) {
+      newErrors.dob = 'Date of birth is required.'
+    } else {
+      const today = new Date()
+      today.setHours(0, 0, 0, 0)
+      const dobDate = new Date(formData.dob)
+      dobDate.setHours(0, 0, 0, 0)
+
+      if (isNaN(dobDate.getTime())) {
+        newErrors.dob = 'Invalid date of birth.'
+      } else if (dobDate > today) {
+        newErrors.dob = 'Date of birth cannot be in the future.'
+      } else {
+        // Kiểm tra đủ 16 tuổi trở lên
+        const min16thBirthday = new Date(dobDate)
+        min16thBirthday.setFullYear(min16thBirthday.getFullYear() + 16)
+        if (min16thBirthday > today) {
+          newErrors.dob = 'You must be at least 16 years old to register.'
+        }
+      }
+    }
+
+    // 5. Password - Bắt buộc, có chữ hoa, chữ thường, số, ký tự đặc biệt, tối thiểu 8 ký tự
+    if (!formData.password) {
+      newErrors.password = 'Password is required.'
+    } else if (formData.password.length < 8) {
+      newErrors.password = 'Password must be at least 8 characters.'
+    } else if (!/[A-Z]/.test(formData.password)) {
+      newErrors.password = 'Must contain at least one uppercase letter (A-Z).'
+    } else if (!/[a-z]/.test(formData.password)) {
+      newErrors.password = 'Must contain at least one lowercase letter (a-z).'
+    } else if (!/[0-9]/.test(formData.password)) {
+      newErrors.password = 'Must contain at least one number (0-9).'
+    } else if (!/[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(formData.password)) {
+      newErrors.password = 'Must contain at least one special character (!@#$%^&*...).'
+    }
+
+    // 6. Confirm Password - Phải khớp với password
+    if (!formData.confirmPassword) {
+      newErrors.confirmPassword = 'Confirm password is required.'
+    } else if (formData.password !== formData.confirmPassword) {
+      newErrors.confirmPassword = 'Passwords do not match.'
+    }
+
+    return newErrors
   }
 
   const handleRegister = async (e) => {
     e.preventDefault()
-    setError('')
+    setServerError('')
 
-    // 1. Kiểm tra validation cơ bản
-    if (!formData.fullName.trim()) {
-      setError('Full name is required.')
-      return
-    }
-
-    if (contactType === 'email') {
-      if (!formData.email.trim()) {
-        setError('Email address is required.')
-        return
-      }
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-      if (!emailRegex.test(formData.email.trim())) {
-        setError('Invalid email address format.')
-        return
-      }
-    } else {
-      if (!formData.phoneNumber.trim()) {
-        setError('Phone number is required.')
-        return
-      }
-      const phoneRegex = /^(0|\+84)[3|5|7|8|9][0-9]{8}$/
-      if (!phoneRegex.test(formData.phoneNumber.trim().replace(/\s+/g, ''))) {
-        setError('Invalid Vietnamese phone number format (e.g. 0901234567).')
-        return
-      }
-    }
-
-    if (!formData.dob.trim()) {
-      setError('Date of birth is required.')
-      return
-    }
-
-    if (!formData.password) {
-      setError('Password is required.')
-      return
-    }
-    if (formData.password.length < 6) {
-      setError('Password must be at least 6 characters.')
-      return
-    }
-
-    if (formData.password !== formData.confirmPassword) {
-      setError('Passwords do not match.')
+    // Kiểm tra tính hợp lệ toàn bộ form
+    const validationErrors = validateForm()
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors)
       return
     }
 
     setIsLoading(true)
 
     try {
-      // 2. Kiểm tra trùng lặp trong db.json
+      // Kiểm tra trùng lặp email và số điện thoại trong db.json
       const checkRes = await getUsers()
-      const existingUsers = checkRes.data || []
+      const existingUsers = Array.isArray(checkRes?.data) ? checkRes.data : []
+      const cleanPhone = formData.phoneNumber.trim().replace(/\s+/g, '')
+      const cleanEmail = formData.email.trim().toLowerCase()
 
-      const isDuplicate = existingUsers.some((u) => {
-        if (contactType === 'email' && u.email) {
-          return u.email.toLowerCase() === formData.email.trim().toLowerCase()
-        }
-        if (contactType === 'phone' && u.phoneNumber) {
-          return u.phoneNumber === formData.phoneNumber.trim()
-        }
-        return false
-      })
+      const emailExists = existingUsers.some(
+        (u) => u.email && u.email.toLowerCase() === cleanEmail
+      )
+      const phoneExists = existingUsers.some(
+        (u) => u.phoneNumber && u.phoneNumber.replace(/\s+/g, '') === cleanPhone
+      )
 
-      if (isDuplicate) {
-        setError(`This ${contactType === 'email' ? 'email' : 'phone number'} is already registered.`)
+      if (emailExists || phoneExists) {
+        const duplicateErrors = {}
+        if (emailExists) duplicateErrors.email = 'This email address is already registered.'
+        if (phoneExists) duplicateErrors.phoneNumber = 'This phone number is already registered.'
+        setErrors(duplicateErrors)
         setIsLoading(false)
         return
       }
 
-      // 3. Khởi tạo tài khoản chuẩn Fashora
+      // Khởi tạo tài khoản người dùng chuẩn Fashora
       const newUserPayload = {
         id: nanoid(),
         fullName: formData.fullName.trim(),
-        email: contactType === 'email' ? formData.email.trim().toLowerCase() : '',
-        phoneNumber: contactType === 'phone' ? formData.phoneNumber.trim() : '',
+        email: cleanEmail,
+        phoneNumber: cleanPhone,
         password: formData.password,
-        dob: formData.dob.trim(),
+        dob: formData.dob,
         gender: formData.gender,
         role: 'customer',
+        roles: ['customer'],
         shopId: null,
         shippingAddresses: [],
         createdAt: new Date().toISOString(),
@@ -130,28 +190,29 @@ export default function Register() {
       const createdUser = createRes.data
 
       loginUser(createdUser)
-      navigate('/shop')
+      navigate('/home')
     } catch (err) {
-      setError(err.message || 'An unexpected error occurred.')
+      setServerError(err?.message || 'An unexpected error occurred while creating your account.')
     } finally {
       setIsLoading(false)
     }
   }
 
   return (
-    <div className="w-full flex flex-col items-center">
+    <div className="w-full flex flex-col items-center py-6 sm:py-10">
       {/* Khung Card chính của Form */}
-      <div className="w-full max-w-[480px] bg-white border border-neutral-200/90 p-8 sm:p-10 shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
+      <div className="w-full max-w-[500px] bg-white border border-neutral-200/90 p-8 sm:p-10 shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
         {/* Header trong thẻ */}
         <div className="text-center mb-7">
-          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-[#111111] uppercase">
+          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-[#111111] uppercase font-serif">
             CREATE AN ACCOUNT
           </h1>
         </div>
 
-        {error && (
+        {/* Lỗi máy chủ / kết nối chung nếu có */}
+        {serverError && (
           <div className="mb-5 p-3 bg-red-50 border border-red-500 text-red-600 text-xs font-mono uppercase tracking-wider">
-            {error}
+            {serverError}
           </div>
         )}
 
@@ -167,72 +228,96 @@ export default function Register() {
               value={formData.fullName}
               onChange={handleInputChange}
               placeholder="Enter your full name"
-              className="w-full border border-neutral-300 px-3.5 py-2.5 text-xs text-[#111111] outline-none focus:border-black placeholder:text-neutral-300 font-normal transition-colors"
+              className={`w-full border px-3.5 py-2.5 text-xs text-[#111111] outline-none transition-colors ${
+                errors.fullName
+                  ? 'border-red-500 focus:border-red-600 bg-red-50/20'
+                  : 'border-neutral-300 focus:border-black placeholder:text-neutral-400'
+              }`}
             />
-          </div>
-
-          {/* 2. PRIMARY CONTACT: PHONE OR EMAIL SELECTOR */}
-          <div>
-            <div className="flex items-center justify-between mb-1.5">
-              <label className="text-[10px] font-mono tracking-widest uppercase text-neutral-700 font-semibold">
-                {contactType === 'email' ? 'EMAIL ADDRESS *' : 'PHONE NUMBER *'}
-              </label>
-              <div className="flex gap-2">
-                <button
-                  type="button"
-                  onClick={() => setContactType('email')}
-                  className={`text-[9px] font-mono uppercase tracking-wider px-1.5 py-0.5 border cursor-pointer ${contactType === 'email' ? 'bg-black text-white border-black' : 'text-neutral-400 border-neutral-200'
-                    }`}
-                >
-                  USE EMAIL
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setContactType('phone')}
-                  className={`text-[9px] font-mono uppercase tracking-wider px-1.5 py-0.5 border cursor-pointer ${contactType === 'phone' ? 'bg-black text-white border-black' : 'text-neutral-400 border-neutral-200'
-                    }`}
-                >
-                  USE PHONE
-                </button>
-              </div>
-            </div>
-
-            {contactType === 'email' ? (
-              <input
-                type="email"
-                name="email"
-                value={formData.email}
-                onChange={handleInputChange}
-                placeholder="Enter your email"
-                className="w-full border border-neutral-300 px-3.5 py-2.5 text-xs text-[#111111] outline-none focus:border-black placeholder:text-neutral-300 font-normal transition-colors"
-              />
-            ) : (
-              <input
-                type="tel"
-                name="phoneNumber"
-                value={formData.phoneNumber}
-                onChange={handleInputChange}
-                placeholder="Enter your phone number (e.g. 0901234567)"
-                className="w-full border border-neutral-300 px-3.5 py-2.5 text-xs text-[#111111] outline-none focus:border-black placeholder:text-neutral-300 font-normal transition-colors"
-              />
+            {errors.fullName && (
+              <p className="mt-1 text-[11px] font-mono text-red-500 tracking-wide flex items-center gap-1">
+                <span>•</span>
+                <span>{errors.fullName}</span>
+              </p>
             )}
           </div>
 
-          {/* 3. DATE OF BIRTH & GENDER */}
+          {/* 2. EMAIL ADDRESS */}
+          <div>
+            <label className="block text-[10px] font-mono tracking-widest uppercase text-neutral-700 font-semibold mb-1.5">
+              EMAIL ADDRESS *
+            </label>
+            <input
+              type="email"
+              name="email"
+              value={formData.email}
+              onChange={handleInputChange}
+              placeholder="name@example.com"
+              className={`w-full border px-3.5 py-2.5 text-xs text-[#111111] outline-none transition-colors ${
+                errors.email
+                  ? 'border-red-500 focus:border-red-600 bg-red-50/20'
+                  : 'border-neutral-300 focus:border-black placeholder:text-neutral-400'
+              }`}
+            />
+            {errors.email && (
+              <p className="mt-1 text-[11px] font-mono text-red-500 tracking-wide flex items-center gap-1">
+                <span>•</span>
+                <span>{errors.email}</span>
+              </p>
+            )}
+          </div>
+
+          {/* 3. PHONE NUMBER */}
+          <div>
+            <label className="block text-[10px] font-mono tracking-widest uppercase text-neutral-700 font-semibold mb-1.5">
+              PHONE NUMBER *
+            </label>
+            <input
+              type="tel"
+              name="phoneNumber"
+              value={formData.phoneNumber}
+              onChange={handleInputChange}
+              placeholder="0901234567"
+              className={`w-full border px-3.5 py-2.5 text-xs text-[#111111] outline-none transition-colors ${
+                errors.phoneNumber
+                  ? 'border-red-500 focus:border-red-600 bg-red-50/20'
+                  : 'border-neutral-300 focus:border-black placeholder:text-neutral-400'
+              }`}
+            />
+            {errors.phoneNumber && (
+              <p className="mt-1 text-[11px] font-mono text-red-500 tracking-wide flex items-center gap-1">
+                <span>•</span>
+                <span>{errors.phoneNumber}</span>
+              </p>
+            )}
+          </div>
+
+          {/* 4. DATE OF BIRTH & GENDER */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="block text-[10px] font-mono tracking-widest uppercase text-neutral-700 font-semibold mb-1.5">
                 DATE OF BIRTH *
               </label>
               <input
-                type="text"
+                type="date"
                 name="dob"
+                max={todayStr}
                 value={formData.dob}
                 onChange={handleInputChange}
-                placeholder="DD / MM / YYYY"
-                className="w-full border border-neutral-300 px-3.5 py-2.5 text-xs text-[#111111] outline-none focus:border-black placeholder:text-neutral-300 font-normal transition-colors"
+                className={`w-full border px-3 py-2 text-xs text-[#111111] outline-none transition-colors cursor-pointer bg-white ${
+                  errors.dob
+                    ? 'border-red-500 focus:border-red-600 bg-red-50/20'
+                    : 'border-neutral-300 focus:border-black'
+                }`}
               />
+              {errors.dob && (
+                <p className="mt-1 text-[11px] font-mono text-red-500 tracking-wide flex items-center gap-1">
+                  <span>•</span>
+                  <span>{errors.dob}</span>
+                </p>
+              )}
             </div>
+
             <div>
               <label className="block text-[10px] font-mono tracking-widest uppercase text-neutral-700 font-semibold mb-1.5">
                 GENDER *
@@ -250,7 +335,7 @@ export default function Register() {
             </div>
           </div>
 
-          {/* 4. PASSWORD */}
+          {/* 5. PASSWORD */}
           <div>
             <label className="block text-[10px] font-mono tracking-widest uppercase text-neutral-700 font-semibold mb-1.5">
               PASSWORD *
@@ -261,13 +346,18 @@ export default function Register() {
                 name="password"
                 value={formData.password}
                 onChange={handleInputChange}
-                placeholder="Create a password"
-                className="w-full border border-neutral-300 px-3.5 py-2.5 text-xs text-[#111111] outline-none focus:border-black placeholder:text-neutral-300 font-normal transition-colors pr-10"
+                placeholder="Create a strong password"
+                className={`w-full border px-3.5 py-2.5 text-xs text-[#111111] outline-none transition-colors pr-10 ${
+                  errors.password
+                    ? 'border-red-500 focus:border-red-600 bg-red-50/20'
+                    : 'border-neutral-300 focus:border-black placeholder:text-neutral-400'
+                }`}
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
                 className="absolute inset-y-0 right-3 flex items-center text-neutral-400 hover:text-black cursor-pointer"
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
               >
                 {showPassword ? (
                   <svg className="w-4 h-4 stroke-[1.6]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -281,9 +371,43 @@ export default function Register() {
                 )}
               </button>
             </div>
+
+            {/* Thanh đo độ mạnh mật khẩu nhỏ gọn */}
+            {formData.password && (
+              <div className="mt-2 space-y-1">
+                <div className="flex gap-1 h-1 w-full bg-neutral-100 rounded-full overflow-hidden">
+                  {[1, 2, 3, 4].map((step) => (
+                    <div
+                      key={step}
+                      className={`h-full flex-1 transition-all duration-300 ${
+                        passwordStrength.score >= step ? passwordStrength.color : 'bg-neutral-200'
+                      }`}
+                    />
+                  ))}
+                </div>
+                <div className="flex justify-between items-center text-[10px] font-mono">
+                  <span className="text-neutral-400">Security strength</span>
+                  <span className={`font-bold uppercase tracking-wider ${passwordStrength.textColor}`}>
+                    {passwordStrength.label}
+                  </span>
+                </div>
+              </div>
+            )}
+
+            {/* Dòng báo lỗi mật khẩu */}
+            {errors.password ? (
+              <p className="mt-1 text-[11px] font-mono text-red-500 tracking-wide flex items-center gap-1">
+                <span>•</span>
+                <span>{errors.password}</span>
+              </p>
+            ) : (
+              <p className="mt-1 text-[10px] font-mono text-neutral-400 leading-normal">
+                Min 8 characters with uppercase, lowercase, number & special symbol.
+              </p>
+            )}
           </div>
 
-          {/* 5. CONFIRM PASSWORD */}
+          {/* 6. CONFIRM PASSWORD */}
           <div>
             <label className="block text-[10px] font-mono tracking-widest uppercase text-neutral-700 font-semibold mb-1.5">
               CONFIRM PASSWORD *
@@ -295,12 +419,17 @@ export default function Register() {
                 value={formData.confirmPassword}
                 onChange={handleInputChange}
                 placeholder="Confirm your password"
-                className="w-full border border-neutral-300 px-3.5 py-2.5 text-xs text-[#111111] outline-none focus:border-black placeholder:text-neutral-300 font-normal transition-colors pr-10"
+                className={`w-full border px-3.5 py-2.5 text-xs text-[#111111] outline-none transition-colors pr-10 ${
+                  errors.confirmPassword
+                    ? 'border-red-500 focus:border-red-600 bg-red-50/20'
+                    : 'border-neutral-300 focus:border-black placeholder:text-neutral-400'
+                }`}
               />
               <button
                 type="button"
                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                 className="absolute inset-y-0 right-3 flex items-center text-neutral-400 hover:text-black cursor-pointer"
+                aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
               >
                 {showConfirmPassword ? (
                   <svg className="w-4 h-4 stroke-[1.6]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -314,13 +443,32 @@ export default function Register() {
                 )}
               </button>
             </div>
+            {errors.confirmPassword && (
+              <p className="mt-1 text-[11px] font-mono text-red-500 tracking-wide flex items-center gap-1">
+                <span>•</span>
+                <span>{errors.confirmPassword}</span>
+              </p>
+            )}
           </div>
 
-          {/* Terms & Conditions Notice */}
+          {/* Terms & Privacy Notice đồng bộ với Footer */}
           <p className="text-[11px] text-neutral-400 font-mono leading-relaxed pt-1">
             By creating an account, you agree to Fashora's{' '}
-            <span className="underline hover:text-black cursor-pointer">Terms & Conditions</span> and{' '}
-            <span className="underline hover:text-black cursor-pointer">Privacy Notice</span>.
+            <Link
+              to="/terms-of-use"
+              state={{ from: '/register' }}
+              className="underline text-neutral-600 hover:text-black cursor-pointer font-medium"
+            >
+              Terms of Use
+            </Link>{' '}
+            and{' '}
+            <Link
+              to="/privacy-policy"
+              state={{ from: '/register' }}
+              className="underline text-neutral-600 hover:text-black cursor-pointer font-medium"
+            >
+              Privacy Policy
+            </Link>.
           </p>
 
           {/* Nút CREATE ACCOUNT */}

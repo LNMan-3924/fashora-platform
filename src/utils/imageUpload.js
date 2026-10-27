@@ -33,7 +33,7 @@ function readFileAsBase64(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader()
     reader.onload = (e) => resolve(e.target?.result)
-    reader.onerror = () => reject(new Error('Không thể đọc dữ liệu tệp hình ảnh'))
+    reader.onerror = () => reject(new Error('Unable to read image file data.'))
     reader.readAsDataURL(file)
   })
 }
@@ -50,18 +50,18 @@ function readFileAsBase64(file) {
 export async function uploadImage(file, { category = '', folder = '' } = {}) {
   // 1. Kiểm tra tính hợp lệ của đối tượng file đầu vào
   if (!file) {
-    throw new Error('Vui lòng chọn tệp hình ảnh để tải lên.')
+    throw new Error('Please select an image file to upload.')
   }
 
   // 2. Kiểm tra MIME type: Chỉ chấp nhận các định dạng tệp hình ảnh
   if (file.type && !file.type.startsWith('image/')) {
-    throw new Error('Định dạng tệp không hợp lệ. Vui lòng chọn tệp hình ảnh (JPG, PNG, WEBP, GIF, SVG).')
+    throw new Error('Invalid file format. Please select an image file (JPG, PNG, WEBP, GIF, SVG).')
   }
 
   // 3. Giới hạn dung lượng tối đa (10MB) để tránh làm nghẽn bộ nhớ đệm
   const MAX_SIZE_MB = 10
   if (file.size && file.size > MAX_SIZE_MB * 1024 * 1024) {
-    throw new Error(`Kích thước ảnh vượt quá dung lượng cho phép (${MAX_SIZE_MB}MB). Vui lòng chọn ảnh nhẹ hơn.`)
+    throw new Error(`Image size exceeds allowable limit (${MAX_SIZE_MB}MB). Please select a smaller file.`)
   }
 
   try {
@@ -85,13 +85,13 @@ export async function uploadImage(file, { category = '', folder = '' } = {}) {
 
     if (!response.ok) {
       const errorJson = await response.json().catch(() => ({}))
-      throw new Error(errorJson.error || `Tải ảnh thất bại với mã lỗi HTTP ${response.status}`)
+      throw new Error(errorJson.error || `Image upload failed with HTTP status ${response.status}`)
     }
 
     const data = await response.json()
 
     if (!data.success) {
-      throw new Error(data.error || 'Máy chủ Node.js không thể lưu trữ hình ảnh.')
+      throw new Error(data.error || 'Server unable to store image.')
     }
 
     // Trả về kết quả gồm đường dẫn web tĩnh (url) và tên file
@@ -103,7 +103,7 @@ export async function uploadImage(file, { category = '', folder = '' } = {}) {
       folder: data.folder,
     }
   } catch (error) {
-    console.error('Lỗi khi tải ảnh lên máy chủ Node.js:', error)
+    console.error('Error uploading image to Node.js server:', error)
     throw error
   }
 }

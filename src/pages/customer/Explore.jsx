@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Plus } from 'lucide-react';
-import { getProducts } from '../../services/api';
+import { getProducts, getShops } from '../../services/api';
 import QuickAddModal from '../../components/product/QuickAddModal';
 import { Toast } from '../../components/common';
 import { useCartStore } from '../../stores';
@@ -157,13 +157,14 @@ const DEFAULT_SETS = [
 
 export default function Explore() {
   const [allProducts, setAllProducts] = useState(dbData?.products || DEFAULT_SETS);
+  const [shops, setShops] = useState(dbData?.shops || []);
   const [selectedMoodId, setSelectedMoodId] = useState('QUIET_STRUCTURE');
   const [quickAddProduct, setQuickAddProduct] = useState(null);
   const [toastMessage, setToastMessage] = useState('');
 
   const addToCartStore = useCartStore((state) => state.addToCart);
 
-  // Tải danh sách sản phẩm từ API / db.json
+  // Tải danh sách sản phẩm và shops từ API / db.json
   useEffect(() => {
     let isMounted = true;
     async function loadData() {
@@ -176,8 +177,21 @@ export default function Explore() {
           setAllProducts(dbData?.products || DEFAULT_SETS);
         }
       } catch (err) {
-        console.error('Không thể tải sản phẩm cho Explore:', err);
+        console.error('Unable to load products for Explore:', err);
         if (isMounted) setAllProducts(dbData?.products || DEFAULT_SETS);
+      }
+
+      try {
+        const sRes = await getShops();
+        const sData = Array.isArray(sRes?.data) ? sRes.data : [];
+        if (isMounted && sData.length > 0) {
+          setShops(sData);
+        } else if (isMounted && dbData?.shops) {
+          setShops(dbData.shops);
+        }
+      } catch (sErr) {
+        console.warn('Unable to load shops for Explore:', sErr);
+        if (isMounted && dbData?.shops) setShops(dbData.shops);
       }
     }
     loadData();
@@ -185,6 +199,19 @@ export default function Explore() {
       isMounted = false;
     };
   }, []);
+
+  // Danh sách các Shop đang hoạt động
+  const activeShops = useMemo(() => {
+    const list = Array.isArray(shops) ? shops.filter((s) => s.status === 'ACTIVE' || !s.status) : [];
+    return list.length > 0 ? list : (dbData?.shops || []);
+  }, [shops]);
+
+  // Tạo danh sách lặp vô tận (nhân bản mảng 3 lần = 15 items cho 5 shop, sau đó nhân đôi tạo 2 nửa liền mạch)
+  const marqueeItems = useMemo(() => {
+    if (activeShops.length === 0) return [];
+    const setA = [...activeShops, ...activeShops, ...activeShops];
+    return [...setA, ...setA];
+  }, [activeShops]);
 
   // 6 bộ Set cho Khối 2: "WHAT IS FASHION RIGHT NOW?"
   const sixSetProducts = useMemo(() => {
@@ -541,7 +568,7 @@ export default function Explore() {
                       <span className="text-xs font-bold font-mono tracking-wider text-white">
                         {formatVND(item.price)}
                       </span>
-                      {item.originalPrice && (
+                      {item.originalPrice && Number(item.originalPrice) > Number(item.price) && (
                         <span className="text-[11px] font-mono text-neutral-500 line-through">
                           {formatVND(item.originalPrice)}
                         </span>
@@ -665,6 +692,72 @@ export default function Explore() {
             <span>VIEW MORE</span>
             <ArrowRight className="w-4 h-4" />
           </Link>
+        </div>
+      </section>
+
+      {/* =========================================================================
+          KHỐI 4.5: DIRECTORY OF REGISTERED ATELIERS (MARQUEE KHÁM PHÁ CÁC SHOP)
+          - Hiển thị danh sách các shop đã đăng ký trên sàn (M STUDIO, enire, SMOKER, #SWAG, L'OBSCUR ATELIER)
+          - Avatar tròn, dàn hàng ngang chuyển động mượt mà từ trái sang phải
+          - Tự động dừng khi rê chuột (pause on hover)
+          - Bấm vào sẽ chuyển hướng sang trang Public Shop (/store/:slug)
+          ========================================================================= */}
+      <section className="bg-neutral-50/80 border-t border-neutral-200 py-12 sm:py-16 overflow-hidden">
+        <div className="max-w-7xl mx-auto px-6 mb-8">
+          <h3 className="text-xl sm:text-2xl font-black uppercase tracking-tight text-[#111111]">
+            REGISTERED ATELIERS &amp; STUDIOS
+          </h3>
+        </div>
+
+        {/* Marquee Container with Gradient Edge Masks */}
+        <div className="relative w-full overflow-hidden select-none">
+          {/* Fade mask left */}
+          <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-16 sm:w-28 bg-gradient-to-r from-neutral-50 via-neutral-50/70 to-transparent z-10" />
+          {/* Fade mask right */}
+          <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-16 sm:w-28 bg-gradient-to-l from-neutral-50 via-neutral-50/70 to-transparent z-10" />
+
+          {/* Marquee Track (Smooth Left-to-Right) */}
+          <div className="animate-marquee-ltr py-2 flex items-center">
+            {marqueeItems.map((shop, idx) => {
+              const shopSlug = shop.slug || shop.id;
+              return (
+                <Link
+                  key={`${shop.id || shopSlug}-${idx}`}
+                  to={`/store/${shopSlug}`}
+                  className="flex flex-col items-center gap-2.5 px-6 sm:px-8 py-2 group cursor-pointer shrink-0 transition-transform duration-200 hover:scale-105"
+                  title={`Visit ${shop.name} Atelier`}
+                >
+                  {/* Circular Avatar Badge */}
+                  <div className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-full border-2 border-neutral-300 group-hover:border-black bg-white overflow-hidden shadow-xs flex items-center justify-center transition-all duration-300">
+                    {shop.logo ? (
+                      <img
+                        src={shop.logo}
+                        alt={shop.name}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          e.currentTarget.style.display = 'none';
+                        }}
+                      />
+                    ) : null}
+                    <div
+                      className={`w-full h-full flex items-center justify-center bg-black text-white font-mono text-base sm:text-lg font-bold uppercase ${
+                        shop.logo ? 'hidden' : 'flex'
+                      }`}
+                    >
+                      {shop.name ? shop.name.charAt(0) : 'A'}
+                    </div>
+                  </div>
+
+                  {/* Shop Name Only */}
+                  <div className="text-center max-w-[120px] sm:max-w-[140px]">
+                    <span className="block text-xs sm:text-sm font-mono font-bold uppercase tracking-wider text-black group-hover:underline truncate">
+                      {shop.name}
+                    </span>
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
         </div>
       </section>
 

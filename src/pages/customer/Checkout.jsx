@@ -297,7 +297,7 @@ function CheckoutFormContent({
             updateCurrentUser(updatedUser)
           }
         } catch (addrErr) {
-          console.warn('Checkout: Không thể tự động lưu địa chỉ vào tài khoản qua API:', addrErr)
+          console.warn('Checkout: Unable to auto-save address to account via API:', addrErr)
         }
       }
 
@@ -313,7 +313,7 @@ function CheckoutFormContent({
             })
           }
         } catch (stockErr) {
-          console.warn('Checkout: Không thể trừ tồn kho sản phẩm:', item?.id, stockErr)
+          console.warn('Checkout: Unable to deduct product stock:', item?.id, stockErr)
         }
       })
 

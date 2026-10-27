@@ -40,6 +40,12 @@ export default function BecomeSellerLayout() {
       shopLogoName: '',
       shopLogoSize: '',
       shopCategory: 'ALL-IN-ONE FASHION',
+      shopPhone: '',
+      shopAddress: '',
+      shopCity: 'Ho Chi Minh City',
+      bankName: 'Vietcombank',
+      bankAccountNumber: '',
+      bankAccountName: '',
       agreedToTerms: false,
     }
   })
@@ -56,6 +62,12 @@ export default function BecomeSellerLayout() {
       shopLogoName: '',
       shopLogoSize: '',
       shopCategory: 'ALL-IN-ONE FASHION',
+      shopPhone: '',
+      shopAddress: '',
+      shopCity: 'Ho Chi Minh City',
+      bankName: 'Vietcombank',
+      bankAccountNumber: '',
+      bankAccountName: '',
       agreedToTerms: false,
     }
     try {
@@ -102,6 +114,12 @@ export default function BecomeSellerLayout() {
       shopLogoName: '',
       shopLogoSize: '',
       shopCategory: 'ALL-IN-ONE FASHION',
+      shopPhone: '',
+      shopAddress: '',
+      shopCity: 'Ho Chi Minh City',
+      bankName: 'Vietcombank',
+      bankAccountNumber: '',
+      bankAccountName: '',
       agreedToTerms: false,
     })
   }

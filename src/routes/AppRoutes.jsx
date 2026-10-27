@@ -25,6 +25,7 @@ import OrderSuccess from '../pages/customer/OrderSuccess'
 import Orders from '../pages/customer/Orders'
 import OrderDetail from '../pages/customer/OrderDetail'
 import Profile from '../pages/customer/Profile'
+import PolicyPage from '../pages/customer/PolicyPage'
 
 // 3. Seller Onboarding Pages (Luồng 4 bước Become A Seller)
 import BecomeSellerLayout from '../pages/seller-onboarding/BecomeSellerLayout'
@@ -38,6 +39,7 @@ import SellerDashboard from '../pages/seller/Dashboard'
 import SellerProducts from '../pages/seller/Products'
 import SellerOrders from '../pages/seller/Orders'
 import SellerOrderDetail from '../pages/seller/OrderDetail'
+import SellerSettings from '../pages/seller/Settings'
 
 // 5. Storefront Pages
 import Storefront from '../pages/storefront/Storefront'
@@ -69,6 +71,10 @@ export default function AppRoutes() {
             <Route path="/product/:id" element={<ProductDetail />} />
             <Route path="/products/:id" element={<ProductDetail />} />
             <Route path="/cart" element={<Cart />} />
+            <Route path="/terms-of-use" element={<PolicyPage title="TERMS OF USE" />} />
+            <Route path="/privacy-policy" element={<PolicyPage title="PRIVACY POLICY" />} />
+            <Route path="/shopping-guide" element={<PolicyPage title="SHOPPING GUIDE" />} />
+            <Route path="/exchange-policy" element={<PolicyPage title="EXCHANGE POLICY" />} />
 
             {/* Protected Route: CHECKOUT
                 Gõ tay /checkout khi giỏ hàng trống hoặc chưa đăng nhập -> Tự động chuyển về /cart */}
@@ -149,6 +155,7 @@ export default function AppRoutes() {
             <Route path="/seller/products" element={<SellerProducts />} />
             <Route path="/seller/orders" element={<SellerOrders />} />
             <Route path="/seller/orders/:id" element={<SellerOrderDetail />} />
+            <Route path="/seller/settings" element={<SellerSettings />} />
           </Route>
 
           {/* ================= STOREFRONT ROUTES ================= */}

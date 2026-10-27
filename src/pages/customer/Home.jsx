@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowLeft, ArrowRight, ChevronLeft, ChevronRight, Plus } from 'lucide-react';
-import { getProducts, getCarouselItems } from '../../services/api';
+import { getProducts, getCarouselItems, getShops } from '../../services/api';
 import CompleteTheLook from '../../components/product/CompleteTheLook';
 import QuickAddModal from '../../components/product/QuickAddModal';
 import { Toast } from '../../components/common';
@@ -167,6 +167,10 @@ export default function Home() {
   const [carouselItems, setCarouselItems] = useState(DEFAULT_CAROUSEL_ITEMS);
   const [currentSlide, setCurrentSlide] = useState(0);
 
+  // Quản lý dữ liệu Atelier Spotlight Carousel (Shops có ảnh bìa coverImage)
+  const [featuredShops, setFeaturedShops] = useState([]);
+  const [currentShopSlide, setCurrentShopSlide] = useState(0);
+
   // 2. Quản lý Quick Add Modal & Toast thông báo
   const [quickAddProduct, setQuickAddProduct] = useState(null);
   const [toastMessage, setToastMessage] = useState('');
@@ -221,10 +225,50 @@ export default function Home() {
         console.warn('Home carousel items API fallback:', err?.message);
       });
 
+    // Lấy danh sách Ateliers có coverImage để quảng bá trên Carousel Trang chủ
+    getShops()
+      .then((res) => {
+        if (!isMounted) return;
+        const data = res?.data || res;
+        if (Array.isArray(data)) {
+          const validShops = data.filter(
+            (s) =>
+              s.status === 'ACTIVE' &&
+              s.coverImage &&
+              typeof s.coverImage === 'string' &&
+              s.coverImage.trim() !== ''
+          );
+          setFeaturedShops(validShops);
+        }
+      })
+      .catch((err) => {
+        console.warn('Home featured shops API fallback:', err?.message);
+      });
+
     return () => {
       isMounted = false;
     };
   }, []);
+
+  // Điều khiển slide Atelier Spotlight Carousel
+  const handlePrevShopSlide = useCallback(() => {
+    if (featuredShops.length <= 1) return;
+    setCurrentShopSlide((prev) => (prev - 1 + featuredShops.length) % featuredShops.length);
+  }, [featuredShops.length]);
+
+  const handleNextShopSlide = useCallback(() => {
+    if (featuredShops.length <= 1) return;
+    setCurrentShopSlide((prev) => (prev + 1) % featuredShops.length);
+  }, [featuredShops.length]);
+
+  // Tự động chuyển slide Atelier Spotlight mỗi 5 giây
+  useEffect(() => {
+    if (featuredShops.length <= 1) return;
+    const interval = setInterval(() => {
+      setCurrentShopSlide((prev) => (prev + 1) % featuredShops.length);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [featuredShops.length]);
 
   // Điều khiển slide Carousel
   const slides =
@@ -325,7 +369,7 @@ export default function Home() {
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 shrink-0">
               <Link
                 to="/explore"
-                className="inline-flex items-center justify-center gap-2 px-6 sm:px-7 py-3.5 sm:py-4 bg-black/40 border border-white/80 text-white backdrop-blur-sm font-bold text-xs sm:text-sm uppercase tracking-widest transition-all duration-300 hover:bg-white hover:text-black active:scale-[0.99] shadow-xl text-center"
+                className="inline-flex items-center justify-center gap-2 px-6 sm:px-7 py-3.5 sm:py-4 bg-black/40 border border-white/80 text-white backdrop-blur-sm font-bold text-xs sm:text-sm uppercase tracking-widest transition-all duration-300 hover:bg-white hover:text-black active:scale-[0.99] shadow-xl text-center cursor-pointer"
               >
                 <ArrowLeft className="w-4 h-4" />
                 <span>BACK TO EXPLORE PAGE</span>
@@ -572,6 +616,144 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* =========================================================================
+          KHỐI 3.5: ATELIER SPOTLIGHT CAROUSEL (QUẢNG BÁ ATELIER CÓ ẢNH BÌA COVER)
+          - Full chiều ngang màn hình (w-full edge-to-edge) chuẩn như Campaign Carousel ở trên
+          - Tỷ lệ 16:9 đồng bộ, trượt ngang mượt mà (Sliding track animation)
+          - Hiển thị trực tiếp ảnh bìa do Seller đăng tải lên Seller Center
+          - Nằm ngay dưới Campaign Carousel và trước Complete The Look
+          ========================================================================= */}
+      {featuredShops.length > 0 && (
+        <section className="w-full py-0 my-4 sm:my-6 bg-white overflow-hidden">
+          {/* Khung Carousel FULL CHIỀU NGANG MÀN HÌNH (w-full edge-to-edge) & NGUYÊN TỶ LỆ 16:9 */}
+          <div className="relative w-full aspect-[16/9] bg-neutral-950 overflow-hidden">
+            {/* Dải trượt ngang (Sliding Track) */}
+            <div
+              className="flex w-full h-full transition-transform duration-700 ease-in-out"
+              style={{ transform: `translateX(-${currentShopSlide * 100}%)` }}
+            >
+              {featuredShops.map((shopItem, idx) => {
+                const shopSlug = shopItem.slug || shopItem.id;
+                return (
+                  <div
+                    key={shopItem.id || idx}
+                    className="relative w-full h-full shrink-0 overflow-hidden"
+                  >
+                    {/* Ảnh bìa Cover của Shop */}
+                    <img
+                      src={shopItem.coverImage}
+                      alt={shopItem.name}
+                      className="w-full h-full object-cover object-center select-none"
+                      loading="lazy"
+                      onError={(e) => {
+                        e.currentTarget.onerror = null;
+                        e.currentTarget.src = FALLBACK_IMAGE;
+                      }}
+                    />
+
+                    {/* Lớp gradient Cinematic Brutalist tối màu tạo độ tương phản */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent pointer-events-none" />
+                    <div className="absolute inset-0 bg-gradient-to-r from-black/75 via-black/30 to-transparent pointer-events-none" />
+
+                    {/* Nội dung chữ trên Slide căn chỉnh theo grid max-w-[1560px] */}
+                    <div className="absolute inset-0 flex flex-col justify-end p-6 sm:p-10 lg:p-16 z-20 text-white pointer-events-none">
+                      <div className="max-w-[1560px] w-full mx-auto">
+                        <div className="max-w-xl pointer-events-auto">
+                          <div className="flex items-center gap-3 mb-2 sm:mb-3">
+                            {/* Logo shop */}
+                            {shopItem.logo ? (
+                              <img
+                                src={shopItem.logo}
+                                alt={shopItem.name}
+                                className="w-8 h-8 sm:w-10 sm:h-10 object-cover border border-white/20 bg-black/60 backdrop-blur-sm shrink-0"
+                                onError={(e) => {
+                                  e.currentTarget.style.display = 'none';
+                                }}
+                              />
+                            ) : (
+                              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-white text-black font-black font-serif flex items-center justify-center shrink-0">
+                                {shopItem.name?.charAt(0)?.toUpperCase() || 'A'}
+                              </div>
+                            )}
+
+                            <span className="text-[10px] sm:text-xs font-mono tracking-[0.2em] text-emerald-400 uppercase px-2.5 py-1 bg-emerald-950/80 backdrop-blur-md border border-emerald-500/40">
+                              VERIFIED ATELIER
+                            </span>
+                            {shopItem.category && (
+                              <span className="text-[10px] sm:text-xs font-mono tracking-widest text-neutral-300 uppercase px-2.5 py-1 bg-white/10 backdrop-blur-md border border-white/20">
+                                {shopItem.category}
+                              </span>
+                            )}
+                          </div>
+
+                          {/* Tên Shop */}
+                          <h4 className="text-3xl sm:text-5xl lg:text-7xl font-black uppercase tracking-tight text-white mb-2 leading-none drop-shadow-md">
+                            {shopItem.name}
+                          </h4>
+
+                          {/* Tagline / Mô tả */}
+                          <p className="text-xs sm:text-sm font-mono tracking-widest text-neutral-300 uppercase mb-4 sm:mb-6 line-clamp-2">
+                            {shopItem.tagline || shopItem.description || 'CONTEMPORARY FASHION ATELIER'}
+                          </p>
+
+                          {/* Nút hành động */}
+                          <Link
+                            to={`/store/${shopSlug}`}
+                            className="inline-flex items-center gap-3 px-6 sm:px-8 py-3 sm:py-3.5 bg-white text-black text-xs font-bold uppercase tracking-widest hover:bg-neutral-200 transition-colors duration-200 shadow-lg cursor-pointer"
+                          >
+                            <span>VISIT ATELIER</span>
+                            <ArrowRight className="w-4 h-4" />
+                          </Link>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Nút mũi tên lơ lửng 2 bên mép full màn hình */}
+            {featuredShops.length > 1 && (
+              <>
+                <button
+                  type="button"
+                  onClick={handlePrevShopSlide}
+                  aria-label="Previous Atelier"
+                  className="absolute left-4 sm:left-8 top-1/2 -translate-y-1/2 z-30 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-black/40 hover:bg-black/80 border border-white/30 text-white flex items-center justify-center backdrop-blur-sm transition-all duration-200 hover:scale-105 cursor-pointer"
+                >
+                  <ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6" />
+                </button>
+                <button
+                  type="button"
+                  onClick={handleNextShopSlide}
+                  aria-label="Next Atelier"
+                  className="absolute right-4 sm:right-8 top-1/2 -translate-y-1/2 z-30 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-black/40 hover:bg-black/80 border border-white/30 text-white flex items-center justify-center backdrop-blur-sm transition-all duration-200 hover:scale-105 cursor-pointer"
+                >
+                  <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6" />
+                </button>
+
+                {/* Thanh gạch phân trang ở đáy full banner */}
+                <div className="absolute bottom-4 sm:bottom-8 right-6 sm:right-12 z-30 flex items-center gap-2">
+                  {featuredShops.map((_, idx) => (
+                    <button
+                      key={idx}
+                      type="button"
+                      onClick={() => setCurrentShopSlide(idx)}
+                      aria-label={`Go to atelier slide ${idx + 1}`}
+                      className={`h-1 sm:h-1.5 transition-all duration-300 cursor-pointer ${
+                        currentShopSlide === idx
+                          ? 'w-8 sm:w-12 bg-white'
+                          : 'w-3 sm:w-4 bg-white/40 hover:bg-white/70'
+                      }`}
+                    />
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
+        </section>
+      )}
 
       {/* =========================================================================
           KHỐI 4: COMPLETE THE LOOK (Thay thế mục Best Sellers trước đây)

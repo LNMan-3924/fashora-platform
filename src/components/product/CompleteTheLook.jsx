@@ -30,7 +30,7 @@ const DEFAULT_LOOK_ITEMS = [
     image: '/images/products/accessories/acc-01.jpg',
     images: ['/images/products/accessories/acc-01.jpg'],
     category: 'ACCESSORIES',
-    shopName: 'M STUDIO',
+    shopName: 'enire',
     badge: null,
     isSoldOut: false,
     colors: ['Silver Chrome', 'Smoke Lens'],
@@ -44,7 +44,7 @@ const DEFAULT_LOOK_ITEMS = [
     image: '/images/products/accessories/acc-02.jpg',
     images: ['/images/products/accessories/acc-02.jpg'],
     category: 'JEWELRY',
-    shopName: 'M STUDIO',
+    shopName: 'enire',
     badge: null,
     isSoldOut: false,
     colors: ['Titanium Silver'],
@@ -58,7 +58,7 @@ const DEFAULT_LOOK_ITEMS = [
     image: '/images/products/accessories/acc-03.jpg',
     images: ['/images/products/accessories/acc-03.jpg'],
     category: 'BAGS',
-    shopName: 'M STUDIO',
+    shopName: 'enire',
     badge: 'SALE',
     isSoldOut: false,
     colors: ['Patent Black'],
@@ -72,7 +72,7 @@ const DEFAULT_LOOK_ITEMS = [
     image: '/images/products/accessories/acc-04.jpg',
     images: ['/images/products/accessories/acc-04.jpg'],
     category: 'HEADWEAR',
-    shopName: 'M STUDIO',
+    shopName: 'enire',
     badge: null,
     isSoldOut: false,
     colors: ['Washed Black'],
@@ -88,7 +88,7 @@ const DEFAULT_LOOK_ITEMS = [
     image: '/images/products/shoes/shoes-06.jpg',
     images: ['/images/products/shoes/shoes-06.jpg'],
     category: 'SHOES',
-    shopName: 'M STUDIO',
+    shopName: 'SMOKER',
     badge: 'HOT',
     isSoldOut: false,
     colors: ['Polished Jet Black'],
@@ -130,7 +130,7 @@ const DEFAULT_LOOK_ITEMS = [
     image: '/images/products/accessories/acc-07.jpg',
     images: ['/images/products/accessories/acc-07.jpg'],
     category: 'ACCESSORIES',
-    shopName: 'M STUDIO',
+    shopName: 'enire',
     badge: null,
     isSoldOut: true,
     colors: ['Distressed Black'],
@@ -324,17 +324,18 @@ export default function CompleteTheLook({
                   />
                 </Link>
 
-                {/* BADGE TRẠNG THÁI */}
-                <div className="absolute top-2.5 left-2.5 flex flex-col gap-1.5 pointer-events-none z-10">
-                  {isSoldOut ? (
-                    <span
-                      className={`px-2 py-0.5 text-[9px] font-bold tracking-wider uppercase rounded-sm shadow-sm ${getBadgeStyle(
-                        'soldout'
-                      )}`}
-                    >
+                {/* Nền bóng đen che lên ảnh cho sản phẩm Sold Out */}
+                {isSoldOut && (
+                  <div className="absolute inset-0 bg-black/60 flex items-center justify-center z-10 pointer-events-none">
+                    <span className="text-white text-xs font-mono uppercase tracking-widest font-bold border border-white px-3 py-1">
                       SOLD OUT
                     </span>
-                  ) : badge ? (
+                  </div>
+                )}
+
+                {/* BADGE TRẠNG THÁI */}
+                {!isSoldOut && badge && (
+                  <div className="absolute top-2.5 left-2.5 flex flex-col gap-1.5 pointer-events-none z-10">
                     <span
                       className={`px-2 py-0.5 text-[9px] font-bold tracking-wider uppercase rounded-sm shadow-sm ${getBadgeStyle(
                         badge
@@ -342,8 +343,8 @@ export default function CompleteTheLook({
                     >
                       {badge}
                     </span>
-                  ) : null}
-                </div>
+                  </div>
+                )}
 
                 {/* NÚT THÊM NHANH */}
                 {!isSoldOut && (

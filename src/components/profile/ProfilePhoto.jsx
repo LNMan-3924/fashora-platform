@@ -32,7 +32,7 @@ export default function ProfilePhoto({
 
     // Kiểm tra định dạng tệp phải là hình ảnh
     if (!file.type.startsWith('image/')) {
-      alert('Vui lòng chọn một tệp hình ảnh hợp lệ (JPG, PNG, WEBP, GIF).')
+      alert('Please select a valid image file (JPG, PNG, WEBP, GIF).')
       return
     }
 
@@ -49,8 +49,8 @@ export default function ProfilePhoto({
         onPhotoChange?.(result.url)
       }
     } catch (err) {
-      console.error('Lỗi khi cập nhật ảnh đại diện:', err)
-      alert(err.message || 'Không thể tải ảnh đại diện lên. Vui lòng thử lại.')
+      console.error('Error updating avatar:', err)
+      alert(err.message || 'Unable to upload profile photo. Please try again.')
     } finally {
       setIsUploading(false)
       // Reset lại value của input để có thể chọn lại cùng 1 tệp nếu muốn

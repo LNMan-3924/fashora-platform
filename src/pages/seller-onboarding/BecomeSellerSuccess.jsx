@@ -20,6 +20,8 @@ export default function BecomeSellerSuccess() {
       category: formData.shopCategory || 'FASHION & APPAREL',
       slug: (formData.shopName || 'atelier').toLowerCase().replace(/\s+/g, '-'),
       logo: formData.shopLogo || '',
+      location: formData.shopCity || 'Vietnam',
+      phone: formData.shopPhone || '',
       sellerCode: 'SELLER #FS-2026',
     }
   })
@@ -55,7 +57,7 @@ export default function BecomeSellerSuccess() {
         </nav>
       </div>
 
-      {/* 3. Stepper (Step 4 Complete: 1 OVERVIEW, 2 SHOP INFORMATION, 3 REVIEW, 4 COMPLETE) */}
+      {/* 3. Stepper */}
       <OnboardingStepper currentStep={4} />
 
       {/* 4. Hero Completion Check */}
@@ -126,6 +128,18 @@ export default function BecomeSellerSuccess() {
             <span className="text-neutral-400 block text-[10px] uppercase">LINKED CUSTOMER ID</span>
             <span className="font-medium text-neutral-700 text-xs mt-0.5 block truncate">{displayEmail}</span>
           </div>
+          {shopDetails.location && (
+            <div>
+              <span className="text-neutral-400 block text-[10px] uppercase">DISPATCH LOCATION</span>
+              <span className="font-medium text-neutral-800 text-xs mt-0.5 block truncate">{shopDetails.location}</span>
+            </div>
+          )}
+          {shopDetails.payoutAccount?.bankName && (
+            <div>
+              <span className="text-neutral-400 block text-[10px] uppercase">PAYOUT BANK</span>
+              <span className="font-medium text-neutral-800 text-xs mt-0.5 block truncate">{shopDetails.payoutAccount.bankName}</span>
+            </div>
+          )}
           <div className="sm:col-span-2">
             <span className="text-neutral-400 block text-[10px] uppercase">ATELIER URI</span>
             <Link

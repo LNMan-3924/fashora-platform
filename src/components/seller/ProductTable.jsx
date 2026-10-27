@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { ExternalLink, Edit3, Trash2 } from 'lucide-react'
+import { Edit3, Trash2 } from 'lucide-react'
 import { formatVND, handleImageError, FALLBACK_IMAGE } from '../../constants/commerce'
 import ProductStockBadge from './ProductStockBadge'
 
@@ -29,7 +29,7 @@ export default function ProductTable({
         <table className="w-full text-left border-collapse">
           <thead>
             <tr className="border-b border-neutral-200 bg-neutral-50/70 text-[10px] uppercase font-mono tracking-widest text-neutral-500">
-              <th className="py-3.5 px-4 font-semibold">GARMENT / PRODUCT</th>
+              <th className="py-3.5 px-4 font-semibold">PRODUCT</th>
               <th className="py-3.5 px-4 font-semibold">CATEGORY</th>
               <th className="py-3.5 px-4 font-semibold">PRICE</th>
               <th className="py-3.5 px-4 font-semibold">STOCK STATUS</th>
@@ -77,15 +77,19 @@ export default function ProductTable({
                     {/* Cột 1: Ảnh thumbnail lớn hơn + Tên sản phẩm rõ ràng + Mã định danh */}
                     <td className="py-4 px-4">
                       <div className="flex items-center gap-4">
-                        {/* Ảnh thumbnail lớn hơn (w-16 h-20 ~ 64x80px) tỉ lệ 4:5 với kiểm tra lỗi ảnh */}
-                        <div className="w-16 h-20 bg-neutral-100 border border-neutral-200/80 rounded-[2px] overflow-hidden shrink-0 shadow-2xs group">
+                        {/* Ảnh thumbnail liên kết trực tiếp tới trang ProductDetail */}
+                        <Link
+                          to={`/products/${product.id}`}
+                          className="w-16 h-20 bg-neutral-100 border border-neutral-200/80 rounded-[2px] overflow-hidden shrink-0 shadow-2xs group block cursor-pointer"
+                          title={`View ${product.name}`}
+                        >
                           <img
                             src={productImage}
                             alt={product.name}
                             onError={handleImageError}
                             className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-300"
                           />
-                        </div>
+                        </Link>
 
                         {/* Tên và mã sản phẩm hiển thị lớn hơn (text-sm) */}
                         <div className="min-w-0 space-y-1">
@@ -100,7 +104,13 @@ export default function ProductTable({
 
                             {/* Badge nhãn nếu có (NEW, HOT, LIMITED) */}
                             {product.badge && (
-                              <span className="text-[9px] font-mono font-bold uppercase tracking-wider px-1.5 py-0.5 bg-black text-white rounded-[2px]">
+                              <span
+                                className={`text-[9px] font-mono font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-[2px] ${
+                                  product.badge?.trim().toUpperCase().includes('SALE')
+                                    ? 'bg-red-600 text-white'
+                                    : 'bg-black text-white'
+                                }`}
+                              >
                                 {product.badge}
                               </span>
                             )}
@@ -146,17 +156,6 @@ export default function ProductTable({
                     {/* Cột 5: Nút thao tác (Xem trên web, Sửa, Xóa) */}
                     <td className="py-4 px-4 text-right">
                       <div className="inline-flex items-center gap-1.5">
-                        {/* Nút xem trang công khai của sản phẩm */}
-                        <Link
-                          to={`/product/${product.id}`}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="p-2 text-neutral-400 hover:text-black hover:bg-neutral-100 rounded-[2px] transition-colors"
-                          title="View public product page"
-                        >
-                          <ExternalLink className="w-4 h-4" />
-                        </Link>
-
                         {/* Nút sửa sản phẩm */}
                         <button
                           type="button"
@@ -188,7 +187,7 @@ export default function ProductTable({
                   colSpan={5}
                   className="py-14 text-center text-xs text-neutral-400 uppercase tracking-widest font-mono"
                 >
-                  No garments found matching your filters.
+                  No products found matching your filters.
                 </td>
               </tr>
             )}
@@ -216,15 +215,19 @@ export default function ProductTable({
 
             return (
               <div key={`mob-${product.id}`} className="p-4.5 flex gap-4 items-start">
-                {/* Ảnh sản phẩm lớn hơn kèm xử lý lỗi */}
-                <div className="w-20 h-26 bg-neutral-100 border border-neutral-200/80 rounded-[2px] overflow-hidden shrink-0">
+                {/* Ảnh sản phẩm liên kết tới ProductDetail */}
+                <Link
+                  to={`/products/${product.id}`}
+                  className="w-20 h-26 bg-neutral-100 border border-neutral-200/80 rounded-[2px] overflow-hidden shrink-0 block cursor-pointer"
+                  title={`View ${product.name}`}
+                >
                   <img
                     src={productImage}
                     alt={product.name}
                     onError={handleImageError}
                     className="w-full h-full object-cover object-top"
                   />
-                </div>
+                </Link>
 
                 {/* Thông tin và nút thao tác */}
                 <div className="flex-1 min-w-0 space-y-2">
@@ -253,14 +256,6 @@ export default function ProductTable({
                     />
 
                     <div className="flex items-center gap-1.5">
-                      <Link
-                        to={`/product/${product.id}`}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="p-2 text-neutral-400 hover:text-black"
-                      >
-                        <ExternalLink className="w-4 h-4" />
-                      </Link>
                       <button
                         type="button"
                         onClick={() => onEditProduct && onEditProduct(product)}
@@ -283,7 +278,7 @@ export default function ProductTable({
           })
         ) : (
           <div className="py-12 text-center text-xs text-neutral-400 uppercase tracking-widest font-mono">
-            No garments found.
+            No products found.
           </div>
         )}
       </div>

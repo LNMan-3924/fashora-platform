@@ -42,7 +42,7 @@ export const getProvinces = async () => {
     cachedProvinces = sorted
     return sorted
   } catch (err) {
-    console.error('Lỗi khi tải danh sách tỉnh thành:', err)
+    console.error('Error loading province list:', err)
     return cachedProvinces || []
   }
 }
@@ -65,7 +65,7 @@ export const getWardsByProvince = async (provinceId) => {
     cachedWardsMap.set(provinceId, sorted)
     return sorted
   } catch (err) {
-    console.error(`Lỗi khi tải danh sách phường xã cho tỉnh ${provinceId}:`, err)
+    console.error(`Error loading ward list for province ${provinceId}:`, err)
     return []
   }
 }
