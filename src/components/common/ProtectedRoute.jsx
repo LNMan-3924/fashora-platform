@@ -52,12 +52,10 @@ export function SellerGuard({ children }) {
     return <Navigate to="/login" state={{ from: location }} replace />
   }
 
-  // 3. Kiểm tra vai trò: Phải là SELLER hoặc tài khoản đã liên kết shopId
-  const userRole = String(currentUser.role || '').toLowerCase()
+  // 3. Kiểm tra vai trò: Phải có vai trò 'seller' trong mảng roles hoặc đã liên kết shopId
   const hasSellerRole =
-    userRole === 'seller' ||
-    (Array.isArray(currentUser.roles) &&
-      currentUser.roles.map((r) => String(r).toLowerCase()).includes('seller'))
+    Array.isArray(currentUser.roles) &&
+    currentUser.roles.some((r) => String(r).toLowerCase() === 'seller')
   const hasShopId = Boolean(currentUser.shopId && String(currentUser.shopId).trim() !== '')
 
   const isSeller = hasSellerRole || hasShopId

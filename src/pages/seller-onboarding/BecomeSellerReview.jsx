@@ -130,7 +130,6 @@ export default function BecomeSellerReview() {
 
       // 5. Update AuthContext currentUser với savedShopId chính xác
       updateCurrentUser({
-        role: 'seller',
         roles: ['customer', 'seller'],
         shopId: savedShopId,
       })

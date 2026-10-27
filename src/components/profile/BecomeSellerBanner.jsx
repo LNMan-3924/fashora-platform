@@ -9,10 +9,9 @@ import { useAuth } from '../../contexts/AuthContext'
 export default function BecomeSellerBanner() {
   const { currentUser } = useAuth()
   const isSeller =
-    String(currentUser?.role || '').toLowerCase() === 'seller' ||
+    Boolean(currentUser?.shopId) ||
     (Array.isArray(currentUser?.roles) &&
-      currentUser.roles.map((r) => String(r).toLowerCase()).includes('seller')) ||
-    Boolean(currentUser?.shopId)
+      currentUser.roles.some((r) => String(r).toLowerCase() === 'seller'))
 
   // Nếu người dùng đã là người bán -> Biến mất hoàn toàn theo yêu cầu
   if (isSeller) {

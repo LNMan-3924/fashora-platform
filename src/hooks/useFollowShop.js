@@ -1,17 +1,17 @@
-import { useState, useEffect, useCallback, useMemo } from 'react'
+import { useState, useCallback, useMemo } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { updateUser } from '../services/api'
 
-// Khóa lưu tạm danh sách shop theo dõi trong LocalStorage làm bộ đệm
-const STORAGE_KEY = 'fashora_following_shops'
+// Mảng rỗng tĩnh để giữ nguyên tham chiếu ổn định khi người dùng chưa follow shop nào
+const EMPTY_FOLLOWING_LIST = []
 
 /**
  * Custom Hook: useFollowShop
  * Quản lý trạng thái theo dõi (Follow/Unfollow) các Gian hàng (Atelier Shops).
- * Tái sử dụng đồng bộ giữa Storefront (Trang xem shop) và trang Quản lý Shop Đang Theo Dõi.
+ * Dữ liệu lưu trữ tập trung vào currentUser trong AuthContext và database API, không dùng localStorage.
  *
- * @returns {object} { followingShopIds, isFollowing, toggleFollow, unfollowShop, isLoading }
+ * @returns {object} { followingShopIds, isFollowing, toggleFollow, unfollowShop, isUpdating }
  */
 export function useFollowShop() {
   const navigate = useNavigate()
@@ -19,28 +19,13 @@ export function useFollowShop() {
   const { currentUser, updateCurrentUser, isAuthenticated } = useAuth()
   const [isUpdating, setIsUpdating] = useState(false)
 
-  // 1. Lấy danh sách ID các shop đang theo dõi
-  // Ưu tiên từ currentUser.followingShops trong database, nếu chưa có thì đọc từ LocalStorage
+  // 1. Danh sách ID shop đang theo dõi lấy trực tiếp từ currentUser (AuthContext & API).
+  // Dùng useMemo để giữ tham chiếu ổn định, tránh tạo mảng mới gây re-render các hàm useCallback bên dưới.
   const followingShopIds = useMemo(() => {
-    if (Array.isArray(currentUser?.followingShops)) {
-      return currentUser.followingShops
-    }
-    try {
-      const local = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]')
-      return Array.isArray(local) ? local : []
-    } catch {
-      return []
-    }
+    return Array.isArray(currentUser?.followingShops)
+      ? currentUser.followingShops
+      : EMPTY_FOLLOWING_LIST
   }, [currentUser?.followingShops])
-
-  // Đồng bộ vào localStorage mỗi khi danh sách thay đổi
-  useEffect(() => {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(followingShopIds))
-    } catch {
-      // ignore
-    }
-  }, [followingShopIds])
 
   // 2. Kiểm tra xem một shop có đang được người dùng theo dõi hay không
   const isFollowing = useCallback(
@@ -83,19 +68,12 @@ export function useFollowShop() {
 
       setIsUpdating(true)
       try {
-        // Cập nhật lên API db.json
+        // Cập nhật trực tiếp lên API db.json
         const res = await updateUser(currentUser.id, { followingShops: nextList })
         const updatedUser = res?.data || { ...currentUser, followingShops: nextList }
 
-        // Đồng bộ AuthContext
+        // Đồng bộ AuthContext toàn cục
         updateCurrentUser(updatedUser)
-
-        // Cập nhật LocalStorage
-        try {
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(nextList))
-        } catch {
-          // ignore
-        }
 
         return {
           success: true,
@@ -125,7 +103,6 @@ export function useFollowShop() {
         const res = await updateUser(currentUser.id, { followingShops: nextList })
         const updatedUser = res?.data || { ...currentUser, followingShops: nextList }
         updateCurrentUser(updatedUser)
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(nextList))
         return true
       } catch (err) {
         console.error('Lỗi khi hủy theo dõi shop:', err)
@@ -147,4 +124,3 @@ export function useFollowShop() {
 }
 
 export default useFollowShop
-

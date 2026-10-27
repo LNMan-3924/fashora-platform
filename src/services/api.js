@@ -100,7 +100,6 @@ export const getUserByEmail = (email) => api.get('/users', { params: { email } }
 export const getUserByPhone = (phoneNumber) => api.get('/users', { params: { phoneNumber } });
 export const updateUserRoleToSeller = (userId, shopId) =>
   api.patch(`/users/${userId}`, {
-    role: 'seller',
     roles: ['customer', 'seller'],
     shopId,
   });

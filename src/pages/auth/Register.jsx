@@ -178,7 +178,6 @@ export default function Register() {
         password: formData.password,
         dob: formData.dob,
         gender: formData.gender,
-        role: 'customer',
         roles: ['customer'],
         shopId: null,
         shippingAddresses: [],
