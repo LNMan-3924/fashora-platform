@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
-import { Link } from 'react-router-dom';
-import { getProducts } from '../../services/api';
+import { Link, useSearchParams } from 'react-router-dom';
+import { ArrowRight } from 'lucide-react';
+import { getProducts, getShops } from '../../services/api';
 import ProductGrid from '../../components/product/ProductGrid';
 import QuickAddModal from '../../components/product/QuickAddModal';
 import { Toast } from '../../components/common';
@@ -18,12 +19,15 @@ const CATEGORIES = [
 
 export function Shop() {
   const [products, setProducts] = useState([]);
+  const [shops, setShops] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  const [searchParams, setSearchParams] = useSearchParams();
+  const searchQuery = searchParams.get('q') || '';
+  const selectedCategory = (searchParams.get('category') || 'ALL').toUpperCase();
+
   // Bộ lọc & Sắp xếp
-  const [selectedCategory, setSelectedCategory] = useState('ALL');
-  const [searchQuery, setSearchQuery] = useState('');
   const [minPrice, setMinPrice] = useState('');
   const [maxPrice, setMaxPrice] = useState('');
   const [sortBy, setSortBy] = useState('RECOMMENDED');
@@ -75,6 +79,15 @@ export function Shop() {
           setLoading(false);
         }
       }
+
+      try {
+        const sRes = await getShops();
+        if (isMounted && Array.isArray(sRes?.data)) {
+          setShops(sRes.data);
+        }
+      } catch (sErr) {
+        console.warn('Shop: Error loading shops:', sErr);
+      }
     };
 
     loadData();
@@ -83,24 +96,51 @@ export function Shop() {
     };
   }, []);
 
+  // Nhận diện Shop nếu từ khóa tìm kiếm khớp với Tên Shop
+  const matchedShop = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
+    if (!q) return null;
+    return shops.find(
+      (s) =>
+        s.status !== 'PAUSED' &&
+        (s.name?.toLowerCase() === q ||
+          s.slug?.toLowerCase() === q ||
+          s.name?.toLowerCase().includes(q))
+    );
+  }, [searchQuery, shops]);
+
   // Bộ lọc đa điều kiện & Sắp xếp giá
   const filteredProducts = useMemo(() => {
     let result = [...products];
 
+    // Loại bỏ hoàn toàn các sản phẩm Sold Out khỏi trang Shop chung
+    result = result.filter((p) => {
+      const isSoldOut = Boolean(
+        p.isSoldOut ||
+        (p.stock !== undefined && Number(p.stock) === 0) ||
+        (typeof p.badge === 'string' &&
+          (p.badge.trim().toUpperCase() === 'SOLDOUT' ||
+           p.badge.trim().toUpperCase() === 'SOLD OUT'))
+      );
+      return !isSoldOut;
+    });
+
     // Lọc theo Category
-    // Nếu chọn khác 'ALL', so khớp chính xác mã danh mục viết hoa (SET, SHIRT, PANTS,...)
     if (selectedCategory !== 'ALL') {
       result = result.filter(
         (p) => p.category?.toUpperCase() === selectedCategory
       );
     }
 
-    // Tìm kiếm theo tên
-    // Tìm kiếm không phân biệt chữ hoa/chữ thường (Case-insensitive) trên tên sản phẩm
+    // Tìm kiếm theo tên sản phẩm, tên shop hoặc danh mục
     if (searchQuery.trim()) {
-      result = result.filter((p) =>
-        p.name?.toLowerCase().includes(searchQuery.toLowerCase())
-      );
+      const q = searchQuery.trim().toLowerCase();
+      result = result.filter((p) => {
+        const nameMatch = p.name?.toLowerCase().includes(q);
+        const shopMatch = p.shopName?.toLowerCase().includes(q);
+        const catMatch = p.category?.toLowerCase().includes(q);
+        return nameMatch || shopMatch || catMatch;
+      });
     }
 
     // Lọc theo giá
@@ -113,9 +153,9 @@ export function Shop() {
 
     // Sắp xếp
     if (sortBy === 'PRICE_LOW') {
-      result.sort((a, b) => a.price - b.price); //s xếp giá tăng dần
+      result.sort((a, b) => a.price - b.price);
     } else if (sortBy === 'PRICE_HIGH') {
-      result.sort((a, b) => b.price - a.price); // giảm gần 
+      result.sort((a, b) => b.price - a.price);
     }
 
     return result;
@@ -140,13 +180,29 @@ export function Shop() {
   };
 
   const handleCategorySelect = (catValue) => {
-    setSelectedCategory(catValue);
     setCurrentPage(1);
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        if (catValue !== 'ALL') next.set('category', catValue);
+        else next.delete('category');
+        return next;
+      },
+      { replace: true }
+    );
   };
 
   const handleSearchChange = (val) => {
-    setSearchQuery(val);
     setCurrentPage(1);
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        if (val.trim()) next.set('q', val.trim());
+        else next.delete('q');
+        return next;
+      },
+      { replace: true }
+    );
   };
 
   const handleMinPriceChange = (val) => {
@@ -165,12 +221,11 @@ export function Shop() {
   };
 
   const handleResetFilters = () => {
-    setSelectedCategory('ALL');
-    setSearchQuery('');
     setMinPrice('');
     setMaxPrice('');
     setSortBy('RECOMMENDED');
     setCurrentPage(1);
+    setSearchParams({}, { replace: true });
   };
 
   return (
@@ -329,6 +384,51 @@ export function Shop() {
             >
               VIEW ALL PRODUCTS
             </button>
+          </div>
+        )}
+
+        {/* BANNER ATELIER NỔI BẬT NẾU TÌM THẤY SHOP PHÙ HỢP */}
+        {!loading && !error && matchedShop && (
+          <div className="mb-8 p-4 sm:p-5 bg-neutral-900 text-white border border-neutral-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4 animate-in fade-in duration-200">
+            <div className="flex items-center gap-3.5">
+              <div className="w-12 h-12 rounded-full border border-neutral-700 bg-black overflow-hidden shrink-0 flex items-center justify-center">
+                {matchedShop.logo ? (
+                  <img
+                    src={matchedShop.logo}
+                    alt={matchedShop.name}
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      e.currentTarget.style.display = 'none';
+                    }}
+                  />
+                ) : null}
+                <div
+                  className={`w-full h-full flex items-center justify-center bg-black text-white font-mono text-sm font-bold uppercase ${
+                    matchedShop.logo ? 'hidden' : 'flex'
+                  }`}
+                >
+                  {matchedShop.name ? matchedShop.name.charAt(0) : 'A'}
+                </div>
+              </div>
+              <div>
+                <span className="text-[10px] font-mono tracking-widest text-neutral-400 uppercase block">
+                  OFFICIAL ATELIER STOREFRONT
+                </span>
+                <h4 className="text-sm sm:text-base font-bold font-mono tracking-wider uppercase">
+                  {matchedShop.name}
+                </h4>
+                <span className="text-[11px] text-neutral-400 font-mono block">
+                  {matchedShop.category || 'INDEPENDENT ATELIER'}
+                </span>
+              </div>
+            </div>
+            <Link
+              to={`/store/${matchedShop.slug || matchedShop.id}`}
+              className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-white text-black text-xs font-mono font-bold uppercase tracking-wider hover:bg-neutral-200 transition-colors shrink-0"
+            >
+              <span>VISIT ATELIER</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
           </div>
         )}
 
@@ -514,7 +614,7 @@ function ShopWithViewControls(props) {
                     ? 'border-black bg-black font-bold text-white'
                     : 'border-neutral-300 text-neutral-600 hover:border-black'
                 }`}
-                title="Xem dạng 1 cột"
+                title="View 1-column layout"
               >
                 1
               </button>
@@ -527,7 +627,7 @@ function ShopWithViewControls(props) {
                     ? 'border-black bg-black font-bold text-white'
                     : 'border-neutral-300 text-neutral-600 hover:border-black'
                 }`}
-                title="Xem dạng 2 cột"
+                title="View 2-column layout"
               >
                 2
               </button>
@@ -542,7 +642,7 @@ function ShopWithViewControls(props) {
                     ? 'border-black bg-black font-bold text-white'
                     : 'border-neutral-300 text-neutral-600 hover:border-black'
                 }`}
-                title="Xem dạng 2 cột"
+                title="View 2-column layout"
               >
                 2
               </button>
@@ -555,7 +655,7 @@ function ShopWithViewControls(props) {
                     ? 'border-black bg-black font-bold text-white'
                     : 'border-neutral-300 text-neutral-600 hover:border-black'
                 }`}
-                title="Xem dạng 4 cột"
+                title="View 4-column layout"
               >
                 4
               </button>
@@ -565,7 +665,7 @@ function ShopWithViewControls(props) {
           <button
             type="button"
             className="ml-1 flex h-6 w-6 items-center justify-center rounded-full border border-neutral-300 text-neutral-700 hover:border-black transition-colors cursor-pointer"
-            title="Lọc sản phẩm"
+            title="Filter products"
           >
             <svg
               className="h-3 w-3"

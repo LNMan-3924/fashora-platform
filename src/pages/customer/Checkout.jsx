@@ -1,7 +1,7 @@
-import { useState, useMemo, useRef } from 'react'
+import { useState, useRef } from 'react'
 import { useNavigate, useLocation, Navigate, Link } from 'react-router-dom'
 import { useCartStore } from '../../stores/useCartStore'
-import { createOrder, updateUser } from '../../services/api'
+import { createOrder, updateUser, patchProduct } from '../../services/api'
 import { useAuth } from '../../contexts/AuthContext'
 import {
   CheckoutSteps,
@@ -38,10 +38,8 @@ function CheckoutFormContent({
   const removeItemsFromCart = useCartStore((state) => state.removeItemsFromCart)
   const clearCart = useCartStore((state) => state.clearCart)
 
-  // Danh sách địa chỉ đã lưu: Trích xuất từ currentUser (API backend)
-  const savedAddresses = useMemo(() => {
-    return getSavedAddresses(currentUser)
-  }, [currentUser])
+  // Danh sách địa chỉ đã lưu: Trích xuất từ currentUser (API backend, không lạm dụng useMemo)
+  const savedAddresses = getSavedAddresses(currentUser)
 
   // State quản lý thông tin người nhận hàng: Khởi tạo từ địa chỉ mặc định hoặc hồ sơ người dùng
   const [formData, setFormData] = useState(() => {
@@ -59,7 +57,7 @@ function CheckoutFormContent({
         currentUser?.phoneNumber ||
         currentUser?.phone ||
         '',
-      address: defaultAddr?.street || defaultAddr?.address || '',
+      address: defaultAddr?.address || defaultAddr?.street || '',
       ward: defaultAddr?.ward || '',
       district: defaultAddr?.district || '',
       city: defaultAddr?.city || '',
@@ -85,7 +83,7 @@ function CheckoutFormContent({
     setFormData({
       fullName: addr.name || addr.fullName || '',
       phone: addr.phone || addr.phoneNumber || '',
-      address: addr.street || addr.address || '',
+      address: addr.address || addr.street || '',
       ward: addr.ward || '',
       district: addr.district || '',
       city: addr.city || '',
@@ -93,13 +91,11 @@ function CheckoutFormContent({
     setErrors({})
   }
 
-  // Tính toán tổng tiền hàng và tổng thanh toán
-  const subtotal = useMemo(() => {
-    return displayItems.reduce(
-      (sum, item) => sum + item.price * (item.quantity || 1),
-      0
-    )
-  }, [displayItems])
+  // Tính toán tổng tiền hàng và tổng thanh toán (tính trực tiếp, không tốn RAM memoize)
+  const subtotal = displayItems.reduce(
+    (sum, item) => sum + item.price * (item.quantity || 1),
+    0
+  )
 
   const orderTotal = subtotal + shippingMethod
 
@@ -179,75 +175,110 @@ function CheckoutFormContent({
     submittingRef.current = true
     setIsSubmitting(true)
 
-    // Tạo mã đơn hàng độc nhất theo chuẩn SPXVN + 9 chữ số ngẫu nhiên
-    const randomDigits = Math.floor(100000000 + Math.random() * 900000000)
-    const generatedOrderNumber = `#SPXVN${randomDigits}`
+    // 3. Phân nhóm các sản phẩm theo từng Shop (Mô hình Multi-Shop Split Orders)
+    const itemsByShop = {}
+    displayItems.forEach((item) => {
+      const sId = item.shopId || 'shop_m_studio'
+      if (!itemsByShop[sId]) {
+        itemsByShop[sId] = {
+          shopId: sId,
+          shopName:
+            item.shopName ||
+            (sId === 'shop_l-obscur-atelier_8158'
+              ? "L'OBSCUR ATELIER"
+              : 'M STUDIO'),
+          items: [],
+        }
+      }
+      itemsByShop[sId].items.push(item)
+    })
 
-    // 3. Chuẩn bị payload đơn hàng đầy đủ
-    const orderPayload = {
-      orderNumber: generatedOrderNumber,
-      userId: currentUser?.id || null,
-      customerEmail: currentUser?.email || null,
-      recipient: {
-        fullName: formData.fullName.trim(),
-        phone: formData.phone.trim(),
-        address: formData.address.trim(),
-        ward: (formData.ward || '').trim(),
-        district: (formData.district || '').trim(),
-        city: (formData.city || '').trim(),
-      },
-      shopName: displayItems[0]?.shopName || 'M STUDIO',
-      items: displayItems.map((item) => ({
-        id: item.id,
-        name: item.name,
-        price: item.price,
-        quantity: item.quantity || 1,
-        selectedSize: item.selectedSize || 'Standard',
-        selectedColor: item.selectedColor || 'Standard',
-        image: item.image || item.images?.[0] || FALLBACK_IMAGE,
-      })),
-      shippingFee: shippingMethod,
-      shippingMethod:
+    const shopEntries = Object.values(itemsByShop)
+    const isMultiShop = shopEntries.length > 1
+    const baseRandomDigits = Math.floor(100000000 + Math.random() * 900000000)
+    const nowTime = Date.now()
+
+    // Tạo payload đơn hàng độc lập cho từng shop
+    const orderPayloads = shopEntries.map((shopGroup, index) => {
+      // Phí vận chuyển: Nếu có phí Express và mua từ nhiều shop thì chia đều theo shop, hoặc miễn phí Standard
+      const groupShippingFee =
         shippingMethod > 0
-          ? 'Express Courier (+₫35,000)'
-          : 'Standard Delivery (Complimentary)',
-      paymentMethod: 'Cash on Delivery (COD)',
-      subtotal,
-      total: orderTotal,
-      status: 'PENDING',
-      createdAt: new Date().toISOString(),
-      logistics: {
-        courier: 'SPX Express',
-        waybill: `VN${Date.now().toString().slice(-8)}VN`,
-      },
-    }
+          ? isMultiShop
+            ? Math.round(shippingMethod / shopEntries.length)
+            : shippingMethod
+          : 0
+
+      const groupSubtotal = shopGroup.items.reduce(
+        (acc, item) => acc + (Number(item.price) || 0) * (Number(item.quantity) || 1),
+        0
+      )
+      const groupTotal = groupSubtotal + groupShippingFee
+
+      // Mã đơn hàng: Nếu 1 shop -> #SPXVN123456789. Nếu nhiều shop -> #SPXVN123456789-1, #SPXVN123456789-2
+      const orderNumber = isMultiShop
+        ? `#SPXVN${baseRandomDigits}-${index + 1}`
+        : `#SPXVN${baseRandomDigits}`
+
+      return {
+        orderNumber,
+        userId: currentUser?.id || null,
+        customerEmail: currentUser?.email || null,
+        recipient: {
+          fullName: formData.fullName.trim(),
+          phone: formData.phone.trim(),
+          address: formData.address.trim(),
+          ward: (formData.ward || '').trim(),
+          district: (formData.district || '').trim(),
+          city: (formData.city || '').trim(),
+        },
+        shopId: shopGroup.shopId,
+        shopName: shopGroup.shopName,
+        items: shopGroup.items.map((item) => ({
+          id: item.id,
+          name: item.name,
+          price: item.price,
+          quantity: item.quantity || 1,
+          selectedSize: item.selectedSize || 'Standard',
+          selectedColor: item.selectedColor || 'Standard',
+          image: item.image || item.images?.[0] || FALLBACK_IMAGE,
+          shopId: shopGroup.shopId,
+          shopName: shopGroup.shopName,
+        })),
+        shippingFee: groupShippingFee,
+        shippingMethod:
+          shippingMethod > 0
+            ? 'Express Courier (+₫35,000)'
+            : 'Standard Delivery (Complimentary)',
+        paymentMethod: 'Cash on Delivery (COD)',
+        subtotal: groupSubtotal,
+        total: groupTotal,
+        status: 'PENDING',
+        createdAt: new Date().toISOString(),
+        logistics: {
+          courier: 'SPX Express',
+          waybill: `VN${String(nowTime).slice(-7)}${index + 1}VN`,
+        },
+      }
+    })
 
     try {
-      // Gửi đơn hàng lên máy chủ db.json qua API POST /orders
-      const res = await createOrder(orderPayload)
-      const savedOrder = res?.data || res
+      // Gửi các đơn hàng lên máy chủ db.json qua API POST /orders song song
+      const savedOrders = await Promise.all(
+        orderPayloads.map((payload) =>
+          createOrder(payload).then((res) => res?.data || res)
+        )
+      )
 
-      // Yêu cầu: Khi account không có địa chỉ mà nhập địa chỉ trong checkout thì lưu luôn vào address trong API
+      // Yêu cầu: Khi account không có địa chỉ mà nhập địa chỉ trong checkout thì lưu luôn vào shippingAddresses trong API
       const hasAccountAddress =
-        Boolean(currentUser?.address?.address && currentUser.address.address.trim()) ||
-        (Array.isArray(currentUser?.shippingAddresses) && currentUser.shippingAddresses.length > 0)
+        Array.isArray(currentUser?.shippingAddresses) && currentUser.shippingAddresses.length > 0
 
       if (currentUser?.id && !hasAccountAddress && formData.address?.trim()) {
         try {
-          const newRecipient = {
-            fullName: formData.fullName.trim(),
-            phone: formData.phone.trim(),
-            address: formData.address.trim(),
-            ward: (formData.ward || '').trim(),
-            district: (formData.district || '').trim(),
-            city: (formData.city || '').trim(),
-          }
-
           const newShippingAddr = {
             id: `ADDR-${Math.floor(1000 + Math.random() * 9000)}`,
             name: formData.fullName.trim(),
             phone: formData.phone.trim(),
-            street: formData.address.trim(),
             address: formData.address.trim(),
             ward: (formData.ward || '').trim(),
             district: (formData.district || '').trim(),
@@ -257,7 +288,6 @@ function CheckoutFormContent({
           }
 
           const userPayload = {
-            address: newRecipient,
             shippingAddresses: [newShippingAddr],
           }
 
@@ -267,12 +297,28 @@ function CheckoutFormContent({
             updateCurrentUser(updatedUser)
           }
         } catch (addrErr) {
-          console.warn('Checkout: Không thể tự động lưu địa chỉ vào tài khoản qua API:', addrErr)
+          console.warn('Checkout: Unable to auto-save address to account via API:', addrErr)
         }
       }
 
-      // Đồng bộ vào LocalStorage bằng hàm dùng chung (Single Source of Truth)
-      storeUserOrder(savedOrder || orderPayload)
+      // Tự động trừ tồn kho (Inventory Deduction) cho các sản phẩm đã đặt
+      displayItems.forEach(async (item) => {
+        try {
+          if (item?.id) {
+            const currentStock = typeof item.stock === 'number' ? item.stock : 10
+            const newStock = Math.max(0, currentStock - (Number(item.quantity) || 1))
+            await patchProduct(item.id, {
+              stock: newStock,
+              isSoldOut: newStock === 0,
+            })
+          }
+        } catch (stockErr) {
+          console.warn('Checkout: Unable to deduct product stock:', item?.id, stockErr)
+        }
+      })
+
+      // Đồng bộ từng đơn hàng vào LocalStorage bằng hàm dùng chung (Single Source of Truth)
+      savedOrders.forEach((so) => storeUserOrder(so))
 
       // Xóa các sản phẩm đã được thanh toán khỏi giỏ hàng
       if (removeItemsFromCart && selectedCheckoutItems.length > 0) {
@@ -292,9 +338,14 @@ function CheckoutFormContent({
 
       navigate('/order-success', {
         state: {
-          orderNumber: savedOrder?.orderNumber || generatedOrderNumber,
-          total: savedOrder?.total || orderTotal,
-          orderId: savedOrder?.id,
+          orderNumber: savedOrders.map((o) => o.orderNumber).join(', '),
+          orderNumbers: savedOrders.map((o) => ({
+            orderNumber: o.orderNumber,
+            shopName: o.shopName,
+            total: o.total,
+          })),
+          total: orderTotal,
+          orderId: savedOrders[0]?.id,
         },
       })
     } catch (err) {
@@ -303,7 +354,7 @@ function CheckoutFormContent({
         err?.message
       )
 
-      storeUserOrder(orderPayload)
+      orderPayloads.forEach((payload) => storeUserOrder(payload))
 
       if (removeItemsFromCart && selectedCheckoutItems.length > 0) {
         removeItemsFromCart(selectedCheckoutItems)
@@ -316,14 +367,35 @@ function CheckoutFormContent({
         // ignore
       }
 
+      displayItems.forEach(async (item) => {
+        try {
+          if (item?.id) {
+            const currentStock = typeof item.stock === 'number' ? item.stock : 10
+            const newStock = Math.max(0, currentStock - (Number(item.quantity) || 1))
+            await patchProduct(item.id, {
+              stock: newStock,
+              isSoldOut: newStock === 0,
+            })
+          }
+        } catch {
+          // ignore
+        }
+      })
+
       submittingRef.current = false
       setIsSubmitting(false)
       window.scrollTo({ top: 0, left: 0, behavior: 'instant' })
 
       navigate('/order-success', {
         state: {
-          orderNumber: generatedOrderNumber,
+          orderNumber: orderPayloads.map((o) => o.orderNumber).join(', '),
+          orderNumbers: orderPayloads.map((o) => ({
+            orderNumber: o.orderNumber,
+            shopName: o.shopName,
+            total: o.total,
+          })),
           total: orderTotal,
+          orderId: orderPayloads[0]?.id,
         },
       })
     }
@@ -369,6 +441,7 @@ function CheckoutFormContent({
             formData={formData}
             shippingMethod={shippingMethod}
             paymentMethod={paymentMethod}
+            items={displayItems}
             isSubmitting={isSubmitting}
             onSubmit={handleSubmitOrder}
           />
@@ -400,18 +473,15 @@ export default function Checkout() {
   // Lấy dữ liệu người dùng xác thực từ AuthContext (gọi API)
   const { currentUser, loading: authLoading, updateCurrentUser } = useAuth()
 
-  // Lấy danh sách sản phẩm được tick chọn để thanh toán:
-  // - Ưu tiên 1: Lấy từ state do trang Cart truyền sang (location.state.selectedItems)
-  // - Ưu tiên 2: Lấy từ sessionStorage (nếu người dùng F5 tải lại trang Checkout)
-  // - Ưu tiên 3: Nếu vào trực tiếp mà giỏ có hàng thì lấy toàn bộ cartItems
-  const selectedCheckoutItems = useMemo(() => {
-    if (
-      location.state?.selectedItems &&
-      Array.isArray(location.state.selectedItems) &&
-      location.state.selectedItems.length > 0
-    ) {
-      return location.state.selectedItems
-    }
+  // Lấy danh sách sản phẩm được tick chọn để thanh toán (tính trực tiếp, không memoize thừa)
+  let selectedCheckoutItems = cartItems
+  if (
+    location.state?.selectedItems &&
+    Array.isArray(location.state.selectedItems) &&
+    location.state.selectedItems.length > 0
+  ) {
+    selectedCheckoutItems = location.state.selectedItems
+  } else {
     try {
       const saved = JSON.parse(
         sessionStorage.getItem(COMMERCE_STORAGE_KEYS.CHECKOUT_ITEMS) || '[]'
@@ -426,13 +496,12 @@ export default function Checkout() {
               (c.selectedColor || 'Standard') === (s.selectedColor || 'Standard')
           )
         )
-        if (validItems.length > 0) return validItems
+        if (validItems.length > 0) selectedCheckoutItems = validItems
       }
     } catch {
       // ignore
     }
-    return cartItems
-  }, [location.state, cartItems])
+  }
 
   // Danh sách sản phẩm thực tế cần thanh toán
   const displayItems = selectedCheckoutItems
@@ -494,4 +563,3 @@ export default function Checkout() {
     />
   )
 }
-

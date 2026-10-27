@@ -1,10 +1,24 @@
 import { Link } from 'react-router-dom'
 import { ArrowRight } from 'lucide-react'
+import { useAuth } from '../../contexts/AuthContext'
 
 /**
  * Component BecomeSellerBanner: Khung quảng bá chương trình mở gian hàng người bán (Become A Seller)
+ * - Tự động ẩn hoàn toàn (return null) khi tài khoản đã là Seller (role === 'seller' hoặc có shopId).
  */
 export default function BecomeSellerBanner() {
+  const { currentUser } = useAuth()
+  const isSeller =
+    String(currentUser?.role || '').toLowerCase() === 'seller' ||
+    (Array.isArray(currentUser?.roles) &&
+      currentUser.roles.map((r) => String(r).toLowerCase()).includes('seller')) ||
+    Boolean(currentUser?.shopId)
+
+  // Nếu người dùng đã là người bán -> Biến mất hoàn toàn theo yêu cầu
+  if (isSeller) {
+    return null
+  }
+
   return (
     <section
       aria-label="Become a Seller Promotion"
@@ -36,4 +50,3 @@ export default function BecomeSellerBanner() {
     </section>
   )
 }
-

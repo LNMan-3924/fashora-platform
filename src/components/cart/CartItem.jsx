@@ -52,7 +52,13 @@ export default function CartItem({
         />
         {/* Nhãn đặc biệt nếu có (Ví dụ: LIMITED, SIGNATURE) */}
         {item.badge && (
-          <span className="absolute top-1 left-1 bg-[#111111] text-white text-[8px] font-mono px-1 py-0.5 uppercase tracking-wider">
+          <span
+            className={`absolute top-1 left-1 text-white text-[8px] font-mono px-1 py-0.5 uppercase tracking-wider ${
+              item.badge?.trim().toUpperCase().includes('SALE')
+                ? 'bg-red-600'
+                : 'bg-[#111111]'
+            }`}
+          >
             {item.badge}
           </span>
         )}
@@ -108,8 +114,10 @@ export default function CartItem({
             <button
               type="button"
               aria-label="Increase quantity"
+              disabled={typeof item.stock === 'number' && item.quantity >= item.stock}
               onClick={() => onUpdateQuantity?.(item.quantity + 1)}
-              className="w-8 h-8 flex items-center justify-center font-mono text-sm text-[#111111] hover:bg-neutral-200 transition-colors select-none cursor-pointer"
+              title={typeof item.stock === 'number' && item.quantity >= item.stock ? `Maximum available stock reached (${item.stock})` : 'Increase quantity'}
+              className="w-8 h-8 flex items-center justify-center font-mono text-sm text-[#111111] hover:bg-neutral-200 transition-colors select-none cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
             >
               +
             </button>

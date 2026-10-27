@@ -26,10 +26,10 @@ export default function VietnamAddressSelect({
   onBlur,
   cityError = '',
   wardError = '',
-  cityLabel = 'Tỉnh / Thành phố (34 tỉnh thành) *',
-  wardLabel = 'Phường / Xã *',
-  cityPlaceholder = '-- Chọn Tỉnh / Thành phố --',
-  wardPlaceholder = '-- Chọn Phường / Xã --',
+  cityLabel = 'Province / City (34 provinces) *',
+  wardLabel = 'Ward / Commune *',
+  cityPlaceholder = '-- Select Province / City --',
+  wardPlaceholder = '-- Select Ward / Commune --',
   className = 'grid grid-cols-1 sm:grid-cols-2 gap-3',
 }) {
   const {
@@ -76,9 +76,9 @@ export default function VietnamAddressSelect({
         error={wardError}
         placeholder={
           !selectedProvinceId
-            ? '-- Vui lòng chọn Tỉnh/Thành trước --'
+            ? '-- Please select Province / City first --'
             : isLoadingWards
-            ? 'Đang tải danh sách...'
+            ? 'Loading list...'
             : wardPlaceholder
         }
         options={wardOptions}

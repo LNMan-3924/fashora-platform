@@ -21,9 +21,23 @@ export default function OrderReview({
   formData,
   shippingMethod = 0,
   paymentMethod = 'cod',
+  items = [],
   isSubmitting = false,
   onSubmit,
 }) {
+  // Trích xuất danh sách các Atelier có sản phẩm trong đơn hàng
+  const uniqueShopNames = Array.from(
+    new Set(
+      items.map(
+        (it) =>
+          it.shopName ||
+          (it.shopId === 'shop_l-obscur-atelier_8158'
+            ? "L'OBSCUR ATELIER"
+            : 'M STUDIO')
+      )
+    )
+  )
+  const isMultiShop = uniqueShopNames.length > 1
   // Gộp địa chỉ đầy đủ thành chuỗi ngăn cách bởi dấu phẩy
   const fullAddress =
     [formData.address, formData.ward, formData.district, formData.city]
@@ -91,9 +105,25 @@ export default function OrderReview({
           </p>
           <p className="text-neutral-800 mt-1">
             <span className="text-neutral-400">Atelier: </span>
-            <span className="font-medium text-[#111111]">M STUDIO Certified</span>
+            <span className="font-medium text-[#111111]">
+              {isMultiShop
+                ? `${uniqueShopNames.length} Independent Ateliers`
+                : uniqueShopNames[0] || 'Certified Atelier'}
+            </span>
           </p>
         </div>
+
+        {isMultiShop && (
+          <div className="col-span-1 sm:col-span-2 p-3 bg-neutral-100 border border-neutral-200 text-xs text-neutral-600 space-y-1">
+            <span className="font-semibold text-black uppercase tracking-wider block font-mono text-[10px]">
+              MULTI-ATELIER SPLIT DISPATCH (SHOPEE STYLE)
+            </span>
+            <p className="leading-relaxed">
+              Your order contains items from <strong className="text-black">{uniqueShopNames.join(' & ')}</strong>.
+              Upon confirmation, this order will be split into <strong>{uniqueShopNames.length} independent packages</strong> so each atelier can fulfill and dispatch their items directly to your address.
+            </p>
+          </div>
+        )}
       </div>
 
       {/* Nút bấm ĐẶT HÀNG - Tái sử dụng Button từ common */}

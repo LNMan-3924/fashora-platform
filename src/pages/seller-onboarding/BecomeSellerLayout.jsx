@@ -40,6 +40,12 @@ export default function BecomeSellerLayout() {
       shopLogoName: '',
       shopLogoSize: '',
       shopCategory: 'ALL-IN-ONE FASHION',
+      shopPhone: '',
+      shopAddress: '',
+      shopCity: 'Ho Chi Minh City',
+      bankName: 'Vietcombank',
+      bankAccountNumber: '',
+      bankAccountName: '',
       agreedToTerms: false,
     }
   })
@@ -56,6 +62,12 @@ export default function BecomeSellerLayout() {
       shopLogoName: '',
       shopLogoSize: '',
       shopCategory: 'ALL-IN-ONE FASHION',
+      shopPhone: '',
+      shopAddress: '',
+      shopCity: 'Ho Chi Minh City',
+      bankName: 'Vietcombank',
+      bankAccountNumber: '',
+      bankAccountName: '',
       agreedToTerms: false,
     }
     try {
@@ -102,6 +114,12 @@ export default function BecomeSellerLayout() {
       shopLogoName: '',
       shopLogoSize: '',
       shopCategory: 'ALL-IN-ONE FASHION',
+      shopPhone: '',
+      shopAddress: '',
+      shopCity: 'Ho Chi Minh City',
+      bankName: 'Vietcombank',
+      bankAccountNumber: '',
+      bankAccountName: '',
       agreedToTerms: false,
     })
   }
@@ -121,10 +139,13 @@ export default function BecomeSellerLayout() {
     return <Navigate to="/login" state={{ from: location }} replace />
   }
 
-  // 3. Ngăn chặn đăng ký trùng lặp: Nếu currentUser.shopId đã tồn tại
+  // 3. Ngăn chặn đăng ký trùng lặp: Nếu tài khoản đã là Seller hoặc có shopId
   // Ngoại trừ màn hình /become-seller/success vừa hoàn tất đăng ký xong
   const isSuccessPage = location.pathname.endsWith('/success')
-  if (currentUser?.shopId && !isSuccessPage) {
+  const isSeller =
+    String(currentUser?.role || '').toLowerCase() === 'seller' ||
+    Boolean(currentUser?.shopId)
+  if (isSeller && !isSuccessPage) {
     return <Navigate to="/seller/dashboard" replace />
   }
 

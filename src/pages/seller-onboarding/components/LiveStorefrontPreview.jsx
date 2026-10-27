@@ -1,16 +1,18 @@
-import { Store, CheckCircle2, ExternalLink } from 'lucide-react'
+import { Store, CheckCircle2, ExternalLink, MapPin, Phone } from 'lucide-react'
 
 export default function LiveStorefrontPreview({
   shopName = '',
   shopCategory = 'FASHION & APPAREL',
   shopDescription = '',
   shopLogo = '',
+  shopCity = '',
+  shopPhone = '',
   currentUser,
   showLabel = true,
 }) {
   const cleanName = shopName.trim() || 'YOUR STORE NAME'
   const initial = cleanName.charAt(0).toUpperCase() || 'F'
-  const ownerName = currentUser?.fullName || 'Helena Vance'
+  const ownerName = currentUser?.fullName || 'Valued Designer'
   const slug = cleanName
     .toLowerCase()
     .normalize('NFD')
@@ -87,11 +89,24 @@ export default function LiveStorefrontPreview({
                 <span className="text-neutral-400">OWNER:</span>{' '}
                 <span className="text-neutral-900 font-medium">{ownerName}</span>
               </div>
-              <span className="text-neutral-300">•</span>
-              <div>
-                <span className="text-neutral-400">CURRENCY:</span>{' '}
-                <span className="text-neutral-900 font-medium">VND (₫)</span>
-              </div>
+              {shopCity && (
+                <>
+                  <span className="text-neutral-300">•</span>
+                  <div className="flex items-center gap-1 text-neutral-700">
+                    <MapPin className="w-3 h-3 text-neutral-400" />
+                    <span>{shopCity}</span>
+                  </div>
+                </>
+              )}
+              {shopPhone && (
+                <>
+                  <span className="text-neutral-300">•</span>
+                  <div className="flex items-center gap-1 text-neutral-700">
+                    <Phone className="w-3 h-3 text-neutral-400" />
+                    <span>{shopPhone}</span>
+                  </div>
+                </>
+              )}
               <span className="text-neutral-300">•</span>
               <div className="flex items-center gap-1 text-neutral-700">
                 <ExternalLink className="w-3 h-3 text-neutral-400" />

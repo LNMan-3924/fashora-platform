@@ -34,7 +34,7 @@ export default function OrderQuickModal({
         <div className="px-5 sm:px-6 py-4 border-b border-neutral-200 flex items-center justify-between bg-stone-50">
           <div>
             <span className="text-[10px] tracking-[0.25em] text-neutral-500 uppercase font-mono block">
-              ATELIER SPECIFICATION
+              {order.shopName ? `ATELIER: ${order.shopName}` : 'ATELIER SPECIFICATION'}
             </span>
             <h2 className="text-base sm:text-lg font-bold tracking-tight text-neutral-900 font-mono">
               ORDER: {order.orderNumber}

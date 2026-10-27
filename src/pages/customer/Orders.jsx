@@ -1,5 +1,5 @@
-import { useState, useEffect, useMemo } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { useState, useEffect } from 'react'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { Modal, Toast, EmptyState } from '../../components/common'
 import {
   OrderStatusTabs,
@@ -28,7 +28,23 @@ export default function Orders() {
   const [isLoading, setIsLoading] = useState(() => Boolean(currentUser?.id))
 
   // 2. State quản lý tab lọc trạng thái hiện tại (mặc định 'all')
-  const [activeTab, setActiveTab] = useState('all')
+  const [searchParams, setSearchParams] = useSearchParams()
+  const activeTab = searchParams.get('tab') || 'all'
+
+  const handleTabChange = (newTab) => {
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev)
+        if (!newTab || newTab === 'all') {
+          next.delete('tab')
+        } else {
+          next.set('tab', newTab)
+        }
+        return next
+      },
+      { replace: true }
+    )
+  }
 
   // 3. State quản lý đơn hàng đang mở trong Modal xem nhanh (null = đóng modal)
   const [selectedOrderForModal, setSelectedOrderForModal] = useState(null)
@@ -84,7 +100,7 @@ export default function Orders() {
         setIsLoading(false)
       })
       .catch((err) => {
-        console.error('Orders: Lỗi tải đơn hàng từ API:', err)
+        console.error('Orders: Error loading orders from API:', err)
         if (isMounted) {
           setOrders([])
           setIsLoading(false)
@@ -98,43 +114,39 @@ export default function Orders() {
 
   // =========================================================================
   // BƯỚC 2: TÍNH TOÁN SỐ LƯỢNG ĐƠN HÀNG THEO TỪNG TAB TRẠNG THÁI
+  // Tính trực tiếp, tránh lạm dụng useMemo gây tốn bộ nhớ RAM không cần thiết
   // =========================================================================
-  const statusCounts = useMemo(() => {
-    const counts = {
-      all: orders.length,
-      pending: 0,
-      confirmed: 0,
-      shipping: 0,
-      completed: 0,
-      cancelled: 0,
-    }
+  const statusCounts = {
+    all: orders.length,
+    pending: 0,
+    confirmed: 0,
+    shipping: 0,
+    completed: 0,
+    cancelled: 0,
+  }
 
-    orders.forEach((order) => {
-      const statusKey = (order.status || 'PENDING').toLowerCase()
-      if (statusKey === 'pending') counts.pending += 1
-      else if (statusKey === 'confirmed' || statusKey === 'processing') counts.confirmed += 1
-      else if (statusKey === 'shipping') counts.shipping += 1
-      else if (statusKey === 'completed') counts.completed += 1
-      else if (statusKey === 'cancelled') counts.cancelled += 1
-    })
-
-    return counts
-  }, [orders])
+  orders.forEach((order) => {
+    const statusKey = (order.status || 'PENDING').toLowerCase()
+    if (statusKey === 'pending') statusCounts.pending += 1
+    else if (statusKey === 'confirmed' || statusKey === 'processing') statusCounts.confirmed += 1
+    else if (statusKey === 'shipping') statusCounts.shipping += 1
+    else if (statusKey === 'completed') statusCounts.completed += 1
+    else if (statusKey === 'cancelled') statusCounts.cancelled += 1
+  })
 
   // =========================================================================
   // BƯỚC 3: LỌC DANH SÁCH ĐƠN HÀNG THEO TAB ĐANG CHỌN
   // =========================================================================
-  const filteredOrders = useMemo(() => {
-    if (activeTab === 'all') return orders
-
-    return orders.filter((order) => {
-      const statusKey = (order.status || 'PENDING').toLowerCase()
-      if (activeTab === 'confirmed') {
-        return statusKey === 'confirmed' || statusKey === 'processing'
-      }
-      return statusKey === activeTab
-    })
-  }, [orders, activeTab])
+  const filteredOrders =
+    activeTab === 'all'
+      ? orders
+      : orders.filter((order) => {
+          const statusKey = (order.status || 'PENDING').toLowerCase()
+          if (activeTab === 'confirmed') {
+            return statusKey === 'confirmed' || statusKey === 'processing'
+          }
+          return statusKey === activeTab
+        })
 
   // =========================================================================
   // BƯỚC 4: CÁC HÀM XỬ LÝ TIỆN ÍCH & TƯƠNG TÁC
@@ -176,7 +188,7 @@ export default function Orders() {
       setOrderToCancel(null)
       showToast(`Order ${targetOrderNumber} has been cancelled.`)
     } catch (err) {
-      console.error('Orders: Lỗi hủy đơn hàng qua API:', err)
+      console.error('Orders: Error cancelling order via API:', err)
       showToast('Failed to cancel order. Please try again.')
     }
   }
@@ -212,7 +224,7 @@ export default function Orders() {
       {/* 2. CÁC TAB LỌC TRẠNG THÁI ĐƠN HÀNG (TÁCH THÀNH COMPONENT NHỎ) */}
       <OrderStatusTabs
         activeTab={activeTab}
-        onTabChange={setActiveTab}
+        onTabChange={handleTabChange}
         counts={statusCounts}
       />
 

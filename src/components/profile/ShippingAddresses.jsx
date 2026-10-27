@@ -124,7 +124,7 @@ export default function ShippingAddresses({
 
                   {/* Chi tiết địa chỉ 4 cấp */}
                   <div className="text-xs text-[#444444] leading-relaxed space-y-0.5">
-                    <p className="font-medium text-black">{addr.street || addr.address}</p>
+                    <p className="font-medium text-black">{addr.address || addr.street}</p>
                     <p>
                       {[addr.ward, addr.district].filter(Boolean).join(', ')}
                     </p>

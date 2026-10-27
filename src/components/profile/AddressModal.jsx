@@ -5,14 +5,16 @@ import { validateField, validateAddressOnly } from '../../utils/validation'
 
 /**
  * Component AddressModalContent: Form nhập thông tin địa chỉ giao hàng
- * Yêu cầu: CHỈ YÊU CẦU NHẬP ĐỊA CHỈ (Street, Ward, City theo chuẩn 34 đơn vị hành chính mới).
+ * Yêu cầu: CHỈ YÊU CẦU NHẬP ĐỊA CHỈ (Address, Ward, City theo chuẩn 34 đơn vị hành chính mới).
  * Được gắn key={addressData?.id || 'new'} từ component cha để tự khởi tạo state sạch sẽ.
  */
 function AddressModalContent({ addressData, onClose, onSave }) {
   const isEdit = Boolean(addressData?.id)
 
   const [formData, setFormData] = useState(() => ({
-    street: addressData?.street || addressData?.address || '',
+    name: addressData?.name || addressData?.fullName || '',
+    phone: addressData?.phone || addressData?.phoneNumber || '',
+    address: addressData?.address || addressData?.street || '',
     ward: addressData?.ward || '',
     district: addressData?.district || '',
     city: addressData?.city || '',
@@ -73,10 +75,14 @@ function AddressModalContent({ addressData, onClose, onSave }) {
       return
     }
 
+    const cleanBase = { ...(addressData || {}) }
+    delete cleanBase.street
+
     onSave?.({
-      ...(addressData || {}),
-      street: formData.street.trim(),
-      address: formData.street.trim(),
+      ...cleanBase,
+      name: (formData.name || '').trim(),
+      phone: (formData.phone || '').trim(),
+      address: (formData.address || '').trim(),
       ward: (formData.ward || '').trim(),
       district: (formData.district || '').trim(),
       city: (formData.city || '').trim(),
@@ -112,14 +118,34 @@ function AddressModalContent({ addressData, onClose, onSave }) {
         onSubmit={handleSubmit}
         className="overflow-y-auto p-6 md:p-8 flex flex-col gap-4 text-left flex-1"
       >
+        {/* Tùy chọn Tên & Số điện thoại người nhận */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <Input
+            label="RECIPIENT NAME (OPTIONAL)"
+            name="name"
+            value={formData.name}
+            onChange={handleChange}
+            placeholder="Defaults to profile name"
+          />
+          <Input
+            label="RECIPIENT PHONE (OPTIONAL)"
+            name="phone"
+            value={formData.phone}
+            onChange={handleChange}
+            onBlur={handleBlur}
+            error={errors.phone}
+            placeholder="Defaults to profile phone"
+          />
+        </div>
+
         <div>
           <Input
             label="HOUSE NUMBER / STREET *"
-            name="street"
-            value={formData.street}
+            name="address"
+            value={formData.address}
             onChange={handleChange}
             onBlur={handleBlur}
-            error={errors.street}
+            error={errors.address}
             placeholder="e.g. 128 Le Duan Boulevard"
           />
         </div>
@@ -180,7 +206,7 @@ function AddressModalContent({ addressData, onClose, onSave }) {
 
 /**
  * Component AddressModal: Cửa sổ thêm mới hoặc chỉnh sửa địa chỉ giao hàng
- * Chỉ yêu cầu nhập địa chỉ (Street, Ward, District, City).
+ * Chỉ yêu cầu nhập địa chỉ (Address, Ward, District, City).
  */
 export default function AddressModal({
   isOpen,

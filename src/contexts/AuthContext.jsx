@@ -6,7 +6,7 @@ const AuthContext = createContext(null)
 export function AuthProvider({ children }) {
   const [currentUser, setCurrentUser] = useState(null)
   
-  // Khởi tạo loading dựa trên sự tồn tại của token/id để không cần gọi setState đồng bộ trong effect
+  // Khởi tạo loading: Nếu có currentUserId trong localStorage thì cần tải dữ liệu trước khi xác thực hoàn tất
   const [loading, setLoading] = useState(() => {
     return Boolean(localStorage.getItem('currentUserId'))
   })
@@ -19,12 +19,18 @@ export function AuthProvider({ children }) {
 
     getCurrentUser(savedUserId)
       .then((user) => {
-        if (isMounted && user) {
-          setCurrentUser(user)
+        if (isMounted) {
+          if (user) {
+            setCurrentUser(user)
+          } else {
+            // Trường hợp ID trong localStorage không còn tồn tại trong database
+            localStorage.removeItem('currentUserId')
+            setCurrentUser(null)
+          }
         }
       })
       .catch((err) => {
-        console.warn('AuthContext: Phiên đăng nhập hết hạn hoặc không tìm thấy user:', err)
+        console.warn('AuthContext: Session expired or user not found:', err)
         localStorage.removeItem('currentUserId')
         if (isMounted) {
           setCurrentUser(null)
@@ -42,12 +48,15 @@ export function AuthProvider({ children }) {
   }, [])
 
   const loginUser = (user) => {
-    localStorage.setItem('currentUserId', user.id)
-    setCurrentUser(user)
+    if (user?.id) {
+      localStorage.setItem('currentUserId', user.id)
+      setCurrentUser(user)
+    }
   }
 
   const logoutUser = () => {
     localStorage.removeItem('currentUserId')
+    localStorage.removeItem('fashora_current_shop')
     try {
       Object.keys(sessionStorage).forEach((key) => {
         if (key.startsWith('fashora_seller_onboarding_draft')) {
@@ -76,9 +85,14 @@ export function AuthProvider({ children }) {
       const user = await getCurrentUser(savedUserId)
       if (user) {
         setCurrentUser(user)
+      } else {
+        localStorage.removeItem('currentUserId')
+        setCurrentUser(null)
       }
       return user
     } catch {
+      localStorage.removeItem('currentUserId')
+      setCurrentUser(null)
       return null
     }
   }

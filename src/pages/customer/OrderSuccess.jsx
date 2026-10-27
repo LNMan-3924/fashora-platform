@@ -40,7 +40,8 @@ export default function OrderSuccess() {
   // 4. CHẶN TRUY CẬP TRỰC TIẾP QUA URL:
   // Trang này chỉ hiển thị khi vừa hoàn tất thanh toán từ Checkout (có location.state.orderNumber)
   const orderNumber = location.state?.orderNumber
-  if (!orderNumber) {
+  const orderNumbers = location.state?.orderNumbers
+  if (!orderNumber && (!orderNumbers || orderNumbers.length === 0)) {
     return <Navigate to="/orders" replace />
   }
 
@@ -56,11 +57,12 @@ export default function OrderSuccess() {
   /**
    * Xử lý sao chép mã đơn hàng vào bộ nhớ tạm (Clipboard)
    */
-  const handleCopyOrderNumber = () => {
+  const handleCopyOrderNumber = (customText) => {
+    const textToCopy = customText || orderNumber
     if (navigator?.clipboard?.writeText) {
-      navigator.clipboard.writeText(orderNumber).catch(() => { })
+      navigator.clipboard.writeText(textToCopy).catch(() => { })
     }
-    showToast('Order number copied')
+    showToast(`Order ${textToCopy} copied`)
   }
 
   /**
@@ -109,18 +111,59 @@ export default function OrderSuccess() {
           </div>
 
           {/* Mã đơn hàng kèm nút tiện ích sao chép mã */}
-          <div className="inline-flex items-center justify-center space-x-2 text-sm sm:text-base font-bold tracking-wider text-[#111111] mb-4">
-            <span className="font-mono">{orderNumber}</span>
-            <button
-              type="button"
-              onClick={handleCopyOrderNumber}
-              aria-label="Copy order number"
-              title="Copy order number"
-              className="p-1 text-[#666666] hover:text-[#111111] transition-colors cursor-pointer inline-flex items-center justify-center"
-            >
-              <Copy className="w-4 h-4" />
-            </button>
-          </div>
+          {Array.isArray(orderNumbers) && orderNumbers.length > 1 ? (
+            <div className="space-y-2.5 mb-5 text-left border-y border-[#E5E5E5]/70 py-3.5">
+              <div className="text-[10px] text-center uppercase tracking-widest font-mono text-[#666666] mb-1">
+                SPLIT ACROSS {orderNumbers.length} ATELIERS
+              </div>
+              <div className="space-y-2">
+                {orderNumbers.map((ord) => (
+                  <div
+                    key={ord.orderNumber}
+                    className="flex items-center justify-between p-3 bg-white border border-[#E5E5E5]"
+                  >
+                    <div>
+                      <span className="font-bold text-xs uppercase tracking-wider text-[#111111] block">
+                        {ord.shopName}
+                      </span>
+                      <span className="font-mono text-xs text-[#666666]">
+                        {ord.orderNumber}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      {ord.total && (
+                        <span className="font-mono text-xs font-semibold text-[#111111]">
+                          {formatVND(ord.total)}
+                        </span>
+                      )}
+                      <button
+                        type="button"
+                        onClick={() => handleCopyOrderNumber(ord.orderNumber)}
+                        aria-label="Copy order number"
+                        title="Copy order number"
+                        className="p-1 text-[#666666] hover:text-[#111111] transition-colors cursor-pointer"
+                      >
+                        <Copy className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <div className="inline-flex items-center justify-center space-x-2 text-sm sm:text-base font-bold tracking-wider text-[#111111] mb-4">
+              <span className="font-mono">{orderNumber}</span>
+              <button
+                type="button"
+                onClick={() => handleCopyOrderNumber(orderNumber)}
+                aria-label="Copy order number"
+                title="Copy order number"
+                className="p-1 text-[#666666] hover:text-[#111111] transition-colors cursor-pointer inline-flex items-center justify-center"
+              >
+                <Copy className="w-4 h-4" />
+              </button>
+            </div>
+          )}
 
           {/* Tổng tiền đơn hàng */}
           <div className="flex flex-col items-center justify-center pt-2 border-t border-[#E5E5E5]/60">
