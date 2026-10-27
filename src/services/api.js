@@ -102,21 +102,24 @@ export const updateOrderStatus = (id, status, extraData = {}) =>
  */
 export const fetchOrderByIdOrNumber = async (id) => {
   if (!id) return null;
+  const rawId = String(id).trim();
+
+  // 1. Thử tìm trực tiếp theo ID khóa chính
   try {
-    const res = await getOrderById(id);
-    if (res?.data) return res.data;
-    if (res && res.id) return res;
+    const res = await getOrderById(rawId);
+    const data = res?.data || res;
+    if (data?.id) return data;
   } catch {
-    // ID kỹ thuật không khớp, tiếp tục thử tra cứu qua orderNumber
+    // Không tìm thấy theo ID khóa chính, chuyển sang tìm theo orderNumber
   }
 
-  // Ưu tiên truy vấn trực tiếp server-side theo orderNumber thay vì tải toàn bộ orders
-  try {
-    const rawNumber = String(id).trim();
-    const cleanId = rawNumber.replace('#', '').trim();
-    const queries = [rawNumber, `#${cleanId}`, cleanId];
+  // Chuẩn bị các biến thể không trùng lặp (chỉ tối đa 2 giá trị: có # và không có #)
+  const cleanId = rawId.replace(/^#+/, '').trim();
+  const searchCandidates = Array.from(new Set([rawId, `#${cleanId}`, cleanId]));
 
-    for (const q of queries) {
+  // 2. Thử truy vấn qua query params theo orderNumber
+  try {
+    for (const q of searchCandidates) {
       const qRes = await api.get('/orders', { params: { orderNumber: q } });
       const foundList = qRes?.data || [];
       if (Array.isArray(foundList) && foundList.length > 0) {
@@ -124,19 +127,21 @@ export const fetchOrderByIdOrNumber = async (id) => {
       }
     }
   } catch {
-    // Dự phòng tìm kiếm qua danh sách orders nếu query param thất bại
+    // Query param lỗi hoặc timeout, chuyển sang phương án vét cạn
   }
 
+  // 3. Phương án vét cạn cuối cùng: Tải danh sách và tìm trên client
   try {
     const allRes = await getOrders();
     const allOrders = allRes?.data || allRes || [];
-    const cleanId = String(id).replace('#', '').trim();
+    if (!Array.isArray(allOrders)) return null;
+
     return (
-      allOrders.find(
-        (o) =>
-          String(o.id) === String(id) ||
-          String(o.orderNumber || '').replace('#', '').trim() === cleanId
-      ) || null
+      allOrders.find((o) => {
+        const orderIdStr = String(o?.id || '').trim();
+        const orderNumClean = String(o?.orderNumber || '').replace(/^#+/, '').trim();
+        return orderIdStr === rawId || orderNumClean === cleanId;
+      }) || null
     );
   } catch (err) {
     console.warn('api.js fetchOrderByIdOrNumber error:', err);
@@ -150,21 +155,30 @@ export default api;
  * Lấy thông tin tài khoản người dùng theo ID từ db.json (JSON-Server port 5000)
  */
 export const getCurrentUser = async (userId) => {
+  // 1. Chặn ngay từ đầu nếu không truyền userId hợp lệ
+  if (!userId) return null;
+
   try {
+    // Ưu tiên 1: Lấy trực tiếp theo route chuẩn /users/:id
     const res = await getUserById(userId);
-    return res.data || null;
+    return res?.data || res || null;
   } catch {
     try {
+      // Ưu tiên 2: Fallback qua query params /users?id=...
       const qRes = await api.get('/users', { params: { id: userId } });
       const users = qRes?.data || [];
       if (Array.isArray(users) && users.length > 0) {
         return users[0];
       }
+
+      // Ưu tiên 3: Vét cạn (ép kiểu String để tránh lỗi so sánh chuỗi/số)
       const allRes = await getUsers();
-      const allUsers = allRes.data || [];
-      return allUsers.find((u) => u.id === userId) || null;
+      const allUsers = allRes?.data || allRes || [];
+      return (
+        allUsers.find((u) => String(u?.id) === String(userId)) || null
+      );
     } catch (error) {
-      console.warn('api.js getCurrentUser error:', error);
+      console.warn('api.js getCurrentUser fallback failed:', error);
       return null;
     }
   }

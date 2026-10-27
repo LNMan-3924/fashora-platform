@@ -70,11 +70,12 @@ export function useVietnamLocations(selectedCity = '', selectedWard = '') {
 
   // 5. Danh sách options cho Select Phường/Xã (kèm fallback giữ lại giá trị cũ nếu chưa có trong danh mục mới)
   const wardOptions = useMemo(() => {
-    const list = wards.map((w) => ({
+    const list = (wards || []).map((w) => ({
       value: w.name,
       label: w.name,
     }))
-    if (selectedWard && !list.some((opt) => opt.value === selectedWard)) {
+    const trimmedSelected = selectedWard?.trim().toLowerCase()
+    if (trimmedSelected && !list.some((opt) => opt.value.trim().toLowerCase() === trimmedSelected)) {
       list.unshift({
         value: selectedWard,
         label: `${selectedWard} (Đã lưu)`,
