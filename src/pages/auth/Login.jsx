@@ -1,9 +1,8 @@
 import { useState, useEffect } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext'
-import { getUsers } from '../../services/api'
 import { Toast } from '../../components/common'
-import { getUserByEmail, getUserByPhone, getUsers } from '../../services/api'
+import { getUsers } from '../../services/api'
 
 export default function Login() {
   const navigate = useNavigate()

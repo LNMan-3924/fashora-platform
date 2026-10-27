@@ -290,7 +290,7 @@ export default function Cart() {
               <CartShopGroup
                 key={group.shopId}
                 shopName={group.shopName}
-                shopSlug={group.items[0]?.shopSlug || toShopSlug(shopName) || group.shopId.replace(/^shop_/, '') || 'fashora'}
+                shopSlug={group.items[0]?.shopSlug || toShopSlug(group.shopName) || group.shopId?.replace(/^shop_/, '') || 'fashora'}
                 items={group.items}
                 selectedItemIds={activeSelectedKeys}
                 onToggleShopSelect={handleToggleShop}

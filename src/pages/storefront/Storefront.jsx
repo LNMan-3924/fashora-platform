@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react'
 import { useParams, Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { safeBack } from '../../utils'
-import { Store, MapPin, Phone, CheckCircle2, AlertTriangle, ArrowLeft, Search, Layers } from 'lucide-react'
+import { Store, MapPin, Phone, CheckCircle2, AlertTriangle, ArrowLeft, Search, Layers, Check, Plus } from 'lucide-react'
+import { Toast } from '../../components/common'
+import { useFollowShop } from '../../hooks/useFollowShop'
 import { getShops, getProductsByShop, getProducts } from '../../services/api'
 import { formatVND, handleImageError, FALLBACK_IMAGE, toShopSlug } from '../../constants/commerce'
 import { useAuth } from '../../contexts/AuthContext'
@@ -16,6 +18,10 @@ export default function Storefront() {
   const [products, setProducts] = useState([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState(null)
+  const [toastMessage, setToastMessage] = useState('')
+
+  // Hook quản lý trạng thái theo dõi gian hàng
+  const { isFollowing, toggleFollow, isUpdating: isFollowUpdating } = useFollowShop()
 
   const ITEMS_PER_PAGE = 16
 
@@ -181,6 +187,22 @@ export default function Storefront() {
 
   const isPaused = (shop.status || '').toUpperCase() === 'PAUSED'
   const isOwner = currentUser && (currentUser.shopId === shop.id || currentUser.id === shop.ownerId)
+  const isShopFollowed = Boolean(shop && isFollowing(shop.id || shop.slug))
+
+  const handleFollowToggle = async () => {
+    if (isOwner) {
+      setToastMessage('Đây là gian hàng atelier của chính bạn.')
+      return
+    }
+    const res = await toggleFollow(shop)
+    if (res.success) {
+      setToastMessage(
+        res.isNowFollowing
+          ? `Đã theo dõi gian hàng ${shop?.name || ''} thành công!`
+          : `Đã hủy theo dõi gian hàng ${shop?.name || ''}.`
+      )
+    }
+  }
   const isFromSellerCenter = Boolean(
     location.state?.from &&
     (location.state.from.startsWith('/seller') || isOwner)
@@ -380,6 +402,40 @@ export default function Storefront() {
 
             {/* Right: Quick Actions */}
             <div className="flex flex-row md:flex-col items-center md:items-end gap-3 shrink-0">
+              {/* Nút Theo dõi Gian hàng (Follow / Following) */}
+              {!isOwner ? (
+                <button
+                  type="button"
+                  onClick={handleFollowToggle}
+                  disabled={isFollowUpdating}
+                  className={`px-4 py-2.5 text-xs font-mono uppercase tracking-wider transition-all inline-flex items-center gap-2 cursor-pointer shadow-sm ${
+                    isShopFollowed
+                      ? hasCover
+                        ? 'bg-white/20 hover:bg-white/30 text-white border border-white/50 backdrop-blur-sm'
+                        : 'bg-neutral-100 hover:bg-neutral-200 text-black border border-neutral-300'
+                      : hasCover
+                      ? 'bg-white text-black hover:bg-neutral-200 font-semibold'
+                      : 'bg-black text-white hover:bg-neutral-800 font-semibold'
+                  }`}
+                  title={isShopFollowed ? 'Bấm để hủy theo dõi' : 'Bấm để theo dõi gian hàng này'}
+                >
+                  {isShopFollowed ? (
+                    <>
+                      <Check className="w-3.5 h-3.5" />
+                      <span>FOLLOWING</span>
+                    </>
+                  ) : (
+                    <>
+                      <Plus className="w-3.5 h-3.5" />
+                      <span>FOLLOW SHOP</span>
+                    </>
+                  )}
+                </button>
+              ) : (
+                <span className="px-3.5 py-2 text-[11px] font-mono uppercase tracking-wider text-emerald-300 bg-emerald-950/60 border border-emerald-800/80 rounded-[2px] font-semibold">
+                  YOUR ATELIER
+                </span>
+              )}
               {isFromSellerCenter && (
                 <button
                   type="button"
@@ -592,6 +648,13 @@ export default function Storefront() {
           </div>
         )}
       </section>
+
+      {/* Thông báo Toast dùng chung */}
+      <Toast
+        isVisible={Boolean(toastMessage)}
+        message={toastMessage}
+        onClose={() => setToastMessage('')}
+      />
     </div>
   )
 }

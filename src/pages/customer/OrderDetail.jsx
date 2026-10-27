@@ -86,55 +86,6 @@ export default function OrderDetail() {
       }
     }
 
-    // 1. Gọi API lấy đơn hàng theo ID
-    getOrderById(id)
-      .then((res) => {
-        if (!isMounted) return
-        const data = res?.data || res
-        if (handleOrderData(data)) {
-          return
-        }
-        return getOrders()
-      })
-      .then((res) => {
-        if (!isMounted || !res) return
-        const list = res?.data || res
-        if (Array.isArray(list)) {
-          const found = list.find((o) => o.id === id || o.orderNumber === id)
-          if (handleOrderData(found)) {
-            return
-          }
-        }
-        setOrder(null)
-        setNotFound(true)
-        setLoading(false)
-      })
-      .catch(() => {
-        if (!isMounted) return
-        // Khi getOrderById lỗi (ví dụ id là mã đơn #SPXVN...), fallback tìm qua getOrders()
-        getOrders()
-          .then((res) => {
-            if (!isMounted) return
-            const list = res?.data || res
-            if (Array.isArray(list)) {
-              const found = list.find((o) => o.id === id || o.orderNumber === id)
-              if (handleOrderData(found)) {
-                return
-              }
-            }
-            setOrder(null)
-            setNotFound(true)
-            setLoading(false)
-          })
-          .catch((finalErr) => {
-            console.error('OrderDetail: Error loading order from API:', finalErr)
-            if (isMounted) {
-              setOrder(null)
-              setNotFound(true)
-              setLoading(false)
-            }
-          })
-      })
     loadOrder()
 
     return () => {

@@ -204,6 +204,13 @@ function Header({ hideNav = false }) {
                                             >
                                                 MY ORDERS
                                             </Link>
+                                            <Link
+                                                to="/following"
+                                                onClick={() => setAccountMenuOpen(false)}
+                                                className="block px-4 py-2 font-mono uppercase text-[11px] tracking-wider text-neutral-300 hover:text-white hover:bg-neutral-800 transition-colors"
+                                            >
+                                                FOLLOWING SHOPS
+                                            </Link>
                                             {currentUser?.shopId ? (
                                                 <Link
                                                     to="/seller/dashboard"
@@ -399,6 +406,41 @@ function Header({ hideNav = false }) {
                             >
                                 ALL
                             </NavLink>
+                            {isAuthenticated && (
+                                <>
+                                    <div className="my-2 border-t border-neutral-800" />
+                                    <NavLink
+                                        to="/profile"
+                                        onClick={() => setIsMobileMenuOpen(false)}
+                                        className={({ isActive }) =>
+                                            `text-[11px] tracking-[0.22em] uppercase transition-colors ${isActive ? 'text-white font-semibold' : 'text-neutral-300 hover:text-white font-medium'
+                                            }`
+                                        }
+                                    >
+                                        PROFILE
+                                    </NavLink>
+                                    <NavLink
+                                        to="/orders"
+                                        onClick={() => setIsMobileMenuOpen(false)}
+                                        className={({ isActive }) =>
+                                            `text-[11px] tracking-[0.22em] uppercase transition-colors ${isActive ? 'text-white font-semibold' : 'text-neutral-300 hover:text-white font-medium'
+                                            }`
+                                        }
+                                    >
+                                        MY ORDERS
+                                    </NavLink>
+                                    <NavLink
+                                        to="/following"
+                                        onClick={() => setIsMobileMenuOpen(false)}
+                                        className={({ isActive }) =>
+                                            `text-[11px] tracking-[0.22em] uppercase transition-colors ${isActive ? 'text-white font-semibold' : 'text-neutral-300 hover:text-white font-medium'
+                                            }`
+                                        }
+                                    >
+                                        FOLLOWING SHOPS
+                                    </NavLink>
+                                </>
+                            )}
                         </nav>
                     </aside>
                 </div>,

@@ -1833,7 +1833,11 @@
       "createdAt": "2026-10-16T11:14:32.492Z",
       "avatarUrl": "/images/avatars/avatar-1792732140230.jpg",
       "name": "Nguyen Thien An",
-      "phone": "0912345678"
+      "phone": "0912345678",
+      "followingShops": [
+        "shop_enire_5038",
+        "bmiQJ7v54aY"
+      ]
     },
     {
       "id": "UtJushvds_M",

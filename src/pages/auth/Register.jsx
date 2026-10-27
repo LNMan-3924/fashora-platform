@@ -148,18 +148,17 @@ export default function Register() {
     setIsLoading(true)
 
     try {
-      // Kiểm tra trùng lặp email và số điện thoại trong db.json
-      const checkRes = await getUsers()
-      const existingUsers = Array.isArray(checkRes?.data) ? checkRes.data : []
+      // Tối ưu hiệu năng: Kiểm tra trùng lặp email và số điện thoại trực tiếp qua server query params
       const cleanPhone = formData.phoneNumber.trim().replace(/\s+/g, '')
       const cleanEmail = formData.email.trim().toLowerCase()
 
-      const emailExists = existingUsers.some(
-        (u) => u.email && u.email.toLowerCase() === cleanEmail
-      )
-      const phoneExists = existingUsers.some(
-        (u) => u.phoneNumber && u.phoneNumber.replace(/\s+/g, '') === cleanPhone
-      )
+      const [emailRes, phoneRes] = await Promise.all([
+        getUserByEmail(cleanEmail),
+        getUserByPhone(cleanPhone),
+      ])
+
+      const emailExists = Array.isArray(emailRes?.data) && emailRes.data.length > 0
+      const phoneExists = Array.isArray(phoneRes?.data) && phoneRes.data.length > 0
 
       if (emailExists || phoneExists) {
         const duplicateErrors = {}

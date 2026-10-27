@@ -25,6 +25,7 @@ import OrderSuccess from '../pages/customer/OrderSuccess'
 import Orders from '../pages/customer/Orders'
 import OrderDetail from '../pages/customer/OrderDetail'
 import Profile from '../pages/customer/Profile'
+import FollowingShops from '../pages/customer/FollowingShops'
 import PolicyPage from '../pages/customer/PolicyPage'
 
 // 3. Seller Onboarding Pages (Luồng 4 bước Become A Seller)
@@ -124,6 +125,17 @@ export default function AppRoutes() {
                 </AuthGuard>
               }
             />
+
+            {/* Các Gian Hàng Đang Theo Dõi (Yêu cầu đăng nhập trước) */}
+            <Route
+              path="/following"
+              element={
+                <AuthGuard>
+                  <FollowingShops />
+                </AuthGuard>
+              }
+            />
+            <Route path="/following-shops" element={<Navigate to="/following" replace />} />
 
             {/* Quy trình đăng ký mở Shop (Yêu cầu đăng nhập tài khoản trước) */}
             <Route
