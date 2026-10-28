@@ -198,36 +198,19 @@ export const useCartStore = create(
       storage: createJSONStorage(() => localStorage),
       onRehydrateStorage: () => (state) => {
         if (state && Array.isArray(state.cartItems)) {
-          // Tự động dọn dẹp các món hàng rác/lỗi (không có tên hoặc giá rỗng)
-          state.cartItems = state.cartItems.filter(
-            (item) => item && item.name && item.name.trim() !== ''
+          const validItems = state.cartItems.filter(
+            (item) => item && typeof item.name === 'string' && item.name.trim() !== ''
           );
+
+          // Chỉ cập nhật lại nếu phát hiện có item rác bị loại bỏ
+          if (validItems.length !== state.cartItems.length) {
+            state.cartItems = validItems;
+          }
         }
       },
     }
   )
 );
-
-// Tự động dọn dẹp dữ liệu giỏ hàng bị lỗi trong localStorage (nếu có từ phiên trước)
-if (typeof window !== 'undefined' && window.localStorage) {
-  try {
-    const rawCart = localStorage.getItem('fashora-cart-storage');
-    if (rawCart) {
-      const parsed = JSON.parse(rawCart);
-      if (parsed?.state?.cartItems && Array.isArray(parsed.state.cartItems)) {
-        const validItems = parsed.state.cartItems.filter(
-          (item) => item && item.name && item.name.trim() !== ''
-        );
-        if (validItems.length !== parsed.state.cartItems.length) {
-          parsed.state.cartItems = validItems;
-          localStorage.setItem('fashora-cart-storage', JSON.stringify(parsed));
-        }
-      }
-    }
-  } catch {
-    // ignore
-  }
-}
 
 
 /* ==========================================================================
