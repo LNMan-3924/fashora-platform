@@ -419,20 +419,20 @@ export default function Storefront() {
       </section>
 
       {/* 3. Catalog Section */}
-      <section id="storefront-catalog-section" className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16 py-10">
+      <section id="storefront-catalog-section" className="max-w-[1560px] mx-auto px-6 sm:px-10 lg:px-16 py-10">
         {/* Filters & Search Bar */}
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 pb-6 border-b border-neutral-200">
-          {/* Categories Tab */}
-          <div className="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
+          {/* Categories Tab (Text + Underline chuẩn Design System 5.5) */}
+          <div className="flex items-center space-x-6 sm:space-x-8 overflow-x-auto pb-1 sm:pb-0 scrollbar-none -mb-px">
             {categories.map((cat) => (
               <button
                 key={cat}
                 type="button"
                 onClick={() => handleCategorySelect(cat)}
-                className={`px-3 py-1.5 text-xs font-mono uppercase tracking-wider border rounded-[2px] transition-colors whitespace-nowrap cursor-pointer ${
+                className={`pb-2.5 text-xs font-mono uppercase tracking-wider border-b-2 transition-all whitespace-nowrap cursor-pointer ${
                   selectedCategory === cat
-                    ? 'bg-black text-white border-black font-bold'
-                    : 'bg-white text-neutral-600 border-neutral-200 hover:border-black'
+                    ? 'border-black text-black font-bold'
+                    : 'border-transparent text-neutral-500 hover:text-black hover:border-neutral-300'
                 }`}
               >
                 {cat}

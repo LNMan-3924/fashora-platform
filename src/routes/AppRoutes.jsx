@@ -18,6 +18,7 @@ import Home from '../pages/customer/Home'
 import Explore from '../pages/customer/Explore'
 import StoryDetail from '../pages/customer/StoryDetail'
 import Shop from '../pages/customer/Shop'
+import BestSeller from '../pages/customer/BestSeller'
 import ProductDetail from '../pages/customer/ProductDetail'
 import Cart from '../pages/customer/Cart'
 import Checkout from '../pages/customer/Checkout'
@@ -68,6 +69,7 @@ export default function AppRoutes() {
             <Route path="/explore" element={<Explore />} />
             <Route path="/explore/story/:id" element={<StoryDetail />} />
             <Route path="/shop" element={<Shop />} />
+            <Route path="/best-seller" element={<BestSeller />} />
             <Route path="/product/:id" element={<ProductDetail />} />
             <Route path="/products/:id" element={<ProductDetail />} />
             <Route path="/cart" element={<Cart />} />
