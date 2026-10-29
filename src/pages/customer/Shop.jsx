@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams, Navigate } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import { getProducts, getShops } from '../../services/api';
 import ProductGrid from '../../components/product/ProductGrid';
@@ -228,44 +228,53 @@ export function Shop() {
     setSearchParams({}, { replace: true });
   };
 
+
+
+
+  if (searchParams.get('tag') === 'best-seller') {
+    return <Navigate to="/best-seller" replace />;
+  }
+
   return (
     <div className="w-full">
       {/* 1. Breadcrumb */}
-      <nav className="text-[11px] font-medium tracking-wider text-neutral-400 uppercase">
+      <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-[11px] font-mono tracking-widest text-neutral-400 uppercase mb-4">
         <Link to="/home" className="hover:text-black transition-colors">HOME</Link>
-        <span className="mx-2">/</span>
-        <span className="text-neutral-900">{selectedCategory}</span>
+        <span>/</span>
+        <span className="text-black font-semibold">{selectedCategory === 'ALL' ? 'ALL PRODUCTS' : selectedCategory}</span>
       </nav>
 
       {/* 2. Tiêu đề trang */}
-      <div className="mt-4">
-        <h1 className="text-3xl font-extrabold tracking-tight uppercase text-neutral-900">
+      <div className="mt-4 max-w-2xl">
+        <h1 className="text-3xl sm:text-5xl font-black uppercase tracking-tight text-neutral-950 leading-none">
           ALL PRODUCTS
         </h1>
-        <p className="mt-1 text-xs tracking-widest uppercase text-neutral-400">
-          EXPLORE THE FASHORA COLLECTION
+        <p className="mt-3 text-xs sm:text-sm text-neutral-600 font-light leading-relaxed tracking-wide">
+          Explore the complete archive of runway and atelier pieces across all independent design studios.
         </p>
       </div>
 
-      {/* 3. Category Tabs */}
-      <div className="mt-6 flex flex-wrap gap-2.5">
-        {CATEGORIES.map((cat) => {
-          const isActive = selectedCategory === cat.value;
-          return (
-            <button
-              key={cat.value}
-              type="button"
-              onClick={() => handleCategorySelect(cat.value)}
-              className={`h-9 min-w-[52px] px-3.5 rounded-md border text-xs font-medium tracking-wide transition-all uppercase cursor-pointer flex items-center justify-center ${
-                isActive
-                  ? 'bg-black border-black text-white'
-                  : 'bg-white border-neutral-200 text-neutral-700 hover:border-neutral-400'
-              }`}
-            >
-              {cat.label}
-            </button>
-          );
-        })}
+      {/* 3. Category Tabs (Text + Underline chuẩn Design System 5.5) */}
+      <div className="mt-8 border-b border-[#E5E5E5] w-full">
+        <nav className="-mb-px flex space-x-6 sm:space-x-8 overflow-x-auto scrollbar-none" aria-label="Category Tabs">
+          {CATEGORIES.map((cat) => {
+            const isActive = selectedCategory === cat.value;
+            return (
+              <button
+                key={cat.value}
+                type="button"
+                onClick={() => handleCategorySelect(cat.value)}
+                className={`whitespace-nowrap pb-3.5 px-1 text-xs sm:text-[13px] font-medium uppercase tracking-wider border-b-2 transition-all cursor-pointer ${
+                  isActive
+                    ? 'border-[#111111] text-[#111111] font-bold'
+                    : 'border-transparent text-[#666666] hover:text-[#111111] hover:border-[#E5E5E5]'
+                }`}
+              >
+                {cat.label}
+              </button>
+            );
+          })}
+        </nav>
       </div>
 
       {/* 4. Controls Bar: Search, Price, Sort */}
@@ -539,8 +548,8 @@ export function Shop() {
 
 /* ==========================================================================
    Wrapper: ShopWithViewControls
-   - Giới hạn độ rộng: max-w-7xl mx-auto
-   - Padding responsive: px-4 sm:px-6 lg:px-8 py-8 sm:py-12
+   - Giới hạn độ rộng: max-w-[1560px] mx-auto
+   - Padding responsive: px-6 sm:px-10 lg:px-16 py-8 sm:py-12
    ========================================================================== */
 function ShopWithViewControls(props) {
   const [isMobile, setIsMobile] = useState(
@@ -596,7 +605,7 @@ function ShopWithViewControls(props) {
   }, [viewCols, isMobile]);
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+    <div className="w-full max-w-[1560px] mx-auto px-6 sm:px-10 lg:px-16 py-8 sm:py-12">
       {/* Nút VIEW căn góc phải của container chuẩn */}
       <div className="flex justify-end -mb-4">
         <div className="flex items-center gap-2">

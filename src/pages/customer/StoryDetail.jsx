@@ -704,7 +704,7 @@ export default function StoryDetail() {
             * Ảnh phụ nhỏ bên trái phía trên (images[1])
             * Phía dưới ảnh phụ là thông số nguồn gốc sản xuất (Origin & Batch)
           ========================================================================= */}
-      <section className="max-w-[1560px] mx-auto px-4 sm:px-8 lg:px-12 pt-8 sm:pt-12 pb-16 sm:pb-20">
+      <section className="max-w-[1560px] mx-auto px-6 sm:px-10 lg:px-16 pt-8 sm:pt-12 pb-16 sm:pb-20">
         {/* Nút thoát nhanh về Explore */}
         <div className="mb-8 sm:mb-10">
           <button
@@ -811,7 +811,7 @@ export default function StoryDetail() {
             6. STYLING DIRECTION
           ========================================================================= */}
       <section className="bg-white border-t border-neutral-200 py-16 sm:py-24">
-        <div className="max-w-[1560px] mx-auto px-4 sm:px-8 lg:px-12">
+        <div className="max-w-[1560px] mx-auto px-6 sm:px-10 lg:px-16">
           <div className="max-w-2xl mb-12 sm:mb-16">
             <span className="text-xs font-mono font-bold tracking-[0.25em] text-neutral-400 block mb-2 uppercase">
               SECTION 01
@@ -861,7 +861,7 @@ export default function StoryDetail() {
             * LIMITED BATCHES
           ========================================================================= */}
       <section className="bg-[#111111] text-white py-20 sm:py-28 border-y border-neutral-800">
-        <div className="max-w-[1560px] mx-auto px-4 sm:px-8 lg:px-12">
+        <div className="max-w-[1560px] mx-auto px-6 sm:px-10 lg:px-16">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start">
             {/* Cột trái: Thông tin Atelier */}
             <div className="lg:col-span-5 space-y-6">
@@ -917,7 +917,7 @@ export default function StoryDetail() {
             * ARTISANAL FINISHING
           ========================================================================= */}
       <section className="bg-white py-16 sm:py-24 border-b border-neutral-200">
-        <div className="max-w-[1560px] mx-auto px-4 sm:px-8 lg:px-12">
+        <div className="max-w-[1560px] mx-auto px-6 sm:px-10 lg:px-16">
           <div className="max-w-2xl mb-12 sm:mb-16">
             <span className="text-xs font-mono font-bold tracking-[0.25em] text-neutral-400 block mb-2 uppercase">
               SECTION 03
@@ -963,7 +963,7 @@ export default function StoryDetail() {
             * TRANSCENDING EPHEMERAL TRENDS
           ========================================================================= */}
       <section className="bg-neutral-50/50 py-16 sm:py-24 border-b border-neutral-200">
-        <div className="max-w-[1560px] mx-auto px-4 sm:px-8 lg:px-12">
+        <div className="max-w-[1560px] mx-auto px-6 sm:px-10 lg:px-16">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start">
             {/* Cột trái: Tiêu đề */}
             <div className="lg:col-span-4 space-y-4">
@@ -1003,7 +1003,7 @@ export default function StoryDetail() {
           - Nút [ ADD TO SHOPPING BAG ] (kết nối trực tiếp Zustand store)
           ========================================================================= */}
       <section className="bg-white py-16 sm:py-24 border-b border-neutral-200">
-        <div className="max-w-[1560px] mx-auto px-4 sm:px-8 lg:px-12">
+        <div className="max-w-[1560px] mx-auto px-6 sm:px-10 lg:px-16">
           <div className="max-w-2xl mb-12">
             <span className="text-xs font-mono font-bold tracking-[0.25em] text-neutral-400 block mb-2 uppercase">
               SECTION 05 / ACQUIRE

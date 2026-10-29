@@ -28,9 +28,9 @@ function Header({ hideNav = false }) {
         setIsSignOutModalOpen(false)
         navigate('/home')
     }
-    const searchParams = new URLSearchParams(location.search)
-    const currentTag = searchParams.get('tag')
-    const isShopPath = location.pathname === '/shop'
+
+
+
 
     // Nghiệp vụ: Chỉ ở các trang Auth (/login, /register) mới ẩn badge giỏ hàng (0); ở Explore và các trang khác vẫn đồng bộ số lượng giỏ hàng
     const isAuthPage = ['/login', '/register'].includes(location.pathname)
@@ -38,8 +38,8 @@ function Header({ hideNav = false }) {
     const formattedCount = displayCartCount > 99 ? '99+' : displayCartCount
 
     const isNewArrival = location.pathname === '/home'
-    const isBestSeller = isShopPath && currentTag === 'best-seller'
-    const isAll = isShopPath && !currentTag
+    const isBestSeller = location.pathname === '/best-seller'
+    const isAll = location.pathname === '/shop'
 
     // Lắng nghe sự kiện storage để đồng bộ giỏ hàng qua các tab
     useEffect(() => {
@@ -294,7 +294,7 @@ function Header({ hideNav = false }) {
                         NEW ARRIVAL
                     </Link>
                     <Link
-                        to="/shop?tag=best-seller"
+                        to="/best-seller"
                         className={`transition-colors uppercase ${isBestSeller
                             ? 'text-white font-bold'
                             : 'text-neutral-400 hover:text-white font-medium'
@@ -380,7 +380,7 @@ function Header({ hideNav = false }) {
                                 NEW ARRIVAL
                             </NavLink>
                             <NavLink
-                                to="/shop?tag=best-seller"
+                                to="/best-seller"
                                 onClick={() => setIsMobileMenuOpen(false)}
                                 className={({ isActive }) =>
                                     `text-[11px] tracking-[0.22em] uppercase transition-colors ${isActive ? 'text-white font-semibold' : 'text-neutral-300 hover:text-white font-medium'
