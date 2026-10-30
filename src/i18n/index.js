@@ -4,7 +4,7 @@ import en from '../locales/en.json'
 import vi from '../locales/vi.json'
 
 const savedLang = typeof window !== 'undefined' ? localStorage.getItem('fashora_lang') : null
-const defaultLang = savedLang || 'en'
+const defaultLang = savedLang || 'vi'
 
 i18n
   .use(initReactI18next)
@@ -14,7 +14,7 @@ i18n
       vi: { translation: vi }
     },
     lng: defaultLang,
-    fallbackLng: 'en',
+    fallbackLng: 'vi',
     interpolation: {
       escapeValue: false
     }
