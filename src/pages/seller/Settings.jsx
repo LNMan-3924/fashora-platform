@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react'
 import { useOutletContext } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { Upload, AlertCircle, Phone, MapPin, Save, RefreshCw, Trash2, Image as ImageIcon } from 'lucide-react'
 import { useAuth } from '../../contexts/AuthContext'
 import { updateShop } from '../../services/api'
@@ -15,6 +16,19 @@ const CATEGORIES = [
   'SUSTAINABLE & VINTAGE FASHION',
 ]
 
+const getCategoryLabel = (category, lang) => {
+  if (lang !== 'vi') return category
+  const map = {
+    'ALL-IN-ONE FASHION': 'THỜI TRANG TỔNG HỢP',
+    'READY-TO-WEAR & APPAREL': 'THỜI TRANG MAY SẴN & TRANG PHỤC',
+    'ATELIER & BESPOKE TAILORING': 'MAY ĐO CAO CẤP ATELIER',
+    'FOOTWEAR & LEATHER GOODS': 'GIÀY DÉP & ĐỒ DA THỦ CÔNG',
+    'ACCESSORIES & JEWELRY': 'PHỤ KIỆN & TRANG SỨC',
+    'SUSTAINABLE & VINTAGE FASHION': 'THỜI TRANG BỀN VỮNG & CỔ ĐIỂN',
+  }
+  return map[category] || category
+}
+
 const BANKS = [
   'Vietcombank (VCB)',
   'Techcombank (TCB)',
@@ -29,6 +43,7 @@ const BANKS = [
 ]
 
 function SettingsForm({ sellerInfo, setSellerInfo, currentShopId, currentUser }) {
+  const { t, i18n } = useTranslation()
   const fileInputRef = useRef(null)
   const coverInputRef = useRef(null)
 
@@ -124,7 +139,7 @@ function SettingsForm({ sellerInfo, setSellerInfo, currentShopId, currentUser })
 
     const trimmedName = formData.name.trim()
     if (!trimmedName || trimmedName.length < 3) {
-      setErrorMessage('Shop name must be at least 3 characters.')
+      setErrorMessage(t('seller.settings.errorName', 'Shop name must be at least 3 characters.'))
       return
     }
 
@@ -165,10 +180,10 @@ function SettingsForm({ sellerInfo, setSellerInfo, currentShopId, currentUser })
         })
       }
 
-      setToastMessage('Store settings updated successfully!')
+      setToastMessage(t('seller.settings.successToast', 'Store settings updated successfully!'))
     } catch (err) {
       console.error('Error updating shop settings:', err)
-      setErrorMessage('Failed to save shop settings. Please check backend connection.')
+      setErrorMessage(t('seller.settings.errorSave', 'Failed to save shop settings. Please check backend connection.'))
     } finally {
       setIsSaving(false)
     }
@@ -191,7 +206,7 @@ function SettingsForm({ sellerInfo, setSellerInfo, currentShopId, currentUser })
         <div className="bg-white border border-neutral-200 p-6 sm:p-8 space-y-6">
           <div className="border-b border-neutral-100 pb-3">
             <h3 className="text-xs font-bold uppercase tracking-[0.2em] text-black font-mono">
-              01 • BRAND PROFILE
+              {t('seller.settings.brandSection', '01 • BRAND PROFILE')}
             </h3>
           </div>
 
@@ -199,7 +214,7 @@ function SettingsForm({ sellerInfo, setSellerInfo, currentShopId, currentUser })
             {/* Shop Name */}
             <div className="space-y-1.5">
               <label className="text-xs font-bold uppercase tracking-wider text-black block">
-                SHOP NAME <span className="text-red-500">*</span>
+                {t('seller.settings.shopName', 'SHOP NAME')} <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
@@ -213,7 +228,7 @@ function SettingsForm({ sellerInfo, setSellerInfo, currentShopId, currentUser })
             {/* Category */}
             <div className="space-y-1.5">
               <label className="text-xs font-bold uppercase tracking-wider text-black block">
-                PRIMARY CATEGORY
+                {t('seller.settings.category', 'PRIMARY CATEGORY')}
               </label>
               <select
                 value={formData.category}
@@ -222,7 +237,7 @@ function SettingsForm({ sellerInfo, setSellerInfo, currentShopId, currentUser })
               >
                 {CATEGORIES.map((c) => (
                   <option key={c} value={c}>
-                    {c}
+                    {getCategoryLabel(c, i18n.language)}
                   </option>
                 ))}
               </select>
@@ -231,13 +246,13 @@ function SettingsForm({ sellerInfo, setSellerInfo, currentShopId, currentUser })
             {/* Tagline */}
             <div className="space-y-1.5 md:col-span-2">
               <label className="text-xs font-bold uppercase tracking-wider text-black block">
-                TAGLINE
+                {t('seller.settings.tagline', 'TAGLINE')}
               </label>
               <input
                 type="text"
                 value={formData.tagline}
                 onChange={(e) => setFormData((prev) => ({ ...prev, tagline: e.target.value }))}
-                placeholder="e.g. Modern Tailoring & Monochromatic Atelier"
+                placeholder={t('seller.settings.taglinePlaceholder', 'e.g. Modern Tailoring & Monochromatic Atelier')}
                 className="w-full bg-white border border-neutral-300 px-3.5 py-2.5 text-xs sm:text-sm text-black focus:outline-none focus:border-black"
               />
             </div>
@@ -245,7 +260,7 @@ function SettingsForm({ sellerInfo, setSellerInfo, currentShopId, currentUser })
             {/* Description */}
             <div className="space-y-1.5 md:col-span-2">
               <label className="text-xs font-bold uppercase tracking-wider text-black block">
-                STORE BIO & DESCRIPTION
+                {t('seller.settings.description', 'STORE BIO & DESCRIPTION')}
               </label>
               <textarea
                 rows={3}
@@ -258,7 +273,7 @@ function SettingsForm({ sellerInfo, setSellerInfo, currentShopId, currentUser })
             {/* Logo Emblem Upload */}
             <div className="space-y-2 md:col-span-2">
               <label className="text-xs font-bold uppercase tracking-wider text-black block">
-                SHOP LOGO EMBLEM
+                {t('seller.settings.logo', 'SHOP LOGO EMBLEM')}
               </label>
               <div className="flex items-center gap-4 pt-1">
                 <div className="w-14 h-14 bg-black text-white shrink-0 overflow-hidden flex items-center justify-center border border-neutral-300 rounded-[2px] shadow-2xs">
@@ -290,10 +305,10 @@ function SettingsForm({ sellerInfo, setSellerInfo, currentShopId, currentUser })
                     className="inline-flex items-center gap-2 px-4 py-2 bg-black text-white text-xs font-mono uppercase tracking-wider hover:bg-neutral-800 transition-colors cursor-pointer rounded-[2px]"
                   >
                     <Upload className="w-3.5 h-3.5" />
-                    <span>{isUploading ? 'Uploading...' : 'UPLOAD NEW AVATAR'}</span>
+                    <span>{isUploading ? t('seller.products.form.uploading', 'Uploading...') : t('seller.settings.uploadAvatar', 'UPLOAD NEW AVATAR')}</span>
                   </button>
                   <p className="text-[11px] font-mono text-neutral-400">
-                    PNG, JPG, or WEBP (Saved directly to atelier storage)
+                    {t('seller.settings.uploadAvatarHint', 'PNG, JPG, or WEBP (Saved directly to atelier storage)')}
                   </p>
                 </div>
               </div>
@@ -302,10 +317,10 @@ function SettingsForm({ sellerInfo, setSellerInfo, currentShopId, currentUser })
             <div className="space-y-2 md:col-span-2 pt-4 border-t border-neutral-100">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
                 <label className="text-xs font-bold uppercase tracking-wider text-black block">
-                  STOREFRONT COVER BANNER
+                  {t('seller.settings.cover', 'STOREFRONT COVER BANNER')}
                 </label>
                 <span className="text-[11px] font-mono text-neutral-400">
-                  Recommended: Widescreen Landscape (16:9 or 21:9)
+                  {t('seller.settings.coverHint', 'Recommended: Widescreen Landscape (16:9 or 21:9)')}
                 </span>
               </div>
 
@@ -326,7 +341,7 @@ function SettingsForm({ sellerInfo, setSellerInfo, currentShopId, currentUser })
                         className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-white text-black text-xs font-mono uppercase tracking-wider hover:bg-neutral-200 transition-colors cursor-pointer rounded-[2px] shadow-sm font-semibold"
                       >
                         <Upload className="w-3.5 h-3.5" />
-                        <span>CHANGE BANNER</span>
+                        <span>{t('seller.settings.changeBanner', 'CHANGE BANNER')}</span>
                       </button>
                       <button
                         type="button"
@@ -334,7 +349,7 @@ function SettingsForm({ sellerInfo, setSellerInfo, currentShopId, currentUser })
                         className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-red-600 text-white text-xs font-mono uppercase tracking-wider hover:bg-red-700 transition-colors cursor-pointer rounded-[2px] shadow-sm font-semibold"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
-                        <span>REMOVE</span>
+                        <span>{t('seller.settings.remove', 'REMOVE')}</span>
                       </button>
                     </div>
                   </>
@@ -342,7 +357,7 @@ function SettingsForm({ sellerInfo, setSellerInfo, currentShopId, currentUser })
                   <div className="p-6 text-center space-y-2">
                     <ImageIcon className="w-8 h-8 text-neutral-500 mx-auto" />
                     <p className="text-xs font-mono text-neutral-400">
-                      No cover banner uploaded. Your atelier will display a minimalist dark background.
+                      {t('seller.settings.noCover', 'No cover banner uploaded. Your atelier will display a minimalist dark background.')}
                     </p>
                     <button
                       type="button"
@@ -351,7 +366,7 @@ function SettingsForm({ sellerInfo, setSellerInfo, currentShopId, currentUser })
                       className="inline-flex items-center gap-2 px-4 py-2 bg-white text-black text-xs font-mono uppercase tracking-wider hover:bg-neutral-200 transition-colors cursor-pointer rounded-[2px] font-semibold mt-1"
                     >
                       <Upload className="w-3.5 h-3.5" />
-                      <span>{isUploadingCover ? 'UPLOADING...' : 'UPLOAD COVER BANNER'}</span>
+                      <span>{isUploadingCover ? t('seller.products.form.uploading', 'UPLOADING...') : t('seller.settings.uploadCover', 'UPLOAD COVER BANNER')}</span>
                     </button>
                   </div>
                 )}
@@ -371,7 +386,7 @@ function SettingsForm({ sellerInfo, setSellerInfo, currentShopId, currentUser })
               />
 
               <p className="text-[11px] font-mono text-neutral-400">
-                This banner will showcase your atelier lookbook across your Public Shop header and the Home page carousel.
+                {t('seller.settings.coverNotice', 'This banner will showcase your atelier lookbook across your Public Shop header and the Home page carousel.')}
               </p>
             </div>
           </div>
@@ -381,7 +396,7 @@ function SettingsForm({ sellerInfo, setSellerInfo, currentShopId, currentUser })
         <div className="bg-white border border-neutral-200 p-6 sm:p-8 space-y-6">
           <div className="border-b border-neutral-100 pb-3">
             <h3 className="text-xs font-bold uppercase tracking-[0.2em] text-black font-mono">
-              02 • CONTACT & SHIPPING LOCATION
+              {t('seller.settings.contactSection', '02 • CONTACT & SHIPPING LOCATION')}
             </h3>
           </div>
 
@@ -390,7 +405,7 @@ function SettingsForm({ sellerInfo, setSellerInfo, currentShopId, currentUser })
             <div className="space-y-1.5">
               <label className="text-xs font-bold uppercase tracking-wider text-black flex items-center gap-1">
                 <Phone className="w-3.5 h-3.5" />
-                <span>HOTLINE / CONTACT PHONE</span>
+                <span>{t('seller.settings.hotline', 'HOTLINE / CONTACT PHONE')}</span>
               </label>
               <input
                 type="text"
@@ -405,7 +420,7 @@ function SettingsForm({ sellerInfo, setSellerInfo, currentShopId, currentUser })
             <div className="space-y-1.5">
               <label className="text-xs font-bold uppercase tracking-wider text-black flex items-center gap-1">
                 <MapPin className="w-3.5 h-3.5" />
-                <span>DISPATCH / WAREHOUSE LOCATION</span>
+                <span>{t('seller.settings.warehouse', 'DISPATCH / WAREHOUSE LOCATION')}</span>
               </label>
               <input
                 type="text"
@@ -422,7 +437,7 @@ function SettingsForm({ sellerInfo, setSellerInfo, currentShopId, currentUser })
         <div className="bg-white border border-neutral-200 p-6 sm:p-8 space-y-6">
           <div className="border-b border-neutral-100 pb-3">
             <h3 className="text-xs font-bold uppercase tracking-[0.2em] text-black font-mono">
-              03 • PAYOUT SETTINGS
+              {t('seller.settings.payoutSection', '03 • PAYOUT SETTINGS')}
             </h3>
           </div>
 
@@ -430,7 +445,7 @@ function SettingsForm({ sellerInfo, setSellerInfo, currentShopId, currentUser })
             {/* Bank Name */}
             <div className="space-y-1.5">
               <label className="text-xs font-bold uppercase tracking-wider text-black block">
-                SETTLEMENT BANK
+                {t('seller.settings.bank', 'SETTLEMENT BANK')}
               </label>
               <select
                 value={formData.bankName}
@@ -448,7 +463,7 @@ function SettingsForm({ sellerInfo, setSellerInfo, currentShopId, currentUser })
             {/* Account Number */}
             <div className="space-y-1.5">
               <label className="text-xs font-bold uppercase tracking-wider text-black block">
-                ACCOUNT NUMBER
+                {t('seller.settings.accountNumber', 'ACCOUNT NUMBER')}
               </label>
               <input
                 type="text"
@@ -462,7 +477,7 @@ function SettingsForm({ sellerInfo, setSellerInfo, currentShopId, currentUser })
             {/* Account Name */}
             <div className="space-y-1.5">
               <label className="text-xs font-bold uppercase tracking-wider text-black block">
-                ACCOUNT HOLDER NAME
+                {t('seller.settings.accountName', 'ACCOUNT HOLDER NAME')}
               </label>
               <input
                 type="text"
@@ -485,12 +500,12 @@ function SettingsForm({ sellerInfo, setSellerInfo, currentShopId, currentUser })
             {isSaving ? (
               <>
                 <RefreshCw className="w-4 h-4 animate-spin" />
-                <span>SAVING CHANGES...</span>
+                <span>{t('seller.settings.saving', 'SAVING CHANGES...')}</span>
               </>
             ) : (
               <>
                 <Save className="w-4 h-4" />
-                <span>SAVE CHANGES</span>
+                <span>{t('seller.settings.save', 'SAVE CHANGES')}</span>
               </>
             )}
           </button>
@@ -508,13 +523,14 @@ function SettingsForm({ sellerInfo, setSellerInfo, currentShopId, currentUser })
 }
 
 export default function Settings() {
+  const { t } = useTranslation()
   const { sellerInfo, setSellerInfo, currentShopId } = useOutletContext() || {}
   const { currentUser } = useAuth()
 
   if (!sellerInfo) {
     return (
       <div className="p-12 text-center text-xs font-mono text-neutral-400">
-        LOADING ATELIER PROFILE...
+        {t('seller.settings.loading', 'LOADING ATELIER PROFILE...')}
       </div>
     )
   }

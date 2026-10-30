@@ -1,11 +1,11 @@
 import { useState, useEffect, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Plus } from 'lucide-react';
 import { getProducts, getShops } from '../../services/api';
 import QuickAddModal from '../../components/product/QuickAddModal';
 import { Toast } from '../../components/common';
 import { useCartStore } from '../../stores';
-import dbData from '../../../db.json';
 
 const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=600&q=80';
 
@@ -156,15 +156,16 @@ const DEFAULT_SETS = [
 ];
 
 export default function Explore() {
-  const [allProducts, setAllProducts] = useState(dbData?.products || DEFAULT_SETS);
-  const [shops, setShops] = useState(dbData?.shops || []);
+  const { t } = useTranslation();
+  const [allProducts, setAllProducts] = useState(DEFAULT_SETS);
+  const [shops, setShops] = useState([]);
   const [selectedMoodId, setSelectedMoodId] = useState('QUIET_STRUCTURE');
   const [quickAddProduct, setQuickAddProduct] = useState(null);
   const [toastMessage, setToastMessage] = useState('');
 
   const addToCartStore = useCartStore((state) => state.addToCart);
 
-  // Tải danh sách sản phẩm và shops từ API / db.json
+  // Tải danh sách sản phẩm và shops từ API
   useEffect(() => {
     let isMounted = true;
     async function loadData() {
@@ -174,11 +175,11 @@ export default function Explore() {
         if (isMounted && data.length > 0) {
           setAllProducts(data);
         } else if (isMounted) {
-          setAllProducts(dbData?.products || DEFAULT_SETS);
+          setAllProducts(DEFAULT_SETS);
         }
       } catch (err) {
         console.error('Unable to load products for Explore:', err);
-        if (isMounted) setAllProducts(dbData?.products || DEFAULT_SETS);
+        if (isMounted) setAllProducts(DEFAULT_SETS);
       }
 
       try {
@@ -186,12 +187,9 @@ export default function Explore() {
         const sData = Array.isArray(sRes?.data) ? sRes.data : [];
         if (isMounted && sData.length > 0) {
           setShops(sData);
-        } else if (isMounted && dbData?.shops) {
-          setShops(dbData.shops);
         }
       } catch (sErr) {
         console.warn('Unable to load shops for Explore:', sErr);
-        if (isMounted && dbData?.shops) setShops(dbData.shops);
       }
     }
     loadData();
@@ -202,8 +200,7 @@ export default function Explore() {
 
   // Danh sách các Shop đang hoạt động
   const activeShops = useMemo(() => {
-    const list = Array.isArray(shops) ? shops.filter((s) => s.status === 'ACTIVE' || !s.status) : [];
-    return list.length > 0 ? list : (dbData?.shops || []);
+    return Array.isArray(shops) ? shops.filter((s) => s.status === 'ACTIVE' || !s.status) : [];
   }, [shops]);
 
   // Tạo danh sách lặp vô tận (nhân bản mảng 3 lần = 15 items cho 5 shop, sau đó nhân đôi tạo 2 nửa liền mạch)
@@ -244,11 +241,11 @@ export default function Explore() {
   // 5 Hàng Ngang cho Khối 4 (mỗi hàng 6 sản phẩm)
   const fiveRowsData = useMemo(() => {
     const categories = [
-      { key: 'SET', label: '01 / SET' },
-      { key: 'SHIRT', label: '02 / SHIRT' },
-      { key: 'PANTS', label: '03 / PANTS' },
-      { key: 'SHOES', label: '04 / SHOES' },
-      { key: 'ACCESSORIES', label: '05 / ACCESSORIES' }
+      { key: 'SET', label: `01 / ${t('categories.SET', 'SET')}` },
+      { key: 'SHIRT', label: `02 / ${t('categories.SHIRT', 'SHIRT')}` },
+      { key: 'PANTS', label: `03 / ${t('categories.PANTS', 'PANTS')}` },
+      { key: 'SHOES', label: `04 / ${t('categories.SHOES', 'SHOES')}` },
+      { key: 'ACCESSORIES', label: `05 / ${t('categories.ACCESSORIES', 'ACCESSORIES')}` }
     ];
 
     return categories.map((cat) => {
@@ -262,7 +259,7 @@ export default function Explore() {
         items: items.slice(0, 6)
       };
     });
-  }, [allProducts]);
+  }, [allProducts, t]);
 
   // Mở modal Quick Add
   const handleOpenQuickAdd = (product, e) => {
@@ -308,8 +305,8 @@ export default function Explore() {
     if (result?.success === false) {
       setToastMessage(result.message);
     } else {
-      const prodName = (quickAddProduct.name || 'PIECE').toUpperCase();
-      setToastMessage(`ADDED ${prodName} TO CART.`);
+      const prodName = (t(`explore.defaultProducts.${quickAddProduct.id}.name`, quickAddProduct.name) || quickAddProduct.name || 'PIECE').toUpperCase();
+      setToastMessage(t('explore.addedToCart', { name: prodName, defaultValue: `ADDED ${prodName} TO CART.` }));
     }
     setQuickAddProduct(null);
   };
@@ -341,18 +338,18 @@ export default function Explore() {
         <div className="relative z-10 w-full max-w-[1560px] mx-auto px-6 sm:px-10 lg:px-16 pb-12 sm:pb-16 lg:pb-20 text-left text-white flex flex-col items-start">
           <div className="max-w-2xl">
             <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight uppercase leading-[0.95] mb-3 sm:mb-4 drop-shadow-md text-white">
-              EXPLORE THE WORLD OF FASHION
+              {t('explore.heroTitle')}
             </h1>
 
             <p className="text-xs sm:text-sm lg:text-base font-light tracking-[0.16em] text-neutral-200 uppercase mb-6 sm:mb-8 drop-shadow">
-              Discover trends, stories, styles, and pieces from FASHORA.
+              {t('explore.heroSubtitle')}
             </p>
 
             <Link
               to="/home"
               className="inline-flex items-center gap-3 px-7 sm:px-9 py-3 sm:py-3.5 bg-white text-black text-xs font-bold uppercase tracking-[0.22em] hover:bg-neutral-200 transition-all duration-300 shadow-xl hover:scale-105"
             >
-              <span>GO TO FASHORA PLATFORM</span>
+              <span>{t('explore.goToPlatform')}</span>
               <ArrowRight className="w-4 h-4" />
             </Link>
           </div>
@@ -370,7 +367,7 @@ export default function Explore() {
       <section className="max-w-[1560px] mx-auto px-4 sm:px-8 lg:px-12 py-16 sm:py-24">
         <div className="text-left max-w-3xl mb-12 sm:mb-16">
           <h2 className="text-2xl sm:text-4xl lg:text-5xl font-extrabold uppercase tracking-tight text-neutral-900 mb-4">
-            WHAT IS FASHION RIGHT NOW?
+            {t('explore.whatIsFashion')}
           </h2>
         </div>
 
@@ -378,6 +375,9 @@ export default function Explore() {
           {sixSetProducts.map((product, idx) => {
             if (!product) return null;
             const story = EDITORIAL_STORIES[product.id] || EDITORIAL_STORIES.prd_set_01;
+            const styleName = t(`explore.stories.${product.id}.styleName`, story.styleName);
+            const setName = t(`explore.stories.${product.id}.setName`, product.name);
+            const setDesc = t(`explore.stories.${product.id}.desc`, story.desc || product.description);
             const isEven = idx % 2 === 1; // Style 2, 4, 6 (index 1, 3, 5) -> Đảo cột
             const imgPrimary = product.images?.[0] || FALLBACK_IMAGE;
             const imgSecondary = product.images?.[1] || product.images?.[0] || FALLBACK_IMAGE;
@@ -386,15 +386,15 @@ export default function Explore() {
             const TextColumn = (
               <div className="w-full lg:w-1/2 flex flex-col justify-center px-2 sm:px-6">
                 <h3 className="text-3xl sm:text-4xl lg:text-5xl font-black uppercase tracking-tight text-neutral-950 mb-2">
-                  {story.styleName}
+                  {styleName}
                 </h3>
 
                 <h4 className="text-sm sm:text-base font-semibold text-neutral-700 uppercase tracking-wider mb-4">
-                  {product.name}
+                  {setName}
                 </h4>
 
                 <p className="text-xs sm:text-sm text-neutral-600 leading-relaxed font-light mb-6 tracking-wide">
-                  {story.desc || product.description}
+                  {setDesc}
                 </p>
 
                 <div className="pt-2">
@@ -402,7 +402,7 @@ export default function Explore() {
                     to={`/explore/story/${product.id}`}
                     className="inline-flex items-center gap-3 px-6 sm:px-8 py-3.5 bg-black text-white text-xs font-bold uppercase tracking-[0.2em] hover:bg-neutral-800 transition-colors shadow-sm"
                   >
-                    <span>READ EDITORIAL STORY & PIECES</span>
+                    <span>{t('explore.readEditorial')}</span>
                     <ArrowRight className="w-4 h-4" />
                   </Link>
                 </div>
@@ -415,24 +415,24 @@ export default function Explore() {
                 <div className="relative aspect-[3/4] bg-neutral-100 overflow-hidden border border-neutral-200">
                   <img
                     src={imgPrimary}
-                    alt={`${product.name} Front`}
+                    alt={`${setName} Front`}
                     className="w-full h-full object-cover object-center transition-transform duration-700 hover:scale-105"
                     loading="lazy"
                   />
                   <span className="absolute bottom-3 left-3 text-[10px] font-mono tracking-widest text-neutral-700 bg-white/90 px-2 py-0.5 uppercase border border-neutral-200">
-                    LOOK A
+                    {t('explore.lookA')}
                   </span>
                 </div>
 
                 <div className="relative aspect-[3/4] bg-neutral-100 overflow-hidden border border-neutral-200">
                   <img
                     src={imgSecondary}
-                    alt={`${product.name} Alternate`}
+                    alt={`${setName} Alternate`}
                     className="w-full h-full object-cover object-center transition-transform duration-700 hover:scale-105"
                     loading="lazy"
                   />
                   <span className="absolute bottom-3 left-3 text-[10px] font-mono tracking-widest text-neutral-700 bg-white/90 px-2 py-0.5 uppercase border border-neutral-200">
-                    LOOK B
+                    {t('explore.lookB')}
                   </span>
                 </div>
               </div>
@@ -475,10 +475,10 @@ export default function Explore() {
         <div className="max-w-[1560px] mx-auto px-4 sm:px-8 lg:px-12">
           <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-12">
             <h2 className="text-2xl sm:text-4xl font-extrabold uppercase tracking-tight text-white mb-3">
-              DON&apos;T KNOW WHAT TO WEAR? CHOOSE A MOOD
+              {t('explore.chooseMood')}
             </h2>
             <p className="text-xs sm:text-sm text-neutral-400 tracking-wider uppercase font-light">
-              Select your aesthetic frequency. We assemble the complete silhouette for you.
+              {t(`explore.moods.${selectedMoodId}.tagline`, currentMoodLook?.tagline || t('explore.chooseMoodDesc'))}
             </p>
           </div>
 
@@ -497,7 +497,7 @@ export default function Explore() {
                       : 'bg-neutral-900 text-neutral-400 border-neutral-800 hover:border-neutral-500 hover:text-white'
                   }`}
                 >
-                  {mood.label}
+                  {t(`explore.moods.${mood.id}.label`, mood.label)}
                 </button>
               );
             })}
@@ -510,6 +510,7 @@ export default function Explore() {
               const primaryImg = item.images?.[0] || FALLBACK_IMAGE;
               const secondaryImg = item.images?.[1] || primaryImg;
               const hasHover = item.images && item.images.length > 1;
+              const itemName = t(`explore.defaultProducts.${item.id}.name`, item.name);
 
               return (
                 <div
@@ -522,7 +523,7 @@ export default function Explore() {
                       {/* Ảnh chính */}
                       <img
                         src={primaryImg}
-                        alt={item.name}
+                        alt={itemName}
                         className={`w-full h-full object-cover object-center transition-all duration-500 ${
                           hasHover ? 'group-hover:opacity-0' : 'group-hover:scale-105'
                         }`}
@@ -532,7 +533,7 @@ export default function Explore() {
                       {hasHover && (
                         <img
                           src={secondaryImg}
-                          alt={`${item.name} Alternate`}
+                          alt={`${itemName} Alternate`}
                           className="absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-500 opacity-0 group-hover:opacity-100"
                           loading="lazy"
                         />
@@ -542,7 +543,8 @@ export default function Explore() {
                     {/* Nút tròn Quick Add (+) */}
                     <button
                       type="button"
-                      aria-label="Quick add to cart"
+                      aria-label={t('common.quickAdd', 'Thêm nhanh')}
+                      title={t('common.quickAdd', 'Thêm nhanh')}
                       onClick={(e) => handleOpenQuickAdd(item, e)}
                       className="absolute bottom-3 right-3 w-9 h-9 rounded-full bg-white text-black flex items-center justify-center hover:bg-neutral-200 transition-all hover:scale-110 shadow-md cursor-pointer z-10"
                     >
@@ -557,7 +559,7 @@ export default function Explore() {
                         to={`/products/${item.id}`}
                         className="block text-xs font-bold uppercase tracking-wider text-white hover:text-neutral-400 transition-colors line-clamp-1 mb-1"
                       >
-                        {item.name}
+                        {itemName}
                       </Link>
                       <p className="text-[11px] font-mono text-neutral-500 uppercase tracking-widest">
                         {item.shopName || 'M STUDIO'}
@@ -597,7 +599,7 @@ export default function Explore() {
       <section className="max-w-[1560px] mx-auto px-4 sm:px-8 lg:px-12 py-16 sm:py-24">
         <div className="text-left mb-10 sm:mb-14">
           <h2 className="text-2xl sm:text-4xl font-extrabold uppercase tracking-tight text-neutral-900">
-            ARCHITECTURAL ATELIER EDITIONS
+            {t('explore.architecturalEditions')}
           </h2>
         </div>
 
@@ -619,6 +621,7 @@ export default function Explore() {
                   const mainImage = prod.images?.[0] || FALLBACK_IMAGE;
                   const hoverImage = prod.images?.[1] || mainImage;
                   const canCrossfade = prod.images && prod.images.length > 1;
+                  const prodName = t(`explore.defaultProducts.${prod.id}.name`, prod.name);
 
                   return (
                     <div
@@ -631,7 +634,7 @@ export default function Explore() {
                           {/* Ảnh chính */}
                           <img
                             src={mainImage}
-                            alt={prod.name}
+                            alt={prodName}
                             className={`w-full h-full object-cover object-center transition-all duration-500 ${
                               canCrossfade ? 'group-hover:opacity-0' : 'group-hover:scale-105'
                             }`}
@@ -642,7 +645,7 @@ export default function Explore() {
                           {canCrossfade && (
                             <img
                               src={hoverImage}
-                              alt={`${prod.name} Alternate`}
+                              alt={`${prodName} Alternate`}
                               className="absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-500 opacity-0 group-hover:opacity-100"
                               loading="lazy"
                             />
@@ -652,7 +655,8 @@ export default function Explore() {
                         {/* Nút tròn Quick Add (+) chỉ hiện khi hover */}
                         <button
                           type="button"
-                          aria-label="Quick add to cart"
+                          aria-label={t('common.quickAdd', 'Thêm nhanh')}
+                          title={t('common.quickAdd', 'Thêm nhanh')}
                           onClick={(e) => handleOpenQuickAdd(prod, e)}
                           className="absolute bottom-2.5 right-2.5 w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-black text-white flex items-center justify-center hover:bg-neutral-800 transition-all opacity-0 group-hover:opacity-100 group-hover:scale-105 shadow-md cursor-pointer z-10 pointer-events-none group-hover:pointer-events-auto"
                         >
@@ -666,7 +670,7 @@ export default function Explore() {
                           to={`/products/${prod.id}`}
                           className="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-neutral-900 hover:text-neutral-600 transition-colors line-clamp-1"
                         >
-                          {prod.name}
+                          {prodName}
                         </Link>
 
                         <div className="h-5 flex items-center pt-0.5">
@@ -689,7 +693,7 @@ export default function Explore() {
             to="/shop"
             className="inline-flex items-center gap-4 px-10 sm:px-14 py-4 sm:py-4.5 bg-black text-white text-xs sm:text-sm font-bold uppercase tracking-[0.25em] hover:bg-neutral-800 transition-all duration-300 shadow-lg hover:gap-6"
           >
-            <span>VIEW MORE</span>
+            <span>{t('explore.viewMore')}</span>
             <ArrowRight className="w-4 h-4" />
           </Link>
         </div>
@@ -704,8 +708,8 @@ export default function Explore() {
           ========================================================================= */}
       <section className="bg-neutral-50/80 border-t border-neutral-200 py-12 sm:py-16 overflow-hidden">
         <div className="max-w-7xl mx-auto px-6 mb-8">
-          <h3 className="text-xl sm:text-2xl font-black uppercase tracking-tight text-[#111111]">
-            REGISTERED ATELIERS &amp; STUDIOS
+          <h3 className="text-xl sm:text-2xl font-bold uppercase tracking-tight text-[#111111] font-sans">
+            {t('explore.registeredAteliers')}
           </h3>
         </div>
 
@@ -725,7 +729,7 @@ export default function Explore() {
                   key={`${shop.id || shopSlug}-${idx}`}
                   to={`/store/${shopSlug}`}
                   className="flex flex-col items-center gap-2.5 px-6 sm:px-8 py-2 group cursor-pointer shrink-0 transition-transform duration-200 hover:scale-105"
-                  title={`Visit ${shop.name} Atelier`}
+                  title={t('explore.visitShopTitle', { name: shop.name, defaultValue: `Visit ${shop.name} Atelier` })}
                 >
                   {/* Circular Avatar Badge */}
                   <div className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-full border-2 border-neutral-300 group-hover:border-black bg-white overflow-hidden shadow-xs flex items-center justify-center transition-all duration-300">
@@ -771,24 +775,22 @@ export default function Explore() {
       <section className="bg-[#111111] text-white py-20 sm:py-28 px-6 sm:px-12 border-t border-neutral-800">
         <div className="max-w-4xl mx-auto text-center flex flex-col items-center">
           <span className="text-[10px] sm:text-xs font-mono tracking-[0.3em] uppercase text-neutral-400 mb-3 block">
-            THE ARCHIVE CONCLUDES
+            {t('explore.archiveTitle')}
           </span>
 
           <h2 className="text-3xl sm:text-5xl lg:text-6xl font-black uppercase tracking-tight text-white mb-6 leading-tight">
-            YOU&apos;VE EXPLORED. NOW, MAKE IT YOURS.
+            {t('explore.makeItYours')}
           </h2>
 
           <p className="text-xs sm:text-sm lg:text-base font-light tracking-wide text-neutral-300 leading-relaxed max-w-2xl mb-10">
-            FASHORA connects you directly with independent design ateliers worldwide. 
-            Every garment is produced in small, conscientious batches—honoring structural integrity, 
-            ethical craftsmanship, and the enduring philosophy of avant-garde permanence.
+            {t('explore.archiveDesc')}
           </p>
 
           <Link
             to="/home"
             className="inline-flex items-center gap-3 px-8 sm:px-10 py-3.5 sm:py-4 border border-white text-white text-xs font-bold uppercase tracking-[0.25em] hover:bg-white hover:text-black transition-all duration-300"
           >
-            <span>GO TO FASHORA PLATFORM</span>
+            <span>{t('explore.goToPlatform')}</span>
             <ArrowRight className="w-4 h-4" />
           </Link>
         </div>

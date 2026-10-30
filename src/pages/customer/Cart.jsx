@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { ArrowRight, Trash2 } from 'lucide-react'
 
 // Import store giỏ hàng toàn cục (quản lý bằng Zustand)
@@ -19,12 +20,13 @@ import {
   CompleteTheLook,
   QuickAddModal,
 } from '../../components/product'
-import { getCartItemKey, COMMERCE_STORAGE_KEYS, toShopSlug } from '../../constants'
+import { getCartItemKey, COMMERCE_STORAGE_KEYS, toShopSlug, groupItemsByShop } from '../../constants'
 
 // Tái sử dụng hàm tạo key duy nhất từ src/constants (ID + Size + Màu sắc)
 const getItemKey = getCartItemKey
 
 export default function Cart() {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const { currentUser } = useAuth()
 
@@ -83,13 +85,8 @@ export default function Cart() {
   // =========================================================================
   // BƯỚC 5: GOM NHÓM SẢN PHẨM THEO SHOP & TÍNH TỔNG TIỀN TẠM TÍNH
   // =========================================================================
-  // Gom nhóm sản phẩm theo tên thương hiệu (mặc định là 'M STUDIO')
-  const groupedByShop = {}
-  cartItems.forEach((item) => {
-    const shopName = item.shopName || 'FASHORA ATELIER'
-    if (!groupedByShop[shopName]) groupedByShop[shopName] = []
-    groupedByShop[shopName].push(item)
-  })
+  // Gom nhóm sản phẩm theo Shop từ hàm SSOT
+  const shopGroups = Object.values(groupItemsByShop(cartItems))
 
   // Tính tổng tiền tạm tính (Subtotal) CHỈ DỰA TRÊN các sản phẩm đang được tick chọn
   const subtotal = cartItems.reduce((total, item) => {
@@ -147,7 +144,7 @@ export default function Cart() {
   // Nút "Delete Selected": Xóa tất cả các sản phẩm đang được chọn
   const handleDeleteSelected = () => {
     if (activeSelectedKeys.length === 0) {
-      showToast('No items currently selected.')
+      showToast(t('cart.noItemsSelected', 'No items currently selected.'))
       return
     }
 
@@ -164,7 +161,7 @@ export default function Cart() {
     }
 
     setSelectedKeys([])
-    showToast('Selected items removed from cart.')
+    showToast(t('cart.itemsRemoved', 'Selected items removed from cart.'))
   }
 
   // Xóa một món hàng riêng lẻ và dọn dẹp key khỏi danh sách được chọn (nếu có)
@@ -174,7 +171,7 @@ export default function Cart() {
       const removedKey = getCartItemKey({ id, selectedSize: size, selectedColor: color })
       setSelectedKeys((prev) => (prev ? prev.filter((k) => k !== removedKey) : null))
     }
-    showToast('Item removed from cart.')
+    showToast(t('cart.itemRemoved', 'Item removed from cart.'))
   }
 
   // Xác nhận thêm món đồ từ mục "Complete The Look" vào giỏ hàng (cho phép cả khách vãng lai)
@@ -188,13 +185,13 @@ export default function Cart() {
       lookItem.selectedColor || 'Standard',
       lookItem.quantity || 1
     )
-    showToast(`Added ${lookItem.name} to cart.`)
+    showToast(t('cart.itemAdded', { name: lookItem.name, defaultValue: `Added ${lookItem.name} to cart.` }))
   }
 
   // Xử lý chuyển sang trang Checkout chỉ với những món đang được tick chọn
   const handleProceedCheckout = () => {
     if (selectedCartItems.length === 0) {
-      showToast('Please select at least one item to proceed to checkout.')
+      showToast(t('cart.selectAtLeastOne', 'Please select at least one item to proceed to checkout.'))
       return
     }
 
@@ -208,7 +205,7 @@ export default function Cart() {
     }
 
     if (!currentUser) {
-      showToast('Authentication required: Please sign in or create an account to proceed with checkout.')
+      showToast(t('cart.authRequired', 'Authentication required: Please sign in or create an account to proceed with checkout.'))
       navigate('/login', {
         state: {
           from: {
@@ -238,22 +235,22 @@ export default function Cart() {
         className="flex items-center gap-2 mb-4 text-xs font-mono tracking-widest text-neutral-400 uppercase"
       >
         <Link to="/home" className="hover:text-[#111111] transition-colors">
-          HOME
+          {t('nav.home', 'HOME')}
         </Link>
         <span className="text-neutral-300">/</span>
-        <span className="text-[#111111] font-semibold">SHOPPING CART</span>
+        <span className="text-[#111111] font-semibold">{t('cart.pageTitle', 'SHOPPING CART')}</span>
       </nav>
 
       {/* 2. TIÊU ĐỀ TRANG & NÚT TIẾP TỤC KHÁM PHÁ */}
-      <div className="flex flex-col sm:flex-row sm:items-end justify-between pb-6 border-b border-neutral-200 gap-3">
-        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-[#111111] uppercase">
-          YOUR SHOPPING CART
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between pb-6 border-b border-[#E5E5E5] gap-3">
+        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-[#111111] uppercase font-sans">
+          {t('cart.yourCart', 'YOUR SHOPPING CART')}
         </h1>
         <Link
           to="/shop"
           className="inline-flex items-center gap-1.5 text-xs font-semibold tracking-widest uppercase text-neutral-500 hover:text-[#111111] transition-colors group"
         >
-          <span>CONTINUE EXPLORING COLLECTION</span>
+          <span>{t('cart.continueExploring', 'CONTINUE EXPLORING COLLECTION')}</span>
           <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />
         </Link>
       </div>
@@ -270,7 +267,7 @@ export default function Cart() {
               className="w-4 h-4 accent-[#111111] cursor-pointer rounded-none"
             />
             <span className="text-xs font-semibold tracking-wider text-[#111111] uppercase font-mono">
-              [✓] SELECT ALL ({cartItems.length < 10 ? `0${cartItems.length}` : cartItems.length} ITEMS)
+              {t('cart.selectAll', { count: cartItems.length < 10 ? `0${cartItems.length}` : cartItems.length, defaultValue: `[✓] SELECT ALL (${cartItems.length < 10 ? `0${cartItems.length}` : cartItems.length} ITEMS)` })}
             </span>
           </label>
 
@@ -281,7 +278,7 @@ export default function Cart() {
             className="text-xs font-medium tracking-wider text-neutral-500 hover:text-red-600 transition-colors flex items-center gap-1.5 uppercase cursor-pointer"
           >
             <Trash2 className="w-4 h-4" />
-            <span className="hidden sm:inline">DELETE SELECTED</span>
+            <span className="hidden sm:inline">{t('cart.deleteSelected', 'DELETE SELECTED')}</span>
           </button>
         </div>
       )}
@@ -291,12 +288,12 @@ export default function Cart() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
           {/* CỘT TRÁI (8 cột): Danh sách sản phẩm gom nhóm theo từng Shop */}
           <div className="lg:col-span-8 space-y-6">
-            {Object.entries(groupedByShop).map(([shopName, items]) => (
+            {shopGroups.map((group) => (
               <CartShopGroup
-                key={shopName}
-                shopName={shopName}
-                shopSlug={items[0]?.shopSlug || toShopSlug(shopName) || items[0]?.shopId?.replace(/^shop_/, '') || 'fashora'}
-                items={items}
+                key={group.shopId}
+                shopName={group.shopName}
+                shopSlug={group.items[0]?.shopSlug || toShopSlug(group.shopName) || group.shopId?.replace(/^shop_/, '') || 'fashora'}
+                items={group.items}
                 selectedItemIds={activeSelectedKeys}
                 onToggleShopSelect={handleToggleShop}
                 onToggleItemSelect={handleToggleItem}

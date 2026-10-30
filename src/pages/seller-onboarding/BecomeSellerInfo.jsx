@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { ArrowLeft, ArrowRight, Upload, X, AlertCircle, Phone, MapPin, CreditCard } from 'lucide-react'
 import { useOnboarding } from './BecomeSellerLayout'
 import OnboardingStepper from './components/OnboardingStepper'
@@ -10,6 +11,7 @@ import { safeBack } from '../../utils'
 import { uploadImage } from '../../utils/imageUpload'
 
 export default function BecomeSellerInfo() {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const { formData, updateFormData, currentUser } = useOnboarding()
   const fileInputRef = useRef(null)
@@ -22,25 +24,25 @@ export default function BecomeSellerInfo() {
   const [existingShops, setExistingShops] = useState([])
 
   const CATEGORIES = [
-    'ALL-IN-ONE FASHION',
-    'READY-TO-WEAR & APPAREL',
-    'ATELIER & BESPOKE TAILORING',
-    'FOOTWEAR & LEATHER GOODS',
-    'ACCESSORIES & JEWELRY',
-    'SUSTAINABLE & VINTAGE FASHION',
+    { value: 'ALL-IN-ONE FASHION', label: t('becomeSeller.info.categories.allInOne', 'ALL-IN-ONE FASHION') },
+    { value: 'READY-TO-WEAR & APPAREL', label: t('becomeSeller.info.categories.readyToWear', 'READY-TO-WEAR & APPAREL') },
+    { value: 'ATELIER & BESPOKE TAILORING', label: t('becomeSeller.info.categories.atelierBespoke', 'ATELIER & BESPOKE TAILORING') },
+    { value: 'FOOTWEAR & LEATHER GOODS', label: t('becomeSeller.info.categories.footwearLeather', 'FOOTWEAR & LEATHER GOODS') },
+    { value: 'ACCESSORIES & JEWELRY', label: t('becomeSeller.info.categories.accessoriesJewelry', 'ACCESSORIES & JEWELRY') },
+    { value: 'SUSTAINABLE & VINTAGE FASHION', label: t('becomeSeller.info.categories.sustainableVintage', 'SUSTAINABLE & VINTAGE FASHION') },
   ]
 
   const CITIES = [
-    'Ho Chi Minh City',
-    'Ha Noi',
-    'Da Nang',
-    'Can Tho',
-    'Hai Phong',
-    'Binh Duong',
-    'Dong Nai',
-    'Hue',
-    'Nha Trang',
-    'Quang Ninh',
+    { value: 'Ho Chi Minh City', label: t('cities.hcm', 'Ho Chi Minh City') },
+    { value: 'Ha Noi', label: t('cities.hn', 'Ha Noi') },
+    { value: 'Da Nang', label: t('cities.dn', 'Da Nang') },
+    { value: 'Can Tho', label: t('cities.ct', 'Can Tho') },
+    { value: 'Hai Phong', label: t('cities.hp', 'Hai Phong') },
+    { value: 'Binh Duong', label: t('cities.bd', 'Binh Duong') },
+    { value: 'Dong Nai', label: t('cities.dongnai', 'Dong Nai') },
+    { value: 'Hue', label: t('cities.hue', 'Hue') },
+    { value: 'Nha Trang', label: t('cities.nt', 'Nha Trang') },
+    { value: 'Quang Ninh', label: t('cities.qn', 'Quang Ninh') },
   ]
 
   const BANKS = [
@@ -91,11 +93,11 @@ export default function BecomeSellerInfo() {
 
     // 1. Tên shop
     if (!trimmedName) {
-      errs.shopName = 'Please enter a shop name.'
+      errs.shopName = t('becomeSeller.info.errors.shopNameRequired', 'Please enter a shop name.')
     } else if (trimmedName.length < 3) {
-      errs.shopName = 'Shop name must be at least 3 characters.'
+      errs.shopName = t('becomeSeller.info.errors.shopNameMin', 'Shop name must be at least 3 characters.')
     } else if (trimmedName.length > 50) {
-      errs.shopName = 'Shop name cannot exceed 50 characters.'
+      errs.shopName = t('becomeSeller.info.errors.shopNameMax', 'Shop name cannot exceed 50 characters.')
     } else {
       const candidateSlug = generateSlug(trimmedName)
       const isTaken = existingShops.some(
@@ -104,42 +106,46 @@ export default function BecomeSellerInfo() {
           (s.name && s.name.trim().toLowerCase() === trimmedName.toLowerCase())
       )
       if (isTaken) {
-        errs.shopName = `The shop name "${trimmedName}" or slug "${candidateSlug}" is already taken by another merchant.`
+        errs.shopName = t('becomeSeller.info.errors.shopNameTaken', {
+          name: trimmedName,
+          slug: candidateSlug,
+          defaultValue: `The shop name "${trimmedName}" or slug "${candidateSlug}" is already taken by another merchant.`
+        })
       }
     }
 
     // 2. Mô tả
     if (formData.shopDescription && formData.shopDescription.length > 300) {
-      errs.shopDescription = 'Description cannot exceed 300 characters.'
+      errs.shopDescription = t('becomeSeller.info.errors.descMax', 'Description cannot exceed 300 characters.')
     }
 
     // 3. Số điện thoại hotline
     const phone = (formData.shopPhone || '').trim()
     if (!phone) {
-      errs.shopPhone = 'Please enter a shop contact hotline.'
+      errs.shopPhone = t('becomeSeller.info.errors.phoneRequired', 'Please enter a shop contact hotline.')
     } else if (!/^[0-9+() -]{8,15}$/.test(phone)) {
-      errs.shopPhone = 'Please enter a valid phone number (8-15 digits).'
+      errs.shopPhone = t('becomeSeller.info.errors.phoneInvalid', 'Please enter a valid phone number (8-15 digits).')
     }
 
     // 4. Địa chỉ kho lấy hàng
     const address = (formData.shopAddress || '').trim()
     if (!address) {
-      errs.shopAddress = 'Please enter a warehouse / pickup dispatch address.'
+      errs.shopAddress = t('becomeSeller.info.errors.addressRequired', 'Please enter a warehouse / pickup dispatch address.')
     } else if (address.length < 5) {
-      errs.shopAddress = 'Detailed address must be at least 5 characters.'
+      errs.shopAddress = t('becomeSeller.info.errors.addressMin', 'Detailed address must be at least 5 characters.')
     }
 
     // 5. Tài khoản ngân hàng nhận tiền quyết toán
     const bankAcc = (formData.bankAccountNumber || '').trim()
     if (!bankAcc) {
-      errs.bankAccountNumber = 'Please enter a bank account number for payouts.'
+      errs.bankAccountNumber = t('becomeSeller.info.errors.bankAccRequired', 'Please enter a bank account number for payouts.')
     } else if (bankAcc.length < 6) {
-      errs.bankAccountNumber = 'Bank account number must be at least 6 digits.'
+      errs.bankAccountNumber = t('becomeSeller.info.errors.bankAccMin', 'Bank account number must be at least 6 digits.')
     }
 
     const bankAccName = (formData.bankAccountName || '').trim()
     if (!bankAccName) {
-      errs.bankAccountName = 'Please enter the bank account holder name.'
+      errs.bankAccountName = t('becomeSeller.info.errors.bankAccNameRequired', 'Please enter the bank account holder name.')
     }
 
     setErrors(errs)
@@ -153,7 +159,7 @@ export default function BecomeSellerInfo() {
       updateFormData({ shopName: value })
       const trimmed = value.trim()
       if (trimmed.length > 0 && trimmed.length < 3) {
-        setErrors((prev) => ({ ...prev, shopName: 'Shop name must be at least 3 characters.' }))
+        setErrors((prev) => ({ ...prev, shopName: t('becomeSeller.info.errors.shopNameMin', 'Shop name must be at least 3 characters.') }))
       } else if (trimmed.length >= 3) {
         const candidateSlug = generateSlug(trimmed)
         const isTaken = existingShops.some(
@@ -164,7 +170,11 @@ export default function BecomeSellerInfo() {
         if (isTaken) {
           setErrors((prev) => ({
             ...prev,
-            shopName: `The shop name "${trimmed}" or slug "${candidateSlug}" is already taken.`,
+            shopName: t('becomeSeller.info.errors.shopNameTaken', {
+              name: trimmed,
+              slug: candidateSlug,
+              defaultValue: `The shop name "${trimmed}" or slug "${candidateSlug}" is already taken.`
+            }),
           }))
         } else {
           setErrors((prev) => ({ ...prev, shopName: null }))
@@ -196,7 +206,15 @@ export default function BecomeSellerInfo() {
     if (!isImage) {
       setErrors((prev) => ({
         ...prev,
-        shopLogo: 'Please upload a valid image file (.jpg, .jpeg, .png, .webp).',
+        shopLogo: t('becomeSeller.info.errors.logoInvalid', 'Please upload a valid image file (.jpg, .jpeg, .png, .webp).'),
+      }))
+      return
+    }
+
+    if (file.size > 2 * 1024 * 1024) {
+      setErrors((prev) => ({
+        ...prev,
+        shopLogo: t('becomeSeller.info.errors.logoSize', 'Logo image size cannot exceed 2MB.'),
       }))
       return
     }
@@ -211,7 +229,7 @@ export default function BecomeSellerInfo() {
         updateFormData({
           shopLogo: result.url,
           shopLogoName: file.name,
-          shopLogoSize: `${(file.size / 1024).toFixed(0)} KB (Saved as static asset)`,
+          shopLogoSize: `${(file.size / 1024).toFixed(0)} KB`,
         })
       }
     } catch (uploadErr) {
@@ -273,19 +291,19 @@ export default function BecomeSellerInfo() {
       {/* 1. Breadcrumb & Header */}
       <div>
         <nav className="flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-neutral-400 mb-3">
-          <Link to="/home" className="hover:text-black transition-colors">HOME</Link>
+          <Link to="/home" className="hover:text-black transition-colors">{t('becomeSeller.breadcrumb.home', 'HOME')}</Link>
           <span>/</span>
-          <Link to="/become-seller" className="hover:text-black transition-colors">BECOME A SELLER</Link>
+          <Link to="/become-seller" className="hover:text-black transition-colors">{t('becomeSeller.breadcrumb.becomeSeller', 'BECOME A SELLER')}</Link>
           <span>/</span>
-          <span className="text-black font-semibold">SHOP INFORMATION</span>
+          <span className="text-black font-semibold">{t('becomeSeller.stepper.info', 'SHOP INFORMATION')}</span>
         </nav>
 
         <div className="space-y-1">
           <h1 className="text-2xl sm:text-3xl font-black uppercase tracking-widest text-black">
-            SHOP INFORMATION
+            {t('becomeSeller.info.title', 'SHOP INFORMATION')}
           </h1>
           <p className="text-xs sm:text-sm text-neutral-600 font-light">
-            Set up your public storefront specifications, operational dispatch address, and atelier payout details.
+            {t('becomeSeller.info.subtitle', 'Set up your public storefront specifications, operational dispatch address, and atelier payout details.')}
           </p>
         </div>
       </div>
@@ -304,7 +322,7 @@ export default function BecomeSellerInfo() {
             {/* PHẦN 1: THƯƠNG HIỆU GIAN HÀNG */}
             <div className="border-b border-neutral-100 pb-2">
               <span className="text-[11px] font-mono uppercase tracking-[0.2em] text-neutral-400 font-bold block">
-                01 • BRAND SPECIFICATIONS
+                {t('becomeSeller.info.basicInfo', '01 • BRAND SPECIFICATIONS')}
               </span>
             </div>
 
@@ -315,10 +333,10 @@ export default function BecomeSellerInfo() {
                   htmlFor="shopName"
                   className="text-xs font-bold uppercase tracking-wider text-black flex items-center gap-1"
                 >
-                  SHOP NAME <span className="text-red-500">*</span>
+                  {t('becomeSeller.info.shopNameLabel', 'SHOP NAME')} <span className="text-red-500">*</span>
                 </label>
                 <span className="text-[10px] font-mono text-neutral-400">
-                  {(formData.shopName || '').length} / 50
+                  {t('becomeSeller.info.charCount', { count: (formData.shopName || '').length, max: 50, defaultValue: `${(formData.shopName || '').length} / 50` })}
                 </span>
               </div>
               <input
@@ -326,7 +344,7 @@ export default function BecomeSellerInfo() {
                 type="text"
                 value={formData.shopName || ''}
                 onChange={handleNameChange}
-                placeholder="e.g. ATELIER VANCE, MAISON NOIR..."
+                placeholder={t('becomeSeller.info.shopNamePlaceholder', 'e.g. ATELIER VANCE, MAISON NOIR...')}
                 className={`w-full bg-white border px-3.5 py-2.5 text-xs sm:text-sm text-black placeholder:text-neutral-400 focus:outline-none transition-colors ${
                   errors.shopName ? 'border-red-500 focus:border-red-500' : 'border-neutral-300 focus:border-black'
                 }`}
@@ -345,18 +363,18 @@ export default function BecomeSellerInfo() {
                 htmlFor="shopCategory"
                 className="text-xs font-bold uppercase tracking-wider text-black flex items-center gap-1"
               >
-                SHOP CATEGORY <span className="text-red-500">*</span>
+                {t('becomeSeller.info.categoryLabel', 'SHOP CATEGORY')} <span className="text-red-500">*</span>
               </label>
               <div className="relative">
                 <select
                   id="shopCategory"
-                  value={formData.shopCategory || CATEGORIES[0]}
+                  value={formData.shopCategory || CATEGORIES[0].value}
                   onChange={(e) => updateFormData({ shopCategory: e.target.value })}
                   className="w-full bg-white border border-neutral-300 pl-3.5 pr-10 py-2.5 text-xs sm:text-sm text-black focus:outline-none focus:border-black uppercase tracking-wider appearance-none cursor-pointer truncate"
                 >
                   {CATEGORIES.map((cat) => (
-                    <option key={cat} value={cat}>
-                      {cat}
+                    <option key={cat.value} value={cat.value}>
+                      {cat.label}
                     </option>
                   ))}
                 </select>
@@ -375,13 +393,13 @@ export default function BecomeSellerInfo() {
                   htmlFor="shopDescription"
                   className="text-xs font-bold uppercase tracking-wider text-black flex items-center gap-2"
                 >
-                  <span>SHOP DESCRIPTION</span>
+                  <span>{t('becomeSeller.info.descriptionLabel', 'SHOP DESCRIPTION')}</span>
                   <span className="text-[10px] font-mono text-neutral-400 border border-neutral-200 px-1.5 py-0.2">
-                    OPTIONAL
+                    {t('common.optional', 'OPTIONAL')}
                   </span>
                 </label>
                 <span className="text-[10px] font-mono text-neutral-400">
-                  {(formData.shopDescription || '').length} / 300
+                  {t('becomeSeller.info.charCount', { count: (formData.shopDescription || '').length, max: 300, defaultValue: `${(formData.shopDescription || '').length} / 300` })}
                 </span>
               </div>
               <textarea
@@ -389,7 +407,7 @@ export default function BecomeSellerInfo() {
                 rows={3}
                 value={formData.shopDescription || ''}
                 onChange={handleDescriptionChange}
-                placeholder="Brief description of your brand aesthetic, design philosophy, and curated collections..."
+                placeholder={t('becomeSeller.info.descriptionPlaceholder', 'Brief description of your brand aesthetic, design philosophy, and curated collections...')}
                 className={`w-full bg-white border px-3.5 py-2.5 text-xs sm:text-sm text-black placeholder:text-neutral-400 focus:outline-none transition-colors resize-none ${
                   errors.shopDescription ? 'border-red-500 focus:border-red-500' : 'border-neutral-300 focus:border-black'
                 }`}
@@ -406,9 +424,9 @@ export default function BecomeSellerInfo() {
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <label className="text-xs font-bold uppercase tracking-wider text-black flex items-center gap-2">
-                  <span>SHOP LOGO</span>
+                  <span>{t('becomeSeller.info.logoLabel', 'SHOP LOGO')}</span>
                   <span className="text-[10px] font-mono text-neutral-400 border border-neutral-200 px-1.5 py-0.2">
-                    OPTIONAL
+                    {t('common.optional', 'OPTIONAL')}
                   </span>
                 </label>
                 <div className="flex items-center gap-2 text-[10px] font-mono">
@@ -419,7 +437,7 @@ export default function BecomeSellerInfo() {
                       logoInputType === 'file' ? 'underline font-bold text-black' : 'text-neutral-400'
                     }`}
                   >
-                    Upload File
+                    {t('becomeSeller.info.uploadTab', 'Upload File')}
                   </button>
                   <span className="text-neutral-300">|</span>
                   <button
@@ -429,7 +447,7 @@ export default function BecomeSellerInfo() {
                       logoInputType === 'url' ? 'underline font-bold text-black' : 'text-neutral-400'
                     }`}
                   >
-                    Image URL
+                    {t('becomeSeller.info.urlTab', 'Image URL')}
                   </button>
                 </div>
               </div>
@@ -467,13 +485,13 @@ export default function BecomeSellerInfo() {
                       }}
                       className="text-[10px] font-mono uppercase underline text-neutral-500 hover:text-black cursor-pointer px-1 py-1"
                     >
-                      Change
+                      {t('common.edit', 'Change')}
                     </button>
                     <button
                       type="button"
                       onClick={handleRemoveLogo}
                       className="p-1.5 text-neutral-400 hover:text-red-500 hover:bg-neutral-100 transition-colors cursor-pointer"
-                      title="Remove logo"
+                      title={t('becomeSeller.info.removeLogo', 'Remove logo')}
                     >
                       <X className="w-4 h-4" />
                     </button>
@@ -519,10 +537,10 @@ export default function BecomeSellerInfo() {
                       </div>
                       <div className="space-y-0.5">
                         <p className="text-xs font-bold uppercase tracking-wider text-black">
-                          {isUploadingLogo ? 'UPLOADING STATIC FILE...' : 'UPLOAD LOGO EMBLEM'}
+                          {isUploadingLogo ? t('becomeSeller.info.uploading', 'UPLOADING...') : t('becomeSeller.info.logoLabel', 'UPLOAD LOGO EMBLEM')}
                         </p>
                         <p className="text-[11px] font-mono text-neutral-400">
-                          PNG / JPG / WEBP, saved directly to atelier storage
+                          {t('becomeSeller.info.logoFormat', 'PNG, JPG, or WEBP up to 2MB. Square 500x500px recommended.')}
                         </p>
                       </div>
                     </div>
@@ -534,7 +552,7 @@ export default function BecomeSellerInfo() {
                     type="url"
                     value={logoUrlInput}
                     onChange={(e) => setLogoUrlInput(e.target.value)}
-                    placeholder="https://example.com/logo.png"
+                    placeholder={t('becomeSeller.info.enterImageUrl', 'Enter direct public image URL (https://...)')}
                     className="flex-1 bg-white border border-neutral-300 px-3.5 py-2.5 text-xs text-black placeholder:text-neutral-400 focus:outline-none focus:border-black"
                   />
                   <button
@@ -542,7 +560,7 @@ export default function BecomeSellerInfo() {
                     onClick={handleUrlSubmit}
                     className="bg-black text-white px-4 py-2.5 text-xs font-mono uppercase tracking-wider hover:bg-neutral-800 cursor-pointer"
                   >
-                    APPLY
+                    {t('common.apply', 'APPLY')}
                   </button>
                 </div>
               )}
@@ -559,7 +577,7 @@ export default function BecomeSellerInfo() {
             <div className="pt-4 border-t border-neutral-200 space-y-4">
               <div className="border-b border-neutral-100 pb-2">
                 <span className="text-[11px] font-mono uppercase tracking-[0.2em] text-neutral-400 font-bold block">
-                  02 • LOGISTICS & WAREHOUSE DISPATCH
+                  {t('becomeSeller.info.contactInfo', '02 • LOGISTICS & WAREHOUSE DISPATCH')}
                 </span>
               </div>
 
@@ -570,7 +588,7 @@ export default function BecomeSellerInfo() {
                   className="text-xs font-bold uppercase tracking-wider text-black flex items-center gap-1"
                 >
                   <Phone className="w-3.5 h-3.5" />
-                  <span>HOTLINE / CONTACT PHONE</span> <span className="text-red-500">*</span>
+                  <span>{t('becomeSeller.info.phoneLabel', 'HOTLINE / CONTACT PHONE')}</span> <span className="text-red-500">*</span>
                 </label>
                 <input
                   id="shopPhone"
@@ -580,7 +598,7 @@ export default function BecomeSellerInfo() {
                     updateFormData({ shopPhone: e.target.value })
                     if (errors.shopPhone) setErrors((prev) => ({ ...prev, shopPhone: null }))
                   }}
-                  placeholder="e.g. +84 912 345 678"
+                  placeholder={t('becomeSeller.info.phonePlaceholder', '0901234567')}
                   className={`w-full bg-white border px-3.5 py-2.5 text-xs sm:text-sm text-black placeholder:text-neutral-400 focus:outline-none transition-colors ${
                     errors.shopPhone ? 'border-red-500 focus:border-red-500' : 'border-neutral-300 focus:border-black'
                   }`}
@@ -600,18 +618,18 @@ export default function BecomeSellerInfo() {
                   className="text-xs font-bold uppercase tracking-wider text-black flex items-center gap-1"
                 >
                   <MapPin className="w-3.5 h-3.5" />
-                  <span>CITY / PROVINCE</span> <span className="text-red-500">*</span>
+                  <span>{t('becomeSeller.info.cityLabel', 'CITY / PROVINCE')}</span> <span className="text-red-500">*</span>
                 </label>
                 <div className="relative">
                   <select
                     id="shopCity"
-                    value={formData.shopCity || CITIES[0]}
+                    value={formData.shopCity || CITIES[0].value}
                     onChange={(e) => updateFormData({ shopCity: e.target.value })}
                     className="w-full bg-white border border-neutral-300 pl-3.5 pr-10 py-2.5 text-xs sm:text-sm text-black focus:outline-none focus:border-black uppercase tracking-wider appearance-none cursor-pointer truncate"
                   >
                     {CITIES.map((c) => (
-                      <option key={c} value={c}>
-                        {c}
+                      <option key={c.value} value={c.value}>
+                        {c.label}
                       </option>
                     ))}
                   </select>
@@ -629,7 +647,7 @@ export default function BecomeSellerInfo() {
                   htmlFor="shopAddress"
                   className="text-xs font-bold uppercase tracking-wider text-black flex items-center gap-1"
                 >
-                  <span>PICKUP / WAREHOUSE DISPATCH ADDRESS</span> <span className="text-red-500">*</span>
+                  <span>{t('becomeSeller.info.addressLabel', 'PICKUP / WAREHOUSE DISPATCH ADDRESS')}</span> <span className="text-red-500">*</span>
                 </label>
                 <input
                   id="shopAddress"
@@ -639,7 +657,7 @@ export default function BecomeSellerInfo() {
                     updateFormData({ shopAddress: e.target.value })
                     if (errors.shopAddress) setErrors((prev) => ({ ...prev, shopAddress: null }))
                   }}
-                  placeholder="e.g. 128 Le Duan Boulevard, Ben Nghe Ward, District 1"
+                  placeholder={t('becomeSeller.info.addressPlaceholder', 'e.g. 128 Le Duan Boulevard, Ben Nghe Ward, District 1')}
                   className={`w-full bg-white border px-3.5 py-2.5 text-xs sm:text-sm text-black placeholder:text-neutral-400 focus:outline-none transition-colors ${
                     errors.shopAddress ? 'border-red-500 focus:border-red-500' : 'border-neutral-300 focus:border-black'
                   }`}
@@ -657,7 +675,7 @@ export default function BecomeSellerInfo() {
             <div className="pt-4 border-t border-neutral-200 space-y-4">
               <div className="border-b border-neutral-100 pb-2">
                 <span className="text-[11px] font-mono uppercase tracking-[0.2em] text-neutral-400 font-bold block">
-                  03 • AUTOMATED PAYOUT & SETTLEMENT ACCOUNT
+                  {t('becomeSeller.info.bankingInfo', '03 • AUTOMATED PAYOUT & SETTLEMENT ACCOUNT')}
                 </span>
               </div>
 
@@ -668,7 +686,7 @@ export default function BecomeSellerInfo() {
                   className="text-xs font-bold uppercase tracking-wider text-black flex items-center gap-1"
                 >
                   <CreditCard className="w-3.5 h-3.5" />
-                  <span>SETTLEMENT BANK</span> <span className="text-red-500">*</span>
+                  <span>{t('becomeSeller.info.bankLabel', 'SETTLEMENT BANK')}</span> <span className="text-red-500">*</span>
                 </label>
                 <div className="relative">
                   <select
@@ -698,7 +716,7 @@ export default function BecomeSellerInfo() {
                     htmlFor="bankAccountNumber"
                     className="text-xs font-bold uppercase tracking-wider text-black flex items-center gap-1"
                   >
-                    <span>ACCOUNT NUMBER</span> <span className="text-red-500">*</span>
+                    <span>{t('becomeSeller.info.accountNumberLabel', 'ACCOUNT NUMBER')}</span> <span className="text-red-500">*</span>
                   </label>
                   <input
                     id="bankAccountNumber"
@@ -708,7 +726,7 @@ export default function BecomeSellerInfo() {
                       updateFormData({ bankAccountNumber: e.target.value })
                       if (errors.bankAccountNumber) setErrors((prev) => ({ ...prev, bankAccountNumber: null }))
                     }}
-                    placeholder="e.g. 0123456789"
+                    placeholder={t('becomeSeller.info.accountNumberPlaceholder', 'e.g. 0123456789')}
                     className={`w-full bg-white border px-3.5 py-2.5 text-xs sm:text-sm text-black placeholder:text-neutral-400 focus:outline-none transition-colors ${
                       errors.bankAccountNumber ? 'border-red-500 focus:border-red-500' : 'border-neutral-300 focus:border-black'
                     }`}
@@ -726,7 +744,7 @@ export default function BecomeSellerInfo() {
                     htmlFor="bankAccountName"
                     className="text-xs font-bold uppercase tracking-wider text-black flex items-center gap-1"
                   >
-                    <span>ACCOUNT HOLDER NAME</span> <span className="text-red-500">*</span>
+                    <span>{t('becomeSeller.info.accountNameLabel', 'ACCOUNT HOLDER NAME')}</span> <span className="text-red-500">*</span>
                   </label>
                   <input
                     id="bankAccountName"
@@ -736,7 +754,7 @@ export default function BecomeSellerInfo() {
                       updateFormData({ bankAccountName: e.target.value })
                       if (errors.bankAccountName) setErrors((prev) => ({ ...prev, bankAccountName: null }))
                     }}
-                    placeholder="e.g. NGUYEN VAN A"
+                    placeholder={t('becomeSeller.info.accountNamePlaceholder', 'e.g. NGUYEN VAN A')}
                     className={`w-full bg-white border px-3.5 py-2.5 text-xs sm:text-sm text-black placeholder:text-neutral-400 focus:outline-none transition-colors uppercase ${
                       errors.bankAccountName ? 'border-red-500 focus:border-red-500' : 'border-neutral-300 focus:border-black'
                     }`}
@@ -759,14 +777,14 @@ export default function BecomeSellerInfo() {
                 className="w-full sm:w-auto px-6 py-3.5 border border-neutral-300 text-xs font-mono uppercase tracking-wider text-black hover:border-black transition-colors flex items-center justify-center gap-2 cursor-pointer order-2 sm:order-1"
               >
                 <ArrowLeft className="w-4 h-4" />
-                <span>BACK TO OVERVIEW</span>
+                <span>{t('becomeSeller.info.back', 'BACK TO OVERVIEW')}</span>
               </button>
 
               <button
                 type="submit"
                 className="w-full sm:w-auto px-8 py-3.5 bg-black text-white text-xs font-mono uppercase tracking-widest hover:bg-neutral-800 transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-sm group order-1 sm:order-2"
               >
-                <span>CONTINUE TO REVIEW</span>
+                <span>{t('becomeSeller.info.continueBtn', 'CONTINUE TO REVIEW')}</span>
                 <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
               </button>
             </div>

@@ -1,12 +1,16 @@
 import { useState, useEffect } from 'react'
 import { useParams, Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { safeBack } from '../../utils'
-import { Store, MapPin, Phone, CheckCircle2, AlertTriangle, ArrowLeft, Search, Layers } from 'lucide-react'
+import { Store, MapPin, Phone, CheckCircle2, AlertTriangle, ArrowLeft, Search, Layers, Check, Plus } from 'lucide-react'
+import { Toast } from '../../components/common'
+import { useFollowShop } from '../../hooks/useFollowShop'
 import { getShops, getProductsByShop, getProducts } from '../../services/api'
 import { formatVND, handleImageError, FALLBACK_IMAGE, toShopSlug } from '../../constants/commerce'
 import { useAuth } from '../../contexts/AuthContext'
 
 export default function Storefront() {
+  const { t } = useTranslation()
   const { slug } = useParams()
   const location = useLocation()
   const navigate = useNavigate()
@@ -16,6 +20,10 @@ export default function Storefront() {
   const [products, setProducts] = useState([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState(null)
+  const [toastMessage, setToastMessage] = useState('')
+
+  // Hook quản lý trạng thái theo dõi gian hàng
+  const { isFollowing, toggleFollow, isUpdating: isFollowUpdating } = useFollowShop()
 
   const ITEMS_PER_PAGE = 16
 
@@ -149,7 +157,7 @@ export default function Storefront() {
       <div className="min-h-[60vh] flex flex-col items-center justify-center p-8 space-y-4">
         <div className="w-8 h-8 border-2 border-black border-t-transparent rounded-full animate-spin" />
         <p className="text-xs font-mono text-neutral-400 uppercase tracking-widest">
-          RETRIEVING ATELIER ARCHIVE...
+          {t('storefront.retrieving')}
         </p>
       </div>
     )
@@ -160,10 +168,10 @@ export default function Storefront() {
       <div className="max-w-xl mx-auto my-16 p-8 bg-white border border-neutral-300 text-center space-y-4 font-mono">
         <Store className="w-10 h-10 text-neutral-400 mx-auto" />
         <h2 className="text-base font-bold uppercase tracking-wider text-black">
-          STOREFRONT NOT FOUND
+          {t('storefront.notFound')}
         </h2>
         <p className="text-xs text-neutral-500">
-          {error || `The atelier with slug "/store/${slug}" does not exist or has been archived.`}
+          {error || t('storefront.notFoundDesc', { slug })}
         </p>
         <div className="pt-2">
           <button
@@ -172,7 +180,7 @@ export default function Storefront() {
             className="inline-flex items-center gap-2 px-5 py-2.5 bg-black text-white text-xs uppercase tracking-wider hover:bg-neutral-800 transition-colors cursor-pointer"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
-            <span>Explore Fashora Catalog</span>
+            <span>{t('storefront.exploreCatalog')}</span>
           </button>
         </div>
       </div>
@@ -181,6 +189,22 @@ export default function Storefront() {
 
   const isPaused = (shop.status || '').toUpperCase() === 'PAUSED'
   const isOwner = currentUser && (currentUser.shopId === shop.id || currentUser.id === shop.ownerId)
+  const isShopFollowed = Boolean(shop && isFollowing(shop.id || shop.slug, shop))
+
+  const handleFollowToggle = async () => {
+    if (isOwner) {
+      setToastMessage(t('storefront.ownAtelierToast'))
+      return
+    }
+    const res = await toggleFollow(shop)
+    if (res.success) {
+      setToastMessage(
+        res.isNowFollowing
+          ? t('storefront.followSuccess', { name: shop?.name || 'atelier' })
+          : t('storefront.unfollowSuccess', { name: shop?.name || 'atelier' })
+      )
+    }
+  }
   const isFromSellerCenter = Boolean(
     location.state?.from &&
     (location.state.from.startsWith('/seller') || isOwner)
@@ -235,7 +259,7 @@ export default function Storefront() {
         <div className="w-full bg-amber-500 text-black px-6 py-3 font-mono text-xs uppercase tracking-wider font-bold flex items-center justify-center gap-2 border-b border-amber-600">
           <AlertTriangle className="w-4 h-4 shrink-0" />
           <span>
-            ATELIER HIATUS: "{shop.name}" is currently paused. Garment purchases and orders are temporarily suspended.
+            {t('storefront.hiatusNotice', { name: shop.name })}
           </span>
         </div>
       )}
@@ -297,8 +321,8 @@ export default function Storefront() {
               <div className="space-y-1.5 min-w-0">
                 <div className="flex items-center gap-2.5 flex-wrap">
                   <h1
-                    className={`text-2xl sm:text-3xl font-black uppercase tracking-wider ${
-                      hasCover ? 'text-white drop-shadow-sm' : 'text-black'
+                    className={`text-2xl sm:text-3xl lg:text-4xl font-bold uppercase tracking-tight ${
+                      hasCover ? 'text-white drop-shadow-sm' : 'text-[#111111]'
                     }`}
                   >
                     {shop.name}
@@ -309,7 +333,7 @@ export default function Storefront() {
                     }`}
                   >
                     <CheckCircle2 className="w-3 h-3 text-emerald-400" />
-                    VERIFIED ATELIER
+                    {t('storefront.verifiedAtelier')}
                   </span>
                   <span
                     className={`inline-flex items-center gap-1 text-[10px] font-mono tracking-wider px-2 py-0.5 border ${
@@ -327,7 +351,7 @@ export default function Storefront() {
                         isPaused ? 'bg-amber-500' : 'bg-emerald-400 animate-pulse'
                       }`}
                     />
-                    <span>{isPaused ? 'PAUSED' : 'ACTIVE'}</span>
+                    <span>{isPaused ? t('storefront.paused') : t('storefront.active')}</span>
                   </span>
                 </div>
 
@@ -336,7 +360,7 @@ export default function Storefront() {
                     hasCover ? 'text-neutral-200' : 'text-neutral-800'
                   }`}
                 >
-                  {shop.tagline || 'Contemporary Minimalist Fashion Atelier'}
+                  {shop.tagline || t('storefront.defaultTagline')}
                 </p>
 
                 <p
@@ -344,7 +368,7 @@ export default function Storefront() {
                     hasCover ? 'text-neutral-300' : 'text-neutral-600'
                   }`}
                 >
-                  {shop.description || 'Independent fashion design house on FASHORA.'}
+                  {shop.description || t('storefront.defaultDescription')}
                 </p>
 
                 {/* Sub-specs */}
@@ -380,6 +404,40 @@ export default function Storefront() {
 
             {/* Right: Quick Actions */}
             <div className="flex flex-row md:flex-col items-center md:items-end gap-3 shrink-0">
+              {/* Nút Theo dõi Gian hàng (Follow / Following) */}
+              {!isOwner ? (
+                <button
+                  type="button"
+                  onClick={handleFollowToggle}
+                  disabled={isFollowUpdating}
+                  className={`px-4 py-2.5 text-xs font-mono uppercase tracking-wider transition-all inline-flex items-center gap-2 cursor-pointer shadow-sm rounded-[2px] ${
+                    isShopFollowed
+                      ? hasCover
+                        ? 'bg-white/20 hover:bg-white/30 text-white border border-white/50 backdrop-blur-sm'
+                        : 'bg-neutral-100 hover:bg-neutral-200 text-black border border-neutral-300'
+                      : hasCover
+                      ? 'bg-white text-black hover:bg-neutral-200 font-semibold'
+                      : 'bg-black text-white hover:bg-neutral-800 font-semibold'
+                  }`}
+                  title={isShopFollowed ? 'Click to unfollow atelier' : 'Click to follow this atelier'}
+                >
+                  {isShopFollowed ? (
+                    <>
+                      <Check className="w-3.5 h-3.5" />
+                      <span>{t('storefront.following')}</span>
+                    </>
+                  ) : (
+                    <>
+                      <Plus className="w-3.5 h-3.5" />
+                      <span>{t('storefront.followShop')}</span>
+                    </>
+                  )}
+                </button>
+              ) : (
+                <span className="px-3.5 py-2 text-[11px] font-mono uppercase tracking-wider text-emerald-300 bg-emerald-950/60 border border-emerald-800/80 rounded-[2px] font-semibold">
+                  {t('storefront.yourAtelier')}
+                </span>
+              )}
               {isFromSellerCenter && (
                 <button
                   type="button"
@@ -398,7 +456,7 @@ export default function Storefront() {
                   title="Return to Seller Center"
                 >
                   <ArrowLeft className="w-3.5 h-3.5 transition-transform group-hover:-translate-x-1" />
-                  <span>BACK TO SELLER CENTER</span>
+                  <span>{t('storefront.backToSellerCenter')}</span>
                 </button>
               )}
               <button
@@ -411,7 +469,7 @@ export default function Storefront() {
                 }`}
                 title="Browse all products in catalog"
               >
-                Back to All Brands
+                {t('storefront.backToAllBrands')}
               </button>
             </div>
           </div>
@@ -447,7 +505,7 @@ export default function Storefront() {
               type="text"
               value={searchQuery}
               onChange={(e) => handleSearchChange(e.target.value)}
-              placeholder="Search in this atelier..."
+              placeholder={t('storefront.searchPlaceholder')}
               className="w-full pl-9 pr-3 py-2 bg-white border border-neutral-300 text-xs text-black placeholder:text-neutral-400 focus:outline-none focus:border-black"
             />
           </div>
@@ -456,10 +514,10 @@ export default function Storefront() {
         {/* Product Count Header */}
         <div className="py-4 flex items-center justify-between text-xs font-mono text-neutral-500">
           <span>
-            SHOWING {paginatedProducts.length} OF {filteredProducts.length} GARMENTS
-            {totalPages > 1 && ` • PAGE ${currentPage} OF ${totalPages}`}
+            {t('storefront.showingGarments', { shown: paginatedProducts.length, total: filteredProducts.length })}
+            {totalPages > 1 && t('storefront.pageIndicator', { current: currentPage, total: totalPages })}
           </span>
-          <span>CURATED CAPSULE ARCHIVE</span>
+          <span>{t('storefront.curatedArchive')}</span>
         </div>
 
         {/* Product Grid */}
@@ -493,7 +551,7 @@ export default function Storefront() {
                   {(p.isSoldOut || Number(p.stock) === 0) && (
                     <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
                       <span className="text-white text-xs font-mono uppercase tracking-widest font-bold border border-white px-3 py-1">
-                        SOLD OUT
+                        {t('storefront.soldOut')}
                       </span>
                     </div>
                   )}
@@ -528,10 +586,10 @@ export default function Storefront() {
           <div className="p-16 text-center bg-white border border-neutral-200 space-y-3 font-mono my-8">
             <Layers className="w-8 h-8 text-neutral-400 mx-auto" />
             <h4 className="text-sm font-bold uppercase tracking-wider text-black">
-              NO GARMENTS FOUND
+              {t('storefront.noGarmentsFound')}
             </h4>
             <p className="text-xs text-neutral-500 max-w-md mx-auto">
-              This atelier has not cataloged any pieces matching your filter. Check back soon for new collection drops.
+              {t('storefront.noGarmentsDesc')}
             </p>
           </div>
         )}
@@ -548,7 +606,7 @@ export default function Storefront() {
                   ? 'border-neutral-100 text-neutral-300 cursor-not-allowed'
                   : 'border-neutral-200 text-neutral-700 hover:border-black cursor-pointer'
               }`}
-              title="Previous Page"
+              title={t('common.previous')}
             >
               <svg className="w-4 h-4 stroke-current" fill="none" viewBox="0 0 24 24" strokeWidth="2">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
@@ -583,7 +641,7 @@ export default function Storefront() {
                   ? 'border-neutral-100 text-neutral-300 cursor-not-allowed'
                   : 'border-neutral-200 text-neutral-700 hover:border-black cursor-pointer'
               }`}
-              title="Next Page"
+              title={t('common.next')}
             >
               <svg className="w-4 h-4 stroke-current" fill="none" viewBox="0 0 24 24" strokeWidth="2">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
@@ -592,6 +650,13 @@ export default function Storefront() {
           </div>
         )}
       </section>
+
+      {/* Thông báo Toast dùng chung */}
+      <Toast
+        isVisible={Boolean(toastMessage)}
+        message={toastMessage}
+        onClose={() => setToastMessage('')}
+      />
     </div>
   )
 }

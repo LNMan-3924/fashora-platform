@@ -1,40 +1,44 @@
 import { useState, useEffect } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { safeBack } from '../../utils'
 import { ArrowLeft, Copy } from 'lucide-react'
-import { Badge, Toast, Modal, Button } from '../../components/common'
-import { getOrderById, getOrders, updateOrderStatus } from '../../services/api'
+import { Badge, Toast, Button } from '../../components/common'
+import { fetchOrderByIdOrNumber, updateOrderStatus } from '../../services/api'
 import { useAuth } from '../../contexts/AuthContext'
 import {
   STATUS_CONFIG,
   formatDate,
   canCancelOrder,
+  isOrderOwnedByUser,
   OrderTimeline,
   OrderStatusNotice,
   OrderItemsList,
   OrderDeliveryInfo,
   OrderPriceSummary,
+  CancelOrderModal,
 } from '../../components/order'
 
 /**
  * Trang Chi tiết Đơn hàng (Customer Order Detail Page)
- *
- * Tính năng chính:
- * - Tra cứu và hiển thị chi tiết đơn hàng thực tế theo id/orderNumber trên URL (:id).
- * - Tự động tải từ API db.json (GET /orders/:id) hoặc tra cứu từ danh sách đơn hàng thực tế trong LocalStorage.
- * - Không sử dụng đơn hàng giả định (mock data) làm dự phòng.
- * - Giao diện chia nhỏ theo các component chuyên biệt trong src/components/order/:
- *   + OrderTimeline: Stepper 4 bước tiến độ giao hàng trực quan.
- *   + OrderStatusNotice: Banner thông báo tiến độ theo màu sắc và icon.
- *   + OrderItemsList: Danh sách sản phẩm chi tiết kèm fallback xử lý ảnh lỗi.
- *   + OrderDeliveryInfo: Thông tin người nhận và điều phối vận chuyển SPX Express.
- *   + OrderPriceSummary: Bảng tóm tắt tài chính và các nút hành động (Hủy đơn, Mua sắm).
- * - Bố cục responsive hoàn hảo cho Mobile, Tablet và Desktop.
  */
 export default function OrderDetail() {
+  const { t } = useTranslation()
   const { id } = useParams()
   const navigate = useNavigate()
   const { currentUser } = useAuth()
+
+  const getStatusLabel = (st) => {
+    switch (st?.toUpperCase()) {
+      case 'PENDING': return t('orders.pending')
+      case 'CONFIRMED':
+      case 'PROCESSING': return t('orders.confirmed')
+      case 'SHIPPING': return t('orders.shipping')
+      case 'COMPLETED': return t('orders.delivered')
+      case 'CANCELLED': return t('orders.cancelled')
+      default: return st
+    }
+  }
 
   // State lưu trữ dữ liệu chi tiết của đơn hàng
   const [order, setOrder] = useState(null)
@@ -43,6 +47,7 @@ export default function OrderDetail() {
 
   // State quản lý Modal xác nhận hủy đơn
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false)
+  const [isCancelling, setIsCancelling] = useState(false)
 
   // State quản lý thông báo Toast
   const [toast, setToast] = useState({ visible: false, message: '' })
@@ -53,84 +58,37 @@ export default function OrderDetail() {
   }, [])
 
   // =========================================================================
-  // 1. TẢI CHI TIẾT ĐƠN HÀNG TỪ API DB.JSON VÀ XÁC THỰC QUYỀN SỞ HỮU
+  // 1. TẢI CHI TIẾT ĐƠN HÀNG TỪ API DB.JSON VÀ XÁC THỰC QUYỀN SỞ HỮU (Tái sử dụng fetchOrderByIdOrNumber)
   // =========================================================================
   useEffect(() => {
     let isMounted = true
 
-    // Hàm kiểm tra quyền sở hữu đơn hàng của tài khoản đang đăng nhập
-    const isOrderOwnedByCurrentUser = (ord) => {
-      if (!ord || !currentUser) return false
-      const matchUserId = Boolean(ord.userId && String(ord.userId) === String(currentUser.id))
-      const matchEmail = Boolean(
-        currentUser.email &&
-        ord.customerEmail &&
-        ord.customerEmail.trim().toLowerCase() === currentUser.email.trim().toLowerCase()
-      )
-      return matchUserId || matchEmail
-    }
+    const loadOrder = async () => {
+      try {
+        const foundOrder = await fetchOrderByIdOrNumber(id)
+        if (!isMounted) return
 
-    const handleOrderData = (data) => {
-      if (data && (data.id || data.orderNumber)) {
-        if (isOrderOwnedByCurrentUser(data)) {
-          setOrder(data)
+        if (foundOrder && isOrderOwnedByUser(foundOrder, currentUser)) {
+          setOrder(foundOrder)
           setNotFound(false)
+        } else {
+          setOrder(null)
+          setNotFound(true)
+        }
+      } catch (err) {
+        console.error('OrderDetail: Lỗi tải đơn hàng từ API:', err)
+        if (isMounted) {
+          setOrder(null)
+          setNotFound(true)
+        }
+      } finally {
+        if (isMounted) {
           setLoading(false)
-          return true
         }
       }
-      return false
     }
 
-    // 1. Gọi API lấy đơn hàng theo ID
-    getOrderById(id)
-      .then((res) => {
-        if (!isMounted) return
-        const data = res?.data || res
-        if (handleOrderData(data)) {
-          return
-        }
-        return getOrders()
-      })
-      .then((res) => {
-        if (!isMounted || !res) return
-        const list = res?.data || res
-        if (Array.isArray(list)) {
-          const found = list.find((o) => o.id === id || o.orderNumber === id)
-          if (handleOrderData(found)) {
-            return
-          }
-        }
-        setOrder(null)
-        setNotFound(true)
-        setLoading(false)
-      })
-      .catch(() => {
-        if (!isMounted) return
-        // Khi getOrderById lỗi (ví dụ id là mã đơn #SPXVN...), fallback tìm qua getOrders()
-        getOrders()
-          .then((res) => {
-            if (!isMounted) return
-            const list = res?.data || res
-            if (Array.isArray(list)) {
-              const found = list.find((o) => o.id === id || o.orderNumber === id)
-              if (handleOrderData(found)) {
-                return
-              }
-            }
-            setOrder(null)
-            setNotFound(true)
-            setLoading(false)
-          })
-          .catch((finalErr) => {
-            console.error('OrderDetail: Error loading order from API:', finalErr)
-            if (isMounted) {
-              setOrder(null)
-              setNotFound(true)
-              setLoading(false)
-            }
-          })
-      })
+    loadOrder()
 
     return () => {
       isMounted = false
@@ -150,26 +108,35 @@ export default function OrderDetail() {
     if (navigator?.clipboard?.writeText) {
       navigator.clipboard.writeText(code).catch(() => { })
     }
-    showToast(`Order code ${code} copied to clipboard`)
+    showToast(t('orders.copiedToast', { orderNum: code }))
   }
 
-  // Xác nhận hủy đơn hàng qua API
-  const handleConfirmCancel = async () => {
+  // Xác nhận hủy đơn hàng qua API kèm lý do
+  const handleConfirmCancel = async ({ reason }) => {
     if (!order) return
 
     const targetId = order.id
     const targetOrderNumber = order.orderNumber
 
     try {
-      if (order.id) {
-        await updateOrderStatus(order.id, 'CANCELLED')
+      setIsCancelling(true)
+      const extraData = {
+        cancelReason: reason,
+        cancelledBy: 'customer',
+        cancelledAt: new Date().toISOString(),
       }
-      setOrder((prev) => ({ ...prev, status: 'CANCELLED' }))
+
+      if (order.id) {
+        await updateOrderStatus(order.id, 'CANCELLED', extraData)
+      }
+      setOrder((prev) => ({ ...prev, status: 'CANCELLED', ...extraData }))
       setIsCancelModalOpen(false)
-      showToast(`Order ${targetOrderNumber || targetId} has been cancelled.`)
+      showToast(t('orders.cancelledToast', { orderNumber: targetOrderNumber || targetId }))
     } catch (err) {
       console.error('OrderDetail: Error cancelling order via API:', err)
-      showToast('Failed to cancel order. Please try again.')
+      showToast(t('orders.cancelError'))
+    } finally {
+      setIsCancelling(false)
     }
   }
 
@@ -179,7 +146,7 @@ export default function OrderDetail() {
       <div className="py-24 text-center">
         <div className="w-8 h-8 border-2 border-black border-t-transparent rounded-full animate-spin mx-auto mb-4" />
         <p className="text-xs tracking-widest uppercase font-mono text-neutral-500">
-          RETRIEVING ORDER SPECIFICATION...
+          {t('orderDetail.loading')}
         </p>
       </div>
     )
@@ -191,10 +158,10 @@ export default function OrderDetail() {
       <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
         <div className="max-w-md mx-auto p-8 sm:p-12 border border-neutral-200 bg-[#FAFAFA] rounded-[2px]">
           <h2 className="text-base sm:text-lg font-bold uppercase tracking-[0.2em] text-[#111111] mb-2">
-            ORDER NOT FOUND
+            {t('orderDetail.orderNotFound')}
           </h2>
           <p className="text-xs text-neutral-500 mb-8 leading-relaxed font-mono">
-            Could not locate any order record for identifier "{id}".
+            {t('orderDetail.orderNotFoundDesc', { id })}
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
             <Button
@@ -203,7 +170,7 @@ export default function OrderDetail() {
               onClick={() => safeBack(navigate, '/orders')}
               className="w-full sm:w-auto tracking-widest text-xs px-6"
             >
-              BACK TO MY ORDERS
+              {t('orderDetail.backToOrders')}
             </Button>
             <Button
               variant="secondary"
@@ -211,7 +178,7 @@ export default function OrderDetail() {
               onClick={() => navigate('/shop')}
               className="w-full sm:w-auto tracking-widest text-xs px-6"
             >
-              EXPLORE SHOP
+              {t('checkout.exploreShop')}
             </Button>
           </div>
         </div>
@@ -239,11 +206,11 @@ export default function OrderDetail() {
               className="inline-flex items-center gap-1.5 text-xs font-mono uppercase tracking-widest text-neutral-500 hover:text-black transition-colors mb-3 group cursor-pointer"
             >
               <ArrowLeft className="w-3.5 h-3.5 transition-transform group-hover:-translate-x-1" />
-              <span>Back to My Orders</span>
+              <span>{t('orderDetail.backToOrders')}</span>
             </button>
 
             <div className="flex items-center gap-3 flex-wrap">
-              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-neutral-900 font-mono">
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-[#111111] font-mono">
                 {order.orderNumber}
               </h1>
               <button
@@ -256,12 +223,12 @@ export default function OrderDetail() {
                 <Copy className="w-4 h-4" />
               </button>
               <Badge variant="outline" size="sm" className={config.badgeClass}>
-                {config.label}
+                {getStatusLabel(rawStatus)}
               </Badge>
             </div>
 
             <p className="text-xs text-neutral-500 mt-1 font-mono">
-              Placed on {formatDate(order.createdAt)} • Handled by {order.shopName || 'M STUDIO'}
+              {t('orderDetail.placedOn', { date: formatDate(order.createdAt), shopName: order.shopName || 'M STUDIO' })}
             </p>
           </div>
 
@@ -269,7 +236,7 @@ export default function OrderDetail() {
             to="/shop"
             className="text-xs font-semibold uppercase tracking-wider text-neutral-900 hover:underline self-start sm:self-auto"
           >
-            CONTINUE SHOPPING →
+            {t('orders.continueShopping')}
           </Link>
         </div>
       </div>
@@ -321,27 +288,16 @@ export default function OrderDetail() {
       </div>
 
       {/* ============================================================= */}
-      {/* 5. MODAL XÁC NHẬN HỦY ĐƠN HÀNG                                */}
+      {/* 5. MODAL CHỌN LÝ DO HỦY ĐƠN HÀNG (TÁI SỬ DỤNG CancelOrderModal) */}
       {/* ============================================================= */}
-      <Modal
+      <CancelOrderModal
         isOpen={isCancelModalOpen}
         onClose={() => setIsCancelModalOpen(false)}
-        title="CANCEL ORDER CONFIRMATION"
-        confirmText="YES, CANCEL ORDER"
-        cancelText="KEEP ORDER"
-        confirmVariant="danger"
+        order={order}
+        role="customer"
+        loading={isCancelling}
         onConfirm={handleConfirmCancel}
-      >
-        <div className="text-xs text-neutral-600 space-y-3 leading-relaxed">
-          <p>
-            Are you sure you want to cancel order{' '}
-            <strong className="text-black font-mono">{order.orderNumber}</strong>?
-          </p>
-          <p className="text-[11px] text-neutral-500 bg-neutral-50 p-3 border border-neutral-200">
-            Once cancelled, the reservation for your garments will be released back to the archive and this action cannot be undone.
-          </p>
-        </div>
-      </Modal>
+      />
 
       {/* ============================================================= */}
       {/* 6. TOAST THÔNG BÁO TÁI SỬ DỤNG TỪ COMMON                     */}

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Toast } from '../../components/common'
 import { useAuth } from '../../contexts/AuthContext'
 import { getUserById, updateUser } from '../../services/api'
@@ -22,6 +23,7 @@ import {
  * - Bố cục responsive toàn diện trên Mobile, Tablet và Desktop.
  */
 export default function Profile() {
+  const { t } = useTranslation()
   const { currentUser, loading: authLoading, updateCurrentUser } = useAuth()
 
   // 1. State trạng thái đang tải dữ liệu từ API
@@ -327,7 +329,7 @@ export default function Profile() {
       <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 text-center">
         <div className="w-8 h-8 border-2 border-black border-t-transparent rounded-full animate-spin mx-auto mb-4" />
         <p className="text-xs tracking-widest uppercase font-mono text-neutral-500">
-          RETRIEVING ATELIER PROFILE...
+          {t('common.loading')}
         </p>
       </div>
     )

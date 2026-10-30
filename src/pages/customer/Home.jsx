@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { ArrowLeft, ArrowRight, ChevronLeft, ChevronRight, Plus } from 'lucide-react';
 import { getProducts, getCarouselItems, getShops } from '../../services/api';
@@ -6,6 +7,7 @@ import CompleteTheLook from '../../components/product/CompleteTheLook';
 import QuickAddModal from '../../components/product/QuickAddModal';
 import { Toast } from '../../components/common';
 import { useCartStore } from '../../stores';
+import { getLocalizedProduct, getLocalizedProductName } from '../../utils';
 
 const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=600&q=80';
 
@@ -162,6 +164,7 @@ const DEFAULT_CAROUSEL_ITEMS = [
 ];
 
 export default function Home() {
+  const { t, i18n } = useTranslation();
   // 1. Quản lý dữ liệu Set products & Carousel
   const [setProducts, setSetProducts] = useState(DEFAULT_SET_PRODUCTS);
   const [carouselItems, setCarouselItems] = useState(DEFAULT_CAROUSEL_ITEMS);
@@ -314,10 +317,20 @@ export default function Home() {
       item.quantity || 1
     );
 
+    const productName = getLocalizedProductName(
+      quickAddProduct,
+      i18n.language,
+      quickAddProduct.name
+    );
+
     if (result?.success === false) {
       setToastMessage(result.message);
     } else {
-      setToastMessage(`ADDED ${quickAddProduct.name.toUpperCase()} TO CART.`);
+      setToastMessage(
+        i18n.language?.startsWith('vi')
+          ? `ĐÃ THÊM ${productName.toUpperCase()} VÀO GIỎ HÀNG.`
+          : `ADDED ${productName.toUpperCase()} TO CART.`
+      );
     }
   };
 
@@ -354,14 +367,13 @@ export default function Home() {
               <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black tracking-tight text-white uppercase leading-[0.95] select-none drop-shadow-lg">
                 <span className="block">FASHORA</span>
                 <span className="block text-white/95 mt-1 sm:mt-1.5">
-                  FASHION PLATFORM
+                  {t('home.platform')}
                 </span>
               </h1>
 
               {/* Phụ đề */}
               <p className="mt-3 sm:mt-4 text-xs sm:text-sm font-mono tracking-widest text-neutral-300 uppercase leading-relaxed max-w-xl">
-                SEASONAL RUNWAY &amp; PERMANENT ARCHIVES — DISCOVER INDEPENDENT
-                DESIGNERS
+                {t('home.subtitle')}
               </p>
             </div>
 
@@ -372,13 +384,13 @@ export default function Home() {
                 className="inline-flex items-center justify-center gap-2 px-6 sm:px-7 py-3.5 sm:py-4 bg-black/40 border border-white/80 text-white backdrop-blur-sm font-bold text-xs sm:text-sm uppercase tracking-widest transition-all duration-300 hover:bg-white hover:text-black active:scale-[0.99] shadow-xl text-center cursor-pointer"
               >
                 <ArrowLeft className="w-4 h-4" />
-                <span>BACK TO EXPLORE PAGE</span>
+                <span>{t('home.backToExplore')}</span>
               </Link>
               <Link
                 to="/shop?category=ALL"
                 className="inline-flex items-center justify-center gap-2 px-7 sm:px-8 py-3.5 sm:py-4 bg-white text-black font-bold text-xs sm:text-sm uppercase tracking-widest transition-all duration-300 hover:bg-neutral-200 active:scale-[0.99] shadow-xl text-center"
               >
-                <span>EXPLORE PRODUCTS</span>
+                <span>{t('home.exploreProducts')}</span>
                 <ArrowRight className="w-4 h-4" />
               </Link>
             </div>
@@ -408,6 +420,7 @@ export default function Home() {
         {/* Lưới 6 sản phẩm Set */}
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-3 lg:gap-4">
           {setProducts.map((product) => {
+            const currentItem = getLocalizedProduct(product, i18n.language);
             const mainImg =
               (Array.isArray(product.images) && product.images.length > 0
                 ? product.images[0]
@@ -434,7 +447,7 @@ export default function Home() {
                     {/* Ảnh chính images[0] */}
                     <img
                       src={mainImg}
-                      alt={product.name}
+                      alt={currentItem.name}
                       className={`absolute inset-0 w-full h-full object-contain object-center transition-all duration-500 ease-out ${
                         hoverImg
                           ? 'group-hover:opacity-0 group-hover:scale-105'
@@ -451,7 +464,7 @@ export default function Home() {
                     {hoverImg && (
                       <img
                         src={hoverImg}
-                        alt={`${product.name} hover view`}
+                        alt={`${currentItem.name} hover view`}
                         className="absolute inset-0 w-full h-full object-contain object-center opacity-0 group-hover:opacity-100 transition-all duration-500 ease-out group-hover:scale-105"
                         loading="lazy"
                         onError={(e) => {
@@ -465,14 +478,14 @@ export default function Home() {
                   {!product.isSoldOut && (
                     <button
                       type="button"
-                      aria-label={`Quick add ${product.name}`}
+                      aria-label={`${t('common.quickAdd', 'Thêm nhanh')} ${currentItem.name}`}
                       onClick={(e) => {
                         e.preventDefault();
                         e.stopPropagation();
-                        handleOpenQuickAdd(product);
+                        handleOpenQuickAdd(currentItem);
                       }}
                       className="absolute bottom-2.5 right-2.5 sm:bottom-3 sm:right-3 w-8 h-8 rounded-full bg-white text-[#111111] shadow-md flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 hover:scale-110 hover:bg-[#111111] hover:text-white z-10 cursor-pointer group/btn"
-                      title="Quick add"
+                      title={t('common.quickAdd', 'Thêm nhanh')}
                     >
                       <Plus className="w-4 h-4 transition-transform duration-300 group-hover/btn:rotate-90" />
                     </button>
@@ -484,12 +497,12 @@ export default function Home() {
                   <Link
                     to={`/products/${product.id}`}
                     className="text-xs sm:text-[13px] font-bold uppercase tracking-wider text-neutral-900 hover:underline line-clamp-1"
-                    title={product.name}
+                    title={currentItem.name}
                   >
-                    {product.name.toUpperCase()}
+                    {currentItem.name.toUpperCase()}
                   </Link>
                   <span className="mt-1 text-xs sm:text-[13px] font-semibold tracking-tight text-neutral-900">
-                    {formatVND(product.price)}
+                    {formatVND(currentItem.price)}
                   </span>
                 </div>
               </div>
@@ -503,7 +516,7 @@ export default function Home() {
             to="/shop?category=SET"
             className="inline-flex items-center gap-2.5 px-7 sm:px-9 py-2.5 sm:py-3 border border-neutral-300 hover:border-black text-xs sm:text-sm font-semibold tracking-widest uppercase text-neutral-900 hover:bg-black hover:text-white transition-all duration-300 group cursor-pointer"
           >
-            <span>VIEW MORE</span>
+            <span>{t('home.viewMore')}</span>
             <ArrowRight className="w-3.5 h-3.5 transition-transform duration-300 group-hover:translate-x-1" />
           </Link>
         </div>
@@ -563,14 +576,14 @@ export default function Home() {
                       </h4>
 
                       <p className="text-xs sm:text-sm font-mono tracking-widest text-neutral-300 uppercase mb-4 sm:mb-6">
-                        {slide.tagline}
+                        {t(`home.carousel.${slide.id}`, slide.tagline)}
                       </p>
 
                       <Link
                         to={slide.link || '/shop'}
                         className="inline-flex items-center gap-3 px-6 sm:px-8 py-3 sm:py-3.5 bg-white text-black text-xs font-bold uppercase tracking-widest hover:bg-neutral-200 transition-colors duration-200 shadow-lg"
                       >
-                        <span>EXPLORE LOOKBOOK</span>
+                        <span>{t('home.exploreLookbook')}</span>
                         <ArrowRight className="w-4 h-4" />
                       </Link>
                     </div>
@@ -678,7 +691,7 @@ export default function Home() {
                             )}
 
                             <span className="text-[10px] sm:text-xs font-mono tracking-[0.2em] text-emerald-400 uppercase px-2.5 py-1 bg-emerald-950/80 backdrop-blur-md border border-emerald-500/40">
-                              VERIFIED ATELIER
+                              {t('home.verifiedAtelier')}
                             </span>
                             {shopItem.category && (
                               <span className="text-[10px] sm:text-xs font-mono tracking-widest text-neutral-300 uppercase px-2.5 py-1 bg-white/10 backdrop-blur-md border border-white/20">
@@ -702,7 +715,7 @@ export default function Home() {
                             to={`/store/${shopSlug}`}
                             className="inline-flex items-center gap-3 px-6 sm:px-8 py-3 sm:py-3.5 bg-white text-black text-xs font-bold uppercase tracking-widest hover:bg-neutral-200 transition-colors duration-200 shadow-lg cursor-pointer"
                           >
-                            <span>VISIT ATELIER</span>
+                            <span>{t('home.visitAtelier')}</span>
                             <ArrowRight className="w-4 h-4" />
                           </Link>
                         </div>
@@ -763,8 +776,6 @@ export default function Home() {
       <section className="max-w-[1560px] mx-auto px-6 sm:px-10 lg:px-16 pb-10 sm:pb-16">
         <CompleteTheLook
           onQuickAdd={handleOpenQuickAdd}
-          title="COMPLETE THE LOOK"
-          subtitle="Curated pairings from M STUDIO to complement your selected silhouette."
           viewAllLink="/shop"
           className="mt-4 sm:mt-6 pt-2"
         />

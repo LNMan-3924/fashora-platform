@@ -1781,10 +1781,9 @@
       "fullName": "Lê Ngọc Mẫn",
       "email": "leman200x@gmail.com",
       "phoneNumber": "0783734808",
-      "password": "123456789",
+      "password": "Leman123@",
       "dob": "03/09/2004",
       "gender": "Male",
-      "role": "seller",
       "shopId": "shop_l-obscur-atelier_8158",
       "shippingAddresses": [
         {
@@ -1805,6 +1804,10 @@
       "roles": [
         "customer",
         "seller"
+      ],
+      "followingShops": [
+        "shop_m_studio",
+        "bmiQJ7v54aY"
       ]
     },
     {
@@ -1815,7 +1818,6 @@
       "password": "123456",
       "dob": "12/13/2000",
       "gender": "Male",
-      "role": "seller",
       "shopId": "shop_m_studio",
       "shippingAddresses": [
         {
@@ -1833,7 +1835,15 @@
       "createdAt": "2026-10-16T11:14:32.492Z",
       "avatarUrl": "/images/avatars/avatar-1792732140230.jpg",
       "name": "Nguyen Thien An",
-      "phone": "0912345678"
+      "phone": "0912345678",
+      "roles": [
+        "customer",
+        "seller"
+      ],
+      "followingShops": [
+        "shop_enire_5038",
+        "bmiQJ7v54aY"
+      ]
     },
     {
       "id": "UtJushvds_M",
@@ -1843,7 +1853,6 @@
       "password": "ngoc123",
       "dob": "05/10/2005",
       "gender": "Female",
-      "role": "seller",
       "shopId": "bmiQJ7v54aY",
       "shippingAddresses": [],
       "createdAt": "2026-10-20T20:12:38.278Z",
@@ -1862,7 +1871,6 @@
       "password": "123456",
       "dob": "15/04/1996",
       "gender": "Female",
-      "role": "customer",
       "roles": [
         "customer"
       ],
@@ -1892,7 +1900,6 @@
       "password": "123456",
       "dob": "22/08/1994",
       "gender": "Male",
-      "role": "customer",
       "roles": [
         "customer"
       ],
@@ -1922,7 +1929,6 @@
       "password": "123456",
       "dob": "11/11/1997",
       "gender": "Female",
-      "role": "customer",
       "roles": [
         "customer"
       ],
@@ -1952,7 +1958,6 @@
       "password": "123456",
       "dob": "05/03/1993",
       "gender": "Male",
-      "role": "customer",
       "roles": [
         "customer"
       ],
@@ -1982,7 +1987,6 @@
       "password": "123456",
       "dob": "28/09/1995",
       "gender": "Female",
-      "role": "customer",
       "roles": [
         "customer"
       ],
@@ -2010,7 +2014,6 @@
       "password": "Enire@123",
       "dob": "2004-09-03",
       "gender": "Male",
-      "role": "seller",
       "roles": [
         "customer",
         "seller"
@@ -2039,7 +2042,6 @@
       "password": "Swag1234#",
       "dob": "2002-01-30",
       "gender": "Female",
-      "role": "seller",
       "roles": [
         "customer",
         "seller"

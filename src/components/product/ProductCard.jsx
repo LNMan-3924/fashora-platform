@@ -1,20 +1,22 @@
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import { getLocalizedProduct } from '../../utils';
 
 const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=600&q=80';
 
-// Hàm lấy màu sắc nổi bật cho từng loại Badge
+// Hàm lấy màu sắc nổi bật cho từng loại Badge (hỗ trợ cả tiếng Anh và tiếng Việt)
 function getBadgeStyle(variant) {
   const v = (variant || '').toLowerCase();
-  if (v.includes('sale') || v.includes('discount')) {
+  if (v.includes('sale') || v.includes('discount') || v.includes('giảm') || v.includes('khuyến')) {
     return 'bg-red-600 text-white';
   }
-  if (v.includes('sold') || v.includes('out')) {
+  if (v.includes('sold') || v.includes('out') || v.includes('hết')) {
     return 'bg-neutral-800 text-neutral-200';
   }
-  if (v.includes('hot') || v.includes('best')) {
+  if (v.includes('hot') || v.includes('best') || v.includes('nổi bật')) {
     return 'bg-amber-600 text-white';
   }
-  // Mặc định hoặc NEW
+  // Mặc định hoặc NEW / MỚI
   return 'bg-black text-white';
 }
 
@@ -30,7 +32,8 @@ export default function ProductCard({
   onQuickAdd,
   className = '',
 }) {
-  const currentProduct = product || {
+  const { t, i18n } = useTranslation();
+  const rawProduct = product || {
     id: propId,
     name: propName,
     price: propPrice,
@@ -40,8 +43,9 @@ export default function ProductCard({
     isSoldOut: propIsSoldOut,
   };
 
-  if (!currentProduct || !currentProduct.id) return null;
+  if (!rawProduct || !rawProduct.id) return null;
 
+  const currentProduct = getLocalizedProduct(rawProduct, i18n.language);
   const { id, name, price, badge } = currentProduct;
   const isSoldOut = Boolean(
     currentProduct.isSoldOut ||
@@ -91,7 +95,7 @@ export default function ProductCard({
         {isSoldOut && (
           <div className="absolute inset-0 bg-black/60 flex items-center justify-center z-10 pointer-events-none">
             <span className="text-white text-xs font-mono uppercase tracking-widest font-bold border border-white px-3 py-1">
-              SOLD OUT
+              {t('common.soldOut')}
             </span>
           </div>
         )}
@@ -115,8 +119,8 @@ export default function ProductCard({
               if (onQuickAdd) onQuickAdd({ ...currentProduct, image: displayImage });
             }}
             className="absolute right-2 bottom-2 z-10 flex h-7 w-7 items-center justify-center bg-white/95 border border-neutral-200 text-neutral-800 opacity-0 group-hover:opacity-100 transition-all hover:bg-black hover:text-white cursor-pointer shadow-sm"
-            title="Quick add"
-            aria-label="Quick add"
+            title={t('common.quickAdd')}
+            aria-label={t('common.quickAdd')}
           >
             <span className="text-sm font-light leading-none">+</span>
           </button>

@@ -1,5 +1,7 @@
 import { Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { formatVND, formatDate } from '../../constants/commerce'
+import { getLocalizedProductName } from '../../utils/productLocalization'
 import OrderStatusBadge from './OrderStatusBadge'
 
 /**
@@ -29,6 +31,8 @@ export default function OrderTable({
   loading = false,
   shopName = '',
 }) {
+  const { t, i18n } = useTranslation()
+
   return (
     <div className="bg-white border border-neutral-200 rounded-[2px] shadow-xs overflow-hidden">
       {/* 1. GIAO DIỆN BẢNG TRÊN DESKTOP & TABLET (md+) */}
@@ -36,13 +40,13 @@ export default function OrderTable({
         <table className="w-full text-left border-collapse">
           <thead>
             <tr className="border-b border-neutral-200 bg-neutral-50/70 text-[10px] uppercase font-mono tracking-widest text-neutral-500">
-              <th className="py-3.5 px-4 font-semibold">ORDER ID</th>
-              <th className="py-3.5 px-4 font-semibold">CUSTOMER</th>
-              <th className="py-3.5 px-4 font-semibold">DATE</th>
-              <th className="py-3.5 px-4 font-semibold">TOTAL</th>
-              <th className="py-3.5 px-4 font-semibold">PAYMENT</th>
-              <th className="py-3.5 px-4 font-semibold text-center">STATUS</th>
-              <th className="py-3.5 px-4 font-semibold text-right">ACTIONS</th>
+              <th className="py-3.5 px-4 font-semibold">{t('seller.orders.table.orderId', 'ORDER ID')}</th>
+              <th className="py-3.5 px-4 font-semibold">{t('seller.orders.table.customer', 'CUSTOMER')}</th>
+              <th className="py-3.5 px-4 font-semibold">{t('seller.orders.table.date', 'DATE')}</th>
+              <th className="py-3.5 px-4 font-semibold">{t('seller.orders.table.total', 'TOTAL')}</th>
+              <th className="py-3.5 px-4 font-semibold">{t('seller.orders.table.payment', 'PAYMENT')}</th>
+              <th className="py-3.5 px-4 font-semibold text-center">{t('seller.orders.table.status', 'STATUS')}</th>
+              <th className="py-3.5 px-4 font-semibold text-right">{t('seller.orders.table.actions', 'ACTIONS')}</th>
             </tr>
           </thead>
 
@@ -149,9 +153,9 @@ export default function OrderTable({
                       <Link
                         to={`/seller/orders/${order.id || order.orderNumber}`}
                         className="px-3 py-1.5 bg-neutral-100 hover:bg-black hover:text-white rounded-[2px] text-[10px] font-mono uppercase font-bold tracking-wider transition-all duration-150 active:scale-95 shadow-xs inline-block"
-                        title="View and manage order details"
+                        title={t('seller.orders.table.viewDetails', 'VIEW DETAILS')}
                       >
-                        VIEW DETAILS
+                        {t('seller.orders.table.viewDetails', 'VIEW DETAILS')}
                       </Link>
                     </td>
                   </tr>
@@ -164,7 +168,7 @@ export default function OrderTable({
                   colSpan={7}
                   className="py-14 text-center text-xs text-neutral-400 uppercase tracking-widest font-mono"
                 >
-                  No orders found matching your filters.
+                  {t('seller.orders.table.noOrders', 'No orders found matching your filters.')}
                 </td>
               </tr>
             )}
@@ -225,12 +229,12 @@ export default function OrderTable({
                     {customerName}
                   </div>
                   <div className="flex items-center justify-between text-[11px] font-mono text-neutral-500">
-                    <span>Date: {formatDate(orderDate)}</span>
+                    <span>{t('seller.orders.table.date', 'Date')}: {formatDate(orderDate)}</span>
                     <span>{paymentMethod}</span>
                   </div>
                   {firstItem && (
                     <div className="text-[11px] text-neutral-600 line-clamp-1">
-                      Item: {firstItem.name} {order.items.length > 1 ? `(+${order.items.length - 1} more)` : ''}
+                      {t('seller.orders.detail.productCol', 'Item')}: {getLocalizedProductName(firstItem, i18n.language)} {order.items.length > 1 ? `(+${order.items.length - 1})` : ''}
                     </div>
                   )}
                 </div>
@@ -239,7 +243,7 @@ export default function OrderTable({
                 <div className="pt-3 border-t border-neutral-100 flex items-center justify-between gap-3">
                   <div>
                     <span className="text-[9px] font-mono uppercase tracking-wider text-neutral-400 block">
-                      Total
+                      {t('seller.orders.table.total', 'Total')}
                     </span>
                     <span className="font-mono text-sm font-extrabold text-black">
                       {formatVND(orderTotal)}
@@ -249,7 +253,7 @@ export default function OrderTable({
                     to={`/seller/orders/${order.id || order.orderNumber}`}
                     className="px-4 py-2 bg-black text-white hover:bg-neutral-800 rounded-[2px] text-[10px] font-mono uppercase font-bold tracking-wider transition-colors active:scale-95 shadow-xs inline-block"
                   >
-                    VIEW DETAILS
+                    {t('seller.orders.table.viewDetails', 'VIEW DETAILS')}
                   </Link>
                 </div>
               </div>
@@ -257,7 +261,7 @@ export default function OrderTable({
           })
         ) : (
           <div className="py-12 text-center text-xs text-neutral-400 uppercase tracking-widest font-mono">
-            No orders found.
+            {t('seller.orders.table.noOrders', 'No orders found.')}
           </div>
         )}
       </div>

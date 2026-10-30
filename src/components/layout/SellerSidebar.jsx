@@ -1,13 +1,15 @@
 import { NavLink, Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 
 export default function SellerSidebar({ sellerInfo, onCloseMobile }) {
+  const { t } = useTranslation()
   const shopName = sellerInfo?.shopName || 'MY ATELIER'
   const sellerCode = sellerInfo?.sellerCode || 'SELLER'
   const firstLetter = shopName.charAt(0).toUpperCase()
 
   const navItems = [
     {
-      name: 'Dashboard',
+      name: t('seller.sidebar.dashboard', 'Dashboard'),
       path: '/seller/dashboard',
       icon: (
         <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -16,7 +18,7 @@ export default function SellerSidebar({ sellerInfo, onCloseMobile }) {
       )
     },
     {
-      name: 'Products',
+      name: t('seller.sidebar.products', 'Products'),
       path: '/seller/products',
       icon: (
         <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -25,7 +27,7 @@ export default function SellerSidebar({ sellerInfo, onCloseMobile }) {
       )
     },
     {
-      name: 'Orders',
+      name: t('seller.sidebar.orders', 'Orders'),
       path: '/seller/orders',
       icon: (
         <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -34,7 +36,7 @@ export default function SellerSidebar({ sellerInfo, onCloseMobile }) {
       )
     },
     {
-      name: 'Settings',
+      name: t('seller.sidebar.settings', 'Settings'),
       path: '/seller/settings',
       icon: (
         <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -44,7 +46,7 @@ export default function SellerSidebar({ sellerInfo, onCloseMobile }) {
       )
     },
     {
-      name: 'Back to Home',
+      name: t('seller.sidebar.backHome', 'Back to Home'),
       path: '/home',
       icon: (
         <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -61,7 +63,7 @@ export default function SellerSidebar({ sellerInfo, onCloseMobile }) {
         <div className="p-6 border-b border-neutral-100">
           <div className="flex items-center justify-between">
             <span className="text-[10px] tracking-[0.25em] font-medium text-neutral-400 uppercase">
-              SELLER CENTER
+              {t('seller.sidebar.center', 'SELLER CENTER')}
             </span>
             {onCloseMobile && (
               <button
@@ -100,7 +102,7 @@ export default function SellerSidebar({ sellerInfo, onCloseMobile }) {
         {/* 2. NAVIGATION */}
         <div className="px-4 py-6">
           <div className="px-3 pb-3 text-[10px] font-bold tracking-[0.2em] text-neutral-400 uppercase">
-            NAVIGATION
+            {t('seller.sidebar.navigation', 'NAVIGATION')}
           </div>
           <nav className="space-y-1">
             {navItems.map((item) => (

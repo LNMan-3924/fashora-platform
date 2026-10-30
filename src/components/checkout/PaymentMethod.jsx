@@ -1,4 +1,5 @@
 import { Banknote } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 
 /**
  * Component PaymentMethod: Lựa chọn phương thức thanh toán.
@@ -10,16 +11,18 @@ import { Banknote } from 'lucide-react'
  * - onChange: Hàm callback xử lý thay đổi (nếu mở rộng thêm sau này).
  */
 export default function PaymentMethod({ selectedMethod = 'cod', onChange }) {
+  const { t } = useTranslation()
+
   return (
     <section className="border-b border-neutral-200 pb-8">
       {/* Tiêu đề mục thanh toán */}
       <div className="flex items-center justify-between mb-5">
         <h2 className="text-xs uppercase tracking-[0.25em] font-bold text-[#111111] flex items-center gap-2">
           <Banknote className="w-4 h-4 text-[#111111]" />
-          <span>3. Payment Method</span>
+          <span>{t('checkout.stepPayment', '3. Payment Method')}</span>
         </h2>
         <span className="text-[10px] text-neutral-400 uppercase tracking-widest font-mono">
-          COD ONLY
+          {t('checkout.codOnly', 'COD ONLY')}
         </span>
       </div>
 
@@ -43,11 +46,10 @@ export default function PaymentMethod({ selectedMethod = 'cod', onChange }) {
             />
             <div>
               <span className="text-xs uppercase tracking-wider font-semibold text-[#111111] block">
-                Cash on Delivery (COD)
+                {t('checkout.cod', 'Cash on Delivery (COD)')}
               </span>
               <span className="text-[11px] text-neutral-500 block mt-1 leading-relaxed max-w-lg">
-                Pay with cash or direct transfer upon courier delivery. Inspect
-                pieces carefully prior to signing receipt.
+                {t('checkout.codInstructions', 'Pay with cash or direct transfer upon courier delivery. Inspect pieces carefully prior to signing receipt.')}
               </span>
             </div>
           </div>

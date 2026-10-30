@@ -1,10 +1,13 @@
 import { useState, useEffect } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { useAuth } from '../../contexts/AuthContext'
-import { getUsers } from '../../services/api'
 import { Toast } from '../../components/common'
+import { ForgotPasswordModal } from '../../components/auth'
+import { getUsers } from '../../services/api'
 
 export default function Login() {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const location = useLocation()
   const { loginUser } = useAuth()
@@ -27,6 +30,7 @@ export default function Login() {
     }
   })
   const [toastMessage, setToastMessage] = useState('')
+  const [isForgotModalOpen, setIsForgotModalOpen] = useState(false)
 
   const [errors, setErrors] = useState({})
   const [serverError, setServerError] = useState('')
@@ -56,15 +60,20 @@ export default function Login() {
 
   // Xử lý nút Quên mật khẩu (Forgot Password)
   const handleForgotPassword = () => {
-    const raw = identifier.trim()
-    if (!raw) {
-      setErrors((prev) => ({
-        ...prev,
-        identifier: 'Please enter your email or phone number first to recover password.',
-      }))
-      return
-    }
-    setToastMessage(`A password recovery instruction has been dispatched to ${raw}.`)
+    setIsForgotModalOpen(true)
+  }
+
+  // Xử lý sau khi đổi mật khẩu thành công qua Modal
+  const handleResetSuccess = ({ identifier: updatedIdentifier, newPassword: updatedPassword }) => {
+    if (updatedIdentifier) setIdentifier(updatedIdentifier)
+    if (updatedPassword) setPassword(updatedPassword)
+    setErrors({})
+    setToastMessage(
+      t(
+        'auth.forgotModal.resetSuccess',
+        'Đặt lại mật khẩu thành công! Bạn có thể đăng nhập ngay bằng mật khẩu mới.'
+      )
+    )
   }
 
   const handleLogin = async (e) => {
@@ -74,11 +83,11 @@ export default function Login() {
 
     const rawInput = identifier.trim()
     if (!rawInput) {
-      newErrors.identifier = 'Email address or phone number is required.'
+      newErrors.identifier = t('auth.identifierRequired', 'Email address or phone number is required.')
     }
 
     if (!password) {
-      newErrors.password = 'Password is required.'
+      newErrors.password = t('auth.passwordRequired', 'Password is required.')
     }
 
     if (Object.keys(newErrors).length > 0) {
@@ -101,17 +110,17 @@ export default function Login() {
         const userPhone = (u.phoneNumber || u.phone || '').replace(/[\s.-]/g, '')
         const phoneMatch = Boolean(
           cleanDigits &&
-            userPhone &&
-            (userPhone === cleanDigits ||
-              (userPhone.startsWith('0') && cleanDigits === '+84' + userPhone.slice(1)) ||
-              (cleanDigits.startsWith('0') && userPhone === '+84' + cleanDigits.slice(1)))
+          userPhone &&
+          (userPhone === cleanDigits ||
+            (userPhone.startsWith('0') && cleanDigits === '+84' + userPhone.slice(1)) ||
+            (cleanDigits.startsWith('0') && userPhone === '+84' + cleanDigits.slice(1)))
         )
         return emailMatch || phoneMatch
       })
 
       if (!foundUser) {
         setErrors({
-          identifier: 'No account found with this email or phone number.',
+          identifier: t('auth.userNotFound', 'No account found with this email or phone number.'),
         })
         setIsLoading(false)
         return
@@ -120,7 +129,7 @@ export default function Login() {
       // Kiểm tra mật khẩu (nếu user có đặt password)
       if (foundUser.password && foundUser.password !== password) {
         setErrors({
-          password: 'Incorrect password. Please verify and try again.',
+          password: t('auth.incorrectPassword', 'Incorrect password. Please verify and try again.'),
         })
         setIsLoading(false)
         return
@@ -141,12 +150,10 @@ export default function Login() {
       loginUser(foundUser)
 
       // Điều hướng thông minh dựa theo quyền thực tế của tài khoản:
-      const userRole = String(foundUser.role || '').toLowerCase()
       const isSeller =
-        userRole === 'seller' ||
         Boolean(foundUser.shopId) ||
         (Array.isArray(foundUser.roles) &&
-          foundUser.roles.map((r) => String(r).toLowerCase()).includes('seller'))
+          foundUser.roles.some((r) => String(r).toLowerCase() === 'seller'))
 
       const previousPath =
         location.state?.from?.pathname ||
@@ -165,7 +172,7 @@ export default function Login() {
         navigate('/shop', { replace: true })
       }
     } catch (err) {
-      setServerError(err.message || 'An error occurred during authentication.')
+      setServerError(err.message || t('auth.authError', 'An error occurred during authentication.'))
     } finally {
       setIsLoading(false)
     }
@@ -174,11 +181,11 @@ export default function Login() {
   return (
     <div className="w-full flex flex-col items-center">
       {/* Khung Card chính của Form */}
-      <div className="w-full max-w-[480px] bg-white border border-neutral-200/90 p-8 sm:p-10 shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
+      <div className="w-full max-w-[480px] bg-white/95 backdrop-blur-md border border-neutral-200/90 p-8 sm:p-10 shadow-[0_20px_50px_rgba(0,0,0,0.2)]">
         {/* Header trong thẻ */}
         <div className="text-center mb-8">
           <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-[#111111] uppercase">
-            SIGN IN
+            {t('auth.signIn', 'SIGN IN')}
           </h1>
         </div>
 
@@ -193,19 +200,18 @@ export default function Login() {
           {/* Email Address / Phone Number */}
           <div>
             <label className="block text-[10px] font-mono tracking-widest uppercase text-neutral-700 font-semibold mb-1.5">
-              EMAIL ADDRESS / PHONE NUMBER *
+              {t('auth.emailOrPhone', 'EMAIL ADDRESS / PHONE NUMBER *')}
             </label>
             <input
               type="text"
               value={identifier}
               onChange={handleIdentifierChange}
-              placeholder="Enter email or phone number"
+              placeholder={t('auth.emailOrPhonePlaceholder', 'Enter email or phone number')}
               autoComplete="username"
-              className={`w-full border px-3.5 py-2.5 text-xs text-[#111111] outline-none transition-colors placeholder:text-neutral-300 font-normal ${
-                errors.identifier
+              className={`w-full border px-3.5 py-2.5 text-xs text-[#111111] outline-none transition-colors placeholder:text-neutral-300 font-normal ${errors.identifier
                   ? 'border-red-500 focus:border-red-600 bg-red-50/10'
                   : 'border-neutral-300 focus:border-black'
-              }`}
+                }`}
             />
             {errors.identifier && (
               <p className="text-[10px] text-red-500 font-mono mt-1 font-medium">
@@ -218,14 +224,14 @@ export default function Login() {
           <div>
             <div className="flex items-center justify-between mb-1.5">
               <label className="text-[10px] font-mono tracking-widest uppercase text-neutral-700 font-semibold">
-                PASSWORD *
+                {t('auth.password', 'PASSWORD *')}
               </label>
               <button
                 type="button"
                 onClick={handleForgotPassword}
                 className="text-[10px] font-mono tracking-wider uppercase text-neutral-400 hover:text-black transition-colors cursor-pointer"
               >
-                FORGOT PASSWORD?
+                {t('auth.forgotPassword', 'FORGOT PASSWORD?')}
               </button>
             </div>
             <div className="relative">
@@ -233,13 +239,12 @@ export default function Login() {
                 type={showPassword ? 'text' : 'password'}
                 value={password}
                 onChange={handlePasswordChange}
-                placeholder="Enter your password"
+                placeholder={t('auth.passwordPlaceholder', 'Enter your password')}
                 autoComplete="current-password"
-                className={`w-full border px-3.5 py-2.5 text-xs text-[#111111] outline-none transition-colors placeholder:text-neutral-300 font-normal pr-10 ${
-                  errors.password
+                className={`w-full border px-3.5 py-2.5 text-xs text-[#111111] outline-none transition-colors placeholder:text-neutral-300 font-normal pr-10 ${errors.password
                     ? 'border-red-500 focus:border-red-600 bg-red-50/10'
                     : 'border-neutral-300 focus:border-black'
-                }`}
+                  }`}
               />
               <button
                 type="button"
@@ -283,7 +288,7 @@ export default function Login() {
                 onChange={(e) => setRememberMe(e.target.checked)}
                 className="w-3.5 h-3.5 border-neutral-300 rounded-none text-black focus:ring-0 cursor-pointer accent-black"
               />
-              <span className="text-xs text-neutral-600 font-mono">Remember me</span>
+              <span className="text-xs text-neutral-600 font-mono">{t('auth.rememberMe', 'Remember me')}</span>
             </label>
           </div>
 
@@ -293,7 +298,7 @@ export default function Login() {
             disabled={isLoading}
             className="w-full py-3.5 bg-[#111111] text-white text-xs font-mono uppercase tracking-widest font-semibold hover:bg-neutral-800 transition-colors disabled:opacity-50 cursor-pointer"
           >
-            {isLoading ? 'VERIFYING...' : 'LOGIN'}
+            {isLoading ? t('auth.verifying', 'VERIFYING...') : t('auth.login', 'LOGIN')}
           </button>
         </form>
 
@@ -305,17 +310,27 @@ export default function Login() {
 
         {/* Chuyển hướng sang Register */}
         <div className="mt-8 text-center text-xs font-mono text-neutral-500">
-          Don't have an account?{' '}
+          {t('auth.dontHaveAccount', "Don't have an account?")}{' '}
           <Link to="/register" className="text-black font-bold uppercase underline hover:text-neutral-700 ml-1">
-            CREATE AN ACCOUNT
+            {t('auth.createAccountLink', 'CREATE AN ACCOUNT')}
           </Link>
         </div>
       </div>
 
       {/* Dòng bảo mật dưới thẻ */}
       <div className="mt-6 text-[10px] font-mono uppercase tracking-[0.2em] text-neutral-400 select-none">
-        AUTONOMOUS ATELIER SECURITY • 256-BIT ENCRYPTED
+        {t('auth.securityBadge', 'AUTONOMOUS ATELIER SECURITY • 256-BIT ENCRYPTED')}
       </div>
+
+      {/* Modal Khôi Phục Mật Khẩu (Mock OTP Thực Tập) */}
+      {isForgotModalOpen && (
+        <ForgotPasswordModal
+          isOpen={isForgotModalOpen}
+          onClose={() => setIsForgotModalOpen(false)}
+          initialIdentifier={identifier}
+          onSuccess={handleResetSuccess}
+        />
+      )}
     </div>
   )
 }

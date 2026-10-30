@@ -1,27 +1,18 @@
 import { Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { Edit3, Trash2 } from 'lucide-react'
 import { formatVND, handleImageError, FALLBACK_IMAGE } from '../../constants/commerce'
+import { getLocalizedProductName, getLocalizedBadge } from '../../utils/productLocalization'
 import ProductStockBadge from './ProductStockBadge'
 
-/**
- * Component ProductTable: Bảng danh sách các sản phẩm của shop
- * - Hiển thị sản phẩm kích thước lớn hơn, ảnh thumbnail 64x80px rõ nét (onError={handleImageError}).
- * - Cung cấp đầy đủ thông tin: Ảnh, Tên (text-sm font-semibold), Mã ID, Danh mục, Đơn giá, Tồn kho (ProductStockBadge), và Thao tác.
- * - Hỗ trợ cả giao diện Bảng thoáng đãng (Desktop) và Thẻ Card trực quan (Mobile).
- * - Tích hợp trạng thái khung chờ (Skeleton) khớp kích thước khi đang tải dữ liệu từ API.
- *
- * Props:
- * - products: Mảng các sản phẩm sau khi lọc và phân trang (10 sản phẩm / trang)
- * - loading: Trạng thái đang tải API
- * - onEditProduct: Callback khi người dùng nhấn nút Sửa sản phẩm
- * - onDeleteProduct: Callback khi người dùng nhấn nút Xóa sản phẩm
- */
 export default function ProductTable({
   products = [],
   loading = false,
   onEditProduct,
   onDeleteProduct,
 }) {
+  const { t, i18n } = useTranslation()
+
   return (
     <div className="bg-white border border-neutral-200 rounded-[2px] shadow-xs overflow-hidden">
       {/* 1. GIAO DIỆN BẢNG TRÊN DESKTOP & TABLET (md+) */}
@@ -29,11 +20,11 @@ export default function ProductTable({
         <table className="w-full text-left border-collapse">
           <thead>
             <tr className="border-b border-neutral-200 bg-neutral-50/70 text-[10px] uppercase font-mono tracking-widest text-neutral-500">
-              <th className="py-3.5 px-4 font-semibold">PRODUCT</th>
-              <th className="py-3.5 px-4 font-semibold">CATEGORY</th>
-              <th className="py-3.5 px-4 font-semibold">PRICE</th>
-              <th className="py-3.5 px-4 font-semibold">STOCK STATUS</th>
-              <th className="py-3.5 px-4 font-semibold text-right">ACTIONS</th>
+              <th className="py-3.5 px-4 font-semibold">{t('seller.products.table.product', 'PRODUCT')}</th>
+              <th className="py-3.5 px-4 font-semibold">{t('seller.products.table.category', 'CATEGORY')}</th>
+              <th className="py-3.5 px-4 font-semibold">{t('seller.products.table.price', 'PRICE')}</th>
+              <th className="py-3.5 px-4 font-semibold">{t('seller.products.table.stock', 'STOCK STATUS')}</th>
+              <th className="py-3.5 px-4 font-semibold text-right">{t('seller.products.table.actions', 'ACTIONS')}</th>
             </tr>
           </thead>
 
@@ -68,6 +59,8 @@ export default function ProductTable({
               products.map((product) => {
                 const productImage =
                   product.images?.[0] || product.image || FALLBACK_IMAGE
+                const productName = getLocalizedProductName(product, i18n.language)
+                const localizedBadge = getLocalizedBadge(product.badge, i18n.language)
 
                 return (
                   <tr
@@ -81,11 +74,11 @@ export default function ProductTable({
                         <Link
                           to={`/products/${product.id}`}
                           className="w-16 h-20 bg-neutral-100 border border-neutral-200/80 rounded-[2px] overflow-hidden shrink-0 shadow-2xs group block cursor-pointer"
-                          title={`View ${product.name}`}
+                          title={`View ${productName}`}
                         >
                           <img
                             src={productImage}
-                            alt={product.name}
+                            alt={productName}
                             onError={handleImageError}
                             className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-300"
                           />
@@ -96,22 +89,22 @@ export default function ProductTable({
                           <div className="flex items-center gap-2">
                             <h4
                               className="font-semibold text-black truncate max-w-[280px] lg:max-w-[360px] text-sm hover:underline cursor-pointer tracking-tight"
-                              title={product.name}
+                              title={productName}
                               onClick={() => onEditProduct && onEditProduct(product)}
                             >
-                              {product.name}
+                              {productName}
                             </h4>
 
                             {/* Badge nhãn nếu có (NEW, HOT, LIMITED) */}
-                            {product.badge && (
+                            {localizedBadge && (
                               <span
                                 className={`text-[9px] font-mono font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-[2px] ${
-                                  product.badge?.trim().toUpperCase().includes('SALE')
+                                  localizedBadge.trim().toUpperCase().includes('SALE')
                                     ? 'bg-red-600 text-white'
                                     : 'bg-black text-white'
                                 }`}
                               >
-                                {product.badge}
+                                {localizedBadge}
                               </span>
                             )}
                           </div>
@@ -148,7 +141,7 @@ export default function ProductTable({
                           isSoldOut={product.isSoldOut}
                         />
                         <span className="text-[11px] font-mono text-neutral-400 pl-0.5">
-                          {product.stock ?? 0} units
+                          {product.stock ?? 0} {t('seller.products.units', 'units')}
                         </span>
                       </div>
                     </td>
@@ -161,7 +154,7 @@ export default function ProductTable({
                           type="button"
                           onClick={() => onEditProduct && onEditProduct(product)}
                           className="p-2 text-neutral-400 hover:text-black hover:bg-neutral-100 rounded-[2px] transition-colors cursor-pointer"
-                          title="Edit product"
+                          title={t('seller.products.editProduct', 'Edit')}
                         >
                           <Edit3 className="w-4 h-4" />
                         </button>
@@ -171,7 +164,7 @@ export default function ProductTable({
                           type="button"
                           onClick={() => onDeleteProduct && onDeleteProduct(product)}
                           className="p-2 text-neutral-400 hover:text-red-600 hover:bg-red-50 rounded-[2px] transition-colors cursor-pointer"
-                          title="Delete product"
+                          title={t('seller.products.deleteProduct', 'Delete')}
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
@@ -187,7 +180,7 @@ export default function ProductTable({
                   colSpan={5}
                   className="py-14 text-center text-xs text-neutral-400 uppercase tracking-widest font-mono"
                 >
-                  No products found matching your filters.
+                  {t('seller.products.noProductsFound', 'No products found matching your filters.')}
                 </td>
               </tr>
             )}
@@ -212,6 +205,7 @@ export default function ProductTable({
           products.map((product) => {
             const productImage =
               product.images?.[0] || product.image || FALLBACK_IMAGE
+            const productName = getLocalizedProductName(product, i18n.language)
 
             return (
               <div key={`mob-${product.id}`} className="p-4.5 flex gap-4 items-start">
@@ -219,11 +213,11 @@ export default function ProductTable({
                 <Link
                   to={`/products/${product.id}`}
                   className="w-20 h-26 bg-neutral-100 border border-neutral-200/80 rounded-[2px] overflow-hidden shrink-0 block cursor-pointer"
-                  title={`View ${product.name}`}
+                  title={`View ${productName}`}
                 >
                   <img
                     src={productImage}
-                    alt={product.name}
+                    alt={productName}
                     onError={handleImageError}
                     className="w-full h-full object-cover object-top"
                   />
@@ -236,7 +230,7 @@ export default function ProductTable({
                       className="font-semibold text-black text-sm truncate"
                       onClick={() => onEditProduct && onEditProduct(product)}
                     >
-                      {product.name}
+                      {productName}
                     </h4>
                     <span className="font-mono font-bold text-sm text-black shrink-0">
                       {formatVND(product.price)}
@@ -259,14 +253,16 @@ export default function ProductTable({
                       <button
                         type="button"
                         onClick={() => onEditProduct && onEditProduct(product)}
-                        className="p-2 text-neutral-400 hover:text-black"
+                        className="p-2 text-neutral-400 hover:text-black cursor-pointer"
+                        title={t('seller.products.editProduct', 'Edit')}
                       >
                         <Edit3 className="w-4 h-4" />
                       </button>
                       <button
                         type="button"
                         onClick={() => onDeleteProduct && onDeleteProduct(product)}
-                        className="p-2 text-neutral-400 hover:text-red-600"
+                        className="p-2 text-neutral-400 hover:text-red-600 cursor-pointer"
+                        title={t('seller.products.deleteProduct', 'Delete')}
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
@@ -278,7 +274,7 @@ export default function ProductTable({
           })
         ) : (
           <div className="py-12 text-center text-xs text-neutral-400 uppercase tracking-widest font-mono">
-            No products found.
+            {t('seller.products.noProductsFound', 'No products found matching your filters.')}
           </div>
         )}
       </div>

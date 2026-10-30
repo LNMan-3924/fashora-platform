@@ -1,5 +1,7 @@
+import { COMMERCE_STORAGE_KEYS } from '../../constants';
 import { useState, useEffect, useMemo } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { ArrowLeft, ArrowRight, ShoppingBag, ShieldCheck } from 'lucide-react';
 import { getProductById, getProducts } from '../../services/api';
 import { useCartStore } from '../../stores';
@@ -7,6 +9,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { Toast } from '../../components/common';
 import SizeMatrixModal from '../../components/product/SizeMatrixModal';
 import { safeBack } from '../../utils';
+import { VI_EDITORIAL_STORIES } from '../../locales/editorialStoriesVi';
 // =========================================================================
 // TOÀN BỘ DATA BÀI VIẾT EDITORIAL STORY (5 PHẦN) ĐƯỢC LƯU TRỰC TIẾP TRONG GIAO DIỆN
 // =========================================================================
@@ -540,6 +543,7 @@ const formatVND = (val) =>
   new Intl.NumberFormat('vi-VN').format(Number(val) || 0) + '₫';
 
 export default function StoryDetail() {
+  const { t, i18n } = useTranslation();
   const { id } = useParams();
   const navigate = useNavigate();
 
@@ -551,10 +555,25 @@ export default function StoryDetail() {
     return id;
   }, [id]);
 
-  // Lấy dữ liệu bài viết editorial tương ứng
+  // Lấy dữ liệu bài viết editorial tương ứng với ngôn ngữ hiện tại
   const story = useMemo(() => {
-    return EDITORIAL_STORIES[normalizedId] || EDITORIAL_STORIES.prd_set_01;
-  }, [normalizedId]);
+    const isVi = i18n.language?.startsWith('vi');
+    const defaultStory = EDITORIAL_STORIES[normalizedId] || EDITORIAL_STORIES.prd_set_01;
+    if (isVi) {
+      const viStory = VI_EDITORIAL_STORIES[normalizedId] || VI_EDITORIAL_STORIES.prd_set_01;
+      return {
+        ...defaultStory,
+        ...viStory,
+        styleName: t(`explore.stories.${normalizedId}.styleName`, viStory.styleName || defaultStory.styleName),
+        setName: t(`explore.stories.${normalizedId}.setName`, viStory.setName || defaultStory.setName),
+      };
+    }
+    return {
+      ...defaultStory,
+      styleName: t(`explore.stories.${normalizedId}.styleName`, defaultStory.styleName),
+      setName: t(`explore.stories.${normalizedId}.setName`, defaultStory.setName),
+    };
+  }, [normalizedId, i18n.language, t]);
 
   const [product, setProduct] = useState(null);
   const [selectedSize, setSelectedSize] = useState('M');
@@ -634,8 +653,8 @@ export default function StoryDetail() {
       return;
     }
 
-    const targetName = (product?.name || story.setName || 'SET COLLECTION').toUpperCase();
-    setToastMessage(`ADDED ${targetName} TO CART.`);
+    const targetName = (story.setName || product?.name || 'SET COLLECTION').toUpperCase();
+    setToastMessage(t('explore.addedToCart', { name: targetName, defaultValue: `ADDED ${targetName} TO CART.` }));
   };
 
   // 2. Mua ngay / Thanh toán: Bắt buộc đăng nhập nếu chưa login
@@ -667,7 +686,7 @@ export default function StoryDetail() {
     };
 
     try {
-      sessionStorage.setItem('fashora_checkout_items', JSON.stringify([selectedCartItem]));
+      sessionStorage.setItem(COMMERCE_STORAGE_KEYS.CHECKOUT_ITEMS, JSON.stringify([selectedCartItem]));
     } catch {
       // ignore
     }
@@ -713,7 +732,7 @@ export default function StoryDetail() {
             className="inline-flex items-center gap-2 text-xs font-mono tracking-[0.2em] uppercase text-neutral-500 hover:text-black transition-colors cursor-pointer group"
           >
             <ArrowLeft className="w-3.5 h-3.5 transition-transform group-hover:-translate-x-1" />
-            <span>RETURN TO EXPLORE ARCHIVE</span>
+            <span>{t('storyDetail.returnToExplore', 'RETURN TO EXPLORE ARCHIVE')}</span>
           </button>
         </div>
 
@@ -721,7 +740,7 @@ export default function StoryDetail() {
         <div className="max-w-4xl mb-10 sm:mb-14">
           <div className="flex items-center gap-3 mb-3">
             <span className="text-xs font-mono font-bold tracking-[0.25em] text-neutral-400">
-              [ EDITORIAL STORY {story.styleNumber} ]
+              [ {t('storyDetail.editorialStory', 'EDITORIAL STORY')} {story.styleNumber} ]
             </span>
             <span className="h-px w-8 bg-neutral-300" />
             <span className="text-xs font-mono tracking-[0.2em] text-neutral-600 uppercase">
@@ -750,7 +769,7 @@ export default function StoryDetail() {
                 }}
               />
               <span className="absolute bottom-3 left-3 bg-white/95 px-2.5 py-1 text-[9px] font-mono tracking-widest uppercase border border-neutral-200">
-                PLATE II / PROFILE DETAIL
+                {t('storyDetail.plate2', 'PLATE II / PROFILE DETAIL')}
               </span>
             </div>
 
@@ -759,21 +778,21 @@ export default function StoryDetail() {
               <div className="flex items-center gap-2 text-neutral-900">
                 <ShieldCheck className="w-4 h-4 text-neutral-700" />
                 <span className="text-xs font-mono font-bold tracking-[0.2em] uppercase">
-                  ATELIER PROVENANCE
+                  {t('storyDetail.atelierProvenance', 'ATELIER PROVENANCE')}
                 </span>
               </div>
 
               <div className="space-y-2 text-xs font-light text-neutral-600 leading-relaxed">
                 <p>
-                  <strong className="font-semibold text-neutral-800">Origin: </strong>
+                  <strong className="font-semibold text-neutral-800">{t('storyDetail.origin', 'Origin:')} </strong>
                   {story.origin}
                 </p>
                 <p>
-                  <strong className="font-semibold text-neutral-800">Production Run: </strong>
+                  <strong className="font-semibold text-neutral-800">{t('storyDetail.productionRun', 'Production Run:')} </strong>
                   {story.batch}
                 </p>
                 <p>
-                  <strong className="font-semibold text-neutral-800">Philosophy: </strong>
+                  <strong className="font-semibold text-neutral-800">{t('storyDetail.philosophy', 'Philosophy:')} </strong>
                   &ldquo;{story.quote}&rdquo;
                 </p>
               </div>
@@ -793,7 +812,7 @@ export default function StoryDetail() {
                 }}
               />
               <span className="absolute bottom-4 left-4 bg-black text-white px-3 py-1 text-[10px] font-mono tracking-[0.2em] uppercase">
-                PLATE I / FULL SILHOUETTE
+                {t('storyDetail.plate1', 'PLATE I / FULL SILHOUETTE')}
               </span>
             </div>
           </div>
@@ -802,26 +821,19 @@ export default function StoryDetail() {
 
       {/* =========================================================================
           PHẦN 1: THE DESIGN (NỀN TRẮNG)
-          - Gồm 6 thẻ chi tiết kỹ thuật:
-            1. DESIGN CONCEPT
-            2. SHAPE & VOLUME
-            3. KEY VISUAL DETAILS
-            4. SILHOUETTE
-            5. CONSTRUCTION
-            6. STYLING DIRECTION
           ========================================================================= */}
       <section className="bg-white border-t border-neutral-200 py-16 sm:py-24">
         <div className="max-w-[1560px] mx-auto px-6 sm:px-10 lg:px-16">
           <div className="max-w-2xl mb-12 sm:mb-16">
             <span className="text-xs font-mono font-bold tracking-[0.25em] text-neutral-400 block mb-2 uppercase">
-              SECTION 01
+              {t('storyDetail.section1', 'SECTION 01')}
             </span>
             <h2 className="text-2xl sm:text-4xl font-black uppercase tracking-tight text-neutral-900 mb-3">
-              THE DESIGN
+              {t('storyDetail.theDesign', 'THE DESIGN')}
             </h2>
             <div className="w-12 h-0.5 bg-black mb-3" />
             <p className="text-xs sm:text-sm text-neutral-500 uppercase tracking-wider font-light">
-              Deconstructive architectural anatomy and formal specifications.
+              {t('storyDetail.designDesc', 'Deconstructive architectural anatomy and formal specifications.')}
             </p>
           </div>
 
@@ -852,13 +864,7 @@ export default function StoryDetail() {
       </section>
 
       {/* =========================================================================
-          PHẦN 2: THE BRAND BEHIND THE PIECE (NỀN ĐEN TUYỀN: bg-[#111111])
-          - Cột trái: Tên shop & Mô tả shop
-          - Cột phải: 4 mục cốt lõi:
-            * STRUCTURAL DEFIANCE
-            * MONOCHROME RESTRAINT
-            * BESPOKE CASTINGS
-            * LIMITED BATCHES
+          PHẦN 2: THE BRAND BEHIND THE PIECE
           ========================================================================= */}
       <section className="bg-[#111111] text-white py-20 sm:py-28 border-y border-neutral-800">
         <div className="max-w-[1560px] mx-auto px-6 sm:px-10 lg:px-16">
@@ -866,11 +872,11 @@ export default function StoryDetail() {
             {/* Cột trái: Thông tin Atelier */}
             <div className="lg:col-span-5 space-y-6">
               <span className="text-xs font-mono font-bold tracking-[0.25em] text-neutral-400 uppercase block">
-                SECTION 02 / ATELIER IDENTITY
+                {t('storyDetail.section2', 'SECTION 02 / ATELIER IDENTITY')}
               </span>
 
               <h2 className="text-3xl sm:text-5xl font-black uppercase tracking-tight text-white leading-tight">
-                THE BRAND BEHIND THE PIECE
+                {t('storyDetail.theBrand', 'THE BRAND BEHIND THE PIECE')}
               </h2>
 
               <div className="pt-2">
@@ -893,7 +899,7 @@ export default function StoryDetail() {
                 >
                   <div>
                     <span className="text-[10px] font-mono tracking-widest text-neutral-500 block mb-2">
-                      PILLAR 0{bpIdx + 1}
+                      {t('storyDetail.pillar', 'TRỤ CỘT')} 0{bpIdx + 1}
                     </span>
                     <h3 className="text-sm font-bold uppercase tracking-wider text-white mb-2">
                       {bp.title}
@@ -910,24 +916,20 @@ export default function StoryDetail() {
       </section>
 
       {/* =========================================================================
-          PHẦN 3: MATERIAL & CRAFT (NỀN TRẮNG)
-          - 3 khối card thông số chất liệu và kỹ thuật gia công:
-            * RAW MATERIAL & ORIGIN
-            * HARDWARE & PRECISION
-            * ARTISANAL FINISHING
+          PHẦN 3: MATERIAL & CRAFT
           ========================================================================= */}
       <section className="bg-white py-16 sm:py-24 border-b border-neutral-200">
         <div className="max-w-[1560px] mx-auto px-6 sm:px-10 lg:px-16">
           <div className="max-w-2xl mb-12 sm:mb-16">
             <span className="text-xs font-mono font-bold tracking-[0.25em] text-neutral-400 block mb-2 uppercase">
-              SECTION 03
+              {t('storyDetail.section3', 'SECTION 03')}
             </span>
             <h2 className="text-2xl sm:text-4xl font-black uppercase tracking-tight text-neutral-900 mb-3">
-              MATERIAL & CRAFT
+              {t('storyDetail.materialCraft', 'MATERIAL & CRAFT')}
             </h2>
             <div className="w-12 h-0.5 bg-black mb-3" />
             <p className="text-xs sm:text-sm text-neutral-500 uppercase tracking-wider font-light">
-              Tactile resilience, bespoke metal casting, and uncompromising assembly standards.
+              {t('storyDetail.materialDesc', 'Tactile resilience, bespoke metal casting, and uncompromising assembly standards.')}
             </p>
           </div>
 
@@ -939,7 +941,7 @@ export default function StoryDetail() {
               >
                 <div>
                   <span className="text-[10px] font-mono tracking-widest text-neutral-400 block mb-3">
-                    SPECIFICATION 0{sIdx + 1}
+                    {t('storyDetail.specification', 'THÔNG SỐ')} 0{sIdx + 1}
                   </span>
                   <h3 className="text-sm sm:text-base font-bold uppercase tracking-wider text-neutral-900 mb-3">
                     {spec.title}
@@ -955,12 +957,7 @@ export default function StoryDetail() {
       </section>
 
       {/* =========================================================================
-          PHẦN 4: THE STORY BEHIND IT (NỀN TRẮNG)
-          - Cột trái: Tiêu đề phần & Luận điểm
-          - Cột phải: 3 đoạn văn:
-            * THE BRUTALIST SPARK & INSPIRATION
-            * DESIGN INTENTION & GARMENTS AS SHELTERS
-            * TRANSCENDING EPHEMERAL TRENDS
+          PHẦN 4: THE STORY BEHIND IT
           ========================================================================= */}
       <section className="bg-neutral-50/50 py-16 sm:py-24 border-b border-neutral-200">
         <div className="max-w-[1560px] mx-auto px-6 sm:px-10 lg:px-16">
@@ -968,14 +965,14 @@ export default function StoryDetail() {
             {/* Cột trái: Tiêu đề */}
             <div className="lg:col-span-4 space-y-4">
               <span className="text-xs font-mono font-bold tracking-[0.25em] text-neutral-400 uppercase block">
-                SECTION 04 / ESSAY
+                {t('storyDetail.section4', 'SECTION 04 / ESSAY')}
               </span>
               <h2 className="text-2xl sm:text-4xl font-black uppercase tracking-tight text-neutral-900">
-                THE STORY BEHIND IT
+                {t('storyDetail.theStory', 'THE STORY BEHIND IT')}
               </h2>
               <div className="w-12 h-0.5 bg-black" />
               <p className="text-xs text-neutral-500 font-mono uppercase tracking-widest leading-relaxed pt-2">
-                An inquiry into the permanence of structural tailoring in an age of disposable speed.
+                {t('storyDetail.storyDesc', 'An inquiry into the permanence of structural tailoring in an age of disposable speed.')}
               </p>
             </div>
 
@@ -997,23 +994,20 @@ export default function StoryDetail() {
       </section>
 
       {/* =========================================================================
-          PHẦN 5: THE PIECE (NỀN TRẮNG - KHU VỰC MUA SẮM)
-          - Card sản phẩm đầy đủ với ảnh, tên, giá VND
-          - Nút chọn Size (S, M, L, XL), bộ đếm số lượng
-          - Nút [ ADD TO SHOPPING BAG ] (kết nối trực tiếp Zustand store)
+          PHẦN 5: THE PIECE
           ========================================================================= */}
       <section className="bg-white py-16 sm:py-24 border-b border-neutral-200">
         <div className="max-w-[1560px] mx-auto px-6 sm:px-10 lg:px-16">
           <div className="max-w-2xl mb-12">
             <span className="text-xs font-mono font-bold tracking-[0.25em] text-neutral-400 block mb-2 uppercase">
-              SECTION 05 / ACQUIRE
+              {t('storyDetail.section5', 'SECTION 05 / ACQUIRE')}
             </span>
             <h2 className="text-2xl sm:text-4xl font-black uppercase tracking-tight text-neutral-900 mb-2">
-              THE PIECE
+              {t('storyDetail.thePiece', 'THE PIECE')}
             </h2>
             <div className="w-12 h-0.5 bg-black mb-3" />
             <p className="text-xs sm:text-sm text-neutral-500 uppercase tracking-wider font-light">
-              Secure your unit from this limited atelier production batch.
+              {t('storyDetail.pieceDesc', 'Secure your unit from this limited atelier production batch.')}
             </p>
           </div>
 
@@ -1032,7 +1026,7 @@ export default function StoryDetail() {
               <div className="md:col-span-7 space-y-6">
                 <div>
                   <span className="text-[10px] font-mono tracking-widest text-neutral-500 uppercase block mb-1">
-                    {story.brandInfo.name} / ATELIER EDITION
+                    {story.brandInfo.name} / {t('storyDetail.atelierEdition', 'ATELIER EDITION')}
                   </span>
                   <h3 className="text-xl sm:text-2xl font-black uppercase tracking-tight text-neutral-950 mb-2">
                     {story.setName}
@@ -1054,7 +1048,7 @@ export default function StoryDetail() {
                   <div className="flex items-center justify-between mb-2.5">
                     <div className="flex items-center gap-2">
                       <span className="text-xs font-mono tracking-wider uppercase text-neutral-700 font-semibold">
-                        SELECT SIZE
+                        {t('storyDetail.selectSize', 'SELECT SIZE')}
                       </span>
                       <span className="text-[11px] font-mono text-neutral-400">
                         ({selectedSize})
@@ -1066,7 +1060,7 @@ export default function StoryDetail() {
                       onClick={() => setShowSizeModal(true)}
                       className="text-[11px] font-mono text-black underline uppercase tracking-widest hover:text-neutral-500 transition-colors cursor-pointer"
                     >
-                      SIZE MATRIX
+                      {t('productDetail.sizeMatrix', 'SIZE MATRIX')}
                     </button>
                   </div>
                   <div className="flex items-center gap-2">
@@ -1090,7 +1084,7 @@ export default function StoryDetail() {
                 {/* Bộ đếm số lượng */}
                 <div>
                   <span className="text-xs font-mono tracking-wider uppercase text-neutral-700 block mb-2">
-                    QUANTITY
+                    {t('productDetail.quantity', 'QUANTITY')}
                   </span>
                   <div className="inline-flex items-center border border-neutral-300 bg-white">
                     <button
@@ -1121,7 +1115,7 @@ export default function StoryDetail() {
                     className="flex-1 py-3.5 sm:py-4 px-4 border border-black text-black bg-white hover:bg-neutral-100 text-[11px] font-bold uppercase tracking-[0.16em] transition-all flex items-center justify-center gap-2 cursor-pointer shadow-xs active:scale-[0.99]"
                   >
                     <ShoppingBag className="w-3.5 h-3.5" />
-                    <span>ADD TO CART</span>
+                    <span>{t('productDetail.addToCart', 'ADD TO CART')}</span>
                   </button>
 
                   <button
@@ -1129,7 +1123,7 @@ export default function StoryDetail() {
                     onClick={handleProceedToCheckout}
                     className="flex-1 py-3.5 sm:py-4 px-4 bg-black text-white hover:bg-neutral-800 text-[11px] font-bold uppercase tracking-[0.16em] transition-all flex items-center justify-center gap-2 shadow-sm hover:scale-[1.01] active:scale-[0.99] cursor-pointer"
                   >
-                    <span>CHECK OUT</span>
+                    <span>{t('storyDetail.checkout', 'CHECK OUT')}</span>
                     <ArrowRight className="w-3.5 h-3.5" />
                   </button>
                 </div>
@@ -1141,17 +1135,14 @@ export default function StoryDetail() {
 
       {/* =========================================================================
           CUỐI TRANG: COMPLETED READING
-          - 2 nút hành động:
-            * [ EXIT ]: Chuyển về lại trang /explore
-            * [ GO TO FASHORA PLATFORM ]: Chuyển về trang chủ /
           ========================================================================= */}
       <section className="py-20 sm:py-28 bg-white text-center">
         <div className="max-w-xl mx-auto px-6 flex flex-col items-center">
           <span className="text-[10px] sm:text-xs font-mono tracking-[0.3em] uppercase text-neutral-400 mb-2">
-            EDITORIAL DOSSIER CONCLUDED
+            {t('storyDetail.dossierConcluded', 'EDITORIAL DOSSIER CONCLUDED')}
           </span>
           <h3 className="text-xl sm:text-2xl font-black uppercase tracking-tight text-neutral-900 mb-8">
-            COMPLETED READING
+            {t('storyDetail.completedReading', 'COMPLETED READING')}
           </h3>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 w-full">
@@ -1159,14 +1150,14 @@ export default function StoryDetail() {
               to="/explore"
               className="w-full sm:w-auto px-8 sm:px-10 py-3.5 sm:py-4 border border-black text-black text-xs font-bold uppercase tracking-[0.2em] hover:bg-black hover:text-white transition-all duration-300"
             >
-              EXIT TO EXPLORE
+              {t('storyDetail.exitToExplore', 'EXIT TO EXPLORE')}
             </Link>
 
             <Link
               to="/home"
               className="w-full sm:w-auto px-8 sm:px-10 py-3.5 sm:py-4 bg-black text-white text-xs font-bold uppercase tracking-[0.2em] hover:bg-neutral-800 transition-all duration-300 shadow-md"
             >
-              GO TO FASHORA PLATFORM
+              {t('storyDetail.goToHome', 'GO TO FASHORA PLATFORM')}
             </Link>
           </div>
         </div>

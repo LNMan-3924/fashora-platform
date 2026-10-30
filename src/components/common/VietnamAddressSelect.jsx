@@ -1,22 +1,11 @@
+import { useTranslation } from 'react-i18next'
 import { useVietnamLocations } from '../../hooks/useVietnamLocations'
 import Select from './Select'
 
 /**
- * Component VietnamAddressSelect:
- * Nhóm 2 dropdown Tỉnh/Thành phố & Phường/Xã dùng chung cho Checkout và Profile.
- * Tái sử dụng useVietnamLocations hook để xử lý tải danh mục 34 tỉnh thành và phường/xã trực thuộc.
- *
- * Props:
- * - cityValue: Giá trị tỉnh/thành hiện tại
- * - wardValue: Giá trị phường/xã hiện tại
- * - onCityChange: Callback khi người dùng chọn Tỉnh/Thành mới
- * - onWardChange: Callback khi người dùng chọn Phường/Xã mới
- * - onBlur: Callback khi blur khỏi dropdown
- * - cityError: Thông báo lỗi kiểm tra trường Tỉnh/Thành
- * - wardError: Thông báo lỗi kiểm tra trường Phường/Xã
- * - cityLabel / wardLabel: Nhãn hiển thị
- * - cityPlaceholder / wardPlaceholder: Văn bản gợi ý
- * - className: Class định dạng lưới layout
+ * =============================================================================
+ * COMPONENT: VietnamAddressSelect (Bộ Dropdown Kép Tỉnh/Thành & Phường/Xã)
+ * =============================================================================
  */
 export default function VietnamAddressSelect({
   cityValue = '',
@@ -26,12 +15,18 @@ export default function VietnamAddressSelect({
   onBlur,
   cityError = '',
   wardError = '',
-  cityLabel = 'Province / City (34 provinces) *',
-  wardLabel = 'Ward / Commune *',
-  cityPlaceholder = '-- Select Province / City --',
-  wardPlaceholder = '-- Select Ward / Commune --',
+  cityLabel,
+  wardLabel,
+  cityPlaceholder,
+  wardPlaceholder,
   className = 'grid grid-cols-1 sm:grid-cols-2 gap-3',
 }) {
+  const { t } = useTranslation()
+  const displayCityLabel = cityLabel || t('checkout.provinceCity')
+  const displayWardLabel = wardLabel || t('checkout.wardCommune')
+  const displayCityPlaceholder = cityPlaceholder || t('checkout.provincePlaceholder')
+  const displayWardPlaceholder = wardPlaceholder || t('checkout.wardPlaceholder')
+  // Kết nối với Custom Hook quản lý dữ liệu địa giới hành chính
   const {
     isLoadingWards,
     selectedProvince,
@@ -40,11 +35,13 @@ export default function VietnamAddressSelect({
     wardOptions,
   } = useVietnamLocations(cityValue, wardValue)
 
+  // Xử lý khi người dùng chọn Tỉnh/Thành mới
   const handleCityChange = (e) => {
     const newCity = e.target.value
     onCityChange?.(newCity)
   }
 
+  // Xử lý khi người dùng chọn Phường/Xã mới
   const handleWardChange = (e) => {
     const newWard = e.target.value
     onWardChange?.(newWard)
@@ -52,22 +49,27 @@ export default function VietnamAddressSelect({
 
   return (
     <div className={className}>
-      {/* 1. Dropdown Tỉnh / Thành phố (34 đơn vị hành chính cấp tỉnh mới) */}
+      {/* ------------------------------------------------------------------ */}
+      {/* 1. DROPDOWN TỈNH / THÀNH PHỐ (34 đơn vị hành chính cấp tỉnh mới)   */}
+      {/* ------------------------------------------------------------------ */}
       <Select
-        label={cityLabel}
+        label={displayCityLabel}
         id="city"
         name="city"
         value={selectedProvince?.name || cityValue || ''}
         onChange={handleCityChange}
         onBlur={onBlur}
         error={cityError}
-        placeholder={cityPlaceholder}
+        placeholder={displayCityPlaceholder}
         options={provinceOptions}
       />
 
-      {/* 2. Dropdown Phường / Xã (Trực thuộc Tỉnh/Thành đã chọn) */}
+      {/* ------------------------------------------------------------------ */}
+      {/* 2. DROPDOWN PHƯỜNG / XÃ (Trực thuộc Tỉnh/Thành đã chọn ở trên)    */}
+      {/* Tự động bị vô hiệu hóa (disabled) nếu người dùng chưa chọn Tỉnh    */}
+      {/* ------------------------------------------------------------------ */}
       <Select
-        label={wardLabel}
+        label={displayWardLabel}
         id="ward"
         name="ward"
         value={wardValue || ''}
@@ -76,15 +78,14 @@ export default function VietnamAddressSelect({
         error={wardError}
         placeholder={
           !selectedProvinceId
-            ? '-- Please select Province / City first --'
+            ? t('checkout.selectCityFirst')
             : isLoadingWards
-            ? 'Loading list...'
-            : wardPlaceholder
+            ? t('common.loading')
+            : displayWardPlaceholder
         }
         options={wardOptions}
-        disabled={!selectedProvinceId}
+        disabled={!selectedProvinceId} // Chỉ cho phép chọn phường/xã khi đã có tỉnh
       />
     </div>
   )
 }
-

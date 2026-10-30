@@ -1,26 +1,17 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { AlertTriangle, Trash2, X } from 'lucide-react'
 import { deleteProduct } from '../../services/api'
 import { formatVND, handleImageError, FALLBACK_IMAGE } from '../../constants/commerce'
+import { getLocalizedProductName } from '../../utils/productLocalization'
 
-/**
- * Component ProductDeleteModal: Hộp thoại xác nhận trước khi xóa sản phẩm khỏi kho
- * - Gọi trực tiếp API DELETE /products/:id.
- * - Hiển thị ảnh và thông tin chi tiết sản phẩm sắp bị xóa để tránh thao tác nhầm.
- * - Tích hợp xử lý lỗi ảnh sản phẩm (onError={handleImageError}).
- *
- * Props:
- * - isOpen: Trạng thái hiển thị modal
- * - onClose: Hàm đóng modal hủy thao tác
- * - product: Đối tượng sản phẩm đang được chọn để xóa
- * - onDeleteSuccess: Callback khi xóa thành công để gỡ khỏi danh sách trên giao diện
- */
 export default function ProductDeleteModal({
   isOpen = false,
   onClose,
   product = null,
   onDeleteSuccess,
 }) {
+  const { t, i18n } = useTranslation()
   const [isDeleting, setIsDeleting] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
 
@@ -28,6 +19,7 @@ export default function ProductDeleteModal({
 
   const productImage =
     product.images?.[0] || product.image || FALLBACK_IMAGE
+  const productName = getLocalizedProductName(product, i18n.language)
 
   const handleConfirmDelete = async () => {
     setIsDeleting(true)
@@ -41,7 +33,7 @@ export default function ProductDeleteModal({
       onClose()
     } catch (err) {
       console.error('Error deleting product:', err)
-      setErrorMessage('Unable to delete product at this time. Please try again.')
+      setErrorMessage(t('seller.products.deleteModal.error', 'Unable to delete product at this time. Please try again.'))
     } finally {
       setIsDeleting(false)
     }
@@ -55,14 +47,14 @@ export default function ProductDeleteModal({
           <div className="flex items-center gap-2 text-red-700">
             <AlertTriangle className="w-4 h-4 shrink-0" />
             <h3 className="text-xs font-bold uppercase tracking-[0.2em] font-mono">
-              CONFIRM DELETION
+              {t('seller.products.deleteModal.title', 'CONFIRM DELETION')}
             </h3>
           </div>
 
           <button
             type="button"
             onClick={onClose}
-            className="p-1 text-neutral-400 hover:text-black transition-colors"
+            className="p-1 text-neutral-400 hover:text-black transition-colors cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
@@ -77,8 +69,7 @@ export default function ProductDeleteModal({
           )}
 
           <p className="text-neutral-600">
-            Are you sure you want to remove this product from your shop catalog?
-            This action <span className="font-semibold text-black">cannot be undone</span>.
+            {t('seller.products.deleteModal.confirm', 'Are you sure you want to remove this product from your shop catalog? This action cannot be undone.')}
           </p>
 
           {/* Chi tiết sản phẩm bị xóa */}
@@ -86,7 +77,7 @@ export default function ProductDeleteModal({
             <div className="w-12 h-14 bg-neutral-200 border border-neutral-300 rounded-[2px] overflow-hidden shrink-0">
               <img
                 src={productImage}
-                alt={product.name}
+                alt={productName}
                 onError={handleImageError}
                 className="w-full h-full object-cover"
               />
@@ -94,7 +85,7 @@ export default function ProductDeleteModal({
 
             <div className="min-w-0 flex-1">
               <h4 className="font-semibold text-black truncate text-xs">
-                {product.name}
+                {productName}
               </h4>
               <p className="text-[10px] text-neutral-400 font-mono mt-0.5">
                 ID: {product.id} • {product.category}
@@ -111,19 +102,19 @@ export default function ProductDeleteModal({
               type="button"
               onClick={onClose}
               disabled={isDeleting}
-              className="px-4 py-2 text-xs font-semibold uppercase tracking-wider border border-neutral-200 text-neutral-700 rounded-[2px] hover:bg-neutral-50 transition-colors"
+              className="px-4 py-2 text-xs font-semibold uppercase tracking-wider border border-neutral-200 text-neutral-700 rounded-[2px] hover:bg-neutral-50 transition-colors cursor-pointer"
             >
-              Cancel
+              {t('seller.products.deleteModal.cancel', 'Cancel')}
             </button>
 
             <button
               type="button"
               onClick={handleConfirmDelete}
               disabled={isDeleting}
-              className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold uppercase tracking-wider bg-red-600 text-white rounded-[2px] hover:bg-red-700 transition-colors disabled:opacity-50"
+              className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold uppercase tracking-wider bg-red-600 text-white rounded-[2px] hover:bg-red-700 transition-colors disabled:opacity-50 cursor-pointer"
             >
               <Trash2 className="w-3.5 h-3.5" />
-              <span>{isDeleting ? 'Deleting...' : 'Delete Product'}</span>
+              <span>{isDeleting ? t('seller.products.deleteModal.deleting', 'Deleting...') : t('seller.products.deleteModal.delete', 'Delete Product')}</span>
             </button>
           </div>
         </div>

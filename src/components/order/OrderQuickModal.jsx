@@ -1,10 +1,12 @@
 import { X, ExternalLink } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import {
   FALLBACK_IMAGE,
   handleImageError,
   formatVND,
   formatFullAddress,
 } from './orderConstants'
+import { getLocalizedProductName } from '../../utils'
 
 /**
  * Component OrderQuickModal: Modal xem nhanh đặc tả đơn hàng (Atelier Specification)
@@ -25,6 +27,7 @@ export default function OrderQuickModal({
   onClose,
   onOpenFullDetail,
 }) {
+  const { t, i18n } = useTranslation()
   if (!order) return null
 
   return (
@@ -34,17 +37,17 @@ export default function OrderQuickModal({
         <div className="px-5 sm:px-6 py-4 border-b border-neutral-200 flex items-center justify-between bg-stone-50">
           <div>
             <span className="text-[10px] tracking-[0.25em] text-neutral-500 uppercase font-mono block">
-              {order.shopName ? `ATELIER: ${order.shopName}` : 'ATELIER SPECIFICATION'}
+              {order.shopName ? `${t('product.atelier')}: ${order.shopName}` : t('orders.atelierSpec')}
             </span>
             <h2 className="text-base sm:text-lg font-bold tracking-tight text-neutral-900 font-mono">
-              ORDER: {order.orderNumber}
+              {t('orders.orderNumLabel')} {order.orderNumber}
             </h2>
           </div>
           <button
             type="button"
             onClick={onClose}
             className="text-neutral-400 hover:text-black p-1 transition-colors cursor-pointer"
-            aria-label="Close specification modal"
+            aria-label={t('common.close')}
           >
             <X className="w-5 h-5" />
           </button>
@@ -52,46 +55,60 @@ export default function OrderQuickModal({
 
         {/* Nội dung Modal */}
         <div className="p-5 sm:p-6 overflow-y-auto space-y-6 text-xs text-neutral-700">
+          {/* Thông báo lý do nếu đơn đã bị hủy */}
+          {order.status === 'CANCELLED' && order.cancelReason && (
+            <div className="p-3 bg-red-50 border border-red-200 text-red-800 text-xs rounded-[2px] space-y-0.5">
+              <span className="font-semibold font-mono uppercase tracking-wider block">
+                {t('orders.cancellationReason')}
+              </span>
+              <span>{order.cancelReason}</span>
+              {order.cancelledBy && (
+                <span className="text-[10px] text-neutral-500 block pt-0.5 font-mono">
+                  {t('orders.cancelledBy', { by: order.cancelledBy === 'seller' ? t('orders.bySeller') : t('orders.byBuyer') })}
+                </span>
+              )}
+            </div>
+          )}
           {/* Thông tin giao hàng & Vận chuyển */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pb-4 border-b border-neutral-100">
             <div>
               <h3 className="font-semibold text-neutral-900 tracking-wider text-[11px] uppercase mb-1.5 font-mono">
-                Shipping Address
+                {t('orderDetail.shippingAddress')}
               </h3>
               <div className="text-neutral-600 leading-relaxed font-sans space-y-0.5">
                 <p className="font-semibold text-neutral-900">
-                  {order.recipient?.fullName || order.recipient?.name || 'Recipient'}
+                  {order.recipient?.fullName || order.recipient?.name || t('orderDetail.recipient')}
                 </p>
                 <p>{formatFullAddress(order.recipient)}</p>
                 <p className="font-mono text-neutral-800 pt-0.5">
-                  Phone: {order.recipient?.phone || 'N/A'}
+                  {t('orderDetail.phone')} {order.recipient?.phone || 'N/A'}
                 </p>
               </div>
             </div>
 
             <div>
               <h3 className="font-semibold text-neutral-900 tracking-wider text-[11px] uppercase mb-1.5 font-mono">
-                Dispatch Logistics
+                {t('orderDetail.dispatchLogistics')}
               </h3>
               <p className="text-neutral-600 leading-relaxed font-sans space-y-1">
                 <span>
-                  Standard Courier:{' '}
+                  {t('orders.standardCourier')}{' '}
                   <strong className="text-neutral-900">
                     {order.logistics?.courier || 'SPX Express'}
                   </strong>
                 </span>
                 <br />
                 <span>
-                  Tracking Waybill:{' '}
+                  {t('orderDetail.trackingWaybill')}{' '}
                   <span className="font-mono text-neutral-900 font-medium">
-                    {order.logistics?.waybill || 'Pending Assignment'}
+                    {order.logistics?.waybill || t('orderDetail.pendingAssignment')}
                   </span>
                 </span>
                 <br />
                 <span>
-                  Payment Method:{' '}
+                  {t('orders.paymentMethod')}{' '}
                   <span className="font-medium text-neutral-900">
-                    {order.paymentMethod || 'Cash On Delivery (COD)'}
+                    {order.paymentMethod || t('orders.cashOnDelivery')}
                   </span>
                 </span>
               </p>
@@ -101,7 +118,7 @@ export default function OrderQuickModal({
           {/* Danh sách sản phẩm (Manifest Content) */}
           <div>
             <h3 className="font-semibold text-neutral-900 tracking-wider text-[11px] uppercase mb-3 font-mono">
-              Manifest Content ({order.items?.length || 0} ITEMS)
+              {t('orderDetail.manifestContent', { count: order.items?.length || 0 })}
             </h3>
             <div className="space-y-3">
               {order.items?.map((item, idx) => (
@@ -118,10 +135,10 @@ export default function OrderQuickModal({
                     />
                     <div className="min-w-0">
                       <p className="font-medium text-neutral-900 text-xs truncate">
-                        {item.name}
+                        {getLocalizedProductName(item, i18n.language, item.name)}
                       </p>
                       <p className="text-[11px] text-neutral-500 font-sans">
-                        {item.selectedSize || 'Standard'} • {item.selectedColor || 'Standard'} • Qty: {item.quantity || 1}
+                        {item.selectedSize || t('orders.standard')} • {item.selectedColor || t('orders.standard')} • {t('orderDetail.quantity')} {item.quantity || 1}
                       </p>
                     </div>
                   </div>
@@ -136,21 +153,21 @@ export default function OrderQuickModal({
           {/* Bảng chi tiết giá tiền */}
           <div className="bg-stone-50 p-4 border border-neutral-200 space-y-2 font-mono text-xs">
             <div className="flex justify-between text-neutral-600">
-              <span>Subtotal</span>
+              <span>{t('orderDetail.subtotal')}</span>
               <span>{formatVND(order.subtotal || order.total)}</span>
             </div>
             <div className="flex justify-between text-neutral-600">
-              <span>Shipping Fee</span>
+              <span>{t('orderDetail.shippingFee')}</span>
               <span>
-                {order.shippingFee > 0 ? formatVND(order.shippingFee) : '0₫ (Free Atelier)'}
+                {order.shippingFee > 0 ? formatVND(order.shippingFee) : t('orderDetail.freeAtelier')}
               </span>
             </div>
             <div className="flex justify-between text-neutral-600">
-              <span>Atelier Tax (VAT Included)</span>
+              <span>{t('orderDetail.atelierTax')}</span>
               <span>0₫</span>
             </div>
             <div className="border-t border-neutral-200 pt-2 flex justify-between font-bold text-neutral-900 text-sm">
-              <span>Grand Total (COD)</span>
+              <span>{t('orders.grandTotalCod')}</span>
               <span className="text-base text-black">
                 {formatVND(order.total)}
               </span>
@@ -166,7 +183,7 @@ export default function OrderQuickModal({
               onClick={() => onOpenFullDetail(order)}
               className="inline-flex items-center gap-1.5 text-xs font-semibold tracking-wider uppercase text-neutral-800 hover:text-black transition-colors cursor-pointer"
             >
-              <span>OPEN FULL ORDER LEDGER</span>
+              <span>{t('orders.openFullOrderLedger')}</span>
               <ExternalLink className="w-3.5 h-3.5" />
             </button>
           )}
@@ -176,7 +193,7 @@ export default function OrderQuickModal({
             onClick={onClose}
             className="px-5 py-2 bg-black text-white text-xs tracking-wider uppercase font-medium hover:bg-neutral-800 transition-colors cursor-pointer"
           >
-            Dismiss
+            {t('common.dismiss')}
           </button>
         </div>
       </div>

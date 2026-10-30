@@ -11,12 +11,15 @@
  * @param {function} onPageChange - Callback khi người dùng chuyển trang
  * @param {string} className - Class tùy biến bổ sung
  */
+import { useTranslation } from 'react-i18next'
+
 export default function Pagination({
   currentPage = 1,
   totalPages = 1,
   onPageChange,
   className = '',
 }) {
+  const { t } = useTranslation()
   if (totalPages <= 1) return null
 
   // Thuật toán tính toán danh sách số trang hiển thị (hỗ trợ dấu ...)
@@ -55,7 +58,7 @@ export default function Pagination({
         className="uppercase tracking-widest font-semibold transition-colors disabled:text-neutral-300 disabled:cursor-not-allowed text-neutral-500 hover:text-black cursor-pointer px-1 py-1"
         aria-label="Previous Page"
       >
-        PREVIOUS
+        {t('common.previous', 'PREVIOUS')}
       </button>
 
       {/* Danh sách các số trang */}
@@ -100,7 +103,7 @@ export default function Pagination({
         className="uppercase tracking-widest font-semibold transition-colors disabled:text-neutral-300 disabled:cursor-not-allowed text-black hover:opacity-75 cursor-pointer px-1 py-1"
         aria-label="Next Page"
       >
-        NEXT
+        {t('common.next', 'NEXT')}
       </button>
     </nav>
   )

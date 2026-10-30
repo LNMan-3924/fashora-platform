@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { ShoppingBag } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { Button } from '../common'
 
 /**
@@ -10,6 +11,8 @@ import { Button } from '../common'
  * 2. Nút "EXPLORE ARCHIVE" dẫn sang trang sản phẩm (/shop).
  */
 export default function CartEmptyState() {
+  const { t } = useTranslation()
+
   return (
     <div className="p-8 sm:p-14 text-center border border-dashed border-neutral-300 rounded-[2px] bg-neutral-50 my-6">
       {/* 1. Biểu tượng giỏ hàng rỗng */}
@@ -19,17 +22,17 @@ export default function CartEmptyState() {
 
       {/* 2. Tiêu đề và mô tả */}
       <h2 className="font-bold text-base sm:text-lg uppercase tracking-wider text-[#111111]">
-        YOUR CART IS CURRENTLY EMPTY
+        {t('cart.emptyTitle', 'YOUR CART IS CURRENTLY EMPTY')}
       </h2>
       <p className="text-xs text-neutral-500 max-w-sm mx-auto mt-2 leading-relaxed font-sans">
-        Explore the atelier archives to curate your directional wardrobe manifest.
+        {t('cart.emptyDesc', 'Explore the atelier archives to curate your directional wardrobe manifest.')}
       </p>
 
       {/* 3. Nút hành động quay lại trang danh mục sản phẩm */}
       <div className="mt-6 flex items-center justify-center">
         <Link to="/shop">
-          <Button variant="primary" size="md" className="tracking-widest text-xs px-8">
-            EXPLORE ARCHIVE
+          <Button variant="primary" size="md" className="tracking-widest text-xs px-8 uppercase">
+            {t('cart.exploreArchive', 'EXPLORE ARCHIVE')}
           </Button>
         </Link>
       </div>

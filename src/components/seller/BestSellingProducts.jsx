@@ -1,18 +1,16 @@
+import { useTranslation } from 'react-i18next'
 import { formatVND, FALLBACK_IMAGE, handleImageError } from '../../constants/commerce'
+import { getLocalizedProductName } from '../../utils/productLocalization'
 
 /**
  * Component BestSellingProducts: Lưới hiển thị các sản phẩm bán chạy nhất của Shop (Top 4)
- * Tích hợp huy hiệu thứ hạng (#1 TOP, #2 TOP...) và cơ chế kiểm tra bắt lỗi ảnh tự động (onError).
- *
- * Props:
- * - products: Mảng 4 sản phẩm bán chạy nhất lấy từ API (/products)
- * - loading: Trạng thái đang tải dữ liệu
  */
 export default function BestSellingProducts({
   products = [],
   loading = false,
   shopName = '',
 }) {
+  const { t, i18n } = useTranslation()
   const displayProducts = products.slice(0, 4)
 
   return (
@@ -21,10 +19,10 @@ export default function BestSellingProducts({
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-5 border-b border-neutral-100">
         <div>
           <h3 className="text-xs sm:text-sm font-bold uppercase tracking-[0.2em] text-black">
-            BEST SELLING PRODUCTS
+            {t('seller.dashboard.bestSelling', 'BEST SELLING PRODUCTS')}
           </h3>
           <p className="text-xs text-neutral-400 mt-1">
-            Top performing garments in {shopName} atelier catalog
+            {t('seller.dashboard.bestSellingSub', { shop: shopName, defaultValue: `Top performing garments in ${shopName} catalog` })}
           </p>
         </div>
       </div>
@@ -48,6 +46,7 @@ export default function BestSellingProducts({
 
             // Thứ hạng sản phẩm (#1 TOP, #2 TOP, #3 TOP, #4 TOP)
             const rankLabel = `#${index + 1} TOP`
+            const productName = getLocalizedProductName(product, i18n.language)
 
             return (
               <article
@@ -64,7 +63,7 @@ export default function BestSellingProducts({
                   {/* Ảnh sản phẩm kèm cơ chế kiểm tra lỗi ảnh (onError) */}
                   <img
                     src={productImage}
-                    alt={product.name}
+                    alt={productName}
                     onError={handleImageError}
                     className="w-full h-full object-cover object-center transition-transform duration-300 group-hover:scale-105"
                   />
@@ -75,9 +74,9 @@ export default function BestSellingProducts({
                   <div>
                     <h4
                       className="text-xs sm:text-sm font-semibold text-black tracking-tight line-clamp-1 group-hover:underline"
-                      title={product.name}
+                      title={productName}
                     >
-                      {product.name}
+                      {productName}
                     </h4>
 
                     {/* Phân loại hoặc danh mục */}
@@ -94,7 +93,7 @@ export default function BestSellingProducts({
 
                     {product.soldCount !== undefined && (
                       <span className="text-[10px] font-mono text-neutral-500">
-                        {product.soldCount} sold
+                        {t('seller.dashboard.soldCount', { count: product.soldCount, defaultValue: `${product.soldCount} sold` })}
                       </span>
                     )}
                   </div>
@@ -105,7 +104,7 @@ export default function BestSellingProducts({
         ) : (
           // Trạng thái khi chưa có sản phẩm
           <div className="col-span-full py-8 text-center text-xs text-neutral-400 uppercase tracking-wider font-mono">
-            No products available.
+            {t('seller.dashboard.noProducts', 'No products available.')}
           </div>
         )}
       </div>

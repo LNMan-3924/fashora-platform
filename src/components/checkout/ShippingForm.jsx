@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { Input, VietnamAddressSelect } from '../common'
 
 /**
@@ -20,6 +21,8 @@ export default function ShippingForm({
   savedAddresses = [],
   onSelectSavedAddress,
 }) {
+  const { t } = useTranslation()
+
   const handleCityChange = (newCity) => {
     if (typeof onChange === 'function') {
       onChange('city', newCity)
@@ -55,10 +58,10 @@ export default function ShippingForm({
       {/* Tiêu đề mục thông tin giao hàng */}
       <div className="flex items-center justify-between mb-5 flex-wrap gap-2">
         <h2 className="text-xs uppercase tracking-[0.25em] font-bold text-[#111111]">
-          1. Shipping Information
+          {t('checkout.stepShipping', '1. Shipping Information')}
         </h2>
         <span className="text-[10px] text-neutral-400 uppercase tracking-widest font-mono">
-          * Mandatory Fields
+          {t('checkout.mandatory', '* Mandatory Fields')}
         </span>
       </div>
 
@@ -67,13 +70,13 @@ export default function ShippingForm({
         <div className="mb-6 p-4 bg-[#F8F8F8] border border-[#E5E5E5] rounded-[2px]">
           <div className="flex items-center justify-between text-[11px] font-mono uppercase tracking-wider text-neutral-500 mb-3 flex-wrap gap-2">
             <span className="font-semibold text-neutral-800">
-              SAVED ADDRESSES FROM PROFILE:
+              {t('checkout.savedAddresses', 'SAVED ADDRESSES FROM PROFILE:')}
             </span>
             <Link
               to="/profile"
               className="text-black hover:underline inline-flex items-center gap-1 font-semibold transition-colors"
             >
-              Manage in Profile →
+              {t('checkout.manageInProfile', 'Manage in Profile →')}
             </Link>
           </div>
 
@@ -113,7 +116,7 @@ export default function ShippingForm({
                     </span>
                     {addr.isDefault && (
                       <span className="text-[9px] font-mono bg-black text-white px-1.5 py-0.5 rounded-[2px] shrink-0">
-                        PRIMARY
+                        {t('checkout.primary', 'PRIMARY')}
                       </span>
                     )}
                   </div>
@@ -131,19 +134,19 @@ export default function ShippingForm({
       <div className="space-y-4">
         {/* 1. Họ và tên người nhận */}
         <Input
-          label="Full Name *"
+          label={t('checkout.fullName', 'Full Name *')}
           id="fullName"
           name="fullName"
           value={formData.fullName || ''}
           onChange={handleChange}
           onBlur={handleBlur}
           error={errors.fullName}
-          placeholder="e.g. Helena Vance"
+          placeholder={t('checkout.fullNamePlaceholder', 'e.g. Helena Vance')}
         />
 
         {/* 2. Số điện thoại liên lạc */}
         <Input
-          label="Phone Number *"
+          label={t('checkout.phone', 'Phone Number *')}
           id="phone"
           name="phone"
           type="tel"
@@ -151,20 +154,20 @@ export default function ShippingForm({
           onChange={handleChange}
           onBlur={handleBlur}
           error={errors.phone}
-          placeholder="e.g. 0912 345 678"
+          placeholder={t('checkout.phonePlaceholder', 'e.g. 0912 345 678')}
           className="font-mono"
         />
 
         {/* 3. Địa chỉ số nhà / tên đường */}
         <Input
-          label="Street Address *"
+          label={t('checkout.streetAddress', 'Street Address *')}
           id="address"
           name="address"
           value={formData.address || ''}
           onChange={handleChange}
           onBlur={handleBlur}
           error={errors.address}
-          placeholder="e.g. 128 Le Duan Boulevard, Floor 4"
+          placeholder={t('checkout.streetPlaceholder', 'e.g. 128 Le Duan Boulevard, Floor 4')}
         />
 
         {/* 4. Cấu trúc hành chính 2 cấp theo chuẩn 34 đơn vị hành chính cấp tỉnh mới */}

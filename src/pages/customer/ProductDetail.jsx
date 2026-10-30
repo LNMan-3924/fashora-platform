@@ -1,17 +1,22 @@
+import { COMMERCE_STORAGE_KEYS } from '../../constants'
 import { useState, useEffect, useMemo } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import {
   ShoppingBag,
   ChevronLeft,
   ChevronRight,
   Globe,
   RefreshCw,
-  ShieldCheck
+  ShieldCheck,
+  Check,
+  Plus,
 } from 'lucide-react'
 
 // Import Zustand Store & Auth
 import { useCartStore } from '../../stores'
 import { useAuth } from '../../contexts/AuthContext'
+import { useFollowShop } from '../../hooks/useFollowShop'
 
 // Import API kết nối db.json
 import { getProductById, getShopById } from '../../services/api'
@@ -23,12 +28,14 @@ import { CompleteTheLook, QuickAddModal } from '../../components/product'
 // Import component bảng size
 import SizeMatrixModal from '../../components/product/SizeMatrixModal'
 import { toShopSlug } from '../../constants/commerce'
-import { safeBack } from '../../utils'
+import { safeBack, getLocalizedProduct } from '../../utils'
 
 export default function ProductDetail() {
+  const { t, i18n } = useTranslation()
   const { id } = useParams()
   const navigate = useNavigate()
-  const { isAuthenticated } = useAuth()
+  const { isAuthenticated, currentUser } = useAuth()
+  const { isFollowing, toggleFollow, isUpdating: isFollowUpdating } = useFollowShop()
 
   // Zustand Actions
   const addToCart = useCartStore((state) => state.addToCart)
@@ -54,6 +61,63 @@ export default function ProductDetail() {
   const showToast = (msg) => {
     setToastMessage(msg)
     setTimeout(() => setToastMessage(''), 3000)
+  }
+
+  // Sản phẩm tự động bản địa hóa theo ngôn ngữ đang chọn (VI / EN)
+  const displayProduct = useMemo(
+    () => getLocalizedProduct(product, i18n.language),
+    [product, i18n.language]
+  )
+
+  const selectedColorName = useMemo(() => {
+    if (!product || !displayProduct || !selectedColor) return selectedColor || ''
+    if (selectedColor.startsWith('#')) return 'BLACK'
+    const rawIdx = (product.colors || []).indexOf(selectedColor)
+    if (rawIdx !== -1 && displayProduct.colors?.[rawIdx]) {
+      return displayProduct.colors[rawIdx]
+    }
+    return selectedColor
+  }, [product, displayProduct, selectedColor])
+
+  const displaySelectedSize = useMemo(() => {
+    if (!product || !displayProduct || !selectedSize) return selectedSize || ''
+    const rawIdx = (product.sizes || []).indexOf(selectedSize)
+    if (rawIdx !== -1 && displayProduct.sizes?.[rawIdx]) {
+      return displayProduct.sizes[rawIdx]
+    }
+    return selectedSize
+  }, [product, displayProduct, selectedSize])
+
+  const isShopOwner = Boolean(
+    currentUser &&
+      product &&
+      (currentUser.shopId === product.shopId ||
+        currentUser.id === product.sellerId ||
+        (currentUser.shopId && product.shopSlug && currentUser.shopId.includes(product.shopSlug)))
+  )
+
+  const isCurrentShopFollowed = Boolean(
+    product &&
+      isFollowing(product.shopId || product.shopSlug || shopSlug || toShopSlug(product.shopName))
+  )
+
+  const handleFollowToggle = async () => {
+    if (isShopOwner) {
+      showToast(t('productDetail.ownAtelierToast'))
+      return
+    }
+    const res = await toggleFollow({
+      id: product?.shopId,
+      name: product?.shopName,
+      slug: product?.shopSlug || shopSlug || toShopSlug(product?.shopName),
+    })
+    if (res?.success) {
+      showToast(
+        res.isNowFollowing
+          ? t('productDetail.followedToast', { name: product?.shopName || 'atelier' })
+          : t('productDetail.unfollowedToast', { name: product?.shopName || 'atelier' })
+      )
+    }
   }
 
   // Nhận diện loại sản phẩm dựa vào product.category / categorySlug / type
@@ -170,7 +234,7 @@ export default function ProductDetail() {
     if (quantity < product.stock) {
       setQuantity((prev) => prev + 1)
     } else {
-      showToast(`Only ${product.stock} items remaining in stock!`)
+      showToast(t('productDetail.onlyRemainingToast', { count: product.stock }))
     }
   }
 
@@ -184,14 +248,14 @@ export default function ProductDetail() {
   const handleAddToCart = () => {
     if (!product) return
     if (isShopPaused) {
-      showToast("Atelier paused: This store is currently suspended and not accepting orders.")
+      showToast(t('productDetail.pausedToast'))
       return
     }
     const result = addToCart(product, selectedSize, selectedColor, quantity)
     if (result?.success === false) {
       showToast(result.message)
     } else {
-      showToast(`ADDED ${product.name.toUpperCase()} TO CART.`)
+      showToast(t('productDetail.addedToCartToast', { name: product.name.toUpperCase() }))
     }
   }
 
@@ -199,7 +263,7 @@ export default function ProductDetail() {
   const handleBuyNow = () => {
     if (!product) return
     if (isShopPaused) {
-      showToast("Atelier paused: This store is currently suspended and not accepting orders.")
+      showToast(t('productDetail.pausedToast'))
       return
     }
 
@@ -213,7 +277,7 @@ export default function ProductDetail() {
     }
 
     try {
-      sessionStorage.setItem('fashora_checkout_items', JSON.stringify([buyNowItem]))
+      sessionStorage.setItem(COMMERCE_STORAGE_KEYS.CHECKOUT_ITEMS, JSON.stringify([buyNowItem]))
     } catch {
       // ignore
     }
@@ -235,7 +299,7 @@ export default function ProductDetail() {
   if (loading) {
     return (
       <div className="w-full min-h-[60vh] flex items-center justify-center font-mono text-xs tracking-widest text-neutral-400 uppercase">
-        LOADING ARCHIVE SPECIFICATION...
+        {t('productDetail.loading')}
       </div>
     )
   }
@@ -252,7 +316,7 @@ export default function ProductDetail() {
           className="inline-flex items-center gap-1.5 text-xs font-mono uppercase tracking-wider text-neutral-500 hover:text-black transition-colors cursor-pointer group"
         >
           <ChevronLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
-          <span>Back</span>
+          <span>{t('productDetail.back')}</span>
         </button>
       </div>
 
@@ -331,41 +395,70 @@ export default function ProductDetail() {
 
         {/* === CỘT PHẢI (5 CỘT): THÔNG TIN SẢN PHẨM & ACTIONS === */}
         <div className="lg:col-span-5 flex flex-col justify-start">
-          {/* Badge nhãn nếu có (SALE nền đỏ, khác nền đen) */}
-          {product.badge && (
+          {/* Badge nhãn nếu có (SALE/GIẢM GIÁ nền đỏ, khác nền đen) */}
+          {displayProduct.badge && (
             <div className="mb-2">
               <span
                 className={`inline-block text-[10px] font-mono font-bold uppercase tracking-widest px-2.5 py-0.5 rounded-[2px] ${
-                  product.badge.trim().toUpperCase().includes('SALE')
+                  displayProduct.badge.trim().toUpperCase().includes('SALE') ||
+                  displayProduct.badge.trim().toUpperCase().includes('GIẢM')
                     ? 'bg-red-600 text-white'
                     : 'bg-black text-white'
                 }`}
               >
-                {product.badge}
+                {displayProduct.badge}
               </span>
             </div>
           )}
 
           {/* Tên sản phẩm */}
           <h1 className="text-2xl sm:text-3xl font-bold tracking-tight uppercase leading-tight text-[#111111]">
-            {product.name}
+            {displayProduct.name}
           </h1>
 
-          {/* Tên Shop */}
-          <div className="text-[11px] font-mono tracking-widest uppercase text-neutral-500 mt-1 mb-4">
-            SHOP:{' '}
-            <Link
-              to={`/store/${
-                product.shopSlug ||
-                product.sellerSlug ||
-                shopSlug ||
-                toShopSlug(product.shopName) ||
-                'm-studio'
-              }`}
-              className="text-[#111111] font-semibold underline hover:opacity-70 transition-opacity"
-            >
-              {product.shopName}
-            </Link>
+          {/* Tên Shop & Nút Theo dõi Shop */}
+          <div className="flex flex-wrap items-center gap-3 text-[11px] font-mono tracking-widest uppercase text-neutral-500 mt-1 mb-4">
+            <div className="flex items-center gap-1.5">
+              <span>{t('productDetail.shop')}</span>
+              <Link
+                to={`/store/${
+                  product.shopSlug ||
+                  product.sellerSlug ||
+                  shopSlug ||
+                  toShopSlug(product.shopName) ||
+                  'm-studio'
+                }`}
+                className="text-[#111111] font-semibold underline hover:opacity-70 transition-opacity"
+              >
+                {product.shopName}
+              </Link>
+            </div>
+
+            {!isShopOwner && (
+              <button
+                type="button"
+                onClick={handleFollowToggle}
+                disabled={isFollowUpdating}
+                className={`inline-flex items-center gap-1 px-2.5 py-0.5 text-[10px] font-mono uppercase tracking-wider rounded-[2px] border transition-all cursor-pointer ${
+                  isCurrentShopFollowed
+                    ? 'border-[#E5E5E5] bg-[#F8F8F8] text-neutral-700 hover:border-black hover:text-black'
+                    : 'border-black bg-black text-white hover:bg-neutral-800'
+                }`}
+                title={isCurrentShopFollowed ? 'Click to unfollow atelier' : 'Click to follow atelier'}
+              >
+                {isCurrentShopFollowed ? (
+                  <>
+                    <Check className="w-2.5 h-2.5" />
+                    <span>{t('productDetail.following')}</span>
+                  </>
+                ) : (
+                  <>
+                    <Plus className="w-2.5 h-2.5" />
+                    <span>{t('productDetail.follow')}</span>
+                  </>
+                )}
+              </button>
+            )}
           </div>
 
           {/* Đơn giá */}
@@ -379,38 +472,41 @@ export default function ProductDetail() {
               </span>
             )}
             <span className="text-[10px] font-mono tracking-widest text-neutral-400 uppercase">
-              VAT INCLUDED
+              {t('productDetail.vatIncluded')}
             </span>
           </div>
 
           {/* Mô tả ngắn */}
           <p className="text-xs text-neutral-600 leading-relaxed font-sans pb-5 border-b border-neutral-200">
-            {product.description}
+            {displayProduct.description}
           </p>
 
           {/* KHỐI 1: BỘ CHỌN COLOR */}
           <div className="py-4 border-b border-neutral-200">
             <div className="flex items-center justify-between text-xs font-mono tracking-wider mb-2.5">
-              <span className="font-semibold text-neutral-700 uppercase">COLOR</span>
+              <span className="font-semibold text-neutral-700 uppercase">{t('productDetail.color')}</span>
               <span className="text-neutral-500 uppercase font-sans text-[11px]">
-                {selectedColor.startsWith('#') ? 'BLACK' : selectedColor}
+                {selectedColorName}
               </span>
             </div>
             <div className="flex items-center gap-3">
-              {product.colors.map((color, idx) => (
-                <button
-                  key={idx}
-                  type="button"
-                  onClick={() => setSelectedColor(color)}
-                  className={`w-6 h-6 rounded-full border transition-all ${
-                    selectedColor === color
-                      ? 'ring-2 ring-offset-2 ring-black border-neutral-400'
-                      : 'border-neutral-300 hover:scale-105'
-                  }`}
-                  style={{ backgroundColor: color }}
-                  title={color}
-                />
-              ))}
+              {displayProduct.colors?.map((color, idx) => {
+                const rawColor = product.colors?.[idx] || color;
+                return (
+                  <button
+                    key={idx}
+                    type="button"
+                    onClick={() => setSelectedColor(rawColor)}
+                    className={`w-6 h-6 rounded-full border transition-all ${
+                      selectedColor === rawColor
+                        ? 'ring-2 ring-offset-2 ring-black border-neutral-400'
+                        : 'border-neutral-300 hover:scale-105'
+                    }`}
+                    style={{ backgroundColor: color.startsWith('#') ? color : rawColor.startsWith('#') ? rawColor : '#333333' }}
+                    title={color}
+                  />
+                );
+              })}
             </div>
           </div>
 
@@ -418,8 +514,8 @@ export default function ProductDetail() {
           <div className="py-4 border-b border-neutral-200">
             <div className="flex items-center justify-between text-xs font-mono tracking-wider mb-2.5">
               <div className="flex items-center gap-2">
-                <span className="font-semibold text-neutral-700 uppercase">SIZE</span>
-                <span className="text-neutral-400 font-sans text-[11px]">({selectedSize})</span>
+                <span className="font-semibold text-neutral-700 uppercase">{t('productDetail.size')}</span>
+                <span className="text-neutral-400 font-sans text-[11px]">({displaySelectedSize})</span>
               </div>
 
               {/* ẨN NÚT SIZE MATRIX NẾU LÀ CATEGORY ACCESSORIES */}
@@ -429,34 +525,37 @@ export default function ProductDetail() {
                   onClick={() => setShowSizeModal(true)}
                   className="text-[11px] font-mono text-black underline uppercase tracking-widest hover:text-neutral-500 transition-colors cursor-pointer"
                 >
-                  SIZE MATRIX
+                  {t('productDetail.sizeMatrix')}
                 </button>
               )}
             </div>
 
             <div className="flex flex-wrap gap-2 mb-3">
-              {product.sizes?.map((sz) => (
-                <button
-                  key={sz}
-                  type="button"
-                  onClick={() => setSelectedSize(sz)}
-                  className={`px-3.5 py-2.5 min-w-[56px] text-center font-mono tracking-wider transition-all border ${
-                    sz.length > 3 ? 'text-[10px] leading-tight' : 'text-xs'
-                  } ${
-                    selectedSize === sz
-                      ? 'bg-[#111111] text-white border-[#111111]'
-                      : 'bg-white text-neutral-700 border-neutral-200 hover:border-black'
-                  }`}
-                >
-                  {sz}
-                </button>
-              ))}
+              {displayProduct.sizes?.map((sz, idx) => {
+                const rawSz = product.sizes?.[idx] || sz;
+                return (
+                  <button
+                    key={sz}
+                    type="button"
+                    onClick={() => setSelectedSize(rawSz)}
+                    className={`px-3.5 py-2.5 min-w-[56px] text-center font-mono tracking-wider transition-all border ${
+                      sz.length > 3 ? 'text-[10px] leading-tight' : 'text-xs'
+                    } ${
+                      selectedSize === rawSz
+                        ? 'bg-[#111111] text-white border-[#111111]'
+                        : 'bg-white text-neutral-700 border-neutral-200 hover:border-black'
+                    }`}
+                  >
+                    {sz}
+                  </button>
+                );
+              })}
             </div>
 
             {/* Trạng thái tồn kho chi tiết */}
             <div className="flex items-center gap-2 text-[10px] font-mono tracking-wider text-neutral-400">
               <span>[✓]</span>
-              <span>IN STOCK ({product.stock} units archived in atelier)</span>
+              <span>{t('productDetail.inStock', { count: product.stock })}</span>
             </div>
           </div>
 
@@ -464,7 +563,7 @@ export default function ProductDetail() {
           <div className="py-4 border-b border-neutral-200 flex items-center justify-between">
             <div>
               <div className="text-[10px] font-mono tracking-widest text-neutral-400 uppercase mb-1.5">
-                QUANTITY
+                {t('productDetail.quantity')}
               </div>
               <div className="flex items-center border border-neutral-300 w-28 bg-white">
                 <button
@@ -489,7 +588,7 @@ export default function ProductDetail() {
 
             <div className="text-right">
               <div className="text-[10px] font-mono tracking-widest text-neutral-400 uppercase mb-1">
-                TOTAL AMOUNT
+                {t('productDetail.totalAmount')}
               </div>
               <div className="text-xl font-bold text-[#111111]">
                 {totalAmount.toLocaleString('vi-VN')}₫
@@ -504,7 +603,7 @@ export default function ProductDetail() {
               onClick={handleAddToCart}
               className="w-full py-4 bg-[#111111] hover:bg-black text-white text-xs font-mono font-bold tracking-widest uppercase transition-colors flex items-center justify-center gap-2"
             >
-              <span>ADD TO CART</span>
+              <span>{t('productDetail.addToCart')}</span>
               <ShoppingBag className="w-4 h-4" />
             </button>
 
@@ -513,7 +612,7 @@ export default function ProductDetail() {
               onClick={handleBuyNow}
               className="w-full py-3.5 bg-white hover:bg-black text-[#111111] hover:text-white text-xs font-mono font-bold tracking-widest uppercase transition-all duration-200 border border-neutral-300 hover:border-black"
             >
-              BUY NOW
+              {t('productDetail.buyNow')}
             </button>
           </div>
 
@@ -523,10 +622,10 @@ export default function ProductDetail() {
               <Globe className="w-4 h-4 text-neutral-400 flex-shrink-0 mt-0.5" />
               <div>
                 <p className="font-semibold text-black uppercase font-mono tracking-wider">
-                  SHIPPING
+                  {t('productDetail.shippingFeature')}
                 </p>
                 <p className="text-neutral-500 mt-0.5 leading-tight">
-                  Standard & Express delivery
+                  {t('productDetail.shippingFeatureDesc')}
                 </p>
               </div>
             </div>
@@ -535,10 +634,10 @@ export default function ProductDetail() {
               <RefreshCw className="w-4 h-4 text-neutral-400 flex-shrink-0 mt-0.5" />
               <div>
                 <p className="font-semibold text-black uppercase font-mono tracking-wider">
-                  14-DAY EXCHANGE
+                  {t('productDetail.exchangeFeature')}
                 </p>
                 <p className="text-neutral-500 mt-0.5 leading-tight">
-                  Original tags & unworn condition
+                  {t('productDetail.exchangeFeatureDesc')}
                 </p>
               </div>
             </div>
@@ -547,10 +646,10 @@ export default function ProductDetail() {
               <ShieldCheck className="w-4 h-4 text-neutral-400 flex-shrink-0 mt-0.5" />
               <div>
                 <p className="font-semibold text-black uppercase font-mono tracking-wider">
-                  PROVENANCE
+                  {t('productDetail.provenanceFeature')}
                 </p>
                 <p className="text-neutral-500 mt-0.5 leading-tight">
-                  {product.shopName || 'Atelier'} Certified Piece
+                  {t('productDetail.provenanceFeatureDesc', { shopName: product.shopName || 'Atelier' })}
                 </p>
               </div>
             </div>
@@ -562,18 +661,22 @@ export default function ProductDetail() {
       <div className="border-t border-neutral-200 pt-8 mb-20">
         {/* THANH CHỌN TAB */}
         <div className="flex items-center gap-8 mb-8 border-b border-neutral-200 pb-3">
-          {['DETAILS', 'RETURNS', 'CARE GUIDE'].map((tab) => (
+          {[
+            { id: 'DETAILS', label: t('productDetail.tabDetails') },
+            { id: 'RETURNS', label: t('productDetail.tabReturns') },
+            { id: 'CARE GUIDE', label: t('productDetail.tabCareGuide') },
+          ].map((tab) => (
             <button
-              key={tab}
+              key={tab.id}
               type="button"
-              onClick={() => setActiveTab(tab)}
+              onClick={() => setActiveTab(tab.id)}
               className={`text-xs font-mono tracking-widest uppercase pb-3 -mb-3 transition-colors ${
-                activeTab === tab
+                activeTab === tab.id
                   ? 'border-b-2 border-black font-bold text-black'
                   : 'text-neutral-400 hover:text-neutral-700'
               }`}
             >
-              {tab}
+              {tab.label}
             </button>
           ))}
         </div>
@@ -584,27 +687,27 @@ export default function ProductDetail() {
             {/* Cột trái: Material & Specifications (Có border-r phân cách) */}
             <div className="md:pr-10 md:border-r border-neutral-200">
               <h4 className="font-mono font-bold tracking-wider text-black uppercase mb-3">
-                MATERIAL & SPECIFICATIONS
+                {t('productDetail.materialSpecs')}
               </h4>
-              {product.details?.material && (
+              {displayProduct.details?.material && (
                 <p className="mb-3 font-medium text-neutral-700">
-                  {product.details.material}
+                  {displayProduct.details.material}
                 </p>
               )}
               <ul className="space-y-2 list-disc list-inside text-neutral-600">
-                {product.details?.specifications && product.details.specifications.length > 0 ? (
-                  product.details.specifications.map((spec, i) => <li key={i}>{spec}</li>)
+                {displayProduct.details?.specifications && displayProduct.details.specifications.length > 0 ? (
+                  displayProduct.details.specifications.map((spec, i) => <li key={i}>{spec}</li>)
                 ) : categoryType === 'accessories' ? (
                   <>
-                    <li>Hypoallergenic brushed titanium and surgical alloy construction.</li>
-                    <li>Ergonomic hollowed structure with open-band contouring.</li>
-                    <li>Corrosion and tarnish resistant micro-matte treatment.</li>
+                    <li>{t('productDetail.specHypoallergenic')}</li>
+                    <li>{t('productDetail.specErgonomic')}</li>
+                    <li>{t('productDetail.specCorrosion')}</li>
                   </>
                 ) : (
                   <>
-                    <li>High-density structured textile blend with precision finishing.</li>
-                    <li>Reinforced seam architecture with tailored silhouette lines.</li>
-                    <li>Custom hardware accents with laser-engraved atelier markings.</li>
+                    <li>{t('productDetail.specHighDensity')}</li>
+                    <li>{t('productDetail.specReinforced')}</li>
+                    <li>{t('productDetail.specHardware')}</li>
                   </>
                 )}
               </ul>
@@ -613,49 +716,43 @@ export default function ProductDetail() {
             {/* Cột phải: Provenance & Craftsmanship */}
             <div className="md:pl-2">
               <h4 className="font-mono font-bold tracking-wider text-black uppercase mb-3">
-                PROVENANCE & CRAFTSMANSHIP
+                {t('productDetail.provenanceCraftsmanship')}
               </h4>
               <p>
-                {product.details?.origin ||
+                {displayProduct.details?.origin ||
                   product.provenance ||
-                  `Designed and curated by ${product.shopName || 'M STUDIO'}. Produced in limited batch allocations to ensure exacting quality standards.`}
+                  t('productDetail.provenanceFallback', { shopName: product.shopName || 'M STUDIO' })}
               </p>
             </div>
           </div>
         )}
 
-        {/* NỘI DUNG TAB 2: RETURNS (ENGLISH) */}
+        {/* NỘI DUNG TAB 2: RETURNS */}
         {activeTab === 'RETURNS' && (
           <div className="text-xs text-neutral-600 leading-relaxed font-sans max-w-2xl">
             <h4 className="font-mono font-bold tracking-wider text-black uppercase mb-2">
-              ARCHIVAL RETURN POLICIES
+              {t('productDetail.returnsTitle')}
             </h4>
             <p>
-              Returns and exchanges are accepted within 14 days of delivery. All garments and accessories must remain unworn, unwashed, and in original condition with all security tags and protective packaging intact. Final sale items, personalized alterations, and pierced body jewelry are strictly non-returnable due to hygiene regulations.
+              {t('productDetail.returnsText')}
             </p>
           </div>
         )}
 
-        {/* NỘI DUNG TAB 3: CARE GUIDE (ENGLISH) */}
+        {/* NỘI DUNG TAB 3: CARE GUIDE */}
         {activeTab === 'CARE GUIDE' && (
           <div className="text-xs text-neutral-600 leading-relaxed font-sans max-w-2xl">
             <h4 className="font-mono font-bold tracking-wider text-black uppercase mb-2">
-              MAINTENANCE & PRESERVATION
+              {t('productDetail.careTitle')}
             </h4>
-            {product.careInstructions ? (
-              <p>{product.careInstructions}</p>
+            {displayProduct.careInstructions ? (
+              <p>{displayProduct.careInstructions}</p>
             ) : categoryType === 'accessories' ? (
-              <p>
-                Avoid direct contact with water, perfume, hairspray, and harsh solvents. Buff gently with a microfiber polishing cloth after wear and store in a sealed jewelry pouch to prevent oxidation.
-              </p>
+              <p>{t('productDetail.careAccessories')}</p>
             ) : categoryType === 'shoes' ? (
-              <p>
-                Brush off surface dirt with a soft bristle brush or damp cloth. Do not submerge in water. Allow to air dry naturally away from direct sunlight and heat sources to preserve leather and sole bonding.
-              </p>
+              <p>{t('productDetail.careShoes')}</p>
             ) : (
-              <p>
-                Specialist dry clean or gentle hand wash cold inside out. Do not bleach or tumble dry. Steam or cool iron on reverse with a protective pressing cloth.
-              </p>
+              <p>{t('productDetail.careApparel')}</p>
             )}
           </div>
         )}
@@ -679,7 +776,7 @@ export default function ProductDetail() {
             item.selectedColor || 'Standard',
             item.quantity || 1
           )
-          showToast(`ADDED ${item.name.toUpperCase()} TO CART.`)
+          showToast(t('productDetail.addedToCartToast', { name: item.name.toUpperCase() }))
         }}
       />
 

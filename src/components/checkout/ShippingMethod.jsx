@@ -1,4 +1,5 @@
 import { Truck } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 
 /**
  * Component ShippingMethod: Lựa chọn phương thức giao hàng.
@@ -11,20 +12,22 @@ import { Truck } from 'lucide-react'
  * - onChange: Hàm callback xử lý khi người dùng đổi phương thức giao hàng.
  */
 export default function ShippingMethod({ selectedMethod = 0, onChange }) {
+  const { t } = useTranslation()
+
   // Danh sách các tùy chọn giao hàng
   const shippingOptions = [
     {
       id: 'standard',
       cost: 0,
-      title: 'Standard Delivery',
-      subtitle: 'Estimated 3–5 business days dispatch via atelier courier',
-      badge: 'COMPLIMENTARY',
+      title: t('checkout.standardDelivery', 'Standard Delivery'),
+      subtitle: t('checkout.standardSubtitle', 'Estimated 3–5 business days dispatch via atelier courier'),
+      badge: t('checkout.complimentary', 'COMPLIMENTARY'),
     },
     {
       id: 'express',
       cost: 50000,
-      title: 'Express Priority Courier',
-      subtitle: 'Estimated 1–2 business days priority air dispatch',
+      title: t('checkout.expressDelivery', 'Express Priority Courier'),
+      subtitle: t('checkout.expressSubtitle', 'Estimated 1–2 business days priority air dispatch'),
       badge: '50,000₫',
     },
   ]
@@ -35,7 +38,7 @@ export default function ShippingMethod({ selectedMethod = 0, onChange }) {
       <div className="flex items-center justify-between mb-5">
         <h2 className="text-xs uppercase tracking-[0.25em] font-bold text-[#111111] flex items-center gap-2">
           <Truck className="w-4 h-4 text-[#111111]" />
-          <span>2. Shipping Method</span>
+          <span>{t('checkout.stepMethod', '2. Shipping Method')}</span>
         </h2>
       </div>
 

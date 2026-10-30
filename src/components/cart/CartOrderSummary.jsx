@@ -1,4 +1,5 @@
 import { Info, ArrowRight, ShieldCheck, Truck, RefreshCw } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { Button } from '../common'
 import { formatVND } from '../../constants'
 
@@ -18,6 +19,7 @@ export default function CartOrderSummary({
   selectedCount = 0,        // Số lượng sản phẩm đang được chọn
   onProceedCheckout,        // Hàm gọi khi nhấn nút tiến hành thanh toán
 }) {
+  const { t } = useTranslation()
   // Vô hiệu hóa nút thanh toán nếu người dùng chưa chọn bất kỳ món hàng nào
   const isCheckoutDisabled = selectedCount === 0
 
@@ -28,10 +30,10 @@ export default function CartOrderSummary({
       {/* ------------------------------------------------------------- */}
       <div className="flex items-center justify-between pb-4 border-b border-neutral-200">
         <h2 className="font-bold text-sm tracking-widest uppercase text-[#111111]">
-          ORDER SUMMARY
+          {t('cart.orderSummary', 'ORDER SUMMARY')}
         </h2>
-        <span className="text-[10px] font-mono text-neutral-400 tracking-wider">
-          ATELIER DIRECT
+        <span className="text-[10px] font-mono text-neutral-400 tracking-wider uppercase">
+          {t('cart.atelierDirect', 'ATELIER DIRECT')}
         </span>
       </div>
 
@@ -41,7 +43,7 @@ export default function CartOrderSummary({
       <div className="space-y-3 text-xs sm:text-sm">
         {/* Tiền hàng tạm tính */}
         <div className="flex justify-between items-center text-neutral-600">
-          <span>Subtotal ({selectedCount} {selectedCount === 1 ? 'item' : 'items'})</span>
+          <span>{t('cart.subtotal', { count: selectedCount, itemWord: selectedCount === 1 ? t('cart.item', 'item') : t('cart.items', 'items'), defaultValue: `Subtotal (${selectedCount} items)` })}</span>
           <span className="font-mono font-semibold text-[#111111]">
             {formatVND(subtotal)}
           </span>
@@ -50,16 +52,16 @@ export default function CartOrderSummary({
         {/* Phí vận chuyển: Miễn phí toàn quốc */}
         <div className="flex justify-between items-center text-neutral-600">
           <span className="flex items-center gap-1.5">
-            Shipping
+            {t('cart.shipping', 'Shipping')}
             <span
               className="cursor-help text-neutral-400 hover:text-neutral-600 inline-flex items-center"
-              title="Complimentary express courier service worldwide."
+              title={t('cart.complimentaryDesc', 'Complimentary express courier service worldwide.')}
             >
               <Info className="w-3.5 h-3.5" />
             </span>
           </span>
           <span className="text-[10px] font-mono font-semibold tracking-wider px-2 py-0.5 bg-emerald-50 text-emerald-800 border border-emerald-200 rounded-[2px] uppercase">
-            COMPLIMENTARY
+            {t('cart.complimentary', 'COMPLIMENTARY')}
           </span>
         </div>
       </div>
@@ -71,10 +73,10 @@ export default function CartOrderSummary({
         <div className="flex justify-between items-baseline">
           <div>
             <span className="font-bold text-base tracking-tight text-[#111111]">
-              TOTAL
+              {t('cart.total', 'TOTAL')}
             </span>
-            <p className="text-[10px] font-mono text-neutral-400">
-              INCL. VAT &amp; IMPORT FEES
+            <p className="text-[10px] font-mono text-neutral-400 uppercase">
+              {t('cart.vatNotice', 'INCL. VAT & IMPORT FEES')}
             </p>
           </div>
           <div className="text-right">
@@ -96,7 +98,7 @@ export default function CartOrderSummary({
         onClick={onProceedCheckout}
         className="w-full tracking-[0.2em] text-xs h-12 flex items-center justify-center gap-2 group cursor-pointer"
       >
-        <span>PROCEED TO CHECKOUT</span>
+        <span>{t('cart.checkoutBtn', 'PROCEED TO CHECKOUT')}</span>
         <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />
       </Button>
 
@@ -107,17 +109,17 @@ export default function CartOrderSummary({
         {/* 1. Cam kết chính hãng */}
         <div className="flex items-center gap-2.5">
           <ShieldCheck className="w-4 h-4 text-[#111111] shrink-0" />
-          <span>Direct Atelier Provenance &amp; Serialization</span>
+          <span>{t('cart.provenanceBadge', 'Direct Atelier Provenance & Serialization')}</span>
         </div>
         {/* 2. Vận chuyển có bảo hiểm */}
         <div className="flex items-center gap-2.5">
           <Truck className="w-4 h-4 text-[#111111] shrink-0" />
-          <span>Complimentary Insured Courier Worldwide</span>
+          <span>{t('cart.insuredBadge', 'Complimentary Insured Courier Worldwide')}</span>
         </div>
         {/* 3. Đổi trả trong 14 ngày */}
         <div className="flex items-center gap-2.5">
           <RefreshCw className="w-4 h-4 text-[#111111] shrink-0" />
-          <span>14-Day Vault Return &amp; Archive Exchange</span>
+          <span>{t('cart.returnBadge', '14-Day Vault Return & Archive Exchange')}</span>
         </div>
       </div>
     </div>

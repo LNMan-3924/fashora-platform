@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import {
   ArrowRight,
   Plus,
@@ -7,7 +8,6 @@ import {
   Sparkles,
   CheckCircle2,
   MapPin,
-  Flame,
   Award
 } from 'lucide-react';
 import { getProducts, getOrders, getShops } from '../../services/api';
@@ -17,6 +17,7 @@ import { Toast } from '../../components/common';
 import { formatVND, handleImageError, FALLBACK_IMAGE, toShopSlug } from '../../constants/commerce';
 
 export default function BestSeller() {
+  const { t } = useTranslation();
   const [products, setProducts] = useState([]);
   const [orders, setOrders] = useState([]);
   const [shops, setShops] = useState([]);
@@ -233,34 +234,25 @@ export default function BestSeller() {
           - Chỉ số vinh danh các Atelier độc lập
           ========================================================================= */}
       <section className="border-b border-neutral-200 bg-white">
-        <div className="max-w-[1560px] mx-auto px-6 sm:px-10 lg:px-16 py-10 sm:py-14">
+        <div className="max-w-[1560px] mx-auto px-6 sm:px-10 lg:px-16 py-8 sm:py-10">
           {/* Breadcrumb */}
           <nav
             aria-label="Breadcrumb"
             className="flex items-center gap-2 text-[11px] font-mono tracking-widest text-neutral-400 uppercase mb-4"
           >
             <Link to="/home" className="hover:text-black transition-colors">
-              HOME
+              {t('bestseller.breadcrumbHome')}
             </Link>
             <span>/</span>
-            <span className="text-black font-semibold">BEST SELLER</span>
+            <span className="text-black font-semibold">{t('bestseller.pageTitle')}</span>
           </nav>
 
           <div className="max-w-2xl">
-            <div className="flex items-center gap-2 mb-2">
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-black text-white text-[10px] font-mono tracking-[0.2em] uppercase font-bold">
-                <Flame className="w-3 h-3 text-amber-400 fill-amber-400" />
-                <span>MOST COVETED ARCHIVE</span>
-              </span>
-            </div>
-
-            <h1 className="text-3xl sm:text-5xl font-black uppercase tracking-tight text-neutral-950 leading-none">
-              BEST SELLER
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold uppercase tracking-tight text-[#111111] leading-none">
+              {t('bestseller.pageTitle')}
             </h1>
-
-            <p className="mt-3 text-xs sm:text-sm text-neutral-600 font-light leading-relaxed tracking-wide">
-              Explore the most acquired silhouettes across all independent design studios. 
-              Each garment represents our ateliers&apos; highest level of craftsmanship and permanent aesthetic demand.
+            <p className="mt-2 sm:mt-3 text-sm sm:text-base text-[#666666] font-sans leading-relaxed tracking-wide">
+              {t('bestseller.subtitle')}
             </p>
           </div>
         </div>
@@ -275,8 +267,8 @@ export default function BestSeller() {
         <section className="border-b border-neutral-200 bg-neutral-950 text-white py-12 sm:py-16">
           <div className="max-w-[1560px] mx-auto px-6 sm:px-10 lg:px-16">
             <div className="mb-8 sm:mb-10 pb-4 border-b border-neutral-800">
-              <h2 className="text-xl sm:text-3xl font-black uppercase tracking-tight text-white">
-                TOP 3 BEST SELLERS
+              <h2 className="text-xl sm:text-2xl font-bold uppercase tracking-tight text-white font-sans">
+                {t('bestseller.top3Title')}
               </h2>
             </div>
 
@@ -496,12 +488,12 @@ export default function BestSeller() {
                     {/* Shop Identity */}
                     <div className="space-y-1 min-w-0">
                       <div className="flex items-center gap-2.5 flex-wrap">
-                        <h3 className="text-xl sm:text-2xl font-black uppercase tracking-wider text-white">
+                        <h3 className="text-xl sm:text-2xl font-bold uppercase tracking-tight text-white font-sans">
                           {shop.name}
                         </h3>
                         <span className="inline-flex items-center gap-1 text-[10px] font-mono tracking-wider px-2 py-0.5 bg-emerald-950 text-emerald-300 border border-emerald-800 rounded-[2px]">
                           <CheckCircle2 className="w-3 h-3 text-emerald-400" />
-                          <span>VERIFIED ATELIER</span>
+                          <span>{t('product.verifiedAtelier')}</span>
                         </span>
                       </div>
 
@@ -530,7 +522,7 @@ export default function BestSeller() {
                       to={`/store/${slug}`}
                       className="inline-flex items-center gap-2.5 px-5 sm:px-6 py-3 bg-white text-black hover:bg-neutral-200 text-xs font-mono font-bold uppercase tracking-wider transition-all duration-200 shadow-sm cursor-pointer group"
                     >
-                      <span>VISIT ATELIER</span>
+                      <span>{t('product.visitAtelier')}</span>
                       <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
                     </Link>
                   </div>
@@ -582,7 +574,7 @@ export default function BestSeller() {
                         <div className="p-3.5 flex flex-col justify-between flex-1 space-y-2">
                           <div>
                             <span className="text-[10px] font-mono tracking-widest text-neutral-400 uppercase block">
-                              {prod.category || 'PIECE'}
+                              {t(`categories.${prod.category}`) || prod.category || 'PIECE'}
                             </span>
                             <Link
                               to={`/products/${prod.id}`}

@@ -1,9 +1,11 @@
 import { useNavigate, Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { ArrowRight, Store, Layers, PackageCheck, Shield, CreditCard, Truck } from 'lucide-react'
 import { useOnboarding } from './BecomeSellerLayout'
 import UnifiedAccountBanner from './components/UnifiedAccountBanner'
 
 export default function BecomeSellerOverview() {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const { currentUser } = useOnboarding()
 
@@ -11,25 +13,25 @@ export default function BecomeSellerOverview() {
     {
       num: '01',
       tag: 'IDENTITY',
-      title: 'YOUR STORE',
-      description: 'Create and manage your own fashion store and showcase your curated collections.',
-      footer: 'BRAND PRESENCE & ATELIER BIO',
+      title: t('becomeSeller.overview.card1Title', 'YOUR STORE'),
+      description: t('becomeSeller.overview.card1Desc', 'Create and manage your own fashion store and showcase your curated collections.'),
+      footer: t('becomeSeller.overview.card1Footer', 'BRAND PRESENCE & ATELIER BIO'),
       icon: Store,
     },
     {
       num: '02',
       tag: 'CATALOG',
-      title: 'MANAGE PRODUCTS',
-      description: 'Add and manage your fashion products, inventory, size variants, and lookbooks.',
-      footer: 'SIZE, STOCK, VARIANTS & LOOKBOOKS',
+      title: t('becomeSeller.overview.card2Title', 'MANAGE PRODUCTS'),
+      description: t('becomeSeller.overview.card2Desc', 'Add and manage your fashion products, inventory, size variants, and lookbooks.'),
+      footer: t('becomeSeller.overview.card2Footer', 'SIZE, STOCK, VARIANTS & LOOKBOOKS'),
       icon: Layers,
     },
     {
       num: '03',
       tag: 'OPERATIONS',
-      title: 'TRACK ORDERS',
-      description: 'Manage customer orders, update delivery status, and review real-time revenue logs.',
-      footer: 'FULFILLMENT, DISPATCH & REAL-TIME LOGS',
+      title: t('becomeSeller.overview.card3Title', 'TRACK ORDERS'),
+      description: t('becomeSeller.overview.card3Desc', 'Manage customer orders, update delivery status, and review real-time revenue logs.'),
+      footer: t('becomeSeller.overview.card3Footer', 'FULFILLMENT, DISPATCH & REAL-TIME LOGS'),
       icon: PackageCheck,
     },
   ]
@@ -37,35 +39,35 @@ export default function BecomeSellerOverview() {
   const requirements = [
     {
       step: '1',
-      title: 'SHOP NAME',
-      desc: 'Your unique storefront and designer brand name on FASHORA.',
+      title: t('becomeSeller.overview.req1Title', 'SHOP NAME'),
+      desc: t('becomeSeller.overview.req1Desc', 'Your unique storefront and designer brand name on FASHORA.'),
     },
     {
       step: '2',
-      title: 'SHOP DESCRIPTION',
-      desc: 'A short aesthetic bio or manifesto describing your design identity.',
+      title: t('becomeSeller.overview.req2Title', 'SHOP DESCRIPTION'),
+      desc: t('becomeSeller.overview.req2Desc', 'A short aesthetic bio or manifesto describing your design identity.'),
     },
     {
       step: '3',
-      title: 'SHOP LOGO',
-      desc: 'A square high-contrast emblem or atelier logo (PNG/JPG format, max 2MB).',
+      title: t('becomeSeller.overview.req3Title', 'SHOP LOGO'),
+      desc: t('becomeSeller.overview.req3Desc', 'A square high-contrast emblem or atelier logo (PNG/JPG format, max 2MB).'),
     },
   ]
 
   const trustPoints = [
     {
-      title: 'MULTI-CURRENCY PAYOUTS',
-      desc: 'Flexible settlements in USD, EUR, or VND via global gateways (Payoneer, Stripe) with transparent conversion rates.',
+      title: t('becomeSeller.overview.trust1Title', 'MULTI-CURRENCY PAYOUTS'),
+      desc: t('becomeSeller.overview.trust1Desc', 'Flexible settlements in USD, EUR, or VND via global gateways (Payoneer, Stripe) with transparent conversion rates.'),
       icon: CreditCard,
     },
     {
-      title: 'CROSS-BORDER IP SAFEGUARDS',
-      desc: 'Maximum intellectual property protection and authentic designer brand safeguards when entering new global markets.',
+      title: t('becomeSeller.overview.trust2Title', 'CROSS-BORDER IP SAFEGUARDS'),
+      desc: t('becomeSeller.overview.trust2Desc', 'Maximum intellectual property protection and authentic designer brand safeguards when entering new global markets.'),
       icon: Shield,
     },
     {
-      title: 'END-TO-END FULFILLMENT / LOCAL REACH',
-      desc: 'Automated customs clearance, streamlined cross-border logistics, and seamless direct connection to domestic and international fashion consumers.',
+      title: t('becomeSeller.overview.trust3Title', 'END-TO-END FULFILLMENT / LOCAL REACH'),
+      desc: t('becomeSeller.overview.trust3Desc', 'Automated customs clearance, streamlined cross-border logistics, and seamless direct connection to domestic and international fashion consumers.'),
       icon: Truck,
     },
   ]
@@ -75,19 +77,19 @@ export default function BecomeSellerOverview() {
       {/* 1. Breadcrumb & Header Hero */}
       <div>
         <nav className="flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-neutral-400 mb-4">
-          <Link to="/home" className="hover:text-black transition-colors">HOME</Link>
+          <Link to="/home" className="hover:text-black transition-colors">{t('becomeSeller.breadcrumb.home', 'HOME')}</Link>
           <span>/</span>
-          <Link to="/profile" className="hover:text-black transition-colors">ACCOUNT</Link>
+          <Link to="/profile" className="hover:text-black transition-colors">{t('becomeSeller.breadcrumb.account', 'ACCOUNT')}</Link>
           <span>/</span>
-          <span className="text-black font-semibold">BECOME A SELLER</span>
+          <span className="text-black font-semibold">{t('becomeSeller.breadcrumb.becomeSeller', 'BECOME A SELLER')}</span>
         </nav>
 
         <div className="text-center max-w-2xl mx-auto space-y-3 pt-2">
           <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black uppercase tracking-widest text-black">
-            BECOME A SELLER
+            {t('becomeSeller.overview.title', 'BECOME A SELLER')}
           </h1>
           <p className="text-sm sm:text-base text-neutral-600 font-light max-w-xl mx-auto">
-            Start your own store on FASHORA and bring your fashion collection to more shoppers worldwide.
+            {t('becomeSeller.overview.subtitle', 'Start your own store on FASHORA and bring your fashion collection to more shoppers worldwide.')}
           </p>
         </div>
       </div>
@@ -137,24 +139,24 @@ export default function BecomeSellerOverview() {
         {/* Progress pills indicator */}
         <div className="border-b border-neutral-200 pb-5 space-y-4">
           <div className="flex items-center gap-2.5 text-[10px] font-mono uppercase tracking-widest text-neutral-400">
-            <span>REGISTRATION PROCESS</span>
+            <span>{t('becomeSeller.overview.regProcess', 'REGISTRATION PROCESS')}</span>
             <span className="text-neutral-300">•</span>
-            <span>STEP 1 OF 4</span>
+            <span>{t('becomeSeller.overview.step1Of4', 'STEP 1 OF 4')}</span>
           </div>
 
           <div className="max-w-2xl mx-auto">
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[10px] font-mono uppercase tracking-wider text-center">
               <span className="bg-black text-white py-2 px-3 text-center font-bold">
-                01 OVERVIEW
+                {t('becomeSeller.overview.pillOverview', '01 OVERVIEW')}
               </span>
               <span className="bg-white border border-neutral-200 text-neutral-400 py-2 px-3 text-center">
-                02 SHOP INFO
+                {t('becomeSeller.overview.pillShopInfo', '02 SHOP INFO')}
               </span>
               <span className="bg-white border border-neutral-200 text-neutral-400 py-2 px-3 text-center">
-                03 REVIEW
+                {t('becomeSeller.overview.pillReview', '03 REVIEW')}
               </span>
               <span className="bg-white border border-neutral-200 text-neutral-400 py-2 px-3 text-center">
-                04 COMPLETE
+                {t('becomeSeller.overview.pillComplete', '04 COMPLETE')}
               </span>
             </div>
           </div>
@@ -164,7 +166,7 @@ export default function BecomeSellerOverview() {
         <div className="max-w-2xl mx-auto space-y-6">
           <div className="text-center space-y-1">
             <h3 className="text-lg font-bold uppercase tracking-wider text-black">
-              WHAT YOU'LL NEED
+              {t('becomeSeller.overview.whatYouNeed', "WHAT YOU'LL NEED")}
             </h3>
           </div>
 
@@ -196,7 +198,7 @@ export default function BecomeSellerOverview() {
               onClick={() => navigate('/become-seller/info')}
               className="inline-flex items-center justify-center gap-2.5 bg-black text-white px-8 py-4 text-xs font-mono uppercase tracking-widest hover:bg-neutral-800 transition-all cursor-pointer shadow-sm group w-full sm:w-auto"
             >
-              <span>START REGISTRATION</span>
+              <span>{t('becomeSeller.overview.startRegistration', 'START REGISTRATION')}</span>
               <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
             </button>
           </div>

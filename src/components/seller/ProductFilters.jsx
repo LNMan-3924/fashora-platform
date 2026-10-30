@@ -1,25 +1,6 @@
 import { Search, Plus, X } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 
-/**
- * Component ProductFilters: Thanh công cụ tìm kiếm, bộ lọc và nút thêm mới sản phẩm
- * - Cho phép tìm kiếm theo tên hoặc mã sản phẩm theo thời gian thực.
- * - Lọc theo Danh mục (Category) và Trạng thái kho hàng (Stock Status).
- * - Nút "ADD NEW PRODUCT" kích hoạt modal tạo sản phẩm mới.
- * - Thiết kế tối giản, sắc sảo (khung viền border-neutral-200, bo góc rounded-[2px]).
- *
- * Props:
- * - searchQuery: Từ khóa tìm kiếm hiện tại
- * - onSearchChange: Callback cập nhật từ khóa tìm kiếm
- * - selectedCategory: Danh mục đang được chọn ('ALL' hoặc tên danh mục)
- * - onCategoryChange: Callback cập nhật danh mục
- * - categories: Danh sách tất cả các danh mục có trong shop
- * - selectedStockStatus: Trạng thái kho đang lọc ('ALL', 'IN_STOCK', 'LOW_STOCK', 'OUT_OF_STOCK')
- * - onStockStatusChange: Callback cập nhật trạng thái kho
- * - onAddNewProduct: Callback mở modal thêm sản phẩm mới
- * - totalCount: Tổng số sản phẩm trong kho của shop
- * - filteredCount: Số sản phẩm sau khi lọc
- * - onResetFilters: Callback đặt lại tất cả bộ lọc về mặc định
- */
 export default function ProductFilters({
   searchQuery = '',
   onSearchChange,
@@ -35,6 +16,7 @@ export default function ProductFilters({
   itemsPerPage = 10,
   onResetFilters,
 }) {
+  const { t } = useTranslation()
   const isFilteringActive =
     Boolean(searchQuery.trim()) ||
     selectedCategory !== 'ALL' ||
@@ -51,14 +33,14 @@ export default function ProductFilters({
             type="text"
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
-            placeholder="Search products by name or code..."
+            placeholder={t('seller.products.searchPlaceholder', 'Search products by name or code...')}
             className="w-full pl-9 pr-8 py-2 text-xs border border-neutral-200 rounded-[2px] bg-neutral-50/50 focus:bg-white focus:border-black focus:outline-none transition-colors font-sans"
           />
           {searchQuery && (
             <button
               type="button"
               onClick={() => onSearchChange('')}
-              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-black p-0.5"
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-black p-0.5 cursor-pointer"
               title="Clear search"
             >
               <X className="w-3.5 h-3.5" />
@@ -75,7 +57,7 @@ export default function ProductFilters({
             aria-label="Filter by Category"
             className="px-3 py-2 text-xs border border-neutral-200 rounded-[2px] bg-white text-neutral-800 font-mono focus:border-black focus:outline-none cursor-pointer"
           >
-            <option value="ALL">ALL CATEGORIES</option>
+            <option value="ALL">{t('seller.products.allCategories', 'ALL CATEGORIES')}</option>
             {categories.map((cat) => (
               <option key={cat} value={cat}>
                 {cat}
@@ -90,10 +72,10 @@ export default function ProductFilters({
             aria-label="Filter by Stock Status"
             className="px-3 py-2 text-xs border border-neutral-200 rounded-[2px] bg-white text-neutral-800 font-mono focus:border-black focus:outline-none cursor-pointer"
           >
-            <option value="ALL">ALL STOCK STATUS</option>
-            <option value="IN_STOCK">IN STOCK (&gt; 5)</option>
-            <option value="LOW_STOCK">LOW STOCK (&le; 5)</option>
-            <option value="OUT_OF_STOCK">OUT OF STOCK (0)</option>
+            <option value="ALL">{t('seller.products.allStock', 'ALL STOCK STATUS')}</option>
+            <option value="IN_STOCK">{t('seller.products.stockIn', 'IN STOCK (> 5)')}</option>
+            <option value="LOW_STOCK">{t('seller.products.stockLow', 'LOW STOCK (<= 5)')}</option>
+            <option value="OUT_OF_STOCK">{t('seller.products.stockOut', 'OUT OF STOCK (0)')}</option>
           </select>
 
           {/* Nút thêm mới sản phẩm */}
@@ -103,7 +85,7 @@ export default function ProductFilters({
             className="inline-flex items-center gap-1.5 px-4 py-2 bg-black text-white text-xs font-semibold uppercase tracking-wider rounded-[2px] hover:bg-neutral-800 transition-colors shadow-xs shrink-0 cursor-pointer"
           >
             <Plus className="w-4 h-4" />
-            <span>ADD PRODUCT</span>
+            <span>{t('seller.products.addProduct', 'ADD PRODUCT')}</span>
           </button>
         </div>
       </div>
@@ -111,14 +93,16 @@ export default function ProductFilters({
       {/* HÀNG DƯỚI: Thống kê kết quả tìm kiếm và nút Reset */}
       <div className="flex items-center justify-between text-xs text-neutral-500 pt-2 border-t border-neutral-100 font-mono">
         <div>
-          Showing{' '}
+          {t('seller.products.showing', 'Showing')}{' '}
           <span className="font-semibold text-black">
             {filteredCount > 0 ? (currentPage - 1) * itemsPerPage + 1 : 0} -{' '}
             {Math.min(currentPage * itemsPerPage, filteredCount)}
           </span>{' '}
-          of <span className="font-semibold text-black">{filteredCount}</span> products{' '}
+          {t('seller.products.of', 'of')}{' '}
+          <span className="font-semibold text-black">{filteredCount}</span>{' '}
+          {t('seller.products.productsCount', 'products')}{' '}
           <span className="text-neutral-400">
-            (Total {totalCount} in catalog)
+            {t('seller.products.totalInCatalog', { total: totalCount, defaultValue: `(Total ${totalCount} in catalog)` })}
           </span>
         </div>
 
@@ -128,7 +112,7 @@ export default function ProductFilters({
             onClick={onResetFilters}
             className="text-xs text-neutral-600 hover:text-black underline cursor-pointer"
           >
-            Reset all filters
+            {t('seller.products.resetFilters', 'Reset all filters')}
           </button>
         )}
       </div>

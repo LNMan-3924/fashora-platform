@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { X } from 'lucide-react'
 import { Button, Input, VietnamAddressSelect } from '../common'
 import { validateField, validateAddressOnly } from '../../utils/validation'
@@ -9,6 +10,7 @@ import { validateField, validateAddressOnly } from '../../utils/validation'
  * Được gắn key={addressData?.id || 'new'} từ component cha để tự khởi tạo state sạch sẽ.
  */
 function AddressModalContent({ addressData, onClose, onSave }) {
+  const { t } = useTranslation()
   const isEdit = Boolean(addressData?.id)
 
   const [formData, setFormData] = useState(() => ({
@@ -101,7 +103,7 @@ function AddressModalContent({ addressData, onClose, onSave }) {
       {/* Header Modal */}
       <div className="flex items-center justify-between px-6 py-4 border-b border-[#E5E5E5] bg-white flex-shrink-0">
         <h3 className="text-sm font-bold text-[#111111] uppercase tracking-[0.2em]">
-          {isEdit ? 'EDIT ADDRESS' : 'ADD NEW ADDRESS'}
+          {isEdit ? t('profile.editAddress') : t('profile.addNew')}
         </h3>
         <button
           type="button"
@@ -121,32 +123,32 @@ function AddressModalContent({ addressData, onClose, onSave }) {
         {/* Tùy chọn Tên & Số điện thoại người nhận */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <Input
-            label="RECIPIENT NAME (OPTIONAL)"
+            label={t('profile.recipientName')}
             name="name"
             value={formData.name}
             onChange={handleChange}
-            placeholder="Defaults to profile name"
+            placeholder={t('profile.recipientNamePlaceholder')}
           />
           <Input
-            label="RECIPIENT PHONE (OPTIONAL)"
+            label={t('profile.recipientPhone')}
             name="phone"
             value={formData.phone}
             onChange={handleChange}
             onBlur={handleBlur}
             error={errors.phone}
-            placeholder="Defaults to profile phone"
+            placeholder={t('profile.recipientPhonePlaceholder')}
           />
         </div>
 
         <div>
           <Input
-            label="HOUSE NUMBER / STREET *"
+            label={t('profile.streetAddress')}
             name="address"
             value={formData.address}
             onChange={handleChange}
             onBlur={handleBlur}
             error={errors.address}
-            placeholder="e.g. 128 Le Duan Boulevard"
+            placeholder={t('checkout.streetPlaceholder')}
           />
         </div>
 
@@ -158,10 +160,10 @@ function AddressModalContent({ addressData, onClose, onSave }) {
           onBlur={handleBlur}
           cityError={errors.city}
           wardError={errors.ward}
-          cityLabel="PROVINCE / CITY (34 PROVINCES) *"
-          wardLabel="WARD / COMMUNE *"
-          cityPlaceholder="-- Select Province / City --"
-          wardPlaceholder="-- Select Ward / Commune --"
+          cityLabel={t('profile.provinceCity')}
+          wardLabel={t('profile.wardCommune')}
+          cityPlaceholder={t('checkout.provincePlaceholder')}
+          wardPlaceholder={t('checkout.wardPlaceholder')}
         />
 
         <div className="pt-2">
@@ -174,7 +176,7 @@ function AddressModalContent({ addressData, onClose, onSave }) {
               className="rounded-[2px] border-[#CCCCCC] text-black focus:ring-0 w-4 h-4 cursor-pointer accent-black"
             />
             <span className="text-[11px] uppercase tracking-wider font-semibold">
-              Set as default shipping address
+              {t('profile.setAsDefault')}
             </span>
           </label>
         </div>
@@ -187,7 +189,7 @@ function AddressModalContent({ addressData, onClose, onSave }) {
             size="lg"
             className="w-full text-xs font-bold uppercase tracking-[0.2em] py-3 rounded-[2px]"
           >
-            SAVE ADDRESS
+            {t('profile.saveAddress')}
           </Button>
           <Button
             type="button"
@@ -196,7 +198,7 @@ function AddressModalContent({ addressData, onClose, onSave }) {
             onClick={onClose}
             className="w-full text-xs uppercase tracking-[0.15em] text-[#666666] hover:text-black py-2"
           >
-            CANCEL
+            {t('profile.cancel')}
           </Button>
         </div>
       </form>

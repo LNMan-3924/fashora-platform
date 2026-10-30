@@ -1,15 +1,10 @@
 import { Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { formatVND } from '../../constants/commerce'
 import OrderStatusBadge from './OrderStatusBadge'
 
 /**
  * Component RecentOrdersTable: Bảng hiển thị danh sách đơn hàng mới nhất của Seller
- * Hiển thị 5 đơn hàng gần nhất với các cột: Mã đơn (ORDER ID), Tên khách (CUSTOMER), Tổng tiền (TOTAL), Trạng thái (STATUS).
- *
- * Props:
- * - orders: Mảng các đơn hàng tải từ API (GET /orders)
- * - loading: Trạng thái đang tải dữ liệu
- * - maxDisplay: Số lượng đơn tối đa hiển thị (mặc định 5 đơn)
  */
 export default function RecentOrdersTable({
   orders = [],
@@ -17,6 +12,7 @@ export default function RecentOrdersTable({
   maxDisplay = 5,
   shopName = '',
 }) {
+  const { t } = useTranslation()
   // Lấy danh sách giới hạn theo maxDisplay
   const displayOrders = orders.slice(0, maxDisplay)
 
@@ -26,10 +22,10 @@ export default function RecentOrdersTable({
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-5 border-b border-neutral-100">
         <div>
           <h3 className="text-xs sm:text-sm font-bold uppercase tracking-[0.2em] text-black">
-            RECENT ORDERS
+            {t('seller.dashboard.recentOrders', 'RECENT ORDERS')}
           </h3>
           <p className="text-xs text-neutral-400 mt-1">
-            Latest purchase requests for {shopName} collection garments
+            {t('seller.dashboard.recentOrdersSub', { shop: shopName, defaultValue: `Latest purchase requests for ${shopName} collection garments` })}
           </p>
         </div>
       </div>
@@ -39,10 +35,10 @@ export default function RecentOrdersTable({
         <table className="w-full text-left border-collapse">
           <thead>
             <tr className="border-b border-neutral-200 text-[10px] sm:text-xs font-mono uppercase tracking-widest text-neutral-400">
-              <th className="py-3 px-2 font-semibold">ORDER ID</th>
-              <th className="py-3 px-2 font-semibold">CUSTOMER</th>
-              <th className="py-3 px-2 font-semibold">TOTAL</th>
-              <th className="py-3 px-2 font-semibold text-right">STATUS</th>
+              <th className="py-3 px-2 font-semibold">{t('seller.dashboard.orderId', 'ORDER ID')}</th>
+              <th className="py-3 px-2 font-semibold">{t('seller.dashboard.customer', 'CUSTOMER')}</th>
+              <th className="py-3 px-2 font-semibold">{t('seller.dashboard.total', 'TOTAL')}</th>
+              <th className="py-3 px-2 font-semibold text-right">{t('seller.dashboard.status', 'STATUS')}</th>
             </tr>
           </thead>
 
@@ -118,7 +114,7 @@ export default function RecentOrdersTable({
                   colSpan={4}
                   className="py-8 text-center text-xs text-neutral-400 uppercase tracking-wider font-mono"
                 >
-                  No orders found for this shop.
+                  {t('seller.dashboard.noOrders', 'No orders found for this shop.')}
                 </td>
               </tr>
             )}

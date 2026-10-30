@@ -1,19 +1,12 @@
+import { useTranslation } from 'react-i18next'
 import { FALLBACK_IMAGE, handleImageError, formatVND } from './orderConstants'
+import { getLocalizedProductName } from '../../utils'
 
 /**
  * Component OrderItemsList: Danh sách sản phẩm trong đơn hàng (Manifest Content)
- *
- * Tính năng nổi bật:
- * - Hiển thị từng mặt hàng với ảnh sản phẩm chất lượng cao, tên, size, màu sắc và số lượng.
- * - Xử lý chống vỡ layout khi ảnh lỗi (tự động chuyển sang FALLBACK_IMAGE: /assets/fallback.png).
- * - Bố cục responsive:
- *   + Mobile (<640px): Ảnh thu nhỏ 80x112px, font chữ vừa vặn, hiển thị dạng flex gọn gàng.
- *   + Tablet & Desktop (>=640px): Ảnh 96x128px, khoảng cách rộng rãi, căn lề giá tiền rõ ràng.
- *
- * Props:
- * - items: Mảng danh sách sản phẩm [{ id, name, price, quantity, selectedSize, selectedColor, image }]
  */
 export default function OrderItemsList({ items = [] }) {
+  const { t, i18n } = useTranslation()
   const safeItems = Array.isArray(items) ? items : []
 
   return (
@@ -21,10 +14,10 @@ export default function OrderItemsList({ items = [] }) {
       {/* Tiêu đề mục danh sách sản phẩm */}
       <div className="flex items-center justify-between pb-4 border-b border-neutral-200 mb-6">
         <h2 className="text-sm font-bold tracking-widest uppercase text-neutral-900 font-mono">
-          MANIFEST CONTENT ({safeItems.length} ITEMS)
+          {t('orderDetail.manifestContent', { count: safeItems.length })}
         </h2>
         <span className="text-[11px] font-mono text-neutral-400 tracking-wider">
-          ATELIER VERIFIED
+          {t('orderDetail.atelierVerified')}
         </span>
       </div>
 
@@ -51,14 +44,14 @@ export default function OrderItemsList({ items = [] }) {
                 />
                 <div className="py-0.5 sm:py-1 min-w-0">
                   <h3 className="text-xs sm:text-base font-semibold text-neutral-900 tracking-tight leading-snug line-clamp-2">
-                    {item.name}
+                    {getLocalizedProductName(item, i18n.language, item.name)}
                   </h3>
                   <p className="text-xs text-neutral-500 mt-1.5 font-sans">
-                    Size: <strong className="text-neutral-800">{item.selectedSize || 'Standard'}</strong> • Color:{' '}
+                    {t('orderDetail.size')} <strong className="text-neutral-800">{item.selectedSize || 'Standard'}</strong> • {t('orderDetail.color')}{' '}
                     <strong className="text-neutral-800">{item.selectedColor || 'Standard'}</strong>
                   </p>
                   <p className="text-[11px] sm:text-xs text-neutral-400 mt-1 font-mono">
-                    Quantity: {itemQty}
+                    {t('orderDetail.quantity')} {itemQty}
                   </p>
                 </div>
               </div>
@@ -69,7 +62,7 @@ export default function OrderItemsList({ items = [] }) {
                   {formatVND(lineTotal)}
                 </p>
                 <p className="text-[10px] sm:text-[11px] text-neutral-400 mt-0.5">
-                  {formatVND(itemPrice)} each
+                  {formatVND(itemPrice)} {t('orderDetail.each')}
                 </p>
               </div>
             </div>

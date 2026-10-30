@@ -1,4 +1,5 @@
 import { Check, XCircle } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 
 /**
  * Component OrderProgressTracker: Thanh tiến trình hoàn tất đơn hàng (Fulfillment Progression)
@@ -11,52 +12,56 @@ import { Check, XCircle } from 'lucide-react'
  * - status: Trạng thái hiện tại của đơn hàng ('PENDING', 'CONFIRMED', 'SHIPPING', 'COMPLETED', 'CANCELLED')
  */
 export default function OrderProgressTracker({ status = 'PENDING' }) {
+  const { t } = useTranslation()
   const normalized = String(status || 'PENDING').toUpperCase()
   const isCancelled = normalized === 'CANCELLED'
 
   // Cấu hình các bước xử lý đơn hàng
   const steps = [
-    { key: 'PENDING', label: 'PENDING', stepNum: 1 },
-    { key: 'CONFIRMED', label: 'CONFIRMED', stepNum: 2 },
-    { key: 'SHIPPING', label: 'SHIPPING', stepNum: 3 },
-    { key: 'COMPLETED', label: 'COMPLETED', stepNum: 4 },
+    { key: 'PENDING', label: t('seller.status.pending', 'PENDING'), stepNum: 1 },
+    { key: 'CONFIRMED', label: t('seller.status.confirmed', 'CONFIRMED'), stepNum: 2 },
+    { key: 'SHIPPING', label: t('seller.status.shipping', 'SHIPPING'), stepNum: 3 },
+    { key: 'COMPLETED', label: t('seller.status.completed', 'COMPLETED'), stepNum: 4 },
   ]
 
   // Xác định vị trí bước hiện tại (1..4)
   let currentStepIndex = 1
   let progressWidth = '0%'
-  let summaryText = 'STEP 1 OF 4 (PENDING)'
 
   switch (normalized) {
     case 'CONFIRMED':
       currentStepIndex = 2
       progressWidth = '33.3%'
-      summaryText = 'STEP 2 OF 4 (CONFIRMED)'
       break
     case 'SHIPPING':
       currentStepIndex = 3
       progressWidth = '66.6%'
-      summaryText = 'STEP 3 OF 4 (SHIPPING)'
       break
     case 'COMPLETED':
       currentStepIndex = 4
       progressWidth = '100%'
-      summaryText = 'STEP 4 OF 4 (COMPLETED)'
       break
     case 'CANCELLED':
       currentStepIndex = 0
       progressWidth = '0%'
-      summaryText = 'ORDER CANCELLED'
       break
     default:
       break
   }
 
+  const summaryText = isCancelled
+    ? t('seller.orders.detail.orderCancelled', 'ORDER CANCELLED')
+    : t('seller.orders.detail.stepOf', {
+        current: currentStepIndex,
+        status: t(`seller.status.${normalized.toLowerCase()}`, normalized),
+        defaultValue: `STEP ${currentStepIndex} OF 4 (${normalized})`,
+      })
+
   return (
     <section className="bg-white border border-neutral-200 rounded-[2px] p-5 shadow-xs">
       {/* Tiêu đề thanh tiến trình */}
       <div className="text-[10px] uppercase font-bold tracking-[0.2em] text-neutral-400 mb-4 flex items-center justify-between font-mono">
-        <span>FULFILLMENT PROGRESSION</span>
+        <span>{t('seller.orders.detail.progressTitle', 'FULFILLMENT PROGRESSION')}</span>
         <span className="text-neutral-700">{summaryText}</span>
       </div>
 
@@ -121,10 +126,10 @@ export default function OrderProgressTracker({ status = 'PENDING' }) {
         <div className="mt-4 pt-3 border-t border-red-200 bg-red-50 p-3 rounded-[2px] flex items-center justify-between text-xs text-red-700 font-mono">
           <div className="flex items-center gap-2 font-semibold">
             <XCircle className="w-4 h-4 shrink-0" />
-            <span>ORDER IS CANCELLED — Fulfillment and settlement pipeline paused.</span>
+            <span>{t('seller.orders.detail.cancelledNotice', 'ORDER IS CANCELLED — Fulfillment and settlement pipeline paused.')}</span>
           </div>
           <span className="text-[10px] bg-red-100 px-2 py-0.5 rounded-[2px] uppercase">
-            Terminal State
+            {t('seller.status.cancelled', 'CANCELLED')}
           </span>
         </div>
       )}

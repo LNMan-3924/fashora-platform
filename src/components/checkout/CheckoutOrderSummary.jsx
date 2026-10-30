@@ -1,5 +1,7 @@
 import { BadgeCheck, Lock } from 'lucide-react'
-import { formatVND, FALLBACK_IMAGE, handleImageError } from '../../constants'
+import { useTranslation } from 'react-i18next'
+import { formatVND, FALLBACK_IMAGE, handleImageError, groupItemsByShop, getCartItemKey } from '../../constants'
+import { getLocalizedProductName } from '../../utils'
 
 /**
  * Component CheckoutOrderSummary: Cột tóm tắt giỏ hàng bên phải (Sticky Summary).
@@ -14,6 +16,7 @@ import { formatVND, FALLBACK_IMAGE, handleImageError } from '../../constants'
  * - shippingFee: Phí vận chuyển (0 hoặc 50000)
  */
 export default function CheckoutOrderSummary({ items = [], shippingFee = 0 }) {
+  const { t, i18n } = useTranslation()
   // Tính tổng phụ (Subtotal)
   const subtotal = items.reduce(
     (acc, item) => acc + (item.price || 0) * (item.quantity || 1),
@@ -29,47 +32,36 @@ export default function CheckoutOrderSummary({ items = [], shippingFee = 0 }) {
         {/* Tiêu đề tóm tắt đơn hàng và chứng nhận M STUDIO */}
         <div className="flex items-center justify-between border-b border-neutral-200 pb-4">
           <h3 className="text-xs uppercase tracking-[0.25em] font-bold text-[#111111]">
-            ORDER SUMMARY
+            {t('cart.orderSummary', 'ORDER SUMMARY')}
           </h3>
           <span className="text-[10px] font-mono tracking-widest uppercase text-neutral-500 flex items-center gap-1">
             <BadgeCheck className="w-3.5 h-3.5 text-emerald-600" />
           </span>
         </div>
 
-        {/* Danh sách các sản phẩm trong đơn hàng gom nhóm theo từng Shop / Atelier */}
+        {/* Danh sách các sản phẩm trong đơn hàng gom nhóm theo từng Shop / Atelier (Tái sử dụng groupItemsByShop) */}
         {(() => {
-          const groupedByShop = items.reduce((acc, item) => {
-            const sName =
-              item.shopName ||
-              (item.shopId === 'shop_l-obscur-atelier_8158'
-                ? "L'OBSCUR ATELIER"
-                : 'M STUDIO')
-            if (!acc[sName]) acc[sName] = []
-            acc[sName].push(item)
-            return acc
-          }, {})
-
-          const shopEntries = Object.entries(groupedByShop)
+          const shopEntries = Object.values(groupItemsByShop(items))
 
           return (
             <div className="max-h-[380px] overflow-y-auto pr-1 space-y-4">
-              {shopEntries.map(([shopName, shopItems], groupIdx) => (
-                <div key={shopName} className={groupIdx > 0 ? 'pt-3 border-t border-neutral-200/80' : ''}>
+              {shopEntries.map((shopGroup, groupIdx) => (
+                <div key={shopGroup.shopId} className={groupIdx > 0 ? 'pt-3 border-t border-neutral-200/80' : ''}>
                   {shopEntries.length > 1 && (
                     <div className="flex items-center justify-between pb-2 mb-2 border-b border-neutral-100">
                       <span className="text-[11px] font-bold uppercase tracking-wider text-[#111111] flex items-center gap-1.5 font-mono">
                         <span className="w-1.5 h-1.5 bg-black inline-block"></span>
-                        {shopName}
+                        {shopGroup.shopName}
                       </span>
                       <span className="text-[10px] font-mono uppercase tracking-wider text-neutral-400">
-                        {shopItems.length} {shopItems.length > 1 ? 'ITEMS' : 'ITEM'}
+                        {shopGroup.items.length} {shopGroup.items.length > 1 ? t('cart.items', 'ITEMS') : t('cart.item', 'ITEM')}
                       </span>
                     </div>
                   )}
 
                   <div className="divide-y divide-neutral-100">
-                    {shopItems.map((item, index) => {
-                      const itemKey = `${item.id || index}-${item.selectedSize || ''}-${item.selectedColor || ''}`
+                    {shopGroup.items.map((item, index) => {
+                      const itemKey = getCartItemKey(item) || `item-${item.id || index}`
                       const itemTotal = (item.price || 0) * (item.quantity || 1)
 
                       return (
@@ -88,18 +80,18 @@ export default function CheckoutOrderSummary({ items = [], shippingFee = 0 }) {
                           <div className="flex-1 flex flex-col justify-between min-w-0">
                             <div>
                               <h4 className="text-xs uppercase tracking-wider font-medium text-[#111111] truncate">
-                                {item.name}
+                                {getLocalizedProductName(item, i18n.language, item.name)}
                               </h4>
                               <p className="text-[11px] text-neutral-500 mt-0.5 truncate uppercase">
                                 {[
-                                  item.selectedSize ? `SIZE: ${item.selectedSize}` : null,
+                                  item.selectedSize ? `${t('product.size', 'SIZE')}: ${item.selectedSize}` : null,
                                   item.selectedColor ? item.selectedColor : null,
                                 ]
                                   .filter(Boolean)
                                   .join(' • ')}
                               </p>
                               <p className="text-[11px] text-neutral-500 font-mono mt-0.5">
-                                QTY: {item.quantity || 1}
+                                {t('product.quantity', 'QTY')}: {item.quantity || 1}
                                 {item.quantity > 1 ? ` (${formatVND(item.price)} EA)` : ''}
                               </p>
                             </div>
@@ -122,7 +114,7 @@ export default function CheckoutOrderSummary({ items = [], shippingFee = 0 }) {
         <div className="border-t border-neutral-200 pt-4 space-y-2.5 text-xs">
           {/* Tạm tính */}
           <div className="flex justify-between text-neutral-600">
-            <span>Subtotal</span>
+            <span>{t('cart.subtotal', { count: items.length, itemWord: items.length === 1 ? t('cart.item', 'item') : t('cart.items', 'items'), defaultValue: 'Subtotal' })}</span>
             <span className="font-mono text-[#111111] font-medium">
               {formatVND(subtotal)}
             </span>
@@ -130,25 +122,25 @@ export default function CheckoutOrderSummary({ items = [], shippingFee = 0 }) {
 
           {/* Phí giao hàng */}
           <div className="flex justify-between text-neutral-600">
-            <span>Shipping</span>
+            <span>{t('cart.shipping', 'Shipping')}</span>
             <span
               className={`font-mono font-medium ${shippingFee === 0 ? 'text-[#111111]' : 'text-[#111111]'
                 }`}
             >
-              {shippingFee === 0 ? 'COMPLIMENTARY' : formatVND(shippingFee)}
+              {shippingFee === 0 ? t('checkout.complimentary', 'COMPLIMENTARY') : formatVND(shippingFee)}
             </span>
           </div>
 
           {/* Thuế nhập khẩu & VAT */}
           <div className="flex justify-between text-neutral-600">
-            <span>Import Duties / Taxes</span>
-            <span className="font-mono text-neutral-400">Included</span>
+            <span>{t('checkout.importDuties', 'Import Duties / Taxes')}</span>
+            <span className="font-mono text-neutral-400">{t('checkout.included', 'Included')}</span>
           </div>
 
           {/* Tổng cộng thanh toán */}
           <div className="border-t border-[#111111] pt-3.5 flex justify-between items-baseline">
             <span className="text-xs uppercase tracking-widest font-bold text-[#111111]">
-              Total
+              {t('cart.total', 'Total')}
             </span>
             <span className="text-base font-bold text-[#111111] font-mono">
               {formatVND(total)}

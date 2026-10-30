@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react'
 import { useOutletContext, useSearchParams } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { Package, Clock, Truck, CreditCard } from 'lucide-react'
 import { useAuth } from '../../contexts/AuthContext'
-import { getOrders } from '../../services/api'
-import { formatVND } from '../../constants/commerce'
+import { getOrders, getOrdersByShop } from '../../services/api'
+import { formatVND, filterOrdersByShop } from '../../constants/commerce'
 import { Pagination } from '../../components/common'
 import {
   MetricCard,
@@ -26,6 +27,7 @@ const ITEMS_PER_PAGE = 10
  * - Tính toán trực tiếp, đồng bộ 100% logic tính doanh thu với Dashboard (chỉ tính các item của shop).
  */
 export default function Orders() {
+  const { t } = useTranslation()
   const outletContext = useOutletContext() || {}
   const { currentUser } = useAuth()
 
@@ -72,19 +74,14 @@ export default function Orders() {
   useEffect(() => {
     let isMounted = true
 
-    getOrders()
+    // Tối ưu hiệu năng: Tải trực tiếp đơn hàng theo shopId (/orders?shopId=...)
+    const fetchOrdersPromise = currentShopId ? getOrdersByShop(currentShopId) : getOrders()
+    fetchOrdersPromise
       .then((res) => {
         if (!isMounted) return
         const data = res?.data || res || []
-        // Lọc các đơn hàng thuộc về shop hiện tại
-        const shopOrders = Array.isArray(data)
-          ? data.filter((o) => {
-            if (o.shopId && currentShopId && o.shopId === currentShopId) return true
-            if (Array.isArray(o.items) && currentShopId && o.items.some((item) => item.shopId === currentShopId)) return true
-            if (o.shopName && shopName && o.shopName.trim().toLowerCase() === shopName.trim().toLowerCase()) return true
-            return false
-          })
-          : []
+        // Lọc các đơn hàng thuộc về shop hiện tại (Tái sử dụng filterOrdersByShop SSOT)
+        const shopOrders = filterOrdersByShop(data, currentShopId, shopName)
         setOrders(shopOrders)
       })
       .catch((err) => {
@@ -212,33 +209,33 @@ export default function Orders() {
       {/* 1. HÀNG 4 THẺ CHỈ SỐ KPI ĐƠN HÀNG (TÁI SỬ DỤNG METRIC CARD) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
         <MetricCard
-          label="TOTAL ORDERS"
+          label={t('seller.metrics.orders', 'TOTAL ORDERS')}
           value={stats.total}
-          subtext="Processed store requests"
+          subtext={t('seller.metrics.ordersSub', 'Processed store requests')}
           icon={Package}
           loading={isLoading}
         />
 
         <MetricCard
-          label="PENDING CONFIRMATION"
+          label={t('seller.metrics.pendingConfirmation', 'PENDING CONFIRMATION')}
           value={stats.pendingCount}
-          subtext="Orders awaiting approval"
+          subtext={t('seller.metrics.pendingSub', 'Orders awaiting approval')}
           icon={Clock}
           loading={isLoading}
         />
 
         <MetricCard
-          label="IN SHIPPING"
+          label={t('seller.metrics.inShipping', 'IN SHIPPING')}
           value={stats.inShippingCount}
-          subtext="Fulfillment pipeline active"
+          subtext={t('seller.metrics.inShippingSub', 'Fulfillment pipeline active')}
           icon={Truck}
           loading={isLoading}
         />
 
         <MetricCard
-          label="SETTLED REVENUE"
+          label={t('seller.metrics.settledRevenue', 'SETTLED REVENUE')}
           value={formatVND(stats.settledRevenue)}
-          subtext="Revenue from valid shop items"
+          subtext={t('seller.metrics.settledSub', 'Revenue from valid shop items')}
           icon={CreditCard}
           loading={isLoading}
         />

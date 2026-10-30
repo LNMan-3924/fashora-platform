@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, useLocation, Navigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { Check, Copy } from 'lucide-react'
 import { Button, Toast } from '../../components/common'
 import CompleteTheLook from '../../components/product/CompleteTheLook'
@@ -17,6 +18,7 @@ import { formatVND } from '../../constants'
  * - BẢO VỆ: Không cho phép gõ URL trực tiếp để vào trang này. Nếu không có state từ Checkout -> Tự động chuyển về /orders.
  */
 export default function OrderSuccess() {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const location = useLocation()
 
@@ -94,27 +96,25 @@ export default function OrderSuccess() {
 
         {/* Tiêu đề thông báo đặt hàng thành công */}
         <h1 className="text-2xl sm:text-[32px] font-bold tracking-wider sm:tracking-[0.25em] uppercase text-[#111111] mb-3">
-          ORDER SUCCESSFUL
+          {t('checkout.orderSuccessTitle')}
         </h1>
 
         {/* Lời cảm ơn tinh tế */}
-        <p className="text-[#666666] text-sm sm:text-[15px] leading-relaxed max-w-lg mx-auto font-normal px-2">
-          Thank you for your purchase.
-          <br />
-          Your order has been placed successfully.
+        <p className="text-[#666666] text-sm sm:text-[15px] leading-relaxed max-w-lg mx-auto font-normal px-2 whitespace-pre-line">
+          {t('checkout.orderSuccessDesc')}
         </p>
 
         {/* Khung thẻ tham chiếu đơn hàng (Order Meta Reference Card) */}
         <div className="mt-8 sm:mt-10 w-full max-w-xl mx-auto bg-[#F8F8F8] border border-[#E5E5E5] p-6 text-center">
           <div className="text-[11px] tracking-widest uppercase font-medium text-[#666666] mb-2">
-            ORDER NUMBER
+            {t('orders.orderNum').replace('#', '').trim()}
           </div>
 
           {/* Mã đơn hàng kèm nút tiện ích sao chép mã */}
           {Array.isArray(orderNumbers) && orderNumbers.length > 1 ? (
             <div className="space-y-2.5 mb-5 text-left border-y border-[#E5E5E5]/70 py-3.5">
               <div className="text-[10px] text-center uppercase tracking-widest font-mono text-[#666666] mb-1">
-                SPLIT ACROSS {orderNumbers.length} ATELIERS
+                {t('checkout.splitAcrossAteliers', { count: orderNumbers.length })}
               </div>
               <div className="space-y-2">
                 {orderNumbers.map((ord) => (
@@ -168,7 +168,7 @@ export default function OrderSuccess() {
           {/* Tổng tiền đơn hàng */}
           <div className="flex flex-col items-center justify-center pt-2 border-t border-[#E5E5E5]/60">
             <span className="text-[11px] uppercase tracking-widest text-[#666666] font-medium mb-1">
-              TOTAL
+              {t('cart.total')}
             </span>
             <span className="text-2xl font-bold tracking-tight text-[#111111] font-mono">
               {orderTotal}
@@ -185,7 +185,7 @@ export default function OrderSuccess() {
             onClick={() => navigate('/orders')}
             className="w-full sm:w-auto tracking-widest text-[11px] h-12 px-8"
           >
-            VIEW MY ORDERS
+            {t('checkout.viewMyOrders')}
           </Button>
 
           {/* Nút tiếp tục mua sắm */}
@@ -195,7 +195,7 @@ export default function OrderSuccess() {
             onClick={() => navigate('/shop')}
             className="w-full sm:w-auto tracking-widest text-[11px] h-12 px-8"
           >
-            CONTINUE SHOPPING
+            {t('checkout.continueShopping')}
           </Button>
         </div>
       </section>
@@ -205,8 +205,6 @@ export default function OrderSuccess() {
       {/* Tái sử dụng component CompleteTheLook dùng chung              */}
       {/* ============================================================= */}
       <CompleteTheLook
-        title="COMPLETE THE LOOK"
-        subtitle="CURATED PAIRINGS FORMULATED FOR ATELIER SILHOUETTES"
         viewAllLink="/shop"
         onQuickAdd={(product) => setSelectedQuickProduct(product)}
       />

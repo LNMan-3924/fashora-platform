@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { Check, Truck, Package, ShoppingBag } from 'lucide-react'
 import { formatDate } from '../../constants/commerce'
 
@@ -21,6 +22,7 @@ export default function OrderTimeline({
   waybill = 'VN-EXP-884928',
   shopName = '',
 }) {
+  const { t } = useTranslation()
   const normalized = String(status || 'PENDING').toUpperCase()
   const isCompleted = normalized === 'COMPLETED'
   const isShippingOrMore = normalized === 'SHIPPING' || isCompleted
@@ -31,10 +33,10 @@ export default function OrderTimeline({
       {/* Tiêu đề mốc thời gian */}
       <div className="flex items-center justify-between pb-3 border-b border-neutral-200 mb-5">
         <h4 className="text-xs font-bold uppercase tracking-[0.2em] text-black font-mono">
-          FULFILLMENT TIMELINE
+          {t('seller.orders.detail.timelineTitle', 'FULFILLMENT TIMELINE')}
         </h4>
         <span className="text-[10px] font-mono text-neutral-400 uppercase">
-          WAYBILL #{waybill}
+          {t('seller.orders.detail.waybill', { waybill, defaultValue: `WAYBILL #${waybill}` })}
         </span>
       </div>
 
@@ -50,13 +52,13 @@ export default function OrderTimeline({
           </div>
           <div>
             <div className="text-xs font-bold uppercase tracking-wider text-black">
-              Order Delivered &amp; Settled
+              {t('seller.orders.detail.deliveredStep', 'Order Delivered & Settled')}
             </div>
             <p className="text-[11px] text-neutral-500 mt-0.5 leading-relaxed">
-              Package successfully handed over to client with signature verification.
+              {t('seller.orders.detail.deliveredStepDesc', 'Package successfully handed over to client with signature verification.')}
             </p>
             <span className="text-[9px] font-mono text-neutral-400 block mt-1">
-              Final Milestone • SPX Express
+              {t('seller.orders.detail.finalMilestone', 'Final Milestone • SPX Express')}
             </span>
           </div>
         </div>
@@ -72,13 +74,13 @@ export default function OrderTimeline({
           </div>
           <div>
             <div className="text-xs font-bold uppercase tracking-wider text-black">
-              Express Courier Dispatch
+              {t('seller.orders.detail.shippingStep', 'Express Courier Dispatch')}
             </div>
             <p className="text-[11px] text-neutral-500 mt-0.5 leading-relaxed">
-              Consignment handed to courier hub for domestic transit.
+              {t('seller.orders.detail.shippingStepDesc', 'Consignment handed to courier hub for domestic transit.')}
             </p>
             <span className="text-[9px] font-mono text-neutral-400 block mt-1">
-              Tracking Waybill: {waybill}
+              {t('seller.orders.detail.tracking', { waybill, defaultValue: `Tracking Waybill: ${waybill}` })}
             </span>
           </div>
         </div>
@@ -94,10 +96,10 @@ export default function OrderTimeline({
           </div>
           <div>
             <div className="text-xs font-bold uppercase tracking-wider text-black">
-              Order Confirmed &amp; Packaged
+              {t('seller.orders.detail.confirmedStep', 'Order Confirmed & Packaged')}
             </div>
             <p className="text-[11px] text-neutral-500 mt-0.5 leading-relaxed">
-              Quality inspection completed by {shopName} team.
+              {t('seller.orders.detail.confirmedStepDesc', { shop: shopName, defaultValue: `Quality inspection completed by ${shopName} team.` })}
             </p>
             <span className="text-[9px] font-mono text-neutral-400 block mt-1">
               Atelier Ready for dispatch
@@ -112,13 +114,13 @@ export default function OrderTimeline({
           </div>
           <div>
             <div className="text-xs font-bold uppercase tracking-wider text-black">
-              Order Placed
+              {t('seller.orders.detail.placedStep', 'Order Placed')}
             </div>
             <p className="text-[11px] text-neutral-500 mt-0.5 leading-relaxed">
-              Client placed order through FASHORA Curated Storefront.
+              {t('seller.orders.detail.placedStepDesc', 'Client placed order through FASHORA Curated Storefront.')}
             </p>
             <span className="text-[9px] font-mono text-neutral-400 block mt-1">
-              {formatDate(createdAt)} • Online Checkout
+              {formatDate(createdAt)}
             </span>
           </div>
         </div>

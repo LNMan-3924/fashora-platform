@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { Link, useSearchParams, Navigate } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { getProducts, getShops } from '../../services/api';
 import ProductGrid from '../../components/product/ProductGrid';
 import QuickAddModal from '../../components/product/QuickAddModal';
@@ -18,6 +19,7 @@ const CATEGORIES = [
 ];
 
 export function Shop() {
+  const { t } = useTranslation();
   const [products, setProducts] = useState([]);
   const [shops, setShops] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -239,23 +241,25 @@ export function Shop() {
     <div className="w-full">
       {/* 1. Breadcrumb */}
       <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-[11px] font-mono tracking-widest text-neutral-400 uppercase mb-4">
-        <Link to="/home" className="hover:text-black transition-colors">HOME</Link>
+        <Link to="/home" className="hover:text-black transition-colors">{t('shop.breadcrumbHome')}</Link>
         <span>/</span>
-        <span className="text-black font-semibold">{selectedCategory === 'ALL' ? 'ALL PRODUCTS' : selectedCategory}</span>
+        <span className="text-black font-semibold">
+          {selectedCategory === 'ALL' ? t('shop.pageTitle') : (t(`categories.${selectedCategory}`) || selectedCategory)}
+        </span>
       </nav>
 
       {/* 2. Tiêu đề trang */}
-      <div className="mt-4 max-w-2xl">
-        <h1 className="text-3xl sm:text-5xl font-black uppercase tracking-tight text-neutral-950 leading-none">
-          ALL PRODUCTS
+      <div className="mt-4">
+        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold uppercase tracking-tight text-[#111111] leading-none">
+          {t('shop.pageTitle')}
         </h1>
-        <p className="mt-3 text-xs sm:text-sm text-neutral-600 font-light leading-relaxed tracking-wide">
-          Explore the complete archive of runway and atelier pieces across all independent design studios.
+        <p className="mt-3 text-sm sm:text-base text-[#666666] font-light leading-relaxed tracking-wide sm:whitespace-nowrap">
+          {t('shop.subtitle')}
         </p>
       </div>
 
       {/* 3. Category Tabs (Text + Underline chuẩn Design System 5.5) */}
-      <div className="mt-8 border-b border-[#E5E5E5] w-full">
+      <div className="mt-10 sm:mt-12 border-b border-[#E5E5E5] w-full">
         <nav className="-mb-px flex space-x-6 sm:space-x-8 overflow-x-auto scrollbar-none" aria-label="Category Tabs">
           {CATEGORIES.map((cat) => {
             const isActive = selectedCategory === cat.value;
@@ -270,7 +274,7 @@ export function Shop() {
                     : 'border-transparent text-[#666666] hover:text-[#111111] hover:border-[#E5E5E5]'
                 }`}
               >
-                {cat.label}
+                {t(`categories.${cat.value}`) || cat.label}
               </button>
             );
           })}
@@ -288,7 +292,7 @@ export function Shop() {
             </span>
             <input
               type="text"
-              placeholder="SEARCH PRODUCTS..."
+              placeholder={t('shop.searchPlaceholder')}
               value={searchQuery}
               onChange={(e) => handleSearchChange(e.target.value)}
               className="h-9 w-52 rounded-full border border-neutral-200 bg-neutral-50/50 pl-8 pr-4 text-xs uppercase placeholder-neutral-400 focus:border-black focus:bg-white focus:outline-none"
@@ -296,10 +300,10 @@ export function Shop() {
           </div>
 
           <div className="flex items-center gap-2 text-xs uppercase text-neutral-400">
-            <span>PRICE:</span>
+            <span>{t('shop.priceLabel')}</span>
             <input
               type="number"
-              placeholder="Min ₫"
+              placeholder={t('shop.minPrice')}
               value={minPrice}
               onChange={(e) => handleMinPriceChange(e.target.value)}
               className="h-9 w-20 rounded-md border border-neutral-200 px-2 text-xs focus:border-black focus:outline-none"
@@ -307,7 +311,7 @@ export function Shop() {
             <span>-</span>
             <input
               type="number"
-              placeholder="Max ₫"
+              placeholder={t('shop.maxPrice')}
               value={maxPrice}
               onChange={(e) => handleMaxPriceChange(e.target.value)}
               className="h-9 w-20 rounded-md border border-neutral-200 px-2 text-xs focus:border-black focus:outline-none"
@@ -316,25 +320,25 @@ export function Shop() {
               onClick={handleResetFilters}
               className="ml-1 text-[11px] font-semibold uppercase tracking-wider text-neutral-400 hover:text-black cursor-pointer"
             >
-              RESET
+              {t('shop.resetBtn')}
             </button>
           </div>
         </div>
 
         <div className="flex items-center gap-4 text-xs">
           <span className="tracking-wider uppercase text-neutral-400">
-            SHOWING {filteredProducts.length} PRODUCTS
+            {t('shop.showingProducts', { count: filteredProducts.length })}
           </span>
           <div className="flex items-center gap-2">
-            <span className="text-neutral-400 uppercase">SORT BY:</span>
+            <span className="text-neutral-400 uppercase">{t('shop.sortLabel')}</span>
             <select
               value={sortBy}
               onChange={(e) => handleSortChange(e.target.value)}
               className="h-9 rounded-md border border-neutral-200 px-3 text-xs font-semibold uppercase focus:border-black focus:outline-none cursor-pointer"
             >
-              <option value="RECOMMENDED">RECOMMENDED</option>
-              <option value="PRICE_LOW">PRICE: LOW TO HIGH</option>
-              <option value="PRICE_HIGH">PRICE: HIGH TO LOW</option>
+              <option value="RECOMMENDED">{t('shop.recommended')}</option>
+              <option value="PRICE_LOW">{t('shop.priceLowHigh')}</option>
+              <option value="PRICE_HIGH">{t('shop.priceHighLow')}</option>
             </select>
           </div>
         </div>
@@ -360,16 +364,16 @@ export function Shop() {
               !
             </div>
             <h3 className="mt-4 text-base font-bold uppercase tracking-widest text-neutral-900">
-              UNABLE TO LOAD PRODUCTS
+              {t('shop.unableToLoad')}
             </h3>
             <p className="mt-2 max-w-md text-xs uppercase tracking-wider text-neutral-400">
-              A CONNECTION ERROR OCCURRED WHILE QUERYING THE CATALOG ARCHIVE. PLEASE TRY RELOADING.
+              {t('shop.connectionError')}
             </p>
             <button
               onClick={fetchProducts}
               className="mt-6 border border-black bg-white px-8 py-2.5 text-xs font-semibold tracking-widest uppercase text-neutral-900 hover:bg-black hover:text-white transition-colors"
             >
-              RETRY
+              {t('shop.retry')}
             </button>
           </div>
         )}
@@ -382,16 +386,16 @@ export function Shop() {
               </svg>
             </div>
             <h3 className="mt-3 text-base font-bold uppercase tracking-widest text-neutral-900">
-              NO PRODUCTS FOUND
+              {t('shop.noProducts')}
             </h3>
             <p className="mt-2 max-w-md text-xs uppercase tracking-wider text-neutral-400">
-              THERE ARE NO ITEMS MATCHING YOUR ACTIVE CATEGORY, SEARCH KEYWORD, OR PRICE RANGE FILTER.
+              {t('shop.noProducts')}
             </p>
             <button
               onClick={handleResetFilters}
-              className="mt-6 bg-black px-8 py-2.5 text-xs font-semibold tracking-widest uppercase text-white hover:bg-neutral-800 transition-colors"
+              className="mt-6 bg-black px-8 py-2.5 text-xs font-semibold tracking-widest uppercase text-white hover:bg-neutral-800 transition-colors cursor-pointer"
             >
-              VIEW ALL PRODUCTS
+              {t('shop.resetFilters')}
             </button>
           </div>
         )}
@@ -421,7 +425,7 @@ export function Shop() {
               </div>
               <div>
                 <span className="text-[10px] font-mono tracking-widest text-neutral-400 uppercase block">
-                  OFFICIAL ATELIER STOREFRONT
+                  {t('searchOverlay.officialAtelier')}
                 </span>
                 <h4 className="text-sm sm:text-base font-bold font-mono tracking-wider uppercase">
                   {matchedShop.name}
@@ -435,7 +439,7 @@ export function Shop() {
               to={`/store/${matchedShop.slug || matchedShop.id}`}
               className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-white text-black text-xs font-mono font-bold uppercase tracking-wider hover:bg-neutral-200 transition-colors shrink-0"
             >
-              <span>VISIT ATELIER</span>
+              <span>{t('shop.visitAtelier')}</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>
@@ -465,7 +469,7 @@ export function Shop() {
                   ? 'border-neutral-100 text-neutral-300 cursor-not-allowed'
                   : 'border-neutral-200 text-neutral-700 hover:border-black cursor-pointer'
               }`}
-              title="Previous Page"
+              title={t('common.previous')}
             >
               <svg className="w-4 h-4 stroke-current" fill="none" viewBox="0 0 24 24" strokeWidth="2">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
@@ -500,7 +504,7 @@ export function Shop() {
                   ? 'border-neutral-100 text-neutral-300 cursor-not-allowed'
                   : 'border-neutral-200 text-neutral-700 hover:border-black cursor-pointer'
               }`}
-              title="Next Page"
+              title={t('common.next')}
             >
               <svg className="w-4 h-4 stroke-current" fill="none" viewBox="0 0 24 24" strokeWidth="2">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
@@ -530,7 +534,7 @@ export function Shop() {
             if (result?.success === false) {
               setToastMessage(result.message);
             } else {
-              setToastMessage(`Added ${quickAddProduct.name} to cart.`);
+              setToastMessage(t('cart.itemAdded', { name: quickAddProduct.name }));
             }
           }
         }}
@@ -552,6 +556,7 @@ export function Shop() {
    - Padding responsive: px-6 sm:px-10 lg:px-16 py-8 sm:py-12
    ========================================================================== */
 function ShopWithViewControls(props) {
+  const { t } = useTranslation();
   const [isMobile, setIsMobile] = useState(
     typeof window !== 'undefined' ? window.innerWidth < 768 : false
   );
@@ -610,7 +615,7 @@ function ShopWithViewControls(props) {
       <div className="flex justify-end -mb-4">
         <div className="flex items-center gap-2">
           <span className="text-[11px] font-medium tracking-widest uppercase text-neutral-400">
-            VIEW
+            {t('shop.view')}
           </span>
 
           {isMobile ? (

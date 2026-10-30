@@ -1,6 +1,8 @@
 import { Copy, ArrowRight } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { Button, Badge } from '../common'
 import OrderStatusNotice from './OrderStatusNotice'
+import { getLocalizedProductName } from '../../utils'
 import {
   STATUS_CONFIG,
   FALLBACK_IMAGE,
@@ -32,6 +34,7 @@ export default function OrderCard({
   onViewDetails,
   onCopyOrderNumber,
 }) {
+  const { t, i18n } = useTranslation()
   if (!order) return null
 
   const rawStatus = (order.status || 'PENDING').toUpperCase()
@@ -67,7 +70,7 @@ export default function OrderCard({
           </span>
           <span className="text-neutral-300">|</span>
           <span className="text-neutral-500 font-sans text-xs">
-            Placed on {formatDate(order.createdAt)}
+            {t('orderDetail.placedOn', 'Placed on')} {formatDate(order.createdAt)}
           </span>
           <span className="text-neutral-300">|</span>
           <span className="text-neutral-700 text-xs">
@@ -107,13 +110,13 @@ export default function OrderCard({
             {/* Chi tiết tên, phân loại size/màu và số lượng */}
             <div className="flex-grow min-w-0 py-0.5 sm:py-1">
               <h3 className="text-sm sm:text-base font-medium tracking-tight text-neutral-900 truncate">
-                {item.name}
+                {getLocalizedProductName(item, i18n.language, item.name)}
               </h3>
               <p className="text-xs sm:text-sm text-neutral-500 mt-1">
-                Size: {item.selectedSize || 'Standard'} • {item.selectedColor || 'Standard'}
+                {t('product.size', 'Size')}: {item.selectedSize || 'Standard'} • {item.selectedColor || 'Standard'}
               </p>
               <p className="text-xs text-neutral-400 mt-1 font-mono">
-                Quantity: {item.quantity || 1}
+                {t('product.quantity', 'Quantity')}: {item.quantity || 1}
               </p>
             </div>
 
@@ -135,7 +138,7 @@ export default function OrderCard({
         <div className="text-xs sm:text-sm">
           {order.shippingFee > 0 && (
             <div className="text-neutral-500 text-xs mb-0.5">
-              Shipping:{' '}
+              {t('cart.shipping', 'Shipping')}:{' '}
               <span className="font-mono text-neutral-700 font-medium">
                 {formatVND(order.shippingFee)}
               </span>
@@ -143,7 +146,7 @@ export default function OrderCard({
           )}
           <div>
             <span className="text-neutral-500 uppercase tracking-wider text-[11px] font-medium">
-              TOTAL AMOUNT (COD):
+              {t('orders.total', 'TOTAL AMOUNT')}:
             </span>
             <span
               className={`ml-2 font-mono text-base sm:text-xl font-bold ${isCancelled ? 'line-through text-neutral-400' : 'text-neutral-900'
@@ -153,9 +156,9 @@ export default function OrderCard({
             </span>
             <span className="ml-2 text-xs text-neutral-400">
               {isCancelled
-                ? '(Cancelled)'
+                ? `(${t('orders.cancelled', 'Cancelled')})`
                 : order.shippingFee === 0
-                  ? '(Free Atelier Shipping)'
+                  ? `(${t('cart.free', 'Free')} Atelier ${t('cart.shipping', 'Shipping')})`
                   : ''}
             </span>
           </div>
@@ -170,7 +173,7 @@ export default function OrderCard({
               onClick={() => onCancel(order)}
               className="text-xs tracking-wider uppercase font-medium h-9 px-4"
             >
-              Cancel
+              {t('orders.cancelBtn', 'Cancel')}
             </Button>
           )}
 
@@ -182,7 +185,7 @@ export default function OrderCard({
               onClick={() => onViewDetails(order)}
               className="text-xs tracking-wider uppercase font-medium h-9 px-5 flex items-center gap-1.5"
             >
-              <span>Details</span>
+              <span>{t('orders.detailsBtn', 'Details')}</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </Button>
           )}

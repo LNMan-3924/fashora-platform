@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react'
 import { useOutletContext } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { CreditCard, Package, CheckCircle2 } from 'lucide-react'
 import { useAuth } from '../../contexts/AuthContext'
-import { formatVND } from '../../constants/commerce'
-import { getOrders, getProductsByShop } from '../../services/api'
+import { formatVND, filterOrdersByShop } from '../../constants/commerce'
+import { getOrders, getOrdersByShop, getProductsByShop } from '../../services/api'
 import {
   MetricCard,
   RecentOrdersTable,
@@ -21,6 +22,7 @@ import {
  * - Tính toán trực tiếp không lạm dụng useMemo gây tốn bộ nhớ RAM.
  */
 export default function Dashboard() {
+  const { t } = useTranslation()
   const outletContext = useOutletContext() || {}
   const { currentUser } = useAuth()
 
@@ -39,8 +41,9 @@ export default function Dashboard() {
   useEffect(() => {
     let isMounted = true
 
-    // Gọi đồng thời 2 API lấy danh sách đơn hàng và sản phẩm theo ID Shop từ json-server (port 5000)
-    Promise.all([getOrders(), getProductsByShop(currentShopId)])
+    // Tối ưu hiệu năng: Tải trực tiếp đơn hàng theo shopId (/orders?shopId=...) thay vì tải tất cả đơn
+    const ordersPromise = currentShopId ? getOrdersByShop(currentShopId) : getOrders()
+    Promise.all([ordersPromise, getProductsByShop(currentShopId)])
       .then(([ordersRes, productsRes]) => {
         if (!isMounted) return
 
@@ -68,17 +71,9 @@ export default function Dashboard() {
   }, [currentShopId])
 
   // =========================================================================
-  // BƯỚC 1: LỌC ĐƠN HÀNG THUỘC VỀ SHOP HIỆN TẠI (ĐA SHOP ĐỘC LẬP)
+  // BƯỚC 1: LỌC ĐƠN HÀNG THUỘC VỀ SHOP HIỆN TẠI (Tái sử dụng filterOrdersByShop SSOT)
   // =========================================================================
-  const shopOrders = orders.filter((o) => {
-    // 1. Khớp chính xác shopId của đơn
-    if (o.shopId && currentShopId && o.shopId === currentShopId) return true
-    // 2. Khớp theo từng sản phẩm trong đơn nếu có shopId
-    if (Array.isArray(o.items) && currentShopId && o.items.some((item) => item.shopId === currentShopId)) return true
-    // 3. Khớp theo shopName nếu có
-    if (o.shopName && shopName && o.shopName.trim().toLowerCase() === shopName.trim().toLowerCase()) return true
-    return false
-  })
+  const shopOrders = filterOrdersByShop(orders, currentShopId, shopName)
 
   // Sắp xếp đơn hàng theo thứ tự mới nhất giảm dần theo thời gian tạo
   const sortedShopOrders = [...shopOrders].sort((a, b) => {
@@ -171,27 +166,27 @@ export default function Dashboard() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Doanh thu (REVENUE) */}
         <MetricCard
-          label="REVENUE"
+          label={t('seller.metrics.revenue', 'REVENUE')}
           value={formatVND(totalRevenue)}
-          subtext="Total settled revenue"
+          subtext={t('seller.metrics.revenueSub', 'Total settled revenue')}
           icon={CreditCard}
           loading={isLoading}
         />
 
         {/* Tổng số đơn hàng (ORDERS) */}
         <MetricCard
-          label="ORDERS"
+          label={t('seller.metrics.orders', 'ORDERS')}
           value={totalOrdersCount}
-          subtext="Processed store orders"
+          subtext={t('seller.metrics.ordersSub', 'Processed store orders')}
           icon={Package}
           loading={isLoading}
         />
 
         {/* Sản phẩm đã bán (PRODUCTS SOLD) */}
         <MetricCard
-          label="PRODUCTS SOLD"
+          label={t('seller.metrics.productsSold', 'PRODUCTS SOLD')}
           value={totalProductsSoldCount}
-          subtext="Garments & items dispatched"
+          subtext={t('seller.metrics.productsSoldSub', 'Garments & items dispatched')}
           icon={CheckCircle2}
           loading={isLoading}
         />
