@@ -1,4 +1,5 @@
 import { Search, X } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 
 /**
  * Component OrderFilters: Thanh tìm kiếm và bộ lọc trạng thái đơn hàng của Seller
@@ -30,6 +31,7 @@ export default function OrderFilters({
   onResetFilters,
   shopName = '',
 }) {
+  const { t } = useTranslation()
   const isFilteringActive =
     Boolean(searchQuery.trim()) || selectedStatus !== 'ALL'
 
@@ -44,7 +46,7 @@ export default function OrderFilters({
             type="text"
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
-            placeholder="Search orders by ID, customer or item..."
+            placeholder={t('seller.orders.searchPlaceholder', 'Search orders by ID, customer or item...')}
             className="w-full pl-9 pr-8 py-2 text-xs border border-neutral-200 rounded-[2px] bg-neutral-50/50 focus:bg-white focus:border-black focus:outline-none transition-colors font-sans"
           />
           {searchQuery && (
@@ -67,12 +69,12 @@ export default function OrderFilters({
             aria-label="Filter by Order Status"
             className="px-3 py-2 text-xs border border-neutral-200 rounded-[2px] bg-white text-neutral-800 font-mono focus:border-black focus:outline-none cursor-pointer"
           >
-            <option value="ALL">[ ALL STATUS ▾ ]</option>
-            <option value="PENDING">PENDING</option>
-            <option value="CONFIRMED">CONFIRMED</option>
-            <option value="SHIPPING">SHIPPING</option>
-            <option value="COMPLETED">COMPLETED</option>
-            <option value="CANCELLED">CANCELLED</option>
+            <option value="ALL">{t('seller.orders.allStatus', '[ ALL STATUS ▾ ]')}</option>
+            <option value="PENDING">{t('seller.status.pending', 'PENDING')}</option>
+            <option value="CONFIRMED">{t('seller.status.confirmed', 'CONFIRMED')}</option>
+            <option value="SHIPPING">{t('seller.status.shipping', 'SHIPPING')}</option>
+            <option value="COMPLETED">{t('seller.status.completed', 'COMPLETED')}</option>
+            <option value="CANCELLED">{t('seller.status.cancelled', 'CANCELLED')}</option>
           </select>
         </div>
       </div>
@@ -80,14 +82,14 @@ export default function OrderFilters({
       {/* HÀNG DƯỚI: Thống kê kết quả hiển thị & Nút Reset */}
       <div className="flex items-center justify-between text-xs text-neutral-500 pt-2 border-t border-neutral-100 font-mono">
         <div>
-          Showing{' '}
+          {t('seller.orders.showing', 'Showing')}{' '}
           <span className="font-semibold text-black">
             {filteredCount > 0 ? (currentPage - 1) * itemsPerPage + 1 : 0} -{' '}
             {Math.min(currentPage * itemsPerPage, filteredCount)}
           </span>{' '}
-          of <span className="font-semibold text-black">{filteredCount}</span> orders{' '}
+          {t('seller.orders.of', 'of')} <span className="font-semibold text-black">{filteredCount}</span> {t('seller.orders.ordersCount', 'orders')}{' '}
           <span className="text-neutral-400">
-            (Total {totalCount} in {shopName})
+            {t('seller.orders.totalInShop', { total: totalCount, shop: shopName, defaultValue: `(Total ${totalCount} in ${shopName})` })}
           </span>
         </div>
 
@@ -97,7 +99,7 @@ export default function OrderFilters({
             onClick={onResetFilters}
             className="text-xs text-neutral-600 hover:text-black underline cursor-pointer"
           >
-            Reset all filters
+            {t('seller.orders.resetFilters', 'Reset all filters')}
           </button>
         )}
       </div>

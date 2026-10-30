@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { Check } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { Checkbox } from '../common'
 import CartItem from './CartItem'
 import { getCartItemKey } from '../../constants'
@@ -22,6 +23,7 @@ export default function CartShopGroup({
   onUpdateQuantity,              // Hàm gọi khi thay đổi số lượng món hàng
   onRemoveItem,                  // Hàm gọi khi xóa một món hàng
 }) {
+  const { t } = useTranslation()
   // Kiểm tra xem TOÀN BỘ sản phẩm của shop này có đang được chọn hay không
   const allShopItemsSelected =
     items.length > 0 &&
@@ -48,9 +50,9 @@ export default function CartShopGroup({
             </span>
 
             {/* Huy hiệu xác nhận chính hãng Atelier Verified */}
-            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-mono bg-neutral-100 text-[#111111] border border-neutral-200">
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-mono bg-neutral-100 text-[#111111] border border-neutral-200 uppercase">
               <Check className="w-3 h-3 text-[#111111] stroke-[2.5]" />
-              ATELIER VERIFIED
+              {t('cart.atelierVerified', 'ATELIER VERIFIED')}
             </span>
           </div>
         </div>
@@ -58,9 +60,9 @@ export default function CartShopGroup({
         {/* Liên kết dẫn người dùng sang xem toàn bộ gian hàng của shop */}
         <Link
           to={`/store/${shopSlug}`}
-          className="text-xs font-mono font-medium tracking-wider text-neutral-500 hover:text-[#111111] transition-colors"
+          className="text-xs font-mono font-medium tracking-wider text-neutral-500 hover:text-[#111111] transition-colors uppercase"
         >
-          [ VISIT SHOP → ]
+          {t('cart.visitShop', '[ VISIT SHOP → ]')}
         </Link>
       </div>
 

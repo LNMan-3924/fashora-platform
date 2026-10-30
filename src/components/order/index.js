@@ -6,5 +6,5 @@ export { default as OrderDeliveryInfo } from './OrderDeliveryInfo'
 export { default as OrderPriceSummary } from './OrderPriceSummary'
 export { default as OrderItemsList } from './OrderItemsList'
 export { default as OrderQuickModal } from './OrderQuickModal'
+export { default as CancelOrderModal } from './CancelOrderModal'
 export * from './orderConstants'
-

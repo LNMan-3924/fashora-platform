@@ -1,7 +1,9 @@
 
 import { Trash2 } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { Checkbox } from '../common'
 import { FALLBACK_IMAGE, handleImageError, formatVND } from '../../constants'
+import { getLocalizedProductName } from '../../utils'
 
 /**
  * Component CartItem: Hiển thị 1 dòng sản phẩm trong danh sách giỏ hàng.
@@ -17,6 +19,7 @@ export default function CartItem({
   onUpdateQuantity,       // Hàm gọi khi bấm tăng hoặc giảm số lượng
   onRemove,               // Hàm gọi khi bấm nút xóa món hàng khỏi giỏ
 }) {
+  const { t, i18n } = useTranslation()
 
   // Tính thành tiền của dòng: Đơn giá nhân với số lượng
   const lineTotal = (item.price || 0) * (item.quantity || 1)
@@ -24,7 +27,7 @@ export default function CartItem({
     item.image ||
     (Array.isArray(item.images) && item.images.length > 0 ? item.images[0] : null) ||
     FALLBACK_IMAGE
-  const itemName = item.name || 'ATELIER PIECE'
+  const itemName = getLocalizedProductName(item, i18n.language, item.name || 'ATELIER PIECE')
 
   return (
     <div className="py-5 sm:py-6 flex gap-3 sm:gap-6 items-start border-b border-neutral-200 last:border-b-0">
@@ -91,7 +94,7 @@ export default function CartItem({
               {formatVND(item.price)}
             </span>
             <span className="text-[10px] font-mono text-neutral-400 hidden sm:block">
-              Unit Price
+              {t('cart.unitPrice', 'Unit Price')}
             </span>
           </div>
         </div>
@@ -140,7 +143,7 @@ export default function CartItem({
                 className="text-neutral-400 hover:text-red-600 transition-colors p-1 flex items-center gap-1 text-xs font-mono uppercase cursor-pointer"
               >
                 <Trash2 className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline">REMOVE</span>
+                <span className="hidden sm:inline">{t('cart.remove', 'REMOVE')}</span>
               </button>
             </div>
           </div>

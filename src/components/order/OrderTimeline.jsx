@@ -1,33 +1,27 @@
 import { Check, Ban } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { STATUS_CONFIG } from './orderConstants'
 
 /**
  * Component OrderTimeline: Thanh tiến trình trạng thái đơn hàng (Fulfilment Stepper)
- *
- * Tính năng:
- * - 4 bước trực quan: 01 Order Placed -> 02 Confirmed -> 03 In Transit -> 04 Delivered.
- * - Hiển thị khung cảnh báo Order Cancelled nếu đơn hàng đã bị hủy.
- * - Bố cục responsive linh hoạt: 2 cột trên Mobile, 4 cột trên Tablet và PC.
- *
- * Props:
- * - status: Trạng thái hiện tại của đơn hàng
  */
 export default function OrderTimeline({ status = 'PENDING' }) {
+  const { t } = useTranslation()
   const rawStatus = String(status || 'PENDING').toUpperCase()
   const config = STATUS_CONFIG[rawStatus] || STATUS_CONFIG.PENDING
   const isCancelled = rawStatus === 'CANCELLED'
 
   const steps = [
-    { index: 1, title: 'Order Placed', desc: 'Received by Atelier' },
-    { index: 2, title: 'Confirmed', desc: 'Tailoring & Packaging' },
-    { index: 3, title: 'In Transit', desc: 'Dispatched via Courier' },
-    { index: 4, title: 'Delivered', desc: 'Completed Acquisition' },
+    { index: 1, title: t('orderDetail.timelinePlaced'), desc: t('orderDetail.stepPlacedDesc') },
+    { index: 2, title: t('orderDetail.timelineConfirmed'), desc: t('orderDetail.stepConfirmedDesc') },
+    { index: 3, title: t('orderDetail.timelineShipping'), desc: t('orderDetail.stepShippingDesc') },
+    { index: 4, title: t('orderDetail.timelineDelivered'), desc: t('orderDetail.stepDeliveredDesc') },
   ]
 
   return (
     <div className="bg-white border border-neutral-200 p-5 sm:p-8 mb-8 shadow-xs">
       <h2 className="text-xs font-mono font-semibold tracking-widest uppercase text-neutral-400 mb-6">
-        FULFILMENT PROGRESSION
+        {t('orderDetail.fulfilmentProgression')}
       </h2>
 
       {isCancelled ? (
@@ -35,10 +29,10 @@ export default function OrderTimeline({ status = 'PENDING' }) {
           <Ban className="w-5 h-5 text-neutral-500 shrink-0" />
           <div>
             <p className="font-semibold text-neutral-900 uppercase tracking-wider">
-              Order Cancelled
+              {t('orderDetail.orderCancelledTitle')}
             </p>
             <p className="text-neutral-500 mt-0.5">
-              This transaction has been voided. Any pending reservations have been cancelled.
+              {t('orderDetail.orderCancelledDesc')}
             </p>
           </div>
         </div>

@@ -143,8 +143,9 @@ export default function BecomeSellerLayout() {
   // Ngoại trừ màn hình /become-seller/success vừa hoàn tất đăng ký xong
   const isSuccessPage = location.pathname.endsWith('/success')
   const isSeller =
-    String(currentUser?.role || '').toLowerCase() === 'seller' ||
-    Boolean(currentUser?.shopId)
+    Boolean(currentUser?.shopId) ||
+    (Array.isArray(currentUser?.roles) &&
+      currentUser.roles.some((r) => String(r).toLowerCase() === 'seller'))
   if (isSeller && !isSuccessPage) {
     return <Navigate to="/seller/dashboard" replace />
   }

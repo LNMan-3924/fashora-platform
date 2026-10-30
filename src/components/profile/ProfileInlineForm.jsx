@@ -1,29 +1,13 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Button, Input } from '../common'
 import { validateField, validateProfileInfo } from '../../utils/validation'
 
 /**
  * Component ProfileInlineForm: Biểu mẫu chỉnh sửa thông tin cá nhân TRỰC TIẾP TRÊN TRANG (Inline)
- *
- * Tính năng chính:
- * - Thay thế hoàn toàn cho modal: người dùng chỉnh sửa thông tin cá nhân ngay trong giao diện trang.
- * - Chỉ tập trung vào thông tin tài khoản cá nhân:
- *   + Họ và tên (Full Name) *
- *   + Số điện thoại (Phone Number) *
- *   + Email (Email Address) *
- *   + Ngày sinh (Date of Birth)
- *   + Giới tính (Gender)
- *   (Đã loại bỏ phần chỉnh sửa Primary Address tại đây; toàn bộ địa chỉ giao hàng được quản lý tập trung ở mục Shipping Addresses).
- * - Sử dụng hàm kiểm tra đầu vào dùng chung (Single Source of Truth) đồng bộ với Checkout.
- * - Nút "SAVE CHANGES" gửi cập nhật thông tin qua API backend, cập nhật AuthContext và quay lại chế độ xem.
- * - Nút "CANCEL" hủy các chỉnh sửa chưa lưu và quay lại chế độ xem.
- *
- * Props:
- * - profile: Dữ liệu hồ sơ hiện tại { name, phone, email, dob, gender }
- * - onSave: Callback nhận dữ liệu cập nhật khi nhấn "SAVE CHANGES"
- * - onCancel: Callback khi nhấn "CANCEL" để thoát chế độ chỉnh sửa
  */
 export default function ProfileInlineForm({ profile, onSave, onCancel }) {
+  const { t } = useTranslation()
   // 1. State lưu trữ dữ liệu thông tin cá nhân đang nhập
   const [formData, setFormData] = useState(() => ({
     name: profile?.name || '',
@@ -84,10 +68,10 @@ export default function ProfileInlineForm({ profile, onSave, onCancel }) {
       <div className="flex items-center justify-between pb-4 border-b border-[#E5E5E5]">
         <div>
           <span className="block text-[10px] font-semibold uppercase tracking-[0.2em] text-[#888888] mb-1">
-            INLINE EDIT MODE
+            {t('profile.inlineEditMode')}
           </span>
           <h3 className="text-base sm:text-lg font-bold text-[#111111] uppercase tracking-[0.15em]">
-            EDIT PERSONAL INFORMATION
+            {t('profile.editPersonalInfo')}
           </h3>
         </div>
         <button
@@ -95,7 +79,7 @@ export default function ProfileInlineForm({ profile, onSave, onCancel }) {
           onClick={onCancel}
           className="text-xs uppercase tracking-[0.15em] font-semibold text-[#888888] hover:text-black transition-colors cursor-pointer"
         >
-          CANCEL
+          {t('profile.cancel')}
         </button>
       </div>
 
@@ -103,13 +87,13 @@ export default function ProfileInlineForm({ profile, onSave, onCancel }) {
       <form onSubmit={handleSubmit} className="flex flex-col gap-5">
         <div className="flex flex-col gap-4">
           <span className="block text-[11px] font-bold uppercase tracking-[0.2em] text-[#111111]">
-            ACCOUNT CREDENTIALS
+            {t('profile.accountCredentials')}
           </span>
 
           {/* Ô nhập Họ và Tên */}
           <div>
             <Input
-              label="FULL NAME *"
+              label={`${t('profile.fullName')} *`}
               name="name"
               value={formData.name}
               onChange={handleChange}
@@ -123,7 +107,7 @@ export default function ProfileInlineForm({ profile, onSave, onCancel }) {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <Input
-                label="PHONE NUMBER *"
+                label={`${t('profile.phone')} *`}
                 name="phone"
                 value={formData.phone}
                 onChange={handleChange}
@@ -135,7 +119,7 @@ export default function ProfileInlineForm({ profile, onSave, onCancel }) {
             </div>
             <div>
               <Input
-                label="EMAIL ADDRESS *"
+                label={`${t('profile.email')} *`}
                 type="email"
                 name="email"
                 value={formData.email}
@@ -151,7 +135,7 @@ export default function ProfileInlineForm({ profile, onSave, onCancel }) {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <Input
-                label="DATE OF BIRTH"
+                label={t('profile.dob')}
                 name="dob"
                 value={formData.dob}
                 onChange={handleChange}
@@ -161,7 +145,7 @@ export default function ProfileInlineForm({ profile, onSave, onCancel }) {
             </div>
             <div>
               <label className="block text-[12px] font-medium uppercase tracking-wider text-[#111111] mb-2">
-                GENDER
+                {t('profile.gender')}
               </label>
               <select
                 name="gender"
@@ -169,10 +153,10 @@ export default function ProfileInlineForm({ profile, onSave, onCancel }) {
                 onChange={handleChange}
                 className="w-full h-[42px] px-3.5 bg-white border border-[#E5E5E5] text-[14px] text-[#111111] focus:border-[#111111] focus:outline-none rounded-none transition-colors"
               >
-                <option value="Female">Female</option>
-                <option value="Male">Male</option>
-                <option value="Other">Other</option>
-                <option value="Prefer not to say">Prefer not to say</option>
+                <option value="Female">{t('profile.female')}</option>
+                <option value="Male">{t('profile.male')}</option>
+                <option value="Other">{t('profile.other')}</option>
+                <option value="Prefer not to say">{t('profile.preferNotToSay')}</option>
               </select>
             </div>
           </div>
@@ -187,7 +171,7 @@ export default function ProfileInlineForm({ profile, onSave, onCancel }) {
             onClick={onCancel}
             className="w-full sm:w-auto px-7 text-xs uppercase tracking-[0.18em] cursor-pointer"
           >
-            CANCEL
+            {t('profile.cancel')}
           </Button>
           <Button
             type="submit"
@@ -195,7 +179,7 @@ export default function ProfileInlineForm({ profile, onSave, onCancel }) {
             size="md"
             className="w-full sm:w-auto px-10 text-xs font-bold uppercase tracking-[0.2em] cursor-pointer"
           >
-            SAVE CHANGES
+            {t('profile.saveChanges')}
           </Button>
         </div>
       </form>

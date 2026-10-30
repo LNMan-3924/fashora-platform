@@ -1,11 +1,14 @@
 import { Check } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 
 export default function OnboardingStepper({ currentStep = 2 }) {
+  const { t } = useTranslation()
+
   const steps = [
-    { number: 1, label: 'OVERVIEW', key: 'overview' },
-    { number: 2, label: 'SHOP INFORMATION', key: 'info' },
-    { number: 3, label: 'REVIEW', key: 'review' },
-    { number: 4, label: 'COMPLETE', key: 'complete' },
+    { number: 1, label: t('becomeSeller.stepper.overview', 'OVERVIEW'), key: 'overview' },
+    { number: 2, label: t('becomeSeller.stepper.info', 'SHOP INFORMATION'), key: 'info' },
+    { number: 3, label: t('becomeSeller.stepper.review', 'REVIEW'), key: 'review' },
+    { number: 4, label: t('becomeSeller.stepper.complete', 'COMPLETE'), key: 'complete' },
   ]
 
   return (

@@ -1,4 +1,5 @@
 import { useState, useRef } from 'react'
+import { useTranslation } from 'react-i18next'
 import { User, Loader2 } from 'lucide-react'
 import { uploadImage } from '../../utils/imageUpload'
 
@@ -22,6 +23,7 @@ export default function ProfilePhoto({
   onPhotoChange,
   onPhotoRemove,
 }) {
+  const { t } = useTranslation()
   const fileInputRef = useRef(null)
   const [isUploading, setIsUploading] = useState(false)
 
@@ -99,7 +101,7 @@ export default function ProfilePhoto({
           className={`cursor-pointer text-center text-xs font-semibold uppercase tracking-[0.18em] py-2.5 px-4 bg-white border border-[#111111] text-[#111111] hover:bg-[#111111] hover:text-white transition-colors rounded-[2px] block ${isUploading ? 'opacity-50 pointer-events-none' : ''
             }`}
         >
-          {isUploading ? 'UPLOADING...' : 'CHANGE PHOTO'}
+          {isUploading ? t('profile.uploading') : t('profile.changePhoto')}
           <input
             ref={fileInputRef}
             id="profile-photo-upload"
@@ -119,7 +121,7 @@ export default function ProfilePhoto({
             disabled={isUploading}
             className="text-center text-[11px] uppercase tracking-[0.18em] text-[#888888] hover:text-black py-1 transition-colors cursor-pointer disabled:opacity-50"
           >
-            REMOVE
+            {t('profile.removePhoto')}
           </button>
         )}
       </div>

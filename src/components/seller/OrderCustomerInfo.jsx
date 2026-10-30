@@ -1,3 +1,5 @@
+import { useTranslation } from 'react-i18next'
+
 /**
  * Component OrderCustomerInfo: Cột bên phải hiển thị thông tin Khách hàng, Địa chỉ giao hàng và Chi tiết thanh toán
  * - Thể hiện đầy đủ tên khách, số điện thoại liên hệ, email và ghi chú giao hàng.
@@ -21,6 +23,7 @@ export default function OrderCustomerInfo({
   orderStatus = 'PENDING',
   shopName = '',
 }) {
+  const { t } = useTranslation()
   const normalizedStatus = String(orderStatus || 'PENDING').toUpperCase()
   const isCompleted = normalizedStatus === 'COMPLETED'
   const isCancelled = normalizedStatus === 'CANCELLED'
@@ -29,21 +32,21 @@ export default function OrderCustomerInfo({
   const customerPhone = recipient.phone || '+84 90 000 0000'
 
   // Phân tích trạng thái thanh toán
-  let paymentBadgeText = 'UNPAID (COD)'
+  let paymentBadgeText = t('seller.orders.detail.unpaidCod', 'UNPAID (COD)')
   let paymentBadgeStyle = 'bg-amber-50 text-amber-800 border-amber-200'
-  let paymentStatusText = 'Pending Collection upon Delivery'
-  let dispatchText = 'In Transit'
+  let paymentStatusText = t('seller.orders.detail.pendingCollection', 'Pending Collection upon Delivery')
+  let dispatchText = t('seller.status.shipping', 'In Transit')
 
   if (isCompleted) {
-    paymentBadgeText = 'PAID (COLLECTED)'
+    paymentBadgeText = t('seller.orders.detail.paidCollected', 'PAID (COLLECTED)')
     paymentBadgeStyle = 'bg-emerald-50 text-emerald-800 border-emerald-200'
-    paymentStatusText = 'Payment Collected by Courier'
-    dispatchText = 'Delivered & Handed Over'
+    paymentStatusText = t('seller.orders.detail.collectedByCourier', 'Payment Collected by Courier')
+    dispatchText = t('seller.status.completed', 'Delivered & Handed Over')
   } else if (isCancelled) {
-    paymentBadgeText = 'CANCELLED'
+    paymentBadgeText = t('seller.orders.detail.cancelledPayment', 'CANCELLED')
     paymentBadgeStyle = 'bg-neutral-100 text-neutral-600 border-neutral-200'
-    paymentStatusText = 'Order Cancelled — No Collection'
-    dispatchText = 'Cancelled'
+    paymentStatusText = t('seller.orders.detail.noCollection', 'Order Cancelled — No Collection')
+    dispatchText = t('seller.status.cancelled', 'Cancelled')
   }
 
   return (
@@ -52,17 +55,17 @@ export default function OrderCustomerInfo({
       <section className="bg-white border border-neutral-200 rounded-[2px] p-6 shadow-xs space-y-4">
         <div className="flex items-center justify-between pb-3 border-b border-neutral-200">
           <h4 className="text-xs font-bold uppercase tracking-[0.2em] text-black font-mono">
-            CUSTOMER
+            {t('seller.orders.detail.customerTitle', 'CUSTOMER')}
           </h4>
           <span className="px-2 py-0.5 text-[9px] uppercase font-mono font-bold tracking-wider rounded-[2px] bg-black text-white">
-            VIP CLIENT
+            {t('seller.orders.detail.vipClient', 'VIP CLIENT')}
           </span>
         </div>
 
         <div className="space-y-3 text-xs">
           <div>
             <span className="text-[10px] uppercase font-mono font-bold tracking-wider text-neutral-400 block mb-0.5">
-              FULL NAME
+              {t('seller.orders.detail.fullName', 'FULL NAME')}
             </span>
             <span className="font-bold text-black text-sm">{customerName}</span>
           </div>
@@ -70,7 +73,7 @@ export default function OrderCustomerInfo({
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
             <div>
               <span className="text-[10px] uppercase font-mono font-bold tracking-wider text-neutral-400 block mb-0.5">
-                PHONE NUMBER
+                {t('seller.orders.detail.phone', 'PHONE NUMBER')}
               </span>
               <a
                 href={`tel:${customerPhone}`}
@@ -82,7 +85,7 @@ export default function OrderCustomerInfo({
 
             <div>
               <span className="text-[10px] uppercase font-mono font-bold tracking-wider text-neutral-400 block mb-0.5">
-                EMAIL
+                {t('seller.orders.detail.email', 'EMAIL')}
               </span>
               <a
                 href={`mailto:${customerEmail}`}
@@ -96,7 +99,7 @@ export default function OrderCustomerInfo({
           {/* Ghi chú giao hàng của khách */}
           <div className="mt-3 pt-3 border-t border-neutral-100 bg-neutral-50 p-3 rounded-[2px] border border-neutral-200/80">
             <span className="text-[9px] uppercase font-mono font-bold tracking-wider text-neutral-500 block mb-1">
-              CLIENT DELIVERY NOTE
+              {t('seller.orders.detail.deliveryNote', 'CLIENT DELIVERY NOTE')}
             </span>
             <p className="text-xs italic text-neutral-700 font-sans">
               "{customerNote || 'Please call before delivering. Handle with care.'}"
@@ -109,45 +112,45 @@ export default function OrderCustomerInfo({
       <section className="bg-white border border-neutral-200 rounded-[2px] p-6 shadow-xs space-y-4">
         <div className="flex items-center justify-between pb-3 border-b border-neutral-200">
           <h4 className="text-xs font-bold uppercase tracking-[0.2em] text-black font-mono">
-            SHIPPING ADDRESS
+            {t('seller.orders.detail.shippingAddress', 'SHIPPING ADDRESS')}
           </h4>
           <span className="px-2 py-0.5 text-[9px] uppercase font-mono font-bold tracking-wider rounded-[2px] bg-neutral-100 text-neutral-700">
-            DOMESTIC
+            {t('seller.orders.detail.domestic', 'DOMESTIC')}
           </span>
         </div>
 
         <div className="space-y-3 text-xs">
           <div>
             <span className="text-[10px] uppercase font-mono font-bold tracking-wider text-neutral-400 block mb-0.5">
-              DELIVERY RECIPIENT &amp; STREET
+              {t('seller.orders.detail.recipientAndStreet', 'DELIVERY RECIPIENT & STREET')}
             </span>
             <p className="text-neutral-800 font-medium leading-relaxed">
               {customerName}
               <br />
-              {recipient.address || '128 Le Duan Boulevard, Floor 4'}
+              {recipient.address || '—'}
               <br />
-              {recipient.ward || 'Ben Nghe Ward'}, {recipient.district || 'District 1'}
+              {[recipient.ward, recipient.district].filter(Boolean).join(', ') || '—'}
               <br />
-              {recipient.city || 'Ho Chi Minh City, Vietnam'}
+              {recipient.city || '—'}
             </p>
           </div>
 
           <div className="grid grid-cols-2 gap-3 pt-1">
             <div className="bg-neutral-50 p-2.5 rounded-[2px] border border-neutral-200">
               <span className="text-[9px] uppercase font-mono font-bold tracking-wider text-neutral-400 block">
-                DISTRICT / WARD
+                {t('seller.orders.detail.wardDistrict', 'DISTRICT / WARD')}
               </span>
               <span className="font-bold text-black text-[11px] mt-0.5 block truncate">
-                {recipient.district || 'District 1'} / {recipient.ward || 'Ben Nghe'}
+                {[recipient.district, recipient.ward].filter(Boolean).join(' / ') || '—'}
               </span>
             </div>
 
             <div className="bg-neutral-50 p-2.5 rounded-[2px] border border-neutral-200">
               <span className="text-[9px] uppercase font-mono font-bold tracking-wider text-neutral-400 block">
-                PROVINCE / CITY
+                {t('seller.orders.detail.cityProvince', 'PROVINCE / CITY')}
               </span>
               <span className="font-bold text-black text-[11px] mt-0.5 block truncate">
-                {recipient.city || 'Ho Chi Minh City'}
+                {recipient.city || '—'}
               </span>
             </div>
           </div>
@@ -158,7 +161,7 @@ export default function OrderCustomerInfo({
       <section className="bg-white border border-neutral-200 rounded-[2px] p-6 shadow-xs space-y-4">
         <div className="flex items-center justify-between pb-3 border-b border-neutral-200">
           <h4 className="text-xs font-bold uppercase tracking-[0.2em] text-black font-mono">
-            PAYMENT DETAILS
+            {t('orderDetail.paymentBreakdown', 'PAYMENT DETAILS')}
           </h4>
           <span
             className={`px-2 py-0.5 text-[9px] uppercase font-mono font-bold tracking-wider rounded-[2px] border ${paymentBadgeStyle}`}
@@ -170,39 +173,39 @@ export default function OrderCustomerInfo({
         <div className="space-y-3 text-xs">
           <div className="flex justify-between items-center">
             <span className="text-[10px] uppercase font-mono font-bold tracking-wider text-neutral-400">
-              PAYMENT METHOD
+              {t('orders.paymentMethod', 'PAYMENT METHOD')}
             </span>
             <span className="font-bold text-black">{paymentMethod}</span>
           </div>
 
           <div className="flex justify-between items-center">
             <span className="text-[10px] uppercase font-mono font-bold tracking-wider text-neutral-400">
-              STATUS
+              {t('seller.orders.table.status', 'STATUS')}
             </span>
             <span className="font-semibold text-black">{paymentStatusText}</span>
           </div>
 
           <div className="flex justify-between items-center">
             <span className="text-[10px] uppercase font-mono font-bold tracking-wider text-neutral-400">
-              DELIVERY DISPATCH
+              {t('orderDetail.dispatchLogistics', 'DELIVERY DISPATCH')}
             </span>
             <span className="font-semibold text-black">{dispatchText}</span>
           </div>
 
           <div className="flex justify-between items-center">
             <span className="text-[10px] uppercase font-mono font-bold tracking-wider text-neutral-400">
-              REMITTANCE CYCLE
+              {t('seller.orders.detail.remittanceCycle', 'REMITTANCE CYCLE')}
             </span>
-            <span className="font-mono text-neutral-600">T+2 Post Delivery</span>
+            <span className="font-mono text-neutral-600">{t('seller.orders.detail.remittanceCycleT2', 'T+2 Post Delivery')}</span>
           </div>
 
           {/* Hộp thông báo quyết toán */}
           <div className="mt-3 pt-3 border-t border-neutral-100 text-[11px] text-neutral-500 leading-relaxed bg-neutral-50 p-3 rounded-[2px] border border-neutral-200/80">
             {isCompleted
-              ? `Cash payment was received and verified by courier at delivery. Settlement funds are scheduled for payout to ${shopName} seller account on T+2 cycle.`
+              ? t('seller.orders.detail.settlementNoticeCompleted', { shop: shopName, defaultValue: `Cash payment was received and verified by courier at delivery. Settlement funds are scheduled for payout to ${shopName} seller account on T+2 cycle.` })
               : isCancelled
-              ? 'Order is cancelled. No collection or payout will occur.'
-              : `Payment to be collected in cash by courier upon package handover. The funds will be credited to ${shopName} seller account balance following delivery reconciliation.`}
+              ? t('seller.orders.detail.settlementNoticeCancelled', { defaultValue: 'Order is cancelled. No collection or payout will occur.' })
+              : t('seller.orders.detail.settlementNoticePending', { shop: shopName, defaultValue: `Payment to be collected in cash by courier upon package handover. The funds will be credited to ${shopName} seller account balance following delivery reconciliation.` })}
           </div>
         </div>
       </section>

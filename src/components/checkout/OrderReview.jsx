@@ -1,4 +1,6 @@
+import { formatFullAddress, groupItemsByShop } from '../../constants'
 import { CheckCircle2, ShieldCheck } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { Button } from '../common'
 
 /**
@@ -25,35 +27,24 @@ export default function OrderReview({
   isSubmitting = false,
   onSubmit,
 }) {
-  // Trích xuất danh sách các Atelier có sản phẩm trong đơn hàng
-  const uniqueShopNames = Array.from(
-    new Set(
-      items.map(
-        (it) =>
-          it.shopName ||
-          (it.shopId === 'shop_l-obscur-atelier_8158'
-            ? "L'OBSCUR ATELIER"
-            : 'M STUDIO')
-      )
-    )
-  )
+  const { t } = useTranslation()
+
+  // Trích xuất danh sách các Atelier và địa chỉ từ SSOT
+  const shopEntries = Object.values(groupItemsByShop(items))
+  const uniqueShopNames = shopEntries.map((g) => g.shopName)
   const isMultiShop = uniqueShopNames.length > 1
-  // Gộp địa chỉ đầy đủ thành chuỗi ngăn cách bởi dấu phẩy
-  const fullAddress =
-    [formData.address, formData.ward, formData.district, formData.city]
-      .filter((item) => item && item.trim().length > 0)
-      .join(', ') || 'No address provided'
+  const fullAddress = formatFullAddress(formData)
 
   // Nhãn hiển thị cho gói giao hàng
   const shippingLabel =
     shippingMethod === 0
-      ? 'Standard Delivery (Complimentary)'
-      : 'Express Priority Courier (50,000₫)'
+      ? `${t('checkout.standardDelivery', 'Standard Delivery')} (${t('checkout.complimentary', 'Complimentary')})`
+      : `${t('checkout.expressDelivery', 'Express Priority Courier')} (50,000₫)`
 
   // Nhãn hiển thị cho phương thức thanh toán
   const paymentLabel =
     paymentMethod === 'cod'
-      ? 'Cash on Delivery (COD)'
+      ? t('checkout.cod', 'Cash on Delivery (COD)')
       : 'Direct Bank Transfer'
 
   return (
@@ -62,16 +53,16 @@ export default function OrderReview({
       <div className="flex items-center justify-between mb-2">
         <h2 className="text-xs uppercase tracking-[0.25em] font-bold text-[#111111] flex items-center gap-2">
           <CheckCircle2 className="w-4 h-4 text-[#111111]" />
-          <span>Review Your Order</span>
+          <span>{t('checkout.reviewTitle', 'Review Your Order')}</span>
         </h2>
         <span className="text-[10px] text-neutral-400 uppercase tracking-widest font-mono flex items-center gap-1">
           <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-          <span>VERIFIED</span>
+          <span>{t('checkout.verifiedBadge', 'VERIFIED')}</span>
         </span>
       </div>
 
       <p className="text-[11px] text-neutral-500 mb-6">
-        Please verify all recipient credentials before submitting your order.
+        {t('checkout.reviewSubtitle', 'Please verify all recipient credentials before submitting your order.')}
       </p>
 
       {/* Lưới 2 cột tóm tắt thông tin giao hàng & thanh toán */}
@@ -79,7 +70,7 @@ export default function OrderReview({
         {/* Cột 1: Thông tin người nhận */}
         <div>
           <span className="text-[10px] uppercase tracking-widest text-neutral-400 block mb-1">
-            Shipping Recipient
+            {t('checkout.shippingRecipient', 'Shipping Recipient')}
           </span>
           <p className="font-semibold text-[#111111]">{formData.fullName || '—'}</p>
           <p className="text-neutral-600 font-mono mt-0.5">
@@ -93,22 +84,22 @@ export default function OrderReview({
         {/* Cột 2: Phương thức gửi hàng & thanh toán */}
         <div>
           <span className="text-[10px] uppercase tracking-widest text-neutral-400 block mb-1">
-            Dispatch & Payment
+            {t('checkout.dispatchPayment', 'Dispatch & Payment')}
           </span>
           <p className="text-neutral-800">
-            <span className="text-neutral-400">Method: </span>
+            <span className="text-neutral-400">{t('checkout.method', 'Method')}: </span>
             <span className="font-medium text-[#111111]">{shippingLabel}</span>
           </p>
           <p className="text-neutral-800 mt-1">
-            <span className="text-neutral-400">Payment: </span>
+            <span className="text-neutral-400">{t('checkout.payment', 'Payment')}: </span>
             <span className="font-medium text-[#111111]">{paymentLabel}</span>
           </p>
           <p className="text-neutral-800 mt-1">
-            <span className="text-neutral-400">Atelier: </span>
+            <span className="text-neutral-400">{t('checkout.atelier', 'Atelier')}: </span>
             <span className="font-medium text-[#111111]">
               {isMultiShop
-                ? `${uniqueShopNames.length} Independent Ateliers`
-                : uniqueShopNames[0] || 'Certified Atelier'}
+                ? t('checkout.independentAteliers', { count: uniqueShopNames.length, defaultValue: `${uniqueShopNames.length} Independent Ateliers` })
+                : uniqueShopNames[0] || t('checkout.certifiedAtelier', 'Certified Atelier')}
             </span>
           </p>
         </div>
@@ -116,11 +107,14 @@ export default function OrderReview({
         {isMultiShop && (
           <div className="col-span-1 sm:col-span-2 p-3 bg-neutral-100 border border-neutral-200 text-xs text-neutral-600 space-y-1">
             <span className="font-semibold text-black uppercase tracking-wider block font-mono text-[10px]">
-              MULTI-ATELIER SPLIT DISPATCH (SHOPEE STYLE)
+              {t('checkout.multiAtelierSplitTitle', 'MULTI-ATELIER SPLIT DISPATCH (SHOPEE STYLE)')}
             </span>
             <p className="leading-relaxed">
-              Your order contains items from <strong className="text-black">{uniqueShopNames.join(' & ')}</strong>.
-              Upon confirmation, this order will be split into <strong>{uniqueShopNames.length} independent packages</strong> so each atelier can fulfill and dispatch their items directly to your address.
+              {t('checkout.multiAtelierSplitDesc', {
+                shops: uniqueShopNames.join(' & '),
+                count: uniqueShopNames.length,
+                defaultValue: `Your order contains items from ${uniqueShopNames.join(' & ')}. Upon confirmation, this order will be split into ${uniqueShopNames.length} independent packages so each atelier can fulfill and dispatch their items directly to your address.`
+              })}
             </p>
           </div>
         )}
@@ -134,14 +128,14 @@ export default function OrderReview({
         loading={isSubmitting}
         disabled={isSubmitting}
         onClick={onSubmit}
-        className="w-full tracking-[0.25em] text-xs py-4 cursor-pointer"
+        className="w-full tracking-[0.25em] text-xs py-4 cursor-pointer uppercase"
       >
-        {isSubmitting ? 'PROCESSING ATELIER ORDER...' : 'PLACE ORDER'}
+        {isSubmitting ? t('checkout.processingOrder', 'PROCESSING ATELIER ORDER...') : t('checkout.placeOrder', 'PLACE ORDER')}
       </Button>
 
       {/* Cam kết & điều khoản */}
       <p className="text-[10px] text-neutral-400 text-center uppercase tracking-widest mt-3">
-        By placing order, you agree to Fashora Commission & Atelier Terms.
+        {t('checkout.termsNotice', 'By placing order, you agree to Fashora Commission & Atelier Terms.')}
       </p>
     </section>
   )

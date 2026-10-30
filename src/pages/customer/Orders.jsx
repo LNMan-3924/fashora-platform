@@ -1,12 +1,15 @@
 import { useState, useEffect } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
-import { Modal, Toast, EmptyState } from '../../components/common'
+import { useTranslation } from 'react-i18next'
+import { Toast, EmptyState } from '../../components/common'
 import {
   OrderStatusTabs,
   OrderCard,
   OrderQuickModal,
+  CancelOrderModal,
 } from '../../components/order'
-import { getOrders, updateOrderStatus } from '../../services/api'
+import { getOrders, getOrdersByUserId, updateOrderStatus, getProductById, patchProduct } from '../../services/api'
+import { isOrderOwnedByUser } from '../../constants'
 import { useAuth } from '../../contexts/AuthContext'
 
 /**
@@ -20,6 +23,7 @@ import { useAuth } from '../../contexts/AuthContext'
  * - Xử lý an toàn ảnh lỗi bằng ảnh dự phòng fallback.png.
  */
 export default function Orders() {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const { currentUser } = useAuth()
 
@@ -51,6 +55,7 @@ export default function Orders() {
 
   // 4. State quản lý đơn hàng đang yêu cầu xác nhận hủy (null = đóng modal hủy)
   const [orderToCancel, setOrderToCancel] = useState(null)
+  const [isCancelling, setIsCancelling] = useState(false)
 
   // 5. State quản lý thông báo Toast nổi
   const [toast, setToast] = useState({ visible: false, message: '' })
@@ -66,7 +71,9 @@ export default function Orders() {
   useEffect(() => {
     let isMounted = true
 
-    getOrders()
+    // Tối ưu hiệu năng: Gọi trực tiếp /orders?userId=... thay vì tải toàn bộ đơn hàng của sàn
+    const fetchPromise = currentUser?.id ? getOrdersByUserId(currentUser.id) : getOrders()
+    fetchPromise
       .then((res) => {
         if (!isMounted) return
         const apiData = res?.data || res
@@ -79,18 +86,8 @@ export default function Orders() {
           return
         }
 
-        // Lọc nghiêm ngặt: CHỈ lấy đơn hàng thuộc về chính tài khoản đang đăng nhập
-        // 1. Trùng khớp với userId
-        // 2. Hoặc trùng khớp với customerEmail của tài khoản
-        const userOrders = apiList.filter((o) => {
-          const matchUserId = Boolean(o.userId && String(o.userId) === String(currentUser.id))
-          const matchEmail = Boolean(
-            currentUser.email &&
-            o.customerEmail &&
-            o.customerEmail.trim().toLowerCase() === currentUser.email.trim().toLowerCase()
-          )
-          return matchUserId || matchEmail
-        })
+        // Lọc nghiêm ngặt đơn hàng thuộc tài khoản đang đăng nhập (Tái sử dụng isOrderOwnedByUser SSOT)
+        const userOrders = apiList.filter((o) => isOrderOwnedByUser(o, currentUser))
 
         // Sắp xếp đơn mới nhất lên đầu
         const sorted = [...userOrders].sort(
@@ -110,7 +107,7 @@ export default function Orders() {
     return () => {
       isMounted = false
     }
-  }, [currentUser?.id, currentUser?.email])
+  }, [currentUser])
 
   // =========================================================================
   // BƯỚC 2: TÍNH TOÁN SỐ LƯỢNG ĐƠN HÀNG THEO TỪNG TAB TRẠNG THÁI
@@ -141,12 +138,12 @@ export default function Orders() {
     activeTab === 'all'
       ? orders
       : orders.filter((order) => {
-          const statusKey = (order.status || 'PENDING').toLowerCase()
-          if (activeTab === 'confirmed') {
-            return statusKey === 'confirmed' || statusKey === 'processing'
-          }
-          return statusKey === activeTab
-        })
+        const statusKey = (order.status || 'PENDING').toLowerCase()
+        if (activeTab === 'confirmed') {
+          return statusKey === 'confirmed' || statusKey === 'processing'
+        }
+        return statusKey === activeTab
+      })
 
   // =========================================================================
   // BƯỚC 4: CÁC HÀM XỬ LÝ TIỆN ÍCH & TƯƠNG TÁC
@@ -160,36 +157,64 @@ export default function Orders() {
     if (navigator?.clipboard?.writeText) {
       navigator.clipboard.writeText(orderNum).catch(() => { })
     }
-    showToast(`Order ${orderNum} copied to clipboard`)
+    showToast(t('orders.copiedToast', { orderNum, defaultValue: `Order ${orderNum} copied to clipboard` }))
   }
 
-  // Xử lý xác nhận HỦY đơn hàng qua API
-  const handleConfirmCancelOrder = async () => {
+  // Xử lý xác nhận HỦY đơn hàng qua API kèm lý do
+  const handleConfirmCancelOrder = async ({ reason }) => {
     if (!orderToCancel) return
     const targetId = orderToCancel.id
     const targetOrderNumber = orderToCancel.orderNumber
 
     try {
-      // 1. Gửi request PATCH /orders/:id lên API server (db.json)
-      if (targetId) {
-        await updateOrderStatus(targetId, 'CANCELLED')
+      setIsCancelling(true)
+      const extraData = {
+        cancelReason: reason,
+        cancelledBy: 'customer',
+        cancelledAt: new Date().toISOString(),
       }
 
-      // 2. Cập nhật state giao diện
+      if (targetId) {
+        await updateOrderStatus(targetId, 'CANCELLED', extraData)
+      }
+
+      // Tự động hoàn lại số lượng tồn kho (restock items) cho các sản phẩm trong đơn hủy
+      if (Array.isArray(orderToCancel.items)) {
+        for (const item of orderToCancel.items) {
+          if (item?.id) {
+            try {
+              const prdRes = await getProductById(item.id)
+              const prd = prdRes?.data || prdRes
+              if (prd) {
+                const currentStock = Number(prd.stock || 0)
+                const restoredStock = currentStock + (Number(item.quantity) || 1)
+                await patchProduct(item.id, {
+                  stock: restoredStock,
+                  isSoldOut: restoredStock <= 0,
+                })
+              }
+            } catch (stockErr) {
+              console.warn('Orders: Could not restore stock for item:', item.id, stockErr)
+            }
+          }
+        }
+      }
+
       setOrders((prev) =>
         prev.map((o) =>
           o.id === targetId || o.orderNumber === targetOrderNumber
-            ? { ...o, status: 'CANCELLED' }
+            ? { ...o, status: 'CANCELLED', ...extraData }
             : o
         )
       )
 
-      // 3. Đóng modal và báo thành công
       setOrderToCancel(null)
-      showToast(`Order ${targetOrderNumber} has been cancelled.`)
+      showToast(t('orders.cancelledToast', { orderNumber: targetOrderNumber, defaultValue: `Order ${targetOrderNumber} has been cancelled successfully.` }))
     } catch (err) {
       console.error('Orders: Error cancelling order via API:', err)
-      showToast('Failed to cancel order. Please try again.')
+      showToast(t('orders.cancelError', 'Could not cancel order. Please try again.'))
+    } finally {
+      setIsCancelling(false)
     }
   }
 
@@ -204,17 +229,17 @@ export default function Orders() {
               className="flex items-center space-x-2 text-xs tracking-widest text-neutral-400 uppercase mb-3 font-mono"
             >
               <Link to="/home" className="hover:text-black transition-colors">
-                HOME
+                {t('nav.home', 'HOME')}
               </Link>
               <span>/</span>
-              <span className="text-neutral-900 font-semibold">MY ORDERS</span>
+              <span className="text-neutral-900 font-semibold">{t('orders.pageTitle', 'MY ORDERS')}</span>
             </nav>
 
-            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-neutral-900 uppercase">
-              MY ORDERS
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-[#111111] uppercase font-sans">
+              {t('orders.pageTitle', 'MY ORDERS')}
             </h1>
-            <p className="text-xs sm:text-sm text-neutral-500 mt-2 font-normal tracking-wide">
-              View your order history and track your purchases.
+            <p className="text-sm sm:text-base text-[#666666] mt-2 font-normal tracking-wide">
+              {t('orders.subtitle', 'View your order history and track your purchases.')}
             </p>
           </div>
 
@@ -233,7 +258,7 @@ export default function Orders() {
         <div className="py-20 text-center">
           <div className="w-8 h-8 border-2 border-black border-t-transparent rounded-full animate-spin mx-auto mb-3" />
           <p className="text-xs font-mono tracking-widest uppercase text-neutral-400">
-            Loading your orders...
+            {t('orders.loadingOrders', 'Loading your orders...')}
           </p>
         </div>
       ) : filteredOrders.length > 0 ? (
@@ -251,9 +276,9 @@ export default function Orders() {
       ) : (
         /* HIỂN THỊ KHI KHÔNG CÓ ĐƠN HÀNG TRONG TAB HIỆN TẠI */
         <EmptyState
-          title="No Orders Found"
+          title={t('orders.noOrders', 'NO ORDERS FOUND')}
           description={`You do not have any orders currently in the ${activeTab.toUpperCase()} tab.`}
-          actionText="START SHOPPING"
+          actionText={t('orders.startShopping', 'START SHOPPING')}
           onAction={() => navigate('/shop')}
         />
       )}
@@ -269,31 +294,15 @@ export default function Orders() {
         }}
       />
 
-      {/* 5. MODAL XÁC NHẬN HỦY ĐƠN HÀNG (TÁI SỬ DỤNG TỪ COMMON) */}
-      {orderToCancel && (
-        <Modal
-          isOpen={Boolean(orderToCancel)}
-          onClose={() => setOrderToCancel(null)}
-          title="CANCEL ORDER CONFIRMATION"
-          confirmText="YES, CANCEL ORDER"
-          cancelText="KEEP ORDER"
-          onConfirm={handleConfirmCancelOrder}
-          confirmVariant="danger"
-        >
-          <div className="space-y-3 text-xs sm:text-sm text-neutral-600">
-            <p>
-              Are you sure you want to cancel order{' '}
-              <strong className="text-black font-mono">
-                {orderToCancel.orderNumber}
-              </strong>
-              ?
-            </p>
-            <p className="text-xs text-neutral-500 bg-neutral-100 p-3 border border-neutral-200">
-              Note: Once cancelled, the atelier reservation for these items will be released back to public archive inventory immediately.
-            </p>
-          </div>
-        </Modal>
-      )}
+      {/* 5. MODAL CHỌN LÝ DO HỦY ĐƠN HÀNG (TÁI SỬ DỤNG CancelOrderModal) */}
+      <CancelOrderModal
+        isOpen={Boolean(orderToCancel)}
+        onClose={() => setOrderToCancel(null)}
+        order={orderToCancel}
+        role="customer"
+        loading={isCancelling}
+        onConfirm={handleConfirmCancelOrder}
+      />
 
       {/* 6. THÔNG BÁO TOAST DÙNG CHUNG */}
       <Toast

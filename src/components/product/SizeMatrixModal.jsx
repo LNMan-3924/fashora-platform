@@ -1,6 +1,8 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 export default function SizeMatrixModal({ isOpen, onClose, categoryType = 'shirt' }) {
+  const { t } = useTranslation()
   const [sizeGenderTab, setSizeGenderTab] = useState('MEN')
 
   if (!isOpen) return null
@@ -9,9 +11,15 @@ export default function SizeMatrixModal({ isOpen, onClose, categoryType = 'shirt
   const sizeConfigs = {
     // 1. SET ĐỒ (ÁO + QUẦN / CHÂN VÁY)
     set: {
-      title: 'COORDINATED SET SIZE MATRIX',
-      subtitle: 'Dimensions measured in centimeters (CM)',
-      columns: ['SIZE', 'CHEST', 'WAIST', 'HIPS', 'HEIGHT'],
+      title: t('sizeMatrix.set.title', 'COORDINATED SET SIZE MATRIX'),
+      subtitle: t('sizeMatrix.set.subtitle', 'Dimensions measured in centimeters (CM)'),
+      columns: [
+        t('sizeMatrix.columns.size', 'SIZE'),
+        t('sizeMatrix.columns.chest', 'CHEST'),
+        t('sizeMatrix.columns.waist', 'WAIST'),
+        t('sizeMatrix.columns.hips', 'HIPS'),
+        t('sizeMatrix.columns.height', 'HEIGHT'),
+      ],
       data: {
         MEN: [
           ['S', '96 - 100', '74 - 78', '94 - 96', '165 - 172 cm'],
@@ -27,16 +35,21 @@ export default function SizeMatrixModal({ isOpen, onClose, categoryType = 'shirt
         ],
       },
       note: {
-        MEN: 'Male Model is 185cm wearing size L.',
-        WOMEN: 'Female Model is 174cm wearing size S.',
+        MEN: t('sizeMatrix.notes.setMen', 'Male Model is 185cm wearing size L.'),
+        WOMEN: t('sizeMatrix.notes.setWomen', 'Female Model is 174cm wearing size S.'),
       },
     },
 
     // 2. ÁO (SHIRT / JACKET / TOP)
     shirt: {
-      title: 'SHIRT & JACKET SIZE MATRIX',
-      subtitle: 'Dimensions measured in centimeters (CM)',
-      columns: ['SIZE', 'CHEST', 'SHOULDER', 'LENGTH'],
+      title: t('sizeMatrix.shirt.title', 'SHIRT & JACKET SIZE MATRIX'),
+      subtitle: t('sizeMatrix.shirt.subtitle', 'Dimensions measured in centimeters (CM)'),
+      columns: [
+        t('sizeMatrix.columns.size', 'SIZE'),
+        t('sizeMatrix.columns.chest', 'CHEST'),
+        t('sizeMatrix.columns.shoulder', 'SHOULDER'),
+        t('sizeMatrix.columns.length', 'LENGTH'),
+      ],
       data: {
         MEN: [
           ['S', '98 - 102', '45 - 46', '68'],
@@ -54,16 +67,21 @@ export default function SizeMatrixModal({ isOpen, onClose, categoryType = 'shirt
         ],
       },
       note: {
-        MEN: 'Male Model is 185cm wearing size L.',
-        WOMEN: 'Female Model is 174cm wearing size S.',
+        MEN: t('sizeMatrix.notes.setMen', 'Male Model is 185cm wearing size L.'),
+        WOMEN: t('sizeMatrix.notes.setWomen', 'Female Model is 174cm wearing size S.'),
       },
     },
 
     // 3. QUẦN & CHÂN VÁY (PANTS / TROUSERS)
     pants: {
-      title: 'TROUSERS & BOTTOMS MATRIX',
-      subtitle: 'Dimensions measured in centimeters (CM)',
-      columns: ['SIZE', 'WAIST', 'HIPS', 'LENGTH'],
+      title: t('sizeMatrix.pants.title', 'TROUSERS & BOTTOMS MATRIX'),
+      subtitle: t('sizeMatrix.pants.subtitle', 'Dimensions measured in centimeters (CM)'),
+      columns: [
+        t('sizeMatrix.columns.size', 'SIZE'),
+        t('sizeMatrix.columns.waist', 'WAIST'),
+        t('sizeMatrix.columns.hips', 'HIPS'),
+        t('sizeMatrix.columns.length', 'LENGTH'),
+      ],
       data: {
         MEN: [
           ['29 / S', '74 - 76', '94', '102'],
@@ -81,16 +99,16 @@ export default function SizeMatrixModal({ isOpen, onClose, categoryType = 'shirt
         ],
       },
       note: {
-        MEN: 'Male Model is 185cm wearing size 32.',
-        WOMEN: 'Female Model is 174cm wearing size 27 / S.',
+        MEN: t('sizeMatrix.notes.pantsMen', 'Male Model is 185cm wearing size 32.'),
+        WOMEN: t('sizeMatrix.notes.pantsWomen', 'Female Model is 174cm wearing size 27 / S.'),
       },
     },
 
     // 4. GIÀY & BOOTS (SHOES / FOOTWEAR)
     shoes: {
-      title: 'FOOTWEAR SIZE MATRIX',
-      subtitle: 'Standard sizing & Foot length (CM)',
-      columns: ['EU', 'US', 'UK', 'FOOT LENGTH'],
+      title: t('sizeMatrix.shoes.title', 'FOOTWEAR SIZE MATRIX'),
+      subtitle: t('sizeMatrix.shoes.subtitle', 'Standard sizing & Foot length (CM)'),
+      columns: ['EU', 'US', 'UK', t('sizeMatrix.columns.footLength', 'FOOT LENGTH')],
       data: {
         MEN: [
           ['40', '7.0', '6.5', '25.0 cm'],
@@ -108,8 +126,8 @@ export default function SizeMatrixModal({ isOpen, onClose, categoryType = 'shirt
         ],
       },
       note: {
-        MEN: 'True to atelier size. Recommend +0.5 size for wide feet.',
-        WOMEN: 'True to atelier size. Recommend +0.5 size for wide feet.',
+        MEN: t('sizeMatrix.notes.shoes', 'True to atelier size. Recommend +0.5 size for wide feet.'),
+        WOMEN: t('sizeMatrix.notes.shoes', 'True to atelier size. Recommend +0.5 size for wide feet.'),
       },
     },
   }
@@ -151,7 +169,7 @@ export default function SizeMatrixModal({ isOpen, onClose, categoryType = 'shirt
                 : 'text-neutral-400 hover:text-neutral-700'
             }`}
           >
-            MEN
+            {t('sizeMatrix.men', 'MEN')}
           </button>
           <button
             type="button"
@@ -162,7 +180,7 @@ export default function SizeMatrixModal({ isOpen, onClose, categoryType = 'shirt
                 : 'text-neutral-400 hover:text-neutral-700'
             }`}
           >
-            WOMEN
+            {t('sizeMatrix.women', 'WOMEN')}
           </button>
         </div>
 
@@ -206,7 +224,7 @@ export default function SizeMatrixModal({ isOpen, onClose, categoryType = 'shirt
             onClick={onClose}
             className="font-mono text-xs underline text-black uppercase hover:opacity-70"
           >
-            CLOSE
+            {t('sizeMatrix.close', 'CLOSE')}
           </button>
         </div>
       </div>

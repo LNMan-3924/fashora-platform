@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react'
 import { useNavigate, useLocation, Navigate, Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { useCartStore } from '../../stores/useCartStore'
 import { createOrder, updateUser, patchProduct } from '../../services/api'
 import { useAuth } from '../../contexts/AuthContext'
@@ -21,6 +22,7 @@ import {
   FALLBACK_IMAGE,
   validateField,
   validateShippingAddress,
+  groupItemsByShop,
 } from '../../constants'
 
 /**
@@ -34,6 +36,7 @@ function CheckoutFormContent({
   displayItems,
   selectedCheckoutItems,
 }) {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const removeItemsFromCart = useCartStore((state) => state.removeItemsFromCart)
   const clearCart = useCartStore((state) => state.clearCart)
@@ -151,7 +154,7 @@ function CheckoutFormContent({
 
     // 1. Kiểm tra giỏ hàng
     if (!displayItems || displayItems.length === 0) {
-      alert('Your cart is empty. Please select products to checkout.')
+      alert(t('checkout.emptyCartAlert', 'Your cart is empty. Please select products to checkout.'))
       navigate('/cart')
       return
     }
@@ -175,24 +178,8 @@ function CheckoutFormContent({
     submittingRef.current = true
     setIsSubmitting(true)
 
-    // 3. Phân nhóm các sản phẩm theo từng Shop (Mô hình Multi-Shop Split Orders)
-    const itemsByShop = {}
-    displayItems.forEach((item) => {
-      const sId = item.shopId || 'shop_m_studio'
-      if (!itemsByShop[sId]) {
-        itemsByShop[sId] = {
-          shopId: sId,
-          shopName:
-            item.shopName ||
-            (sId === 'shop_l-obscur-atelier_8158'
-              ? "L'OBSCUR ATELIER"
-              : 'M STUDIO'),
-          items: [],
-        }
-      }
-      itemsByShop[sId].items.push(item)
-    })
-
+    // 3. Phân nhóm các sản phẩm theo từng Shop (Mô hình Multi-Shop Split Orders - Tái sử dụng SSOT)
+    const itemsByShop = groupItemsByShop(displayItems)
     const shopEntries = Object.values(itemsByShop)
     const isMultiShop = shopEntries.length > 1
     const baseRandomDigits = Math.floor(100000000 + Math.random() * 900000000)
@@ -261,15 +248,60 @@ function CheckoutFormContent({
       }
     })
 
+    // 1. Hàm trừ tồn kho đồng bộ, an toàn (gộp số lượng theo productId)
+    const deductInventory = async () => {
+      const qtyMap = {}
+      displayItems.forEach((item) => {
+        if (item?.id) {
+          qtyMap[item.id] = (qtyMap[item.id] || 0) + (Number(item.quantity) || 1)
+        }
+      })
+
+      await Promise.all(
+        Object.entries(qtyMap).map(async ([productId, qty]) => {
+          try {
+            const item = displayItems.find((i) => i.id === productId)
+            const currentStock = typeof item?.stock === 'number' ? item.stock : 10
+            const newStock = Math.max(0, currentStock - qty)
+            await patchProduct(productId, {
+              stock: newStock,
+              isSoldOut: newStock <= 0,
+            })
+          } catch (stockErr) {
+            console.warn('Checkout: Không thể trừ tồn kho sản phẩm:', productId, stockErr)
+          }
+        })
+      )
+    }
+
+    // 2. Dọn dẹp giỏ hàng
+    const cleanupCart = () => {
+      if (removeItemsFromCart && selectedCheckoutItems.length > 0) {
+        removeItemsFromCart(selectedCheckoutItems)
+      } else {
+        clearCart()
+      }
+      try {
+        sessionStorage.removeItem(COMMERCE_STORAGE_KEYS.CHECKOUT_ITEMS)
+      } catch {
+        // ignore
+      }
+    }
+
+    let finalOrders = orderPayloads
+
     try {
-      // Gửi các đơn hàng lên máy chủ db.json qua API POST /orders song song
+      // 1. Gửi các đơn hàng lên máy chủ db.json qua API POST /orders song song
       const savedOrders = await Promise.all(
         orderPayloads.map((payload) =>
           createOrder(payload).then((res) => res?.data || res)
         )
       )
+      if (Array.isArray(savedOrders) && savedOrders.length > 0) {
+        finalOrders = savedOrders
+      }
 
-      // Yêu cầu: Khi account không có địa chỉ mà nhập địa chỉ trong checkout thì lưu luôn vào shippingAddresses trong API
+      // 2. Tự động lưu địa chỉ vào tài khoản nếu user chưa có địa chỉ lưu sẵn
       const hasAccountAddress =
         Array.isArray(currentUser?.shippingAddresses) && currentUser.shippingAddresses.length > 0
 
@@ -300,105 +332,40 @@ function CheckoutFormContent({
           console.warn('Checkout: Unable to auto-save address to account via API:', addrErr)
         }
       }
-
-      // Tự động trừ tồn kho (Inventory Deduction) cho các sản phẩm đã đặt
-      displayItems.forEach(async (item) => {
-        try {
-          if (item?.id) {
-            const currentStock = typeof item.stock === 'number' ? item.stock : 10
-            const newStock = Math.max(0, currentStock - (Number(item.quantity) || 1))
-            await patchProduct(item.id, {
-              stock: newStock,
-              isSoldOut: newStock === 0,
-            })
-          }
-        } catch (stockErr) {
-          console.warn('Checkout: Unable to deduct product stock:', item?.id, stockErr)
-        }
-      })
-
-      // Đồng bộ từng đơn hàng vào LocalStorage bằng hàm dùng chung (Single Source of Truth)
-      savedOrders.forEach((so) => storeUserOrder(so))
-
-      // Xóa các sản phẩm đã được thanh toán khỏi giỏ hàng
-      if (removeItemsFromCart && selectedCheckoutItems.length > 0) {
-        removeItemsFromCart(selectedCheckoutItems)
-      } else {
-        clearCart()
-      }
-      try {
-        sessionStorage.removeItem(COMMERCE_STORAGE_KEYS.CHECKOUT_ITEMS)
-      } catch {
-        // ignore
-      }
-
-      submittingRef.current = false
-      setIsSubmitting(false)
-      window.scrollTo({ top: 0, left: 0, behavior: 'instant' })
-
-      navigate('/order-success', {
-        state: {
-          orderNumber: savedOrders.map((o) => o.orderNumber).join(', '),
-          orderNumbers: savedOrders.map((o) => ({
-            orderNumber: o.orderNumber,
-            shopName: o.shopName,
-            total: o.total,
-          })),
-          total: orderTotal,
-          orderId: savedOrders[0]?.id,
-        },
-      })
     } catch (err) {
       console.warn(
-        'Checkout: Khong the ket noi API db.json, luu don hang offline:',
+        'Checkout: Không thể kết nối API db.json, lưu đơn hàng offline:',
         err?.message
       )
-
-      orderPayloads.forEach((payload) => storeUserOrder(payload))
-
-      if (removeItemsFromCart && selectedCheckoutItems.length > 0) {
-        removeItemsFromCart(selectedCheckoutItems)
-      } else {
-        clearCart()
-      }
-      try {
-        sessionStorage.removeItem(COMMERCE_STORAGE_KEYS.CHECKOUT_ITEMS)
-      } catch {
-        // ignore
-      }
-
-      displayItems.forEach(async (item) => {
-        try {
-          if (item?.id) {
-            const currentStock = typeof item.stock === 'number' ? item.stock : 10
-            const newStock = Math.max(0, currentStock - (Number(item.quantity) || 1))
-            await patchProduct(item.id, {
-              stock: newStock,
-              isSoldOut: newStock === 0,
-            })
-          }
-        } catch {
-          // ignore
-        }
-      })
-
-      submittingRef.current = false
-      setIsSubmitting(false)
-      window.scrollTo({ top: 0, left: 0, behavior: 'instant' })
-
-      navigate('/order-success', {
-        state: {
-          orderNumber: orderPayloads.map((o) => o.orderNumber).join(', '),
-          orderNumbers: orderPayloads.map((o) => ({
-            orderNumber: o.orderNumber,
-            shopName: o.shopName,
-            total: o.total,
-          })),
-          total: orderTotal,
-          orderId: orderPayloads[0]?.id,
-        },
-      })
     }
+
+    // 3. Trừ tồn kho đồng bộ bằng Promise.all
+    await deductInventory()
+
+    // 4. Đồng bộ từng đơn hàng vào LocalStorage (Single Source of Truth)
+    finalOrders.forEach((so) => storeUserOrder(so))
+
+    // 5. Dọn dẹp giỏ hàng
+    cleanupCart()
+
+    // 6. Reset cờ submit và cuộn màn hình
+    submittingRef.current = false
+    setIsSubmitting(false)
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' })
+
+    // 7. Điều hướng sang trang xác nhận thành công
+    navigate('/order-success', {
+      state: {
+        orderNumber: finalOrders.map((o) => o.orderNumber).join(', '),
+        orderNumbers: finalOrders.map((o) => ({
+          orderNumber: o.orderNumber,
+          shopName: o.shopName,
+          total: o.total,
+        })),
+        total: orderTotal,
+        orderId: finalOrders[0]?.id,
+      },
+    })
   }
 
   return (
@@ -467,6 +434,7 @@ function CheckoutFormContent({
  * - Hỗ trợ responsive toàn diện trên Mobile, Tablet và Desktop.
  */
 export default function Checkout() {
+  const { t } = useTranslation()
   const location = useLocation()
   const cartItems = useCartStore((state) => state.cartItems)
 
@@ -512,7 +480,7 @@ export default function Checkout() {
       <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 text-center">
         <div className="inline-block w-8 h-8 border-2 border-black border-t-transparent rounded-full animate-spin" />
         <p className="mt-4 text-xs font-mono tracking-widest uppercase text-neutral-400">
-          Loading checkout details...
+          {t('checkout.loadingCheckout', 'Loading checkout details...')}
         </p>
       </div>
     )
@@ -529,23 +497,23 @@ export default function Checkout() {
       <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
         <div className="max-w-md mx-auto p-8 sm:p-12 border border-neutral-200 bg-[#FAFAFA] rounded-[2px]">
           <h2 className="text-base sm:text-lg font-bold uppercase tracking-[0.2em] text-[#111111] mb-2">
-            NO ITEMS SELECTED FOR CHECKOUT
+            {t('checkout.emptyCheckout', 'NO ITEMS SELECTED FOR CHECKOUT')}
           </h2>
           <p className="text-xs text-neutral-500 mb-8 leading-relaxed">
-            Your checkout list is currently empty. Please select products from your cart or explore our collections.
+            {t('checkout.emptyCheckoutDesc', 'Your checkout list is currently empty. Please select products from your cart or explore our collections.')}
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
             <Link
               to="/cart"
               className="w-full sm:w-auto px-6 py-3 bg-[#111111] text-white text-xs font-semibold uppercase tracking-wider hover:bg-black transition-colors cursor-pointer inline-block text-center"
             >
-              RETURN TO CART
+              {t('checkout.returnToCart', 'RETURN TO CART')}
             </Link>
             <Link
               to="/shop"
               className="w-full sm:w-auto px-6 py-3 border border-neutral-300 text-neutral-700 text-xs font-semibold uppercase tracking-wider hover:border-black hover:text-black transition-colors cursor-pointer inline-block text-center"
             >
-              EXPLORE SHOP
+              {t('checkout.exploreShop', 'EXPLORE SHOP')}
             </Link>
           </div>
         </div>

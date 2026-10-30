@@ -1,6 +1,8 @@
 import { useState } from 'react'
-import { ArrowRight, Ban, AlertTriangle, RefreshCw } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
+import { ArrowRight, Ban, RefreshCw } from 'lucide-react'
 import OrderStatusBadge from './OrderStatusBadge'
+import { CancelOrderModal } from '../order'
 
 /**
  * Component OrderStatusController: Khối điều khiển chuyển trạng thái đơn hàng theo luồng nghiêm ngặt
@@ -8,13 +10,13 @@ import OrderStatusBadge from './OrderStatusBadge'
  *   + Người bán KHÔNG được tự ý chọn trạng thái bất kỳ từ dropdown.
  *   + Nút tiến tới chỉ giữ lại chữ tên trạng thái (PENDING -> CONFIRMED, CONFIRMED -> SHIPPING, SHIPPING -> COMPLETED).
  *   + Chỉ được HỦY đơn hàng TRƯỚC giai đoạn giao hàng (tức là chỉ cho phép hủy khi ở PENDING hoặc CONFIRMED).
- *   + Khi không thể hủy (SHIPPING, COMPLETED, CANCELLED), ẩn nút hủy chứ không thay bằng nút mới hay huy hiệu thay thế.
- *   + Toàn bộ giao diện người dùng hiển thị 100% bằng tiếng Anh.
+ *   + Khi bấm hủy, hiển thị Modal cho phép người bán chọn lý do hủy đơn (hết hàng, khách yêu cầu, lỗi,...).
+ *   + Khi không thể hủy (SHIPPING, COMPLETED, CANCELLED), ẩn nút hủy.
  *
  * Props:
  * - currentStatus: Trạng thái hiện tại của đơn hàng
  * - displayId: Mã đơn hàng hiển thị
- * - onUpdateStatus: Callback nhận trạng thái mới để gọi API cập nhật
+ * - onUpdateStatus: Callback nhận trạng thái mới và dữ liệu bổ sung để gọi API
  * - isUpdating: Trạng thái đang gọi API
  */
 export default function OrderStatusController({
@@ -23,10 +25,11 @@ export default function OrderStatusController({
   onUpdateStatus,
   isUpdating = false,
 }) {
+  const { t } = useTranslation()
   const normalized = String(currentStatus || 'PENDING').toUpperCase()
 
-  // State xác nhận hủy đơn hàng (tránh người bán bấm nhầm)
-  const [showCancelConfirm, setShowCancelConfirm] = useState(false)
+  // State điều khiển mở modal chọn lý do hủy đơn
+  const [isCancelModalOpen, setIsCancelModalOpen] = useState(false)
 
   // 1. Xác định bước tiến tới tiếp theo và cấu hình nút bấm
   let nextAction = null
@@ -67,11 +70,15 @@ export default function OrderStatusController({
     }
   }
 
-  // Xử lý khi xác nhận hủy đơn
-  const handleConfirmCancel = () => {
+  // Xử lý khi xác nhận hủy đơn kèm lý do
+  const handleConfirmCancel = ({ reason }) => {
     if (onUpdateStatus) {
-      onUpdateStatus('CANCELLED')
-      setShowCancelConfirm(false)
+      onUpdateStatus('CANCELLED', {
+        cancelReason: reason,
+        cancelledBy: 'seller',
+        cancelledAt: new Date().toISOString(),
+      })
+      setIsCancelModalOpen(false)
     }
   }
 
@@ -82,13 +89,13 @@ export default function OrderStatusController({
         <div className="max-w-xl">
           <div className="flex items-center gap-2.5 mb-1.5">
             <h4 className="text-xs font-bold uppercase tracking-[0.2em] text-black font-mono">
-              ORDER STATUS CONTROL
+              {t('seller.orders.detail.controlTitle', 'ORDER STATUS CONTROL')}
             </h4>
             <OrderStatusBadge status={currentStatus} />
           </div>
         </div>
 
-        {/* Cụm nút hành động bên phải: Chỉ cho phép TIẾN TỚI hoặc HỦY TRƯỚC SHIPPING. Không thể hủy thì ẩn nút hủy, không thay bằng nút mới */}
+        {/* Cụm nút hành động bên phải: Chỉ cho phép TIẾN TỚI hoặc HỦY TRƯỚC SHIPPING */}
         <div className="flex flex-wrap items-center gap-2.5 self-start md:self-center">
           {/* NÚT TIẾN TỚI (ADVANCE) */}
           {nextAction && (
@@ -102,11 +109,11 @@ export default function OrderStatusController({
               {isUpdating ? (
                 <>
                   <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                  <span>UPDATING...</span>
+                  <span>{t('seller.orders.detail.updating', 'UPDATING...')}</span>
                 </>
               ) : (
                 <>
-                  <span>{nextAction.label}</span>
+                  <span>{t(`seller.status.${nextAction.targetStatus.toLowerCase()}`, nextAction.label)}</span>
                   <ArrowRight className="w-3.5 h-3.5" />
                 </>
               )}
@@ -114,51 +121,30 @@ export default function OrderStatusController({
           )}
 
           {/* NÚT HỦY ĐƠN HÀNG (CHỈ XUẤT HIỆN TRƯỚC SHIPPING: PENDING HOẶC CONFIRMED) */}
-          {canCancel && !showCancelConfirm && (
+          {canCancel && (
             <button
               type="button"
-              onClick={() => setShowCancelConfirm(true)}
+              onClick={() => setIsCancelModalOpen(true)}
               disabled={isUpdating}
               className="inline-flex items-center gap-1.5 px-4 py-2.5 border border-neutral-300 text-neutral-600 rounded-[2px] text-xs font-mono uppercase tracking-wider font-semibold hover:border-red-300 hover:text-red-700 hover:bg-red-50/50 transition-colors cursor-pointer disabled:opacity-40"
               title="Cancel this order before shipment"
             >
               <Ban className="w-3.5 h-3.5" />
-              <span>CANCEL</span>
+              <span>{t('seller.orders.detail.cancelOrder', 'CANCEL')}</span>
             </button>
           )}
         </div>
       </div>
 
-      {/* HỘP XÁC NHẬN HỦY ĐƠN HÀNG (INLINE CONFIRMATION) */}
-      {showCancelConfirm && (
-        <div className="mt-4 pt-4 border-t border-red-200 bg-red-50/60 p-3.5 rounded-[2px] flex flex-col sm:flex-row sm:items-center justify-between gap-3 animate-in fade-in duration-150">
-          <div className="flex items-center gap-2.5 text-xs text-red-800 font-mono">
-            <AlertTriangle className="w-4 h-4 text-red-600 shrink-0" />
-            <span>
-              Cancel order <strong>{displayId}</strong>? This action cannot be undone.
-            </span>
-          </div>
-
-          <div className="flex items-center gap-2 self-end sm:self-auto">
-            <button
-              type="button"
-              onClick={() => setShowCancelConfirm(false)}
-              disabled={isUpdating}
-              className="px-3 py-1.5 bg-white border border-neutral-300 rounded-[2px] text-xs font-mono uppercase text-neutral-700 hover:bg-neutral-100 transition-colors cursor-pointer"
-            >
-              Keep Order
-            </button>
-            <button
-              type="button"
-              onClick={handleConfirmCancel}
-              disabled={isUpdating}
-              className="px-3.5 py-1.5 bg-red-600 text-white rounded-[2px] text-xs font-mono uppercase font-bold hover:bg-red-700 transition-colors cursor-pointer disabled:opacity-50"
-            >
-              {isUpdating ? 'Cancelling...' : 'Confirm Cancel'}
-            </button>
-          </div>
-        </div>
-      )}
+      {/* MODAL CHỌN LÝ DO HỦY ĐƠN HÀNG DÀNH CHO SHOP */}
+      <CancelOrderModal
+        isOpen={isCancelModalOpen}
+        onClose={() => setIsCancelModalOpen(false)}
+        order={{ orderNumber: displayId }}
+        role="seller"
+        loading={isUpdating}
+        onConfirm={handleConfirmCancel}
+      />
     </section>
   )
 }

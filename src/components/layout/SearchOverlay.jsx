@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useMemo } from 'react'
 import { createPortal } from 'react-dom'
 import { useNavigate, Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { Search, X, ArrowRight, Store, Tag } from 'lucide-react'
 import { getProducts, getShops } from '../../services/api'
 import { formatVND, handleImageError, FALLBACK_IMAGE } from '../../constants/commerce'
@@ -19,6 +20,7 @@ const TRENDING_TAGS = [
 ]
 
 export default function SearchOverlay({ isOpen, onClose }) {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const inputRef = useRef(null)
 
@@ -138,7 +140,7 @@ export default function SearchOverlay({ isOpen, onClose }) {
       <div className="w-full border-b border-neutral-800 px-6 sm:px-12 py-4 flex items-center justify-between">
         <div className="flex items-center gap-2 text-xs font-mono tracking-widest text-neutral-400 uppercase">
           <Search className="w-3.5 h-3.5" />
-          <span>FASHORA ARCHIVE DISCOVERY</span>
+          <span>{t('searchOverlay.title', 'FASHORA ARCHIVE DISCOVERY')}</span>
         </div>
         <button
           type="button"
@@ -146,7 +148,7 @@ export default function SearchOverlay({ isOpen, onClose }) {
           className="inline-flex items-center gap-2 text-neutral-400 hover:text-white transition-colors text-xs font-mono uppercase tracking-widest cursor-pointer px-2 py-1"
         >
           <span className="hidden sm:inline">[ESC]</span>
-          <span>CLOSE</span>
+          <span>{t('searchOverlay.close', 'CLOSE')}</span>
           <X className="w-4 h-4" />
         </button>
       </div>
@@ -168,7 +170,7 @@ export default function SearchOverlay({ isOpen, onClose }) {
               type="text"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="SEARCH PIECES, ATELIERS, OR STYLES..."
+              placeholder={t('searchOverlay.placeholder', 'SEARCH PIECES, ATELIERS, OR STYLES...')}
               className="w-full bg-transparent text-lg sm:text-2xl md:text-3xl font-light uppercase tracking-wider text-white placeholder:text-neutral-600 focus:outline-none"
             />
             {query && (
@@ -191,7 +193,7 @@ export default function SearchOverlay({ isOpen, onClose }) {
         <div className="max-w-4xl mx-auto space-y-3 mb-8">
           <div className="flex items-center gap-2 text-[11px] font-mono tracking-widest uppercase text-neutral-400">
             <Tag className="w-3.5 h-3.5" />
-            <span>POPULAR SEARCHES &amp; ATELIERS</span>
+            <span>{t('searchOverlay.popularSearches', 'POPULAR SEARCHES & ATELIERS')}</span>
           </div>
           <div className="flex flex-wrap gap-2">
             {TRENDING_TAGS.map((tag) => {
@@ -220,7 +222,7 @@ export default function SearchOverlay({ isOpen, onClose }) {
         {/* Thông điệp khi chưa gõ gì */}
         {!query.trim() && (
           <div className="max-w-4xl mx-auto py-12 text-center text-neutral-500 font-mono text-xs uppercase tracking-widest">
-            TYPE A KEYWORD OR SELECT A POPULAR TAG ABOVE TO EXPLORE ARCHIVAL PIECES
+            {t('searchOverlay.typeKeyword', 'TYPE A KEYWORD OR SELECT A POPULAR TAG ABOVE TO EXPLORE ARCHIVAL PIECES')}
           </div>
         )}
 
@@ -231,7 +233,7 @@ export default function SearchOverlay({ isOpen, onClose }) {
             {matchedShops.length > 0 && (
               <div className="space-y-3">
                 <span className="text-[10px] sm:text-xs font-mono tracking-[0.25em] uppercase text-neutral-400 block">
-                  MATCHING ATELIERS ({matchedShops.length})
+                  {t('searchOverlay.matchingAteliers', { count: matchedShops.length, defaultValue: `MATCHING ATELIERS (${matchedShops.length})` })}
                 </span>
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
                   {matchedShops.map((shop) => (
@@ -261,12 +263,12 @@ export default function SearchOverlay({ isOpen, onClose }) {
                             {shop.name}
                           </h4>
                           <span className="text-[9px] font-mono tracking-widest text-neutral-400 uppercase truncate block">
-                            {shop.category || 'OFFICIAL ATELIER'}
+                            {shop.category || t('searchOverlay.officialAtelier', 'OFFICIAL ATELIER')}
                           </span>
                         </div>
                       </div>
                       <span className="text-[10px] font-mono tracking-wider text-neutral-400 group-hover:text-white uppercase shrink-0 flex items-center gap-1">
-                        VISIT <ArrowRight className="w-3 h-3" />
+                        {t('searchOverlay.visit', 'VISIT')} <ArrowRight className="w-3 h-3" />
                       </span>
                     </Link>
                   ))}
@@ -279,7 +281,7 @@ export default function SearchOverlay({ isOpen, onClose }) {
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <span className="text-[10px] sm:text-xs font-mono tracking-[0.25em] uppercase text-neutral-400">
-                    MATCHING ARCHIVE PIECES ({totalMatchedCount})
+                    {t('searchOverlay.matchingPieces', { count: totalMatchedCount, defaultValue: `MATCHING ARCHIVE PIECES (${totalMatchedCount})` })}
                   </span>
                   {totalMatchedCount > 8 && (
                     <button
@@ -287,7 +289,7 @@ export default function SearchOverlay({ isOpen, onClose }) {
                       onClick={() => handleFullSearch()}
                       className="text-xs font-mono text-neutral-400 hover:text-white uppercase tracking-wider inline-flex items-center gap-1 cursor-pointer"
                     >
-                      <span>VIEW ALL ({totalMatchedCount})</span>
+                      <span>{t('searchOverlay.viewAll', { count: totalMatchedCount, defaultValue: `VIEW ALL (${totalMatchedCount})` })}</span>
                       <ArrowRight className="w-3.5 h-3.5" />
                     </button>
                   )}
@@ -318,7 +320,7 @@ export default function SearchOverlay({ isOpen, onClose }) {
                         </div>
                         <div className="space-y-1 min-w-0">
                           <span className="text-[9px] font-mono tracking-widest text-neutral-400 uppercase truncate block">
-                            BY {prod.shopName || 'ATELIER'}
+                            {t('searchOverlay.by', 'BY')} {prod.shopName || t('searchOverlay.atelier', 'ATELIER')}
                           </span>
                           <h4 className="text-xs font-semibold text-white uppercase truncate group-hover:underline">
                             {prod.name}
@@ -339,7 +341,7 @@ export default function SearchOverlay({ isOpen, onClose }) {
                     onClick={() => handleFullSearch()}
                     className="inline-flex items-center gap-3 px-8 py-3.5 bg-white text-black text-xs font-mono font-bold uppercase tracking-widest hover:bg-neutral-200 transition-colors cursor-pointer"
                   >
-                    <span>EXPLORE ALL {totalMatchedCount} PIECES IN STORE</span>
+                    <span>{t('searchOverlay.exploreAllPieces', { count: totalMatchedCount, defaultValue: `EXPLORE ALL ${totalMatchedCount} PIECES IN STORE` })}</span>
                     <ArrowRight className="w-4 h-4" />
                   </button>
                 </div>
@@ -351,11 +353,10 @@ export default function SearchOverlay({ isOpen, onClose }) {
               <div className="text-center py-16 space-y-4">
                 <Store className="w-10 h-10 text-neutral-600 mx-auto" />
                 <h3 className="text-base sm:text-lg font-bold uppercase tracking-wider text-white font-mono">
-                  NO PIECES OR ATELIERS FOUND MATCHING &ldquo;{query}&rdquo;
+                  {t('searchOverlay.noResultsTitle', { query, defaultValue: `NO PIECES OR ATELIERS FOUND MATCHING "${query}"` })}
                 </h3>
                 <p className="text-xs text-neutral-400 font-mono max-w-md mx-auto leading-relaxed">
-                  We couldn&apos;t find any pieces matching your search query. Try keywords like boots,
-                  sunglasses, leather, or search for an atelier name.
+                  {t('searchOverlay.noResultsDesc', "We couldn't find any pieces matching your search query. Try keywords like boots, sunglasses, leather, or search for an atelier name.")}
                 </p>
                 <div className="pt-2">
                   <button
@@ -366,7 +367,7 @@ export default function SearchOverlay({ isOpen, onClose }) {
                     }}
                     className="inline-flex items-center gap-2 px-6 py-2.5 border border-white text-white text-xs font-mono uppercase tracking-wider hover:bg-white hover:text-black transition-colors cursor-pointer"
                   >
-                    <span>BROWSE ALL ARCHIVAL PIECES</span>
+                    <span>{t('searchOverlay.browseAll', 'BROWSE ALL ARCHIVAL PIECES')}</span>
                     <ArrowRight className="w-3.5 h-3.5" />
                   </button>
                 </div>

@@ -1,7 +1,13 @@
 import AppRoutes from './routes/AppRoutes'
+import CountryGateModal from './components/common/CountryGateModal'
 
 function App() {
-  return <AppRoutes />
+  return (
+    <>
+      <CountryGateModal />
+      <AppRoutes />
+    </>
+  )
 }
 
 export default App

@@ -1,14 +1,20 @@
 import { useState, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { useCartStore } from '../../stores'
 import { useAuth } from '../../contexts/AuthContext'
+import { changeAppLanguage } from '../../i18n'
 import SearchOverlay from './SearchOverlay'
+import { VietnamFlag } from '../common'
 
 function Header({ hideNav = false }) {
+    const { t, i18n } = useTranslation()
+    const currentLang = i18n.language || 'en'
     const [logoSrc, setLogoSrc] = useState('/assets/logo.png')
     const [logoError, setLogoError] = useState(false)
     const [accountMenuOpen, setAccountMenuOpen] = useState(false)
+    const [langMenuOpen, setLangMenuOpen] = useState(false)
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
     const [isSignOutModalOpen, setIsSignOutModalOpen] = useState(false)
     const [isSearchOpen, setIsSearchOpen] = useState(false)
@@ -22,6 +28,29 @@ function Header({ hideNav = false }) {
 
     const location = useLocation()
     const navigate = useNavigate()
+
+    // Đóng drawer khi nhấn ESC
+    useEffect(() => {
+        const handleKeyDown = (e) => {
+            if (e.key === 'Escape' && isMobileMenuOpen) {
+                setIsMobileMenuOpen(false)
+            }
+        }
+        window.addEventListener('keydown', handleKeyDown)
+        return () => window.removeEventListener('keydown', handleKeyDown)
+    }, [isMobileMenuOpen])
+
+    // Khóa cuộn trang khi mở drawer
+    useEffect(() => {
+        if (isMobileMenuOpen) {
+            document.body.style.overflow = 'hidden'
+        } else {
+            document.body.style.overflow = ''
+        }
+        return () => {
+            document.body.style.overflow = ''
+        }
+    }, [isMobileMenuOpen])
 
     const handleConfirmSignOut = () => {
         logoutUser()
@@ -75,8 +104,8 @@ function Header({ hideNav = false }) {
             <div className="h-20 grid grid-cols-3 items-center px-6 sm:px-10 lg:px-16">
                 {/* Cột trái: Form ô tìm kiếm dạng gạch chân tối giản / Mobile menu toggle */}
                 <div className="flex items-center">
-                    {/* Nút Hamburger cho Mobile: Chỉ hiển thị khi KHÔNG BỊ ẨN NAV */}
-                    {!hideNav && (
+                    {/* Nút Hamburger: Chỉ hiển thị khi responsive nhỏ lại (< md) trên mọi trang ngoại trừ Auth */}
+                    {!isAuthPage && (
                         <button
                             type="button"
                             aria-label="Open menu"
@@ -103,30 +132,32 @@ function Header({ hideNav = false }) {
                         </button>
                     )}
 
-                    {/* Ô tìm kiếm dạng gạch chân tối giản - Mở Search Overlay */}
-                    <button
-                        type="button"
-                        onClick={() => setIsSearchOpen(true)}
-                        className="hidden sm:flex items-center gap-2.5 border-b border-neutral-700 hover:border-white pb-1 max-w-[220px] w-full text-left transition-colors cursor-pointer group"
-                        title="Search pieces & ateliers..."
-                    >
-                        <svg
-                            className="w-3.5 h-3.5 text-neutral-400 group-hover:text-white shrink-0 transition-colors"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
+                    {/* Ô tìm kiếm dạng gạch chân tối giản: Hiển thị trên Desktop (md:flex), ẩn khi responsive nhỏ lại */}
+                    {!isAuthPage && (
+                        <button
+                            type="button"
+                            onClick={() => setIsSearchOpen(true)}
+                            className="hidden md:flex items-center gap-2.5 border-b border-neutral-700 hover:border-white pb-1 max-w-[220px] w-full text-left transition-colors cursor-pointer group"
+                            title="Search pieces & ateliers..."
                         >
-                            <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth="1.5"
-                                d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"
-                            />
-                        </svg>
-                        <span className="w-full text-xs text-neutral-400 group-hover:text-white tracking-[0.15em] font-mono uppercase truncate">
-                            SEARCH ARCHIVE...
-                        </span>
-                    </button>
+                            <svg
+                                className="w-3.5 h-3.5 text-neutral-400 group-hover:text-white shrink-0 transition-colors"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                            >
+                                <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth="1.5"
+                                    d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"
+                                />
+                            </svg>
+                            <span className="w-full text-xs text-neutral-400 group-hover:text-white tracking-[0.15em] font-mono uppercase truncate">
+                                {t('nav.searchArchive')}
+                            </span>
+                        </button>
+                    )}
                 </div>
 
                 {/* Cột giữa: Logo FASHORA căn chính giữa */}
@@ -147,12 +178,74 @@ function Header({ hideNav = false }) {
                     </Link>
                 </div>
 
-                {/* Cột phải: VN VIETNAM, Account, Giỏ hàng */}
+                {/* Cột phải: Language Switcher, Account, Giỏ hàng */}
                 <div className="flex items-center justify-end gap-4 sm:gap-6">
-                    {/* Nhãn VN VIETNAM */}
-                    <span className="hidden lg:inline-block text-[11px] text-neutral-400 font-medium tracking-wider">
-                        VN VIETNAM
-                    </span>
+                    {/* Nút chuyển đổi Ngôn ngữ (Language Switcher) trên Desktop */}
+                    <div
+                        className="relative hidden md:block"
+                        onMouseLeave={() => setLangMenuOpen(false)}
+                    >
+                        <button
+                            type="button"
+                            onClick={() => setLangMenuOpen((prev) => !prev)}
+                            className="inline-flex items-center gap-1.5 text-[11px] text-neutral-300 hover:text-white font-medium tracking-wider cursor-pointer py-1 px-2 rounded-[2px] hover:bg-neutral-800 transition-colors"
+                            aria-label="Change Language"
+                        >
+                            {currentLang === 'vi' ? (
+                                <span className="inline-flex items-center gap-1.5">
+                                    <VietnamFlag className="w-4 h-2.5 rounded-[1px] object-cover shrink-0 shadow-xs" />
+                                    <span>VIỆT NAM</span>
+                                </span>
+                            ) : (
+                                <span className="inline-flex items-center gap-1.5">
+                                    <span>🌐</span>
+                                    <span>ENGLISH</span>
+                                </span>
+                            )}
+                            <svg className="w-3 h-3 text-neutral-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                            </svg>
+                        </button>
+
+                        {langMenuOpen && (
+                            <div className="absolute right-0 top-full pt-1.5 w-44 z-50 animate-in fade-in duration-150">
+                                <div className="bg-neutral-900 border border-neutral-800 shadow-2xl py-1 text-xs rounded-[2px]">
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            changeAppLanguage('vi')
+                                            setLangMenuOpen(false)
+                                        }}
+                                        className={`w-full text-left px-3.5 py-2 font-mono uppercase text-[11px] tracking-wider flex items-center justify-between transition-colors cursor-pointer ${
+                                            currentLang === 'vi' ? 'text-white font-bold bg-neutral-800' : 'text-neutral-300 hover:text-white hover:bg-neutral-800'
+                                        }`}
+                                    >
+                                        <span className="inline-flex items-center gap-2">
+                                            <VietnamFlag className="w-4 h-2.5 rounded-[1px] object-cover shrink-0 shadow-xs" />
+                                            <span>Tiếng Việt (VN)</span>
+                                        </span>
+                                        {currentLang === 'vi' && <span className="text-emerald-400">✓</span>}
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            changeAppLanguage('en')
+                                            setLangMenuOpen(false)
+                                        }}
+                                        className={`w-full text-left px-3.5 py-2 font-mono uppercase text-[11px] tracking-wider flex items-center justify-between transition-colors cursor-pointer ${
+                                            currentLang === 'en' ? 'text-white font-bold bg-neutral-800' : 'text-neutral-300 hover:text-white hover:bg-neutral-800'
+                                        }`}
+                                    >
+                                        <span className="inline-flex items-center gap-2">
+                                            <span>🌐</span>
+                                            <span>English (Global)</span>
+                                        </span>
+                                        {currentLang === 'en' && <span className="text-emerald-400">✓</span>}
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+                    </div>
 
                     {/* Icon Account (Bấm để bật/tắt dropdown, không chuyển hướng trang) */}
                     <div
@@ -184,7 +277,7 @@ function Header({ hideNav = false }) {
                                         <>
                                             <div className="px-4 py-2 border-b border-neutral-800">
                                                 <span className="text-[10px] font-mono text-neutral-400 uppercase block tracking-wider">
-                                                    SIGNED IN AS
+                                                    {t('nav.signedInAs')}
                                                 </span>
                                                 <span className="text-xs font-bold text-white truncate block mt-0.5">
                                                     {currentUser?.fullName || 'Valued Member'}
@@ -195,14 +288,21 @@ function Header({ hideNav = false }) {
                                                 onClick={() => setAccountMenuOpen(false)}
                                                 className="block px-4 py-2 font-mono uppercase text-[11px] tracking-wider text-neutral-300 hover:text-white hover:bg-neutral-800 transition-colors"
                                             >
-                                                PROFILE
+                                                {t('nav.profile')}
                                             </Link>
                                             <Link
                                                 to="/orders"
                                                 onClick={() => setAccountMenuOpen(false)}
                                                 className="block px-4 py-2 font-mono uppercase text-[11px] tracking-wider text-neutral-300 hover:text-white hover:bg-neutral-800 transition-colors"
                                             >
-                                                MY ORDERS
+                                                {t('nav.myOrders')}
+                                            </Link>
+                                            <Link
+                                                to="/following"
+                                                onClick={() => setAccountMenuOpen(false)}
+                                                className="block px-4 py-2 font-mono uppercase text-[11px] tracking-wider text-neutral-300 hover:text-white hover:bg-neutral-800 transition-colors"
+                                            >
+                                                {t('nav.followingShops')}
                                             </Link>
                                             {currentUser?.shopId ? (
                                                 <Link
@@ -210,7 +310,7 @@ function Header({ hideNav = false }) {
                                                     onClick={() => setAccountMenuOpen(false)}
                                                     className="block px-4 py-2 font-mono uppercase text-[11px] tracking-wider font-semibold text-emerald-400 hover:text-white hover:bg-neutral-800 transition-colors"
                                                 >
-                                                    SELLER DASHBOARD
+                                                    {t('nav.sellerDashboard')}
                                                 </Link>
                                             ) : (
                                                 <Link
@@ -218,7 +318,7 @@ function Header({ hideNav = false }) {
                                                     onClick={() => setAccountMenuOpen(false)}
                                                     className="block px-4 py-2 font-mono uppercase text-[11px] tracking-wider font-semibold text-white hover:bg-neutral-800 transition-colors"
                                                 >
-                                                    BECOME A SELLER
+                                                    {t('nav.becomeSeller')}
                                                 </Link>
                                             )}
                                             <div className="my-1 border-t border-neutral-800" />
@@ -230,7 +330,7 @@ function Header({ hideNav = false }) {
                                                 }}
                                                 className="w-full text-left px-4 py-2 font-mono uppercase text-[11px] tracking-wider text-red-400 hover:bg-neutral-800 transition-colors cursor-pointer"
                                             >
-                                                SIGN OUT
+                                                {t('nav.signOut')}
                                             </button>
                                         </>
                                     ) : (
@@ -240,14 +340,14 @@ function Header({ hideNav = false }) {
                                                 onClick={() => setAccountMenuOpen(false)}
                                                 className="block px-4 py-2.5 font-mono uppercase text-[11px] tracking-wider font-semibold text-white hover:bg-neutral-800 transition-colors"
                                             >
-                                                SIGN IN
+                                                {t('nav.signIn')}
                                             </Link>
                                             <Link
                                                 to="/register"
                                                 onClick={() => setAccountMenuOpen(false)}
                                                 className="block px-4 py-2.5 font-mono uppercase text-[11px] tracking-wider text-neutral-400 hover:text-white hover:bg-neutral-800 transition-colors"
                                             >
-                                                CREATE AN ACCOUNT
+                                                {t('nav.createAccount')}
                                             </Link>
                                         </>
                                     )}
@@ -291,7 +391,7 @@ function Header({ hideNav = false }) {
                             : 'text-neutral-400 hover:text-white font-medium'
                             }`}
                     >
-                        NEW ARRIVAL
+                        {t('nav.newArrival')}
                     </Link>
                     <Link
                         to="/best-seller"
@@ -300,7 +400,7 @@ function Header({ hideNav = false }) {
                             : 'text-neutral-400 hover:text-white font-medium'
                             }`}
                     >
-                        BEST SELLER
+                        {t('nav.bestSeller')}
                     </Link>
                     <Link
                         to="/shop"
@@ -309,97 +409,142 @@ function Header({ hideNav = false }) {
                             : 'text-neutral-400 hover:text-white font-medium'
                             }`}
                     >
-                        ALL
+                        {t('nav.all')}
                     </Link>
                 </nav>
             )}
 
-            {/* MOBILE DRAWER (ẨN KHI hideNav = true) */}
-            {!hideNav && isMobileMenuOpen && typeof document !== 'undefined' && createPortal(
-                <div className="fixed inset-0 z-[9999] flex md:hidden" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}>
+            {/* HAMBURGER DRAWER (Chỉ mở khi responsive thu nhỏ lại < md) */}
+            {!isAuthPage && isMobileMenuOpen && typeof document !== 'undefined' && createPortal(
+                <div
+                    className="fixed inset-0 z-[9999] flex md:hidden"
+                    style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}
+                >
+                    {/* Backdrop làm mờ */}
                     <div
                         className="fixed inset-0 bg-black/70 backdrop-blur-xs transition-opacity"
                         onClick={() => setIsMobileMenuOpen(false)}
                     />
 
-                    <aside className="relative z-10 w-[300px] max-w-[85vw] h-full bg-neutral-950 border-r border-neutral-800 shadow-2xl flex flex-col px-6 py-7 animate-in slide-in-from-left duration-200">
-                        {/* 1. Header của Drawer */}
-                        <div className="flex items-center justify-between pb-5 border-b border-neutral-800">
-                            <span className="text-lg font-bold tracking-[0.28em] uppercase text-white">
-                                FASHORA
-                            </span>
+                    {/* Drawer trượt từ bên trái */}
+                    <aside
+                        className="relative z-10 w-[300px] max-w-[85vw] h-full bg-neutral-950 border-r border-neutral-800 shadow-2xl flex flex-col justify-between px-6 py-7 animate-in slide-in-from-left duration-200"
+                    >
+                        <div>
+                            {/* 1. Header của Drawer */}
+                            <div className="flex items-center justify-between pb-5 border-b border-neutral-800">
+                                <span className="text-lg font-bold tracking-[0.28em] uppercase text-white font-mono">
+                                    FASHORA
+                                </span>
+                                <button
+                                    type="button"
+                                    onClick={() => setIsMobileMenuOpen(false)}
+                                    className="p-1 text-white hover:opacity-60 transition-opacity cursor-pointer"
+                                    aria-label="Close menu"
+                                >
+                                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.3} d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                            </div>
+
+                            {/* 2. KHUNG SEARCH Ở TRÊN */}
                             <button
                                 type="button"
-                                onClick={() => setIsMobileMenuOpen(false)}
-                                className="p-1 text-white hover:opacity-60 transition-opacity cursor-pointer"
-                                aria-label="Close menu"
+                                onClick={() => {
+                                    setIsMobileMenuOpen(false)
+                                    setIsSearchOpen(true)
+                                }}
+                                className="mt-6 w-full relative flex items-center bg-neutral-900 border border-neutral-800 hover:border-neutral-600 rounded-[2px] px-3.5 py-2.5 transition-colors cursor-pointer text-left"
                             >
-                                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.3} d="M6 18L18 6M6 6l12 12" />
+                                <svg
+                                    className="w-4 h-4 text-neutral-400 shrink-0 mr-2.5"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    stroke="currentColor"
+                                >
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth={1.5}
+                                        d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"
+                                    />
                                 </svg>
+                                <span className="text-[11px] tracking-[0.16em] uppercase text-neutral-400 font-mono">
+                                    {t('nav.searchArchive')}
+                                </span>
                             </button>
+
+                            {/* 3. Navigation Links */}
+                            <nav className="mt-8 flex flex-col gap-5">
+                                <NavLink
+                                    to="/home"
+                                    onClick={() => setIsMobileMenuOpen(false)}
+                                    className={({ isActive }) =>
+                                        `text-sm font-semibold tracking-wider uppercase transition-colors ${
+                                            isActive ? 'text-white' : 'text-neutral-400 hover:text-white'
+                                        }`
+                                    }
+                                >
+                                    {t('nav.newArrival')}
+                                </NavLink>
+                                <NavLink
+                                    to="/best-seller"
+                                    onClick={() => setIsMobileMenuOpen(false)}
+                                    className={({ isActive }) =>
+                                        `text-sm font-semibold tracking-wider uppercase transition-colors ${
+                                            isActive ? 'text-white' : 'text-neutral-400 hover:text-white'
+                                        }`
+                                    }
+                                >
+                                    {t('nav.bestSeller')}
+                                </NavLink>
+                                <NavLink
+                                    to="/shop"
+                                    onClick={() => setIsMobileMenuOpen(false)}
+                                    className={({ isActive }) =>
+                                        `text-sm font-semibold tracking-wider uppercase transition-colors ${
+                                            isActive ? 'text-white' : 'text-neutral-400 hover:text-white'
+                                        }`
+                                    }
+                                >
+                                    {t('nav.all')}
+                                </NavLink>
+                            </nav>
                         </div>
 
-                        {/* 2. Ô Tìm Kiếm (Mobile - Bấm mở Search Overlay) */}
-                        <button
-                            type="button"
-                            onClick={() => {
-                                setIsMobileMenuOpen(false)
-                                setIsSearchOpen(true)
-                            }}
-                            className="mt-6 w-full relative flex items-center bg-neutral-900 border border-neutral-800 hover:border-neutral-600 rounded-lg px-3.5 py-2.5 transition-colors cursor-pointer text-left"
-                        >
-                            <svg
-                                className="w-4 h-4 text-neutral-400 shrink-0 mr-2.5"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke="currentColor"
-                            >
-                                <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth={1.5}
-                                    d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"
-                                />
-                            </svg>
-                            <span className="text-[11px] tracking-[0.16em] uppercase text-neutral-400 font-mono">
-                                SEARCH ARCHIVE...
+                        {/* 4. PHẦN DỊCH THUẬT / THANH CHỌN NGÔN NGỮ Ở DƯỚI */}
+                        <div className="pt-6 border-t border-neutral-800">
+                            <span className="text-[10px] font-mono tracking-widest text-neutral-400 uppercase block mb-3">
+                                REGION &amp; LANGUAGE
                             </span>
-                        </button>
-
-                        {/* 3. Navigation */}
-                        <nav className="mt-8 flex flex-col gap-5">
-                            <NavLink
-                                to="/home"
-                                onClick={() => setIsMobileMenuOpen(false)}
-                                className={({ isActive }) =>
-                                    `text-[11px] tracking-[0.22em] uppercase transition-colors ${isActive ? 'text-white font-semibold' : 'text-neutral-300 hover:text-white font-medium'
-                                    }`
-                                }
-                            >
-                                NEW ARRIVAL
-                            </NavLink>
-                            <NavLink
-                                to="/best-seller"
-                                onClick={() => setIsMobileMenuOpen(false)}
-                                className={({ isActive }) =>
-                                    `text-[11px] tracking-[0.22em] uppercase transition-colors ${isActive ? 'text-white font-semibold' : 'text-neutral-300 hover:text-white font-medium'
-                                    }`
-                                }
-                            >
-                                BEST SELLER
-                            </NavLink>
-                            <NavLink
-                                to="/shop"
-                                onClick={() => setIsMobileMenuOpen(false)}
-                                className={({ isActive }) =>
-                                    `text-[11px] tracking-[0.22em] uppercase transition-colors ${isActive ? 'text-white font-semibold' : 'text-neutral-300 hover:text-white font-medium'
-                                    }`
-                                }
-                            >
-                                ALL
-                            </NavLink>
-                        </nav>
+                            <div className="grid grid-cols-2 gap-2">
+                                <button
+                                    type="button"
+                                    onClick={() => changeAppLanguage('vi')}
+                                    className={`py-2 px-2 text-[11px] font-mono uppercase tracking-wider border rounded-[2px] transition-colors cursor-pointer flex items-center justify-center gap-1.5 ${
+                                        currentLang === 'vi'
+                                            ? 'border-white bg-white text-black font-bold'
+                                            : 'border-neutral-800 text-neutral-400 hover:text-white'
+                                    }`}
+                                >
+                                    <VietnamFlag className="w-4 h-2.5 rounded-[1px] object-cover shrink-0 shadow-xs" />
+                                    <span>VIỆT NAM</span>
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => changeAppLanguage('en')}
+                                    className={`py-2 px-2 text-[11px] font-mono uppercase tracking-wider border rounded-[2px] transition-colors cursor-pointer flex items-center justify-center gap-1.5 ${
+                                        currentLang === 'en'
+                                            ? 'border-white bg-white text-black font-bold'
+                                            : 'border-neutral-800 text-neutral-400 hover:text-white'
+                                    }`}
+                                >
+                                    <span>🌐</span>
+                                    <span>ENGLISH</span>
+                                </button>
+                            </div>
+                        </div>
                     </aside>
                 </div>,
                 document.body
@@ -421,13 +566,13 @@ function Header({ hideNav = false }) {
                         {/* Header */}
                         <div className="mb-3">
                             <h3 id="sign-out-title" className="text-base font-bold uppercase tracking-wider text-white">
-                                CONFIRM SIGN OUT
+                                {t('nav.confirmSignOut')}
                             </h3>
                         </div>
 
                         {/* Description */}
                         <p className="text-xs text-neutral-300 font-mono mb-6 leading-relaxed">
-                            Are you sure you want to sign out of your FASHORA account? You will be redirected to the home page.
+                            {t('nav.signOutDesc')}
                         </p>
 
                         {/* Actions */}
@@ -437,14 +582,14 @@ function Header({ hideNav = false }) {
                                 onClick={() => setIsSignOutModalOpen(false)}
                                 className="flex-1 py-2.5 border border-neutral-700 hover:border-neutral-400 text-neutral-300 hover:text-white text-xs font-mono uppercase tracking-wider transition-colors cursor-pointer"
                             >
-                                CANCEL
+                                {t('common.cancel')}
                             </button>
                             <button
                                 type="button"
                                 onClick={handleConfirmSignOut}
                                 className="flex-1 py-2.5 bg-white text-black hover:bg-neutral-200 text-xs font-mono font-bold uppercase tracking-wider transition-colors cursor-pointer shadow-md"
                             >
-                                SIGN OUT
+                                {t('nav.signOut')}
                             </button>
                         </div>
                     </div>

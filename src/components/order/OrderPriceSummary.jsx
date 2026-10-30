@@ -1,19 +1,10 @@
 import { Headphones, ShoppingBag } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { Button } from '../common'
 import { formatVND } from './orderConstants'
 
 /**
  * Component OrderPriceSummary: Bảng tóm tắt chi phí đơn hàng và các nút hành động (Cột phải)
- * Tái sử dụng component Button từ src/components/common.
- *
- * Props:
- * - subtotal: Tiền hàng tạm tính
- * - shippingFee: Phí vận chuyển
- * - total: Tổng thanh toán cuối cùng
- * - isCancelled: Trạng thái đơn có bị hủy hay không
- * - canCancel: Đơn có đủ điều kiện để hủy hay không
- * - onCancel: Callback khi bấm nút hủy đơn
- * - onContinueShopping: Callback khi bấm tiếp tục mua sắm
  */
 export default function OrderPriceSummary({
   subtotal = 0,
@@ -24,46 +15,48 @@ export default function OrderPriceSummary({
   onCancel,
   onContinueShopping,
 }) {
+  const { t } = useTranslation()
+
   return (
     <div className="space-y-6">
       {/* 1. BẢNG TÍNH TOÁN CHI TIẾT GIÁ TIỀN */}
       <div className="bg-white border border-neutral-200 p-6 space-y-5 shadow-xs">
         <div className="pb-4 border-b border-neutral-200 flex items-center justify-between">
           <h2 className="text-sm font-bold tracking-widest uppercase text-neutral-900 font-mono">
-            PRICE BREAKDOWN
+            {t('orderDetail.priceBreakdown')}
           </h2>
           <span className="text-[10px] font-mono text-neutral-400">
-            FINAL SETTLEMENT
+            {t('orderDetail.finalSettlement')}
           </span>
         </div>
 
         <div className="space-y-3 text-xs sm:text-sm font-sans">
           <div className="flex justify-between text-neutral-600">
-            <span>Subtotal</span>
+            <span>{t('orderDetail.subtotal')}</span>
             <span className="font-mono font-semibold text-neutral-900">
               {formatVND(subtotal || total)}
             </span>
           </div>
 
           <div className="flex justify-between text-neutral-600">
-            <span>Shipping Fee</span>
+            <span>{t('orderDetail.shippingFee')}</span>
             <span className="font-mono font-semibold text-neutral-900">
-              {shippingFee > 0 ? formatVND(shippingFee) : '0₫ (Free Atelier)'}
+              {shippingFee > 0 ? formatVND(shippingFee) : t('orderDetail.freeAtelier')}
             </span>
           </div>
 
           <div className="flex justify-between text-neutral-600">
-            <span>Atelier Tax (VAT Included)</span>
+            <span>{t('orderDetail.atelierTax')}</span>
             <span className="font-mono font-semibold text-neutral-900">0₫</span>
           </div>
 
           <div className="pt-4 border-t border-neutral-200 flex justify-between items-baseline">
             <div>
               <span className="text-sm font-bold uppercase tracking-wider text-neutral-900 font-mono">
-                GRAND TOTAL
+                {t('orderDetail.grandTotal')}
               </span>
               <p className="text-[10px] font-mono text-neutral-400">
-                INCL. VAT &amp; ALL FEES
+                {t('orderDetail.inclVat')}
               </p>
             </div>
             <div className="text-right">
@@ -86,7 +79,7 @@ export default function OrderPriceSummary({
               onClick={onCancel}
               className="w-full h-11 border border-neutral-300 hover:border-black text-xs font-semibold uppercase tracking-wider text-neutral-700 hover:text-black transition-colors cursor-pointer"
             >
-              Cancel This Order
+              {t('orderDetail.cancelThisOrder')}
             </button>
           )}
 
@@ -98,7 +91,7 @@ export default function OrderPriceSummary({
               className="w-full tracking-widest text-xs h-11 flex items-center justify-center gap-2"
             >
               <ShoppingBag className="w-4 h-4" />
-              <span>CONTINUE SHOPPING</span>
+              <span>{t('orders.continueShopping')}</span>
             </Button>
           )}
         </div>
@@ -108,10 +101,10 @@ export default function OrderPriceSummary({
       <div className="bg-[#F8F8F8] border border-neutral-200 p-5 space-y-3 text-xs text-neutral-600">
         <div className="flex items-center gap-2.5 font-bold uppercase tracking-wider text-neutral-900 font-mono text-[11px]">
           <Headphones className="w-4 h-4" />
-          <span>ATELIER CLIENT CARE</span>
+          <span>{t('orderDetail.clientCareTitle')}</span>
         </div>
         <p className="leading-relaxed font-sans text-neutral-500">
-          Need assistance with sizing adjustments, delivery rerouting, or package tracking? Our concierge desk is at your disposal 24/7.
+          {t('orderDetail.clientCareDesc')}
         </p>
         <div className="pt-2 border-t border-neutral-200/60 font-mono text-[11px] text-neutral-800">
           Email: infoFashora@gmail.com

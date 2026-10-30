@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useOutletContext, useSearchParams } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { Package, CheckCircle2, AlertTriangle, Layers, Check } from 'lucide-react'
 import { useAuth } from '../../contexts/AuthContext'
 import { getProductsByShop } from '../../services/api'
@@ -15,22 +16,8 @@ import {
 // Số lượng sản phẩm hiển thị trên mỗi trang theo yêu cầu (10 sản phẩm/trang)
 const ITEMS_PER_PAGE = 10
 
-/**
- * Trang Quản lý Sản phẩm Kênh Người bán (Seller Products Page):
- * - Chia thành các component độc lập, tái sử dụng cao trong src/components/seller:
- *   + MetricCard: Khung hiển thị các chỉ số kho hàng (Total, In Stock, Low Stock, Out of Stock).
- *   + ProductFilters: Thanh tìm kiếm từ khóa, bộ lọc danh mục và trạng thái kho.
- *   + ProductTable: Bảng sản phẩm hiển thị ảnh (kèm onError), thông tin, giá, tồn kho và các nút thao tác.
- *   + ProductFormModal: Modal Thêm mới hoặc Cập nhật sản phẩm qua API (POST/PUT).
- *   + ProductDeleteModal: Hộp thoại xác nhận xóa sản phẩm qua API (DELETE).
- * - Tự động nhận diện Shop ID và Shop Name từ SellerLayout / AuthContext (Hỗ trợ đa shop độc lập).
- * - Tối ưu hiệu năng: Lấy trực tiếp danh sách sản phẩm theo ID Shop qua API (GET /products?shopId=...),
- *   thay vì tải toàn bộ kho dữ liệu rồi lọc ở client.
- * - Loại bỏ lạm dụng useMemo cho các phép tính mảng nhỏ để tối ưu hóa bộ nhớ RAM.
- * - Xử lý bắt lỗi ảnh tự động (handleImageError / FALLBACK_IMAGE) trên toàn bộ sản phẩm.
- * - Không dùng chấm tròn trạng thái, các badge đều có kích thước cố định, căn chuẩn thiết kế tối giản Fashora.
- */
 export default function Products() {
+  const { t } = useTranslation()
   const outletContext = useOutletContext() || {}
   const { currentUser } = useAuth()
 
@@ -223,17 +210,17 @@ export default function Products() {
       setProducts((prev) =>
         prev.map((p) => (p.id === savedProduct.id ? savedProduct : p))
       )
-      setSuccessToast(`Product "${savedProduct.name}" updated successfully.`)
+      setSuccessToast(t('seller.products.form.successUpdate', { name: savedProduct.name, defaultValue: `Product "${savedProduct.name}" updated successfully.` }))
     } else {
       setProducts((prev) => [savedProduct, ...prev])
-      setSuccessToast(`New piece "${savedProduct.name}" added to catalog.`)
+      setSuccessToast(t('seller.products.form.successAdd', { name: savedProduct.name, defaultValue: `New piece "${savedProduct.name}" added to catalog.` }))
     }
   }
 
   // 15. Xử lý sau khi xóa sản phẩm thành công
   const handleDeleteSuccess = (deletedId) => {
     setProducts((prev) => prev.filter((p) => p.id !== deletedId))
-    setSuccessToast('Product removed from shop catalog successfully.')
+    setSuccessToast(t('seller.products.form.successDelete', 'Product removed from shop catalog successfully.'))
   }
 
   return (
@@ -248,9 +235,9 @@ export default function Products() {
           <button
             type="button"
             onClick={() => setSuccessToast('')}
-            className="text-neutral-400 hover:text-white text-xs uppercase px-2 py-0.5 ml-4"
+            className="text-neutral-400 hover:text-white text-xs uppercase px-2 py-0.5 ml-4 cursor-pointer"
           >
-            Close
+            {t('common.close', 'Close')}
           </button>
         </div>
       )}
@@ -265,33 +252,33 @@ export default function Products() {
       {/* 1. HÀNG 4 THẺ CHỈ SỐ KHO HÀNG (KPI METRICS) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
         <MetricCard
-          label="TOTAL PRODUCTS"
+          label={t('seller.metrics.totalProducts', 'TOTAL PRODUCTS')}
           value={stats.total}
-          subtext="Catalog product designs"
+          subtext={t('seller.metrics.totalProductsSub', 'Catalog product designs')}
           icon={Package}
           loading={isLoading}
         />
 
         <MetricCard
-          label="IN STOCK"
+          label={t('seller.metrics.inStock', 'IN STOCK')}
           value={stats.inStock}
-          subtext="Ready for dispatch (>5)"
+          subtext={t('seller.metrics.inStockSub', 'Ready for dispatch (>5)')}
           icon={CheckCircle2}
           loading={isLoading}
         />
 
         <MetricCard
-          label="LOW STOCK"
+          label={t('seller.metrics.lowStock', 'LOW STOCK')}
           value={stats.lowStock}
-          subtext="Attention required (<=5)"
+          subtext={t('seller.metrics.lowStockSub', 'Attention required (<=5)')}
           icon={AlertTriangle}
           loading={isLoading}
         />
 
         <MetricCard
-          label="OUT OF STOCK"
+          label={t('seller.metrics.outOfStock', 'OUT OF STOCK')}
           value={stats.outOfStock}
-          subtext="Depleted inventory items"
+          subtext={t('seller.metrics.outOfStockSub', 'Depleted inventory items')}
           icon={Layers}
           loading={isLoading}
         />

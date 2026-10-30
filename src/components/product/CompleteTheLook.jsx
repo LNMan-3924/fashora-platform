@@ -1,20 +1,22 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Plus, ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
 import { getProducts } from '../../services/api';
+import { getLocalizedProduct } from '../../utils';
 
 const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=600&q=80';
 
-// Hàm đồng bộ màu sắc nhãn Badge chuẩn nhận diện Fashora
+// Hàm đồng bộ màu sắc nhãn Badge chuẩn nhận diện Fashora (hỗ trợ song ngữ)
 function getBadgeStyle(variant) {
   const v = (variant || '').toLowerCase();
-  if (v.includes('sale') || v.includes('discount')) {
+  if (v.includes('sale') || v.includes('discount') || v.includes('giảm') || v.includes('khuyến')) {
     return 'bg-red-600 text-white';
   }
-  if (v.includes('sold') || v.includes('out')) {
+  if (v.includes('sold') || v.includes('out') || v.includes('hết')) {
     return 'bg-neutral-800 text-neutral-200';
   }
-  if (v.includes('hot') || v.includes('best')) {
+  if (v.includes('hot') || v.includes('best') || v.includes('nổi bật')) {
     return 'bg-amber-600 text-white';
   }
   return 'bg-black text-white';
@@ -141,12 +143,16 @@ const DEFAULT_LOOK_ITEMS = [
 
 export default function CompleteTheLook({
   items,
-  title = 'COMPLETE THE LOOK',
-  subtitle = 'Curated pairings from M STUDIO to complement your selected silhouette.',
+  title,
+  subtitle,
   viewAllLink = '/shop',
   onQuickAdd,
   className = '',
 }) {
+  const { t, i18n } = useTranslation();
+  const displayTitle = title || t('productDetail.completeTheLook', 'COMPLETE THE LOOK');
+  const displaySubtitle = subtitle || t('productDetail.curatedPairings', { shopName: 'M STUDIO' });
+
   const [apiItems, setApiItems] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const ITEMS_PER_PAGE = 4;
@@ -204,9 +210,13 @@ export default function CompleteTheLook({
         ? apiItems
         : DEFAULT_LOOK_ITEMS;
 
-  const totalPages = Math.ceil(allItems.length / ITEMS_PER_PAGE);
+  const localizedItems = useMemo(() => {
+    return allItems.map((item) => getLocalizedProduct(item, i18n.language));
+  }, [allItems, i18n.language]);
+
+  const totalPages = Math.ceil(localizedItems.length / ITEMS_PER_PAGE);
   const currentPage = Math.floor(currentIndex / ITEMS_PER_PAGE) + 1;
-  const visibleItems = allItems.slice(currentIndex, currentIndex + ITEMS_PER_PAGE);
+  const visibleItems = localizedItems.slice(currentIndex, currentIndex + ITEMS_PER_PAGE);
 
   const handlePrev = () => {
     setCurrentIndex((prev) => Math.max(0, prev - ITEMS_PER_PAGE));
@@ -226,11 +236,11 @@ export default function CompleteTheLook({
       <div className="flex items-center justify-between mb-6 sm:mb-8 flex-wrap gap-4">
         <div>
           <h2 className="font-bold text-xl sm:text-2xl uppercase tracking-wider text-[#111111]">
-            {title}
+            {displayTitle}
           </h2>
-          {subtitle && (
+          {displaySubtitle && (
             <p className="text-xs sm:text-sm text-neutral-500 mt-1">
-              {subtitle}
+              {displaySubtitle}
             </p>
           )}
         </div>

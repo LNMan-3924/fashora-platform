@@ -15,8 +15,8 @@ export const USER_ROLES = {
  * @property {string} email - Email đăng nhập
  * @property {string} fullName - Tên hiển thị
  * @property {string} phone - Số điện thoại liên hệ
- * @property {'CUSTOMER' | 'SELLER'} role - Vai trò tài khoản
- * @property {string} [shopId] - ID shop liên kết nếu role là SELLER
+ * @property {string[]} [roles] - Danh sách vai trò tài khoản ['customer', 'seller']
+ * @property {string} [shopId] - ID shop liên kết nếu có vai trò SELLER
  * @property {Array<{id: string, name: string, phone: string, address: string, isDefault: boolean}>} addresses
  */
 

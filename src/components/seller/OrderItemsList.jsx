@@ -1,4 +1,6 @@
+import { useTranslation } from 'react-i18next'
 import { formatVND, handleImageError, FALLBACK_IMAGE } from '../../constants/commerce'
+import { getLocalizedProductName } from '../../utils/productLocalization'
 
 /**
  * Component OrderItemsList: Khối danh sách các mặt hàng trong đơn hàng của Seller
@@ -10,6 +12,7 @@ import { formatVND, handleImageError, FALLBACK_IMAGE } from '../../constants/com
  * - items: Mảng các mặt hàng trong đơn hàng
  */
 export default function OrderItemsList({ items = [] }) {
+  const { t, i18n } = useTranslation()
   const safeItems = Array.isArray(items) ? items : []
 
   return (
@@ -17,24 +20,24 @@ export default function OrderItemsList({ items = [] }) {
       {/* Tiêu đề khối sản phẩm */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-neutral-200 mb-5 gap-2">
         <h4 className="text-xs font-bold uppercase tracking-[0.2em] text-black font-mono">
-          PRODUCTS IN THIS ORDER
+          {t('seller.orders.detail.productsTitle', 'PRODUCTS IN THIS ORDER')}
         </h4>
         <div className="flex items-center gap-2 text-[10px] uppercase font-mono tracking-wider text-neutral-500">
           <span className="px-2 py-0.5 bg-neutral-100 rounded-[2px]">
-            {safeItems.length} ITEMS
+            {t('seller.orders.detail.itemsCount', { count: safeItems.length, defaultValue: `${safeItems.length} ITEMS` })}
           </span>
           <span className="px-2 py-0.5 bg-neutral-100 rounded-[2px]">
-            STANDARD ATELIER PACKAGING
+            {t('seller.orders.detail.packaging', 'STANDARD ATELIER PACKAGING')}
           </span>
         </div>
       </div>
 
       {/* Tiêu đề cột trên Desktop */}
       <div className="hidden sm:grid grid-cols-12 text-[10px] font-bold font-mono uppercase tracking-wider text-neutral-400 pb-3 border-b border-neutral-100">
-        <div className="col-span-6">PRODUCT</div>
-        <div className="col-span-2 text-center">VARIANT</div>
-        <div className="col-span-1 text-center">QTY</div>
-        <div className="col-span-3 text-right">UNIT PRICE</div>
+        <div className="col-span-6">{t('seller.orders.detail.productCol', 'PRODUCT')}</div>
+        <div className="col-span-2 text-center">{t('seller.orders.detail.variantCol', 'VARIANT')}</div>
+        <div className="col-span-1 text-center">{t('seller.orders.detail.qtyCol', 'QTY')}</div>
+        <div className="col-span-3 text-right">{t('seller.orders.detail.priceCol', 'UNIT PRICE')}</div>
       </div>
 
       {/* Danh sách các sản phẩm */}
@@ -62,13 +65,13 @@ export default function OrderItemsList({ items = [] }) {
 
                   <div className="min-w-0 flex-1">
                     <h5 className="text-xs font-bold text-black uppercase tracking-wide truncate">
-                      {item.name}
+                      {getLocalizedProductName(item, i18n.language)}
                     </h5>
                     <div className="text-[10px] text-neutral-400 font-mono mt-0.5">
                       SKU: {item.id || 'N/A'}
                     </div>
                     <div className="text-[10px] text-emerald-600 font-mono font-medium mt-1">
-                      In Stock (Atelier)
+                      {t('seller.orders.detail.inStock', 'In Stock (Atelier)')}
                     </div>
                   </div>
                 </div>
@@ -76,7 +79,7 @@ export default function OrderItemsList({ items = [] }) {
                 {/* Cột 2: Phân loại Variant (Size / Color) */}
                 <div className="col-span-2 w-full sm:w-auto text-left sm:text-center text-xs text-neutral-600 font-mono">
                   <span className="sm:hidden text-[10px] text-neutral-400 uppercase font-semibold">
-                    Variant:{' '}
+                    {t('seller.orders.detail.variantCol', 'Variant')}:{' '}
                   </span>
                   <span>{item.selectedSize || 'OS'}</span>
                   {item.selectedColor && (
@@ -87,7 +90,7 @@ export default function OrderItemsList({ items = [] }) {
                 {/* Cột 3: Số lượng (Qty) */}
                 <div className="col-span-1 w-full sm:w-auto text-left sm:text-center font-mono text-xs font-bold text-black">
                   <span className="sm:hidden text-[10px] text-neutral-400 uppercase font-semibold">
-                    Qty:{' '}
+                    {t('seller.orders.detail.qtyCol', 'Qty')}:{' '}
                   </span>
                   {item.quantity || 1}
                 </div>
@@ -95,7 +98,7 @@ export default function OrderItemsList({ items = [] }) {
                 {/* Cột 4: Đơn giá (Price) */}
                 <div className="col-span-3 w-full sm:w-auto text-left sm:text-right font-mono text-xs font-bold text-black">
                   <span className="sm:hidden text-[10px] text-neutral-400 uppercase font-semibold">
-                    Price:{' '}
+                    {t('seller.orders.detail.priceCol', 'Price')}:{' '}
                   </span>
                   {formatVND(item.price || 0)}
                 </div>
@@ -104,7 +107,7 @@ export default function OrderItemsList({ items = [] }) {
           })
         ) : (
           <div className="py-8 text-center text-xs text-neutral-400 uppercase font-mono">
-            No items in this order.
+            {t('seller.orders.detail.noItems', 'No items in this order.')}
           </div>
         )}
       </div>

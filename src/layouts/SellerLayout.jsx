@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Outlet, useLocation, Navigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { useAuth } from '../contexts/AuthContext'
 import { getShopById, getShops, updateShopStatus } from '../services/api'
 import { Toast } from '../components/common'
@@ -17,6 +18,7 @@ import SellerFooter from '../components/layout/SellerFooter'
  * - Truyền dữ liệu sellerInfo và currentShopId thông qua Outlet context cho toàn bộ các trang con.
  */
 export default function SellerLayout() {
+  const { t } = useTranslation()
   const { currentUser, isAuthenticated, loading } = useAuth()
   const location = useLocation()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
@@ -161,10 +163,11 @@ export default function SellerLayout() {
 
   // Đổi tiêu đề Dashboard / Products / Orders / Settings tùy theo URL
   const getPageTitle = () => {
-    if (location.pathname.includes('/seller/products')) return 'PRODUCTS'
-    if (location.pathname.includes('/seller/orders')) return 'ORDERS'
-    if (location.pathname.includes('/seller/settings')) return 'STORE SETTINGS'
-    return 'DASHBOARD'
+    if (location.pathname.includes('/seller/products')) return t('seller.titles.products', 'PRODUCTS')
+    if (location.pathname.includes('/seller/orders/')) return t('seller.titles.orderDetail', 'ORDER DETAIL')
+    if (location.pathname.includes('/seller/orders')) return t('seller.titles.orders', 'ORDERS')
+    if (location.pathname.includes('/seller/settings')) return t('seller.titles.settings', 'STORE SETTINGS')
+    return t('seller.titles.dashboard', 'DASHBOARD')
   }
 
   // 1. Kiểm tra trạng thái xác thực phiên đăng nhập hoặc tải thông tin shop từ currentUser
@@ -198,9 +201,9 @@ export default function SellerLayout() {
     setSellerInfo(updated)
 
     if (newStatus === 'ACTIVE') {
-      setStatusToast('Store status updated: ACTIVE (OPERATIONAL)')
+      setStatusToast(t('seller.statusUpdatedActive', 'Store status updated: ACTIVE (OPERATIONAL)'))
     } else {
-      setStatusToast('Store status updated: PAUSED (OPERATIONS SUSPENDED)')
+      setStatusToast(t('seller.statusUpdatedPaused', 'Store status updated: PAUSED (OPERATIONS SUSPENDED)'))
     }
 
     // Đồng bộ trực tiếp lên API server backend (KHÔNG lưu localStorage)

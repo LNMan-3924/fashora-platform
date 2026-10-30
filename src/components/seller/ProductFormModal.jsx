@@ -1,4 +1,5 @@
 import { useState, useRef } from 'react'
+import { useTranslation } from 'react-i18next'
 import { X, Check, Upload, Loader2, Trash2, Plus, Star } from 'lucide-react'
 import { createProduct, updateProduct } from '../../services/api'
 import { handleImageError } from '../../constants/commerce'
@@ -47,6 +48,8 @@ function ProductFormContent({
   shopId = '',
   shopName = '',
 }) {
+  const { t, i18n } = useTranslation()
+  const currentLang = (i18n.language || 'en').toLowerCase().startsWith('vi') ? 'vi' : 'en'
   const isEditMode = Boolean(productToEdit?.id)
   const fileInputRef = useRef(null)
 
@@ -165,7 +168,7 @@ function ProductFormContent({
       }
     } catch (err) {
       console.error('Error uploading product image to Node.js fs:', err)
-      setErrorMessage(err.message || 'Unable to upload image. Please try again.')
+      setErrorMessage(err.message || t('seller.products.form.errorUpload'))
     } finally {
       setIsUploading(false)
       setUploadProgressText('')
@@ -200,36 +203,36 @@ function ProductFormContent({
     setErrorMessage('')
 
     if (!formData.name.trim()) {
-      setErrorMessage('Please enter product name.')
+      setErrorMessage(t('seller.products.form.errorName'))
       return
     }
 
     const priceNum = Number(formData.price)
     if (isNaN(priceNum) || priceNum <= 0) {
-      setErrorMessage('Price must be a valid number greater than 0.')
+      setErrorMessage(t('seller.products.form.errorPrice'))
       return
     }
 
     if (formData.originalPrice !== '' && formData.originalPrice !== null && formData.originalPrice !== undefined) {
       const origPriceNum = Number(formData.originalPrice)
       if (isNaN(origPriceNum) || origPriceNum <= 0) {
-        setErrorMessage('Original price must be a valid number greater than 0.')
+        setErrorMessage(t('seller.products.form.errorOriginalPrice'))
         return
       }
       if (origPriceNum <= priceNum) {
-        setErrorMessage('Original price must be greater than the selling price.')
+        setErrorMessage(t('seller.products.form.errorOriginalPriceCompare'))
         return
       }
     }
 
     const stockNum = Number(formData.stock)
     if (isNaN(stockNum) || stockNum < 0) {
-      setErrorMessage('Inventory stock quantity cannot be negative.')
+      setErrorMessage(t('seller.products.form.errorStock'))
       return
     }
 
     if (!formData.images || formData.images.length === 0) {
-      setErrorMessage('Please upload at least one product photo from your device.')
+      setErrorMessage(t('seller.products.form.errorImages'))
       return
     }
 
@@ -289,7 +292,7 @@ function ProductFormContent({
       onClose()
     } catch (err) {
       console.error('Error saving product:', err)
-      setErrorMessage('Unable to save product. Please check API server connection.')
+      setErrorMessage(t('seller.products.form.errorSave'))
     } finally {
       setIsSubmitting(false)
     }
@@ -314,11 +317,11 @@ function ProductFormContent({
       <div className="flex items-center justify-between px-6 py-4 border-b border-neutral-100 bg-neutral-50/50 sticky top-0 z-10 backdrop-blur-xs">
         <div>
           <h3 className="text-xs font-bold uppercase tracking-[0.2em] text-black font-mono">
-            {isEditMode ? 'EDIT PRODUCT' : 'ADD NEW PRODUCT'}
+            {isEditMode ? t('seller.products.form.editTitle', 'EDIT PRODUCT') : t('seller.products.form.addTitle', 'ADD NEW PRODUCT')}
           </h3>
           {isEditMode && (
-            <p className="text-[11px] text-neutral-400 mt-0.5">
-              Updating ID: {productToEdit.id}
+            <p className="text-[11px] text-neutral-400 mt-0.5 font-mono">
+              ID: {productToEdit.id}
             </p>
           )}
         </div>
@@ -342,14 +345,14 @@ function ProductFormContent({
         {/* Hàng 1: Tên sản phẩm */}
         <div className="space-y-1">
           <label className="block font-semibold uppercase tracking-wider text-neutral-700 font-mono text-[11px]">
-            Product Name *
+            {t('seller.products.form.nameLabel', 'PRODUCT NAME *')}
           </label>
           <input
             type="text"
             name="name"
             value={formData.name}
             onChange={handleChange}
-            placeholder="e.g. Sculptural Raw-Edge Denim Jacket"
+            placeholder={t('seller.products.form.namePlaceholder', 'e.g. Sculptural Raw-Edge Denim Jacket')}
             className="w-full px-3 py-2 border border-neutral-200 rounded-[2px] focus:border-black focus:outline-none"
             required
           />
@@ -359,7 +362,7 @@ function ProductFormContent({
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div className="space-y-1">
             <label className="block font-semibold uppercase tracking-wider text-neutral-700 font-mono text-[11px]">
-              Category *
+              {t('seller.products.form.categoryLabel', 'CATEGORY *')}
             </label>
             <select
               name="category"
@@ -367,20 +370,20 @@ function ProductFormContent({
               onChange={handleChange}
               className="w-full px-3 py-2 border border-neutral-200 rounded-[2px] focus:border-black focus:outline-none font-mono"
             >
-              <option value="SHIRT">SHIRT</option>
-              <option value="PANTS">PANTS</option>
-              <option value="SET">SET</option>
-              <option value="SHOES">SHOES</option>
-              <option value="ACCESSORIES">ACCESSORIES</option>
-              <option value="DRESS">DRESS</option>
-              <option value="JACKET">JACKET</option>
+              <option value="SHIRT">{currentLang === 'vi' ? 'ÁO' : 'SHIRT'}</option>
+              <option value="PANTS">{currentLang === 'vi' ? 'QUẦN' : 'PANTS'}</option>
+              <option value="SET">{currentLang === 'vi' ? 'SET TRANG PHỤC' : 'SET'}</option>
+              <option value="SHOES">{currentLang === 'vi' ? 'GIÀY DÉP' : 'SHOES'}</option>
+              <option value="ACCESSORIES">{currentLang === 'vi' ? 'PHỤ KIỆN' : 'ACCESSORIES'}</option>
+              <option value="DRESS">{currentLang === 'vi' ? 'ĐẦM / VÁY' : 'DRESS'}</option>
+              <option value="JACKET">{currentLang === 'vi' ? 'ÁO KHOÁC' : 'JACKET'}</option>
             </select>
           </div>
 
           <div className="space-y-1">
             <div className="flex items-center justify-between">
               <label className="block font-semibold uppercase tracking-wider text-neutral-700 font-mono text-[11px]">
-                Badge / Edition (Optional)
+                {t('seller.products.form.badgeLabel', 'BADGE LABEL')}
               </label>
               {formData.badge?.trim() && (
                 <span
@@ -399,10 +402,10 @@ function ProductFormContent({
               name="badge"
               value={formData.badge}
               onChange={handleChange}
-              placeholder="e.g. SALE, ARCHIVE, CAPSULE"
+              placeholder={t('seller.products.form.badgePlaceholder', 'e.g. SALE, ARCHIVE, CAPSULE')}
               className="w-full px-3 py-2 border border-neutral-200 rounded-[2px] font-mono focus:border-black focus:outline-none"
             />
-            {/* Quick Badge Presets (Đồng bộ kiểu dáng tối giản monochrome cho tất cả nút) */}
+            {/* Quick Badge Presets */}
             <div className="flex items-center gap-1.5 pt-1">
               <span className="text-[10px] font-mono text-neutral-400">Quick:</span>
               {['SALE', 'NEW', 'ARCHIVE', 'CAPSULE'].map((preset) => (
@@ -425,7 +428,7 @@ function ProductFormContent({
                   onClick={() => setFormData((prev) => ({ ...prev, badge: '' }))}
                   className="text-[10px] font-mono text-neutral-400 hover:text-black underline ml-auto cursor-pointer"
                 >
-                  Clear
+                  {t('seller.products.form.clear', 'Clear')}
                 </button>
               )}
             </div>
@@ -436,7 +439,7 @@ function ProductFormContent({
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <div className="space-y-1">
             <label className="block font-semibold uppercase tracking-wider text-neutral-700 font-mono text-[11px]">
-              Price (₫) *
+              {t('seller.products.form.priceLabel', 'Price (₫) *')}
             </label>
             <input
               type="number"
@@ -452,7 +455,7 @@ function ProductFormContent({
           <div className="space-y-1">
             <div className="flex items-center justify-between">
               <label className="block font-semibold uppercase tracking-wider text-neutral-700 font-mono text-[11px]">
-                Original Price (₫)
+                {t('seller.products.form.originalPriceLabel', 'Original Price (₫)')}
               </label>
               {discountPercent > 0 && (
                 <span className="text-[10px] font-mono font-bold text-red-600 bg-red-50 border border-red-200 px-1.5 py-0.2 rounded-[2px]">
@@ -474,14 +477,14 @@ function ProductFormContent({
             />
             {isOriginalPriceInvalid && (
               <p className="text-[10px] font-mono text-red-600 mt-0.5">
-                Must be greater than selling price ({formData.price || 0}₫)
+                {t('seller.products.form.originalPriceError', { price: formData.price || 0, defaultValue: `Must be greater than selling price (${formData.price || 0}₫)` })}
               </p>
             )}
           </div>
 
           <div className="space-y-1">
             <label className="block font-semibold uppercase tracking-wider text-neutral-700 font-mono text-[11px]">
-              Stock Units *
+              {t('seller.products.form.stockLabel', 'Stock Units *')}
             </label>
             <input
               type="number"
@@ -498,7 +501,7 @@ function ProductFormContent({
         {/* Hàng 3.5: Available Sizes (Kích cỡ) */}
         <div className="space-y-1.5 pt-1">
           <label className="block font-semibold uppercase tracking-wider text-neutral-700 font-mono text-[11px]">
-            Available Sizes *
+            {t('seller.products.form.sizesLabel', 'Available Sizes *')}
           </label>
           <div className="flex flex-wrap gap-1.5">
             {COMMON_SIZES.map((size) => {
@@ -524,7 +527,7 @@ function ProductFormContent({
         {/* Hàng 3.6: Available Colorways (Màu sắc) */}
         <div className="space-y-2 pt-1">
           <label className="block font-semibold uppercase tracking-wider text-neutral-700 font-mono text-[11px]">
-            Available Colorways ({formData.colors.length})
+            {t('seller.products.form.colorsLabel', { count: formData.colors.length, defaultValue: `Available Colorways (${formData.colors.length})` })}
           </label>
 
           {/* Dropdown Quick Add & Ô nhập màu tự do */}
@@ -538,7 +541,7 @@ function ProductFormContent({
               }}
               className="w-full px-3 py-1.5 border border-neutral-200 rounded-[2px] text-xs font-mono bg-white focus:border-black focus:outline-none cursor-pointer"
             >
-              <option value="">+ Select preset color to add...</option>
+              <option value="">{t('seller.products.form.selectPresetColor', '+ Select preset color to add...')}</option>
               {PRESET_COLORS.map((c) => {
                 const isAdded = formData.colors.map((col) => col.toLowerCase()).includes(c.name.toLowerCase())
                 return (
@@ -560,7 +563,7 @@ function ProductFormContent({
                     handleAddColor(customColorInput)
                   }
                 }}
-                placeholder="Or type custom color..."
+                placeholder={t('seller.products.form.typeCustomColor', 'Or type custom color...')}
                 className="flex-1 px-3 py-1.5 border border-neutral-200 rounded-[2px] text-xs font-mono focus:border-black focus:outline-none"
               />
               <button
@@ -568,7 +571,7 @@ function ProductFormContent({
                 onClick={() => handleAddColor(customColorInput)}
                 className="px-3 py-1.5 bg-neutral-900 text-white text-xs font-mono uppercase tracking-wider hover:bg-black rounded-[2px] cursor-pointer"
               >
-                Add
+                {t('seller.products.form.addColor', 'Add')}
               </button>
             </div>
           </div>
@@ -609,16 +612,16 @@ function ProductFormContent({
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <label className="block font-semibold uppercase tracking-wider text-neutral-700 font-mono text-[11px]">
-                Product Images *
+                {t('seller.products.form.imagesLabel')}
               </label>
               <span className="text-[10px] font-mono px-1.5 py-0.5 bg-neutral-100 text-neutral-600 rounded-[2px] border border-neutral-200">
-                {formData.images.length} {formData.images.length === 1 ? 'photo' : 'photos'}
+                {t('seller.products.form.photosCount', { count: formData.images.length })}
               </span>
             </div>
             {isUploading && (
               <span className="text-[11px] font-mono text-black flex items-center gap-1.5">
                 <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                <span>{uploadProgressText || 'Uploading...'}</span>
+                <span>{uploadProgressText || t('seller.products.form.uploading')}</span>
               </span>
             )}
           </div>
@@ -651,7 +654,7 @@ function ProductFormContent({
                     {isCover && (
                       <span className="absolute top-1.5 left-1.5 inline-flex items-center gap-1 px-1.5 py-0.5 bg-black/90 text-white text-[9px] font-mono uppercase tracking-wider rounded-[2px]">
                         <Star className="w-2.5 h-2.5 fill-white" />
-                        Cover
+                        {t('seller.products.form.cover')}
                       </span>
                     )}
 
@@ -661,16 +664,16 @@ function ProductFormContent({
                           type="button"
                           onClick={() => handleSetCoverImage(index)}
                           className="px-2 py-1 bg-white text-black text-[10px] font-mono uppercase tracking-wider rounded-[2px] hover:bg-neutral-100 cursor-pointer shadow-xs"
-                          title="Set as Cover"
+                          title={t('seller.products.form.setCover')}
                         >
-                          Cover
+                          {t('seller.products.form.cover')}
                         </button>
                       )}
                       <button
                         type="button"
                         onClick={() => handleRemoveImage(index)}
                         className="p-1 bg-red-600 text-white rounded-[2px] hover:bg-red-700 cursor-pointer shadow-xs"
-                        title="Delete photo"
+                        title={t('seller.products.form.deletePhoto')}
                       >
                         <Trash2 className="w-3.5 h-3.5" />
                       </button>
@@ -687,7 +690,7 @@ function ProductFormContent({
               >
                 <Plus className="w-5 h-5 text-neutral-400 group-hover:text-black mb-1" />
                 <span className="text-[10px] font-mono uppercase tracking-wider text-neutral-600 font-bold">
-                  Add Photo
+                  {t('seller.products.form.addPhoto')}
                 </span>
               </button>
             </div>
@@ -700,10 +703,10 @@ function ProductFormContent({
                 <Upload className="w-4 h-4 stroke-[1.5]" />
               </div>
               <p className="text-xs font-bold uppercase tracking-wider text-black font-mono">
-                Upload Product Images
+                {t('seller.products.form.uploadHint')}
               </p>
               <p className="text-[11px] text-neutral-400 mt-0.5">
-                Supports multiple files (JPG, PNG, WEBP)
+                {t('seller.products.form.uploadSubtext')}
               </p>
             </div>
           )}
@@ -712,14 +715,14 @@ function ProductFormContent({
         {/* Mô tả sản phẩm (Description) */}
         <div className="space-y-1">
           <label className="block font-semibold uppercase tracking-wider text-neutral-700 font-mono text-[11px]">
-            Description
+            {t('seller.products.form.descLabel')}
           </label>
           <textarea
             name="description"
             value={formData.description}
             onChange={handleChange}
             rows="3"
-            placeholder="Detailed description of tailoring, silhouette and hardware..."
+            placeholder={t('seller.products.form.descPlaceholder')}
             className="w-full px-3 py-2 border border-neutral-200 rounded-[2px] focus:border-black focus:outline-none"
           />
         </div>
@@ -729,28 +732,28 @@ function ProductFormContent({
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="space-y-1">
               <label className="block font-semibold uppercase tracking-wider text-neutral-700 font-mono text-[11px]">
-                Material (details.material)
+                {t('seller.products.form.materialLabel')}
               </label>
               <input
                 type="text"
                 name="material"
                 value={formData.material}
                 onChange={handleChange}
-                placeholder="e.g. 100% Raw Japanese Selvedge Cotton"
+                placeholder={t('seller.products.form.materialPlaceholder')}
                 className="w-full px-3 py-2 border border-neutral-200 rounded-[2px] font-mono text-[11px] focus:border-black focus:outline-none"
               />
             </div>
 
             <div className="space-y-1">
               <label className="block font-semibold uppercase tracking-wider text-neutral-700 font-mono text-[11px]">
-                Provenance & Craftsmanship (details.origin)
+                {t('seller.products.form.originLabel')}
               </label>
               <input
                 type="text"
                 name="origin"
                 value={formData.origin}
                 onChange={handleChange}
-                placeholder="e.g. Crafted at Atelier, HCMC"
+                placeholder={t('seller.products.form.originPlaceholder')}
                 className="w-full px-3 py-2 border border-neutral-200 rounded-[2px] font-mono text-[11px] focus:border-black focus:outline-none"
               />
             </div>
@@ -759,14 +762,14 @@ function ProductFormContent({
           {/* Specifications (Hiển thị dạng gạch đầu dòng ở mục Material & Specifications) */}
           <div className="space-y-1">
             <label className="block font-semibold uppercase tracking-wider text-neutral-700 font-mono text-[11px]">
-              Specifications (details.specifications)
+              {t('seller.products.form.specsLabel')}
             </label>
             <textarea
               name="specifications"
               value={formData.specifications}
               onChange={handleChange}
               rows="3"
-              placeholder={`Asymmetrical multi-panel geometric silhouette.\nConcealed front zipper with branded metal pull.\nReinforced stitching at stress points.`}
+              placeholder={t('seller.products.form.specsPlaceholder')}
               className="w-full px-3 py-2 border border-neutral-200 rounded-[2px] font-mono text-[11px] focus:border-black focus:outline-none leading-relaxed"
             />
           </div>
@@ -774,14 +777,14 @@ function ProductFormContent({
           {/* Care & Preservation (Hiển thị ở Tab Care Guide: Maintenance & Preservation) */}
           <div className="space-y-1">
             <label className="block font-semibold uppercase tracking-wider text-neutral-700 font-mono text-[11px]">
-              Care & Preservation (Care Guide)
+              {t('seller.products.form.careLabel')}
             </label>
             <textarea
               name="careInstructions"
               value={formData.careInstructions}
               onChange={handleChange}
               rows="2"
-              placeholder="e.g. Dry clean only. Store in protective dust bag. Do not tumble dry."
+              placeholder={t('seller.products.form.carePlaceholder')}
               className="w-full px-3 py-2 border border-neutral-200 rounded-[2px] font-mono text-[11px] focus:border-black focus:outline-none"
             />
           </div>
@@ -797,7 +800,7 @@ function ProductFormContent({
             disabled={isSubmitting || isUploading}
             className="px-4 py-2 text-xs font-semibold uppercase tracking-wider border border-neutral-200 text-neutral-700 rounded-[2px] hover:bg-neutral-50 transition-colors cursor-pointer"
           >
-            Cancel
+            {t('seller.products.form.cancel')}
           </button>
 
           <button
@@ -806,7 +809,7 @@ function ProductFormContent({
             className="inline-flex items-center gap-1.5 px-5 py-2 text-xs font-semibold uppercase tracking-wider bg-black text-white rounded-[2px] hover:bg-neutral-800 transition-colors disabled:opacity-50 cursor-pointer"
           >
             <Check className="w-3.5 h-3.5" />
-            <span>{isSubmitting ? 'Saving...' : isEditMode ? 'Update' : 'Create'}</span>
+            <span>{isSubmitting ? t('seller.products.form.saving') : isEditMode ? t('seller.products.form.update') : t('seller.products.form.create')}</span>
           </button>
         </div>
       </form>

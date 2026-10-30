@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { ArrowRight } from 'lucide-react'
 import { useAuth } from '../../contexts/AuthContext'
 
@@ -7,12 +8,12 @@ import { useAuth } from '../../contexts/AuthContext'
  * - Tự động ẩn hoàn toàn (return null) khi tài khoản đã là Seller (role === 'seller' hoặc có shopId).
  */
 export default function BecomeSellerBanner() {
+  const { t } = useTranslation()
   const { currentUser } = useAuth()
   const isSeller =
-    String(currentUser?.role || '').toLowerCase() === 'seller' ||
+    Boolean(currentUser?.shopId) ||
     (Array.isArray(currentUser?.roles) &&
-      currentUser.roles.map((r) => String(r).toLowerCase()).includes('seller')) ||
-    Boolean(currentUser?.shopId)
+      currentUser.roles.some((r) => String(r).toLowerCase() === 'seller'))
 
   // Nếu người dùng đã là người bán -> Biến mất hoàn toàn theo yêu cầu
   if (isSeller) {
@@ -27,13 +28,13 @@ export default function BecomeSellerBanner() {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div className="max-w-2xl">
           <span className="block text-[10px] font-semibold uppercase tracking-[0.25em] text-[#A3A3A3] mb-1 font-mono">
-            BECOME A SELLER
+            {t('profile.becomeSellerBtn')}
           </span>
-          <h2 className="text-base sm:text-lg md:text-xl font-bold uppercase tracking-[0.15em] text-white leading-tight mb-1.5 font-sans">
-            YOUR STYLE. YOUR STORE. YOUR FASHORA.
+          <h2 className="text-xl sm:text-2xl font-bold uppercase tracking-tight text-white leading-tight mb-1.5 font-sans">
+            {t('profile.becomeSellerTitle')}
           </h2>
           <p className="text-xs sm:text-sm text-[#D4D4D4] font-normal leading-relaxed">
-            Join FASHORA and bring your fashion collection to more shoppers.
+            {t('profile.becomeSellerDesc')}
           </p>
         </div>
 
@@ -42,7 +43,7 @@ export default function BecomeSellerBanner() {
             to="/become-seller"
             className="inline-flex items-center justify-center gap-1.5 bg-white text-[#111111] hover:bg-[#F0F0F0] text-xs font-bold uppercase tracking-[0.18em] px-7 py-3 rounded-[2px] transition-colors whitespace-nowrap"
           >
-            <span>BECOME A SELLER</span>
+            <span>{t('profile.becomeSellerBtn')}</span>
             <ArrowRight className="w-3.5 h-3.5" />
           </Link>
         </div>

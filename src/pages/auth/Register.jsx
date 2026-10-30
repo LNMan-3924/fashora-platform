@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { useAuth } from '../../contexts/AuthContext'
-import { getUsers, registerUser } from '../../services/api'
+import { getUserByEmail, getUserByPhone, registerUser } from '../../services/api'
 import { nanoid } from 'nanoid'
 
 export default function Register() {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const { loginUser } = useAuth()
 
@@ -40,10 +42,10 @@ export default function Register() {
     if (/[0-9]/.test(pwd)) score++
     if (/[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(pwd)) score++
 
-    if (score <= 1) return { score: 1, label: 'WEAK', color: 'bg-red-500', textColor: 'text-red-500' }
-    if (score === 2) return { score: 2, label: 'FAIR', color: 'bg-amber-500', textColor: 'text-amber-500' }
-    if (score === 3) return { score: 3, label: 'GOOD', color: 'bg-blue-500', textColor: 'text-blue-500' }
-    return { score: 4, label: 'STRONG', color: 'bg-emerald-500', textColor: 'text-emerald-500' }
+    if (score <= 1) return { score: 1, label: t('auth.weak', 'WEAK'), color: 'bg-red-500', textColor: 'text-red-500' }
+    if (score === 2) return { score: 2, label: t('auth.fair', 'FAIR'), color: 'bg-amber-500', textColor: 'text-amber-500' }
+    if (score === 3) return { score: 3, label: t('auth.good', 'GOOD'), color: 'bg-blue-500', textColor: 'text-blue-500' }
+    return { score: 4, label: t('auth.strong', 'STRONG'), color: 'bg-emerald-500', textColor: 'text-emerald-500' }
   }
 
   const passwordStrength = getPasswordStrength(formData.password)
@@ -64,31 +66,31 @@ export default function Register() {
 
     // 1. Full name
     if (!formData.fullName.trim()) {
-      newErrors.fullName = 'Full name is required.'
+      newErrors.fullName = t('auth.fullNameRequired', 'Full name is required.')
     } else if (formData.fullName.trim().length < 2) {
-      newErrors.fullName = 'Full name must be at least 2 characters.'
+      newErrors.fullName = t('auth.fullNameMinLength', 'Full name must be at least 2 characters.')
     }
 
     // 2. Email Address
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     if (!formData.email.trim()) {
-      newErrors.email = 'Email address is required.'
+      newErrors.email = t('auth.emailRequired', 'Email address is required.')
     } else if (!emailRegex.test(formData.email.trim())) {
-      newErrors.email = 'Invalid email address format (e.g. name@domain.com).'
+      newErrors.email = t('auth.emailInvalid', 'Invalid email address format (e.g. name@domain.com).')
     }
 
     // 3. Phone Number (Vietnamese standard)
     const cleanPhone = formData.phoneNumber.trim().replace(/\s+/g, '')
     const phoneRegex = /^(0|\+84)[3|5|7|8|9][0-9]{8}$/
     if (!cleanPhone) {
-      newErrors.phoneNumber = 'Phone number is required.'
+      newErrors.phoneNumber = t('auth.phoneRequired', 'Phone number is required.')
     } else if (!phoneRegex.test(cleanPhone)) {
-      newErrors.phoneNumber = 'Invalid phone number (must be 10 digits, e.g. 0901234567).'
+      newErrors.phoneNumber = t('auth.phoneInvalid', 'Invalid phone number (must be 10 digits, e.g. 0901234567).')
     }
 
     // 4. Date of Birth (DOB) - Bắt buộc, không chọn tương lai, đủ 16 tuổi trở lên
     if (!formData.dob) {
-      newErrors.dob = 'Date of birth is required.'
+      newErrors.dob = t('auth.dobRequired', 'Date of birth is required.')
     } else {
       const today = new Date()
       today.setHours(0, 0, 0, 0)
@@ -96,39 +98,39 @@ export default function Register() {
       dobDate.setHours(0, 0, 0, 0)
 
       if (isNaN(dobDate.getTime())) {
-        newErrors.dob = 'Invalid date of birth.'
+        newErrors.dob = t('auth.dobInvalid', 'Invalid date of birth.')
       } else if (dobDate > today) {
-        newErrors.dob = 'Date of birth cannot be in the future.'
+        newErrors.dob = t('auth.dobFuture', 'Date of birth cannot be in the future.')
       } else {
         // Kiểm tra đủ 16 tuổi trở lên
         const min16thBirthday = new Date(dobDate)
         min16thBirthday.setFullYear(min16thBirthday.getFullYear() + 16)
         if (min16thBirthday > today) {
-          newErrors.dob = 'You must be at least 16 years old to register.'
+          newErrors.dob = t('auth.dobMinAge', 'You must be at least 16 years old to register.')
         }
       }
     }
 
     // 5. Password - Bắt buộc, có chữ hoa, chữ thường, số, ký tự đặc biệt, tối thiểu 8 ký tự
     if (!formData.password) {
-      newErrors.password = 'Password is required.'
+      newErrors.password = t('auth.passwordRequired', 'Password is required.')
     } else if (formData.password.length < 8) {
-      newErrors.password = 'Password must be at least 8 characters.'
+      newErrors.password = t('auth.passwordMinLength', 'Password must be at least 8 characters.')
     } else if (!/[A-Z]/.test(formData.password)) {
-      newErrors.password = 'Must contain at least one uppercase letter (A-Z).'
+      newErrors.password = t('auth.passwordUppercase', 'Must contain at least one uppercase letter (A-Z).')
     } else if (!/[a-z]/.test(formData.password)) {
-      newErrors.password = 'Must contain at least one lowercase letter (a-z).'
+      newErrors.password = t('auth.passwordLowercase', 'Must contain at least one lowercase letter (a-z).')
     } else if (!/[0-9]/.test(formData.password)) {
-      newErrors.password = 'Must contain at least one number (0-9).'
+      newErrors.password = t('auth.passwordNumber', 'Must contain at least one number (0-9).')
     } else if (!/[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(formData.password)) {
-      newErrors.password = 'Must contain at least one special character (!@#$%^&*...).'
+      newErrors.password = t('auth.passwordSpecial', 'Must contain at least one special character (!@#$%^&*...).')
     }
 
     // 6. Confirm Password - Phải khớp với password
     if (!formData.confirmPassword) {
-      newErrors.confirmPassword = 'Confirm password is required.'
+      newErrors.confirmPassword = t('auth.confirmPasswordRequired', 'Confirm password is required.')
     } else if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = 'Passwords do not match.'
+      newErrors.confirmPassword = t('auth.passwordMismatch', 'Passwords do not match.')
     }
 
     return newErrors
@@ -148,23 +150,22 @@ export default function Register() {
     setIsLoading(true)
 
     try {
-      // Kiểm tra trùng lặp email và số điện thoại trong db.json
-      const checkRes = await getUsers()
-      const existingUsers = Array.isArray(checkRes?.data) ? checkRes.data : []
+      // Tối ưu hiệu năng: Kiểm tra trùng lặp email và số điện thoại trực tiếp qua server query params
       const cleanPhone = formData.phoneNumber.trim().replace(/\s+/g, '')
       const cleanEmail = formData.email.trim().toLowerCase()
 
-      const emailExists = existingUsers.some(
-        (u) => u.email && u.email.toLowerCase() === cleanEmail
-      )
-      const phoneExists = existingUsers.some(
-        (u) => u.phoneNumber && u.phoneNumber.replace(/\s+/g, '') === cleanPhone
-      )
+      const [emailRes, phoneRes] = await Promise.all([
+        getUserByEmail(cleanEmail),
+        getUserByPhone(cleanPhone),
+      ])
+
+      const emailExists = Array.isArray(emailRes?.data) && emailRes.data.length > 0
+      const phoneExists = Array.isArray(phoneRes?.data) && phoneRes.data.length > 0
 
       if (emailExists || phoneExists) {
         const duplicateErrors = {}
-        if (emailExists) duplicateErrors.email = 'This email address is already registered.'
-        if (phoneExists) duplicateErrors.phoneNumber = 'This phone number is already registered.'
+        if (emailExists) duplicateErrors.email = t('auth.emailRegistered', 'This email address is already registered.')
+        if (phoneExists) duplicateErrors.phoneNumber = t('auth.phoneRegistered', 'This phone number is already registered.')
         setErrors(duplicateErrors)
         setIsLoading(false)
         return
@@ -179,10 +180,10 @@ export default function Register() {
         password: formData.password,
         dob: formData.dob,
         gender: formData.gender,
-        role: 'customer',
         roles: ['customer'],
         shopId: null,
         shippingAddresses: [],
+        followingShops: [],
         createdAt: new Date().toISOString(),
       }
 
@@ -192,47 +193,50 @@ export default function Register() {
       loginUser(createdUser)
       navigate('/home')
     } catch (err) {
-      setServerError(err?.message || 'An unexpected error occurred while creating your account.')
+      setServerError(err?.message || t('auth.registerError', 'An unexpected error occurred while creating your account.'))
     } finally {
       setIsLoading(false)
     }
   }
 
   return (
-    <div className="w-full flex flex-col items-center py-6 sm:py-10">
-      {/* Khung Card chính của Form */}
-      <div className="w-full max-w-[500px] bg-white border border-neutral-200/90 p-8 sm:p-10 shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
-        {/* Header trong thẻ */}
-        <div className="text-center mb-7">
+    <div className="w-full flex flex-col items-center">
+      {/* Khung Card chính của Form - đồng bộ kích thước 100% ngang bằng Login (480px x 469px) */}
+      <div className="w-full max-w-[480px] sm:h-[469px] max-h-[85vh] flex flex-col bg-white/95 backdrop-blur-md border border-neutral-200/90 shadow-[0_20px_50px_rgba(0,0,0,0.2)] overflow-hidden">
+        {/* Header cố định trong thẻ */}
+        <div className="text-center px-8 sm:px-10 pt-7 sm:pt-8 pb-3 shrink-0">
           <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-[#111111] uppercase font-serif">
-            CREATE AN ACCOUNT
+            {t('auth.registerTitle', 'CREATE AN ACCOUNT')}
           </h1>
+          {/* Lỗi máy chủ / kết nối chung nếu có */}
+          {serverError && (
+            <div className="mt-3 p-3 bg-red-50 border border-red-500 text-red-600 text-xs font-mono uppercase tracking-wider">
+              {serverError}
+            </div>
+          )}
         </div>
 
-        {/* Lỗi máy chủ / kết nối chung nếu có */}
-        {serverError && (
-          <div className="mb-5 p-3 bg-red-50 border border-red-500 text-red-600 text-xs font-mono uppercase tracking-wider">
-            {serverError}
-          </div>
-        )}
-
-        <form onSubmit={handleRegister} noValidate className="space-y-4">
+        {/* Thân Form cuộn lên xuống mượt mà (Editorial Scrollbar) */}
+        <form
+          onSubmit={handleRegister}
+          noValidate
+          className="flex-1 overflow-y-auto px-8 sm:px-10 py-2 space-y-4 editorial-scrollbar"
+        >
           {/* 1. FULL NAME */}
           <div>
             <label className="block text-[10px] font-mono tracking-widest uppercase text-neutral-700 font-semibold mb-1.5">
-              FULL NAME *
+              {t('auth.fullName', 'FULL NAME *')}
             </label>
             <input
               type="text"
               name="fullName"
               value={formData.fullName}
               onChange={handleInputChange}
-              placeholder="Enter your full name"
-              className={`w-full border px-3.5 py-2.5 text-xs text-[#111111] outline-none transition-colors ${
-                errors.fullName
+              placeholder={t('auth.fullNamePlaceholder', 'Enter your full name')}
+              className={`w-full border px-3.5 py-2.5 text-xs text-[#111111] outline-none transition-colors ${errors.fullName
                   ? 'border-red-500 focus:border-red-600 bg-red-50/20'
                   : 'border-neutral-300 focus:border-black placeholder:text-neutral-400'
-              }`}
+                }`}
             />
             {errors.fullName && (
               <p className="mt-1 text-[11px] font-mono text-red-500 tracking-wide flex items-center gap-1">
@@ -245,19 +249,18 @@ export default function Register() {
           {/* 2. EMAIL ADDRESS */}
           <div>
             <label className="block text-[10px] font-mono tracking-widest uppercase text-neutral-700 font-semibold mb-1.5">
-              EMAIL ADDRESS *
+              {t('auth.email', 'EMAIL ADDRESS *')}
             </label>
             <input
               type="email"
               name="email"
               value={formData.email}
               onChange={handleInputChange}
-              placeholder="name@example.com"
-              className={`w-full border px-3.5 py-2.5 text-xs text-[#111111] outline-none transition-colors ${
-                errors.email
+              placeholder={t('auth.emailPlaceholder', 'name@example.com')}
+              className={`w-full border px-3.5 py-2.5 text-xs text-[#111111] outline-none transition-colors ${errors.email
                   ? 'border-red-500 focus:border-red-600 bg-red-50/20'
                   : 'border-neutral-300 focus:border-black placeholder:text-neutral-400'
-              }`}
+                }`}
             />
             {errors.email && (
               <p className="mt-1 text-[11px] font-mono text-red-500 tracking-wide flex items-center gap-1">
@@ -270,19 +273,18 @@ export default function Register() {
           {/* 3. PHONE NUMBER */}
           <div>
             <label className="block text-[10px] font-mono tracking-widest uppercase text-neutral-700 font-semibold mb-1.5">
-              PHONE NUMBER *
+              {t('auth.phone', 'PHONE NUMBER *')}
             </label>
             <input
               type="tel"
               name="phoneNumber"
               value={formData.phoneNumber}
               onChange={handleInputChange}
-              placeholder="0901234567"
-              className={`w-full border px-3.5 py-2.5 text-xs text-[#111111] outline-none transition-colors ${
-                errors.phoneNumber
+              placeholder={t('auth.phonePlaceholder', '0901234567')}
+              className={`w-full border px-3.5 py-2.5 text-xs text-[#111111] outline-none transition-colors ${errors.phoneNumber
                   ? 'border-red-500 focus:border-red-600 bg-red-50/20'
                   : 'border-neutral-300 focus:border-black placeholder:text-neutral-400'
-              }`}
+                }`}
             />
             {errors.phoneNumber && (
               <p className="mt-1 text-[11px] font-mono text-red-500 tracking-wide flex items-center gap-1">
@@ -296,7 +298,7 @@ export default function Register() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="block text-[10px] font-mono tracking-widest uppercase text-neutral-700 font-semibold mb-1.5">
-                DATE OF BIRTH *
+                {t('auth.dob', 'DATE OF BIRTH *')}
               </label>
               <input
                 type="date"
@@ -304,11 +306,10 @@ export default function Register() {
                 max={todayStr}
                 value={formData.dob}
                 onChange={handleInputChange}
-                className={`w-full border px-3 py-2 text-xs text-[#111111] outline-none transition-colors cursor-pointer bg-white ${
-                  errors.dob
+                className={`w-full border px-3 py-2 text-xs text-[#111111] outline-none transition-colors cursor-pointer bg-white ${errors.dob
                     ? 'border-red-500 focus:border-red-600 bg-red-50/20'
                     : 'border-neutral-300 focus:border-black'
-                }`}
+                  }`}
               />
               {errors.dob && (
                 <p className="mt-1 text-[11px] font-mono text-red-500 tracking-wide flex items-center gap-1">
@@ -320,7 +321,7 @@ export default function Register() {
 
             <div>
               <label className="block text-[10px] font-mono tracking-widest uppercase text-neutral-700 font-semibold mb-1.5">
-                GENDER *
+                {t('auth.gender', 'GENDER *')}
               </label>
               <select
                 name="gender"
@@ -328,9 +329,9 @@ export default function Register() {
                 onChange={handleInputChange}
                 className="w-full border border-neutral-300 px-3 py-2.5 text-xs text-[#111111] outline-none focus:border-black bg-white cursor-pointer font-normal"
               >
-                <option value="Male">Male</option>
-                <option value="Female">Female</option>
-                <option value="Other">Other</option>
+                <option value="Male">{t('profile.male', 'Male')}</option>
+                <option value="Female">{t('profile.female', 'Female')}</option>
+                <option value="Other">{t('profile.other', 'Other')}</option>
               </select>
             </div>
           </div>
@@ -338,7 +339,7 @@ export default function Register() {
           {/* 5. PASSWORD */}
           <div>
             <label className="block text-[10px] font-mono tracking-widest uppercase text-neutral-700 font-semibold mb-1.5">
-              PASSWORD *
+              {t('auth.password', 'PASSWORD *')}
             </label>
             <div className="relative">
               <input
@@ -346,12 +347,11 @@ export default function Register() {
                 name="password"
                 value={formData.password}
                 onChange={handleInputChange}
-                placeholder="Create a strong password"
-                className={`w-full border px-3.5 py-2.5 text-xs text-[#111111] outline-none transition-colors pr-10 ${
-                  errors.password
+                placeholder={t('auth.createPasswordPlaceholder', 'Create a strong password')}
+                className={`w-full border px-3.5 py-2.5 text-xs text-[#111111] outline-none transition-colors pr-10 ${errors.password
                     ? 'border-red-500 focus:border-red-600 bg-red-50/20'
                     : 'border-neutral-300 focus:border-black placeholder:text-neutral-400'
-                }`}
+                  }`}
               />
               <button
                 type="button"
@@ -379,14 +379,13 @@ export default function Register() {
                   {[1, 2, 3, 4].map((step) => (
                     <div
                       key={step}
-                      className={`h-full flex-1 transition-all duration-300 ${
-                        passwordStrength.score >= step ? passwordStrength.color : 'bg-neutral-200'
-                      }`}
+                      className={`h-full flex-1 transition-all duration-300 ${passwordStrength.score >= step ? passwordStrength.color : 'bg-neutral-200'
+                        }`}
                     />
                   ))}
                 </div>
                 <div className="flex justify-between items-center text-[10px] font-mono">
-                  <span className="text-neutral-400">Security strength</span>
+                  <span className="text-neutral-400">{t('auth.securityStrength', 'Security strength')}</span>
                   <span className={`font-bold uppercase tracking-wider ${passwordStrength.textColor}`}>
                     {passwordStrength.label}
                   </span>
@@ -402,7 +401,7 @@ export default function Register() {
               </p>
             ) : (
               <p className="mt-1 text-[10px] font-mono text-neutral-400 leading-normal">
-                Min 8 characters with uppercase, lowercase, number & special symbol.
+                {t('auth.passwordRule', 'Min 8 characters with uppercase, lowercase, number & special symbol.')}
               </p>
             )}
           </div>
@@ -410,7 +409,7 @@ export default function Register() {
           {/* 6. CONFIRM PASSWORD */}
           <div>
             <label className="block text-[10px] font-mono tracking-widest uppercase text-neutral-700 font-semibold mb-1.5">
-              CONFIRM PASSWORD *
+              {t('auth.confirmPassword', 'CONFIRM PASSWORD *')}
             </label>
             <div className="relative">
               <input
@@ -418,12 +417,11 @@ export default function Register() {
                 name="confirmPassword"
                 value={formData.confirmPassword}
                 onChange={handleInputChange}
-                placeholder="Confirm your password"
-                className={`w-full border px-3.5 py-2.5 text-xs text-[#111111] outline-none transition-colors pr-10 ${
-                  errors.confirmPassword
+                placeholder={t('auth.confirmPasswordPlaceholder', 'Confirm your password')}
+                className={`w-full border px-3.5 py-2.5 text-xs text-[#111111] outline-none transition-colors pr-10 ${errors.confirmPassword
                     ? 'border-red-500 focus:border-red-600 bg-red-50/20'
                     : 'border-neutral-300 focus:border-black placeholder:text-neutral-400'
-                }`}
+                  }`}
               />
               <button
                 type="button"
@@ -453,21 +451,21 @@ export default function Register() {
 
           {/* Terms & Privacy Notice đồng bộ với Footer */}
           <p className="text-[11px] text-neutral-400 font-mono leading-relaxed pt-1">
-            By creating an account, you agree to Fashora's{' '}
+            {t('auth.agreeNotice', "By creating an account, you agree to Fashora's")}{' '}
             <Link
               to="/terms-of-use"
               state={{ from: '/register' }}
               className="underline text-neutral-600 hover:text-black cursor-pointer font-medium"
             >
-              Terms of Use
+              {t('auth.termsOfUse', 'Terms of Use')}
             </Link>{' '}
-            and{' '}
+            {t('auth.and', 'and')}{' '}
             <Link
               to="/privacy-policy"
               state={{ from: '/register' }}
               className="underline text-neutral-600 hover:text-black cursor-pointer font-medium"
             >
-              Privacy Policy
+              {t('auth.privacyPolicy', 'Privacy Policy')}
             </Link>.
           </p>
 
@@ -477,22 +475,22 @@ export default function Register() {
             disabled={isLoading}
             className="w-full mt-2 py-3.5 bg-[#111111] text-white text-xs font-mono uppercase tracking-widest font-semibold hover:bg-neutral-800 transition-colors disabled:opacity-50 cursor-pointer"
           >
-            {isLoading ? 'CREATING ACCOUNT...' : 'CREATE ACCOUNT'}
+            {isLoading ? t('auth.creating', 'CREATING ACCOUNT...') : t('auth.register', 'CREATE ACCOUNT')}
           </button>
         </form>
 
-        {/* Chuyển hướng sang Login */}
-        <div className="mt-8 text-center text-xs font-mono text-neutral-500">
-          Already have an account?{' '}
+        {/* Chuyển hướng sang Login - ghim cố định ở đáy thẻ với đường viền mờ */}
+        <div className="px-8 sm:px-10 py-4 shrink-0 border-t border-neutral-100 text-center text-xs font-mono text-neutral-500 bg-white/40">
+          {t('auth.alreadyHaveAccount', 'Already have an account?')}{' '}
           <Link to="/login" className="text-black font-bold uppercase underline hover:text-neutral-700 ml-1">
-            LOGIN
+            {t('auth.login', 'LOGIN')}
           </Link>
         </div>
       </div>
 
       {/* Dòng bảo mật con dấu dưới thẻ */}
       <div className="mt-6 text-[10px] font-mono uppercase tracking-[0.2em] text-neutral-400 select-none">
-        AUTONOMOUS ATELIER SECURITY • 256-BIT ENCRYPTED
+        {t('auth.securityBadge', 'AUTONOMOUS ATELIER SECURITY • 256-BIT ENCRYPTED')}
       </div>
     </div>
   )

@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { ORDER_TABS } from './orderConstants'
 
 /**
@@ -14,9 +15,24 @@ export default function OrderStatusTabs({
   onTabChange,
   counts = {},
 }) {
+  const { t } = useTranslation()
+
+  const getTabLabel = (key, defaultLabel) => {
+    switch (key) {
+      case 'all': return t('orders.all', defaultLabel)
+      case 'pending': return t('orders.pending', defaultLabel)
+      case 'confirmed': return t('orders.confirmed', defaultLabel)
+      case 'shipping': return t('orders.shipping', defaultLabel)
+      case 'completed': return t('orders.delivered', defaultLabel)
+      case 'cancelled': return t('orders.cancelled', defaultLabel)
+      default: return defaultLabel
+    }
+  }
+
   const tabs = ORDER_TABS.map((tab) => ({
     ...tab,
     count: counts[tab.key] || 0,
+    translatedLabel: getTabLabel(tab.key, tab.label),
   }))
 
   return (
@@ -37,7 +53,7 @@ export default function OrderStatusTabs({
                 : 'border-transparent text-neutral-500 hover:text-black font-medium'
             }`}
           >
-            {tab.label}{' '}
+            {tab.translatedLabel}{' '}
             <span className="ml-1 text-[11px] opacity-75 font-mono">
               ({tab.count})
             </span>

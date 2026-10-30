@@ -1,6 +1,8 @@
 import { Link, useLocation } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 
 export default function Footer() {
+  const { t } = useTranslation()
   const location = useLocation()
   const currentPathState = { from: `${location.pathname}${location.search}` }
 
@@ -13,7 +15,7 @@ export default function Footer() {
           {/* CỘT 1: CAN WE HELP YOU? */}
           <div className="space-y-4">
             <h3 className="font-bold tracking-[0.16em] uppercase text-white">
-              CAN WE HELP YOU?
+              {t('footer.canWeHelp', 'CAN WE HELP YOU?')}
             </h3>
             <ul className="space-y-3.5 text-neutral-400">
               <li>
@@ -37,9 +39,9 @@ export default function Footer() {
                       <a href="tel:0783734808" className="font-semibold text-white hover:underline">
                         +84 783 734 808
                       </a>
-                      <span className="text-[10px] text-amber-500 font-medium">Online</span>
+                      <span className="text-[10px] text-amber-500 font-medium">{t('footer.online')}</span>
                     </div>
-                    <p className="text-[11px] text-neutral-500 mt-0.5">Opening hours 8:30 AM - 10 PM</p>
+                    <p className="text-[11px] text-neutral-500 mt-0.5">{t('footer.openingHours', 'Opening hours 8:30 AM - 10 PM')}</p>
                   </div>
                 </div>
               </li>
@@ -49,27 +51,27 @@ export default function Footer() {
           {/* CỘT 2: POLICY */}
           <div className="space-y-4">
             <h3 className="font-bold tracking-[0.16em] uppercase text-white">
-              POLICY
+              {t('footer.policy', 'POLICY')}
             </h3>
             <ul className="space-y-2.5 text-neutral-400">
               <li>
                 <Link to="/shopping-guide" state={currentPathState} className="hover:text-white transition-colors">
-                  SHOPPING GUIDE
+                  {t('footer.shoppingGuide', 'SHOPPING GUIDE')}
                 </Link>
               </li>
               <li>
                 <Link to="/exchange-policy" state={currentPathState} className="hover:text-white transition-colors">
-                  EXCHANGE POLICY
+                  {t('footer.exchangePolicy', 'EXCHANGE POLICY')}
                 </Link>
               </li>
               <li>
                 <Link to="/privacy-policy" state={currentPathState} className="hover:text-white transition-colors">
-                  PRIVACY POLICY
+                  {t('footer.privacyPolicy', 'PRIVACY POLICY')}
                 </Link>
               </li>
               <li>
                 <Link to="/terms-of-use" state={currentPathState} className="hover:text-white transition-colors">
-                  TERMS OF USE
+                  {t('footer.termsOfUse', 'TERMS OF USE')}
                 </Link>
               </li>
             </ul>
@@ -78,32 +80,32 @@ export default function Footer() {
           {/* CỘT 3: CATEGORY */}
           <div className="space-y-4">
             <h3 className="font-bold tracking-[0.16em] uppercase text-white">
-              CATEGORY
+              {t('footer.category', 'CATEGORY')}
             </h3>
             <ul className="space-y-2.5 text-neutral-400">
               <li>
                 <Link to="/shop?category=set" className="hover:text-white transition-colors">
-                  SET
+                  {t('categories.set', 'SET')}
                 </Link>
               </li>
               <li>
                 <Link to="/shop?category=shirt" className="hover:text-white transition-colors">
-                  SHIRT
+                  {t('categories.shirt', 'SHIRT')}
                 </Link>
               </li>
               <li>
                 <Link to="/shop?category=pants" className="hover:text-white transition-colors">
-                  PANTS
+                  {t('categories.pants', 'PANTS')}
                 </Link>
               </li>
               <li>
                 <Link to="/shop?category=shoes" className="hover:text-white transition-colors">
-                  SHOES
+                  {t('categories.shoes', 'SHOES')}
                 </Link>
               </li>
               <li>
                 <Link to="/shop?category=accessories" className="hover:text-white transition-colors">
-                  ACCESSORIES
+                  {t('categories.accessories', 'ACCESSORIES')}
                 </Link>
               </li>
             </ul>
@@ -112,7 +114,7 @@ export default function Footer() {
           {/* CỘT 4: FOLLOW US */}
           <div className="space-y-4">
             <h3 className="font-bold tracking-[0.16em] uppercase text-white">
-              FOLLOW US
+              {t('footer.followUs', 'FOLLOW US')}
             </h3>
             <div className="flex items-center gap-4 text-white">
               {/* Facebook */}
@@ -163,8 +165,8 @@ export default function Footer() {
         {/* HÀNG DƯỚI CÙNG: NGÔN NGỮ & BẢN QUYỀN */}
         <div className="border-t border-neutral-900 pt-8 flex items-center justify-center gap-6 text-[11px] text-neutral-400">
           {/* Bản quyền */}
-          <p className="tracking-widest">
-            COPYRIGHT © 2026 FASHORA PLATFORM. ALL RIGHT RESERVED
+          <p className="tracking-widest uppercase">
+            {t('footer.copyright', 'COPYRIGHT © 2026 FASHORA PLATFORM. ALL RIGHT RESERVED')}
           </p>
         </div>
 
