@@ -1859,6 +1859,9 @@
       "roles": [
         "customer",
         "seller"
+      ],
+      "followingShops": [
+        "shop_m_studio"
       ]
     },
     {
@@ -2447,7 +2450,7 @@
       "tagline": "Modern Tailoring & Monochromatic Atelier",
       "description": "M STUDIO is an avant-garde design house dedicated to sculptural silhouettes, industrial chrome hardware, and experimental monochrome fashion.",
       "logo": "/images/shops/shop-logo-1793084646978-4705.png",
-      "coverImage": "/images/shops/shop-logo-1793084658370-9474.jpg",
+      "coverImage": "/images/shops/shop-logo-1793446365102-9980.png",
       "rating": 4.9,
       "reviewsCount": 148,
       "location": "Ho Chi Minh City, Vietnam",
@@ -2472,7 +2475,7 @@
       "tagline": "",
       "description": "",
       "logo": "/images/shops/shop-logo-1793094935385-5606.jpg",
-      "coverImage": "/images/shops/shop-logo-1793094939909-3214.jpg",
+      "coverImage": "/images/shops/shop-logo-1793446532263-4428.png",
       "rating": 5,
       "reviewsCount": 0,
       "location": "",
@@ -2512,7 +2515,7 @@
       "ownerId": "nEfjbHOSaE4",
       "ownerName": "Lê Mẫn",
       "ownerEmail": "enire_cantho@gmail.com",
-      "coverImage": "/images/shops/shop-logo-1793094004183-7876.jpg"
+      "coverImage": "/images/shops/shop-logo-1793446800047-7631.png"
     },
     {
       "id": "bmiQJ7v54aY",
@@ -2538,7 +2541,7 @@
       "ownerId": "UtJushvds_M",
       "ownerName": "Ngô Bảo Ngọc",
       "ownerEmail": "Ngoc@gmail.com",
-      "coverImage": "/images/shops/shop-logo-1793092593466-8982.jpg"
+      "coverImage": "/images/shops/shop-logo-1793452530889-7068.png"
     },
     {
       "id": "R5V7c8-5l5M",
@@ -2564,7 +2567,7 @@
       "ownerId": "lwuHi8JP0_U",
       "ownerName": "Nguyễn Văn Linh",
       "ownerEmail": "swag_kanthor@gmail.com",
-      "coverImage": "/images/shops/shop-logo-1793096528439-3682.jpg"
+      "coverImage": "/images/shops/shop-logo-1793450143436-2202.png"
     }
   ],
   "$schema": "./node_modules/json-server/schema.json"

@@ -18,7 +18,7 @@ const CATEGORIES = [
   { label: 'ACCESSORIES', value: 'ACCESSORIES' },
 ];
 
-export function Shop() {
+export function Shop({ viewCols } = {}) {
   const { t } = useTranslation();
   const [products, setProducts] = useState([]);
   const [shops, setShops] = useState([]);
@@ -34,9 +34,9 @@ export function Shop() {
   const [maxPrice, setMaxPrice] = useState('');
   const [sortBy, setSortBy] = useState('RECOMMENDED');
 
-  // State phân trang: 16 sản phẩm / trang
+  // State phân trang: 24 sản phẩm / trang (chia hết cho 1, 2, 4, 6)
   const [currentPage, setCurrentPage] = useState(1);
-  const ITEMS_PER_PAGE = 16;
+  const ITEMS_PER_PAGE = 24;
 
   // Quản lý Modal Quick Add
   const [quickAddProduct, setQuickAddProduct] = useState(null);
@@ -347,8 +347,20 @@ export function Shop() {
       {/* 5. Vùng nội dung theo từng State */}
       <div className="mt-8 w-full">
         {loading && (
-          <div className="w-full grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-            {Array.from({ length: 8 }).map((_, i) => (
+          <div
+            className={`w-full grid gap-4 ${
+              viewCols === 1
+                ? 'grid-cols-1'
+                : viewCols === 2
+                ? 'grid-cols-2'
+                : viewCols === 4
+                ? 'grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4'
+                : viewCols === 6
+                ? 'grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-6'
+                : 'grid-cols-1 sm:grid-cols-2 md:grid-cols-4 xl:grid-cols-6'
+            }`}
+          >
+            {Array.from({ length: viewCols === 6 ? 12 : 8 }).map((_, i) => (
               <div key={i} className="flex flex-col">
                 <div className="aspect-[3/4] w-full bg-neutral-200/70 animate-pulse" />
                 <div className="mt-3 h-3.5 w-3/4 bg-neutral-200/70 animate-pulse" />
@@ -450,6 +462,7 @@ export function Shop() {
           <div id="fashora-product-grid" className="w-full">
             <ProductGrid
               products={paginatedProducts}
+              viewCols={viewCols}
               onQuickAdd={(item) => {
                 setQuickAddProduct(item);
               }}
@@ -557,22 +570,40 @@ export function Shop() {
    ========================================================================== */
 function ShopWithViewControls(props) {
   const { t } = useTranslation();
-  const [isMobile, setIsMobile] = useState(
-    typeof window !== 'undefined' ? window.innerWidth < 768 : false
-  );
 
-  const [viewCols, setViewCols] = useState(
-    typeof window !== 'undefined' && window.innerWidth < 768 ? 2 : 4
+  const getDeviceType = () => {
+    if (typeof window === 'undefined') return 'desktop';
+    const w = window.innerWidth;
+    if (w < 768) return 'mobile';
+    if (w < 1280) return 'tablet';
+    return 'desktop';
+  };
+
+  const [deviceType, setDeviceType] = useState(getDeviceType);
+
+  const getDefaultColsForDevice = (device) => {
+    if (device === 'mobile') return 2;
+    if (device === 'tablet') return 4;
+    return 6;
+  };
+
+  const [viewCols, setViewCols] = useState(() =>
+    getDefaultColsForDevice(getDeviceType())
   );
 
   useEffect(() => {
     const handleResize = () => {
-      const mobile = window.innerWidth < 768;
-      setIsMobile(mobile);
+      const currentDevice = getDeviceType();
+      setDeviceType(currentDevice);
       setViewCols((prev) => {
-        if (mobile && prev === 4) return 2;
-        if (!mobile && prev === 1) return 2;
-        return prev;
+        if (currentDevice === 'mobile') {
+          return prev === 1 ? 1 : 2;
+        }
+        if (currentDevice === 'tablet') {
+          return prev === 2 ? 2 : 4;
+        }
+        // desktop
+        return prev === 4 ? 4 : 6;
       });
     };
 
@@ -590,9 +621,17 @@ function ShopWithViewControls(props) {
       targetGrid.classList.remove(
         'grid-cols-1',
         'grid-cols-2',
+        'grid-cols-3',
+        'grid-cols-4',
+        'grid-cols-5',
+        'grid-cols-6',
         'sm:grid-cols-2',
         'sm:grid-cols-3',
-        'lg:grid-cols-4'
+        'md:grid-cols-3',
+        'md:grid-cols-4',
+        'lg:grid-cols-4',
+        'xl:grid-cols-4',
+        'xl:grid-cols-6'
       );
 
       if (viewCols === 1) {
@@ -600,14 +639,16 @@ function ShopWithViewControls(props) {
       } else if (viewCols === 2) {
         targetGrid.classList.add('grid-cols-2');
       } else if (viewCols === 4) {
-        targetGrid.classList.add('grid-cols-2', 'sm:grid-cols-3', 'lg:grid-cols-4');
+        targetGrid.classList.add('grid-cols-2', 'sm:grid-cols-2', 'md:grid-cols-3', 'lg:grid-cols-4');
+      } else if (viewCols === 6) {
+        targetGrid.classList.add('grid-cols-2', 'sm:grid-cols-3', 'md:grid-cols-4', 'xl:grid-cols-6');
       }
     };
 
     updateTargetGrid();
     const timer = setTimeout(updateTargetGrid, 100);
     return () => clearTimeout(timer);
-  }, [viewCols, isMobile]);
+  }, [viewCols, deviceType]);
 
   return (
     <div className="w-full max-w-[1560px] mx-auto px-6 sm:px-10 lg:px-16 py-8 sm:py-12">
@@ -618,7 +659,7 @@ function ShopWithViewControls(props) {
             {t('shop.view')}
           </span>
 
-          {isMobile ? (
+          {deviceType === 'mobile' && (
             <>
               <button
                 type="button"
@@ -646,7 +687,9 @@ function ShopWithViewControls(props) {
                 2
               </button>
             </>
-          ) : (
+          )}
+
+          {deviceType === 'tablet' && (
             <>
               <button
                 type="button"
@@ -676,6 +719,36 @@ function ShopWithViewControls(props) {
             </>
           )}
 
+          {deviceType === 'desktop' && (
+            <>
+              <button
+                type="button"
+                onClick={() => setViewCols(4)}
+                className={`flex h-6 w-6 items-center justify-center rounded-full border text-[11px] transition-colors cursor-pointer ${
+                  viewCols === 4
+                    ? 'border-black bg-black font-bold text-white'
+                    : 'border-neutral-300 text-neutral-600 hover:border-black'
+                }`}
+                title="View 4-column layout"
+              >
+                4
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setViewCols(6)}
+                className={`flex h-6 w-6 items-center justify-center rounded-full border text-[11px] transition-colors cursor-pointer ${
+                  viewCols === 6
+                    ? 'border-black bg-black font-bold text-white'
+                    : 'border-neutral-300 text-neutral-600 hover:border-black'
+                }`}
+                title="View 6-column layout"
+              >
+                6
+              </button>
+            </>
+          )}
+
           <button
             type="button"
             className="ml-1 flex h-6 w-6 items-center justify-center rounded-full border border-neutral-300 text-neutral-700 hover:border-black transition-colors cursor-pointer"
@@ -698,7 +771,7 @@ function ShopWithViewControls(props) {
         </div>
       </div>
 
-      <Shop {...props} />
+      <Shop {...props} viewCols={viewCols} />
     </div>
   );
 }

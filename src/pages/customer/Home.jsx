@@ -1,12 +1,13 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, ArrowRight, ChevronLeft, ChevronRight, Plus } from 'lucide-react';
+import { ArrowLeft, ArrowRight, ChevronLeft, ChevronRight, Plus, Check } from 'lucide-react';
 import { getProducts, getCarouselItems, getShops } from '../../services/api';
 import CompleteTheLook from '../../components/product/CompleteTheLook';
 import QuickAddModal from '../../components/product/QuickAddModal';
 import { Toast } from '../../components/common';
 import { useCartStore } from '../../stores';
+import { useFollowShop } from '../../hooks/useFollowShop';
 import { getLocalizedProduct, getLocalizedProductName } from '../../utils';
 
 const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=600&q=80';
@@ -178,6 +179,25 @@ export default function Home() {
   const [quickAddProduct, setQuickAddProduct] = useState(null);
   const [toastMessage, setToastMessage] = useState('');
   const addToCartStore = useCartStore((state) => state.addToCart);
+  const { isFollowing, toggleFollow, isUpdating: isFollowUpdating } = useFollowShop();
+
+  // Xử lý bật/tắt theo dõi gian hàng
+  const handleFollowToggle = async (shopItem, e) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    const res = await toggleFollow(shopItem);
+    if (res?.success) {
+      setToastMessage(
+        res.isNowFollowing
+          ? t('storefront.followSuccess', { name: shopItem?.name || 'atelier' })
+          : t('storefront.unfollowSuccess', { name: shopItem?.name || 'atelier' })
+      );
+    } else if (res?.isOwner) {
+      setToastMessage(t('storefront.ownAtelierToast', 'Đây là gian hàng của chính bạn.'));
+    }
+  };
 
   // Tự động cuộn lên đầu trang khi vào Home
   useEffect(() => {
@@ -525,13 +545,13 @@ export default function Home() {
       {/* =========================================================================
           KHỐI 3: EDITORIAL CAMPAIGN CAROUSEL
           - Full chiều ngang màn hình (w-full edge-to-edge)
-          - Hiển thị nguyên kích thước ảnh gốc (chuẩn tỷ lệ 16:9 - 2730x1536)
+          - Chiều cao khống chế theo viewport (max-h-[600px]) vừa vặn màn hình
           - Tự động lướt ngang mượt mà (Sliding track animation)
           - Bộ điều khiển ChevronLeft/Right nổi và thanh gạch phân trang
           ========================================================================= */}
-      <section className="w-full py-0 my-4 sm:my-6 bg-white overflow-hidden">
-        {/* Khung hiển thị Slide Campaign FULL CHIỀU NGANG MÀN HÌNH (w-full) & NGUYÊN TỶ LỆ 16:9 */}
-        <div className="relative w-full aspect-[16/9] bg-neutral-950 overflow-hidden">
+      <section className="w-full py-0 my-0 bg-white overflow-hidden">
+        {/* Khung hiển thị Slide Campaign FULL CHIỀU NGANG MÀN HÌNH (w-full) & KHỐNG CHẾ CHIỀU CAO VỪA MÀN HÌNH */}
+        <div className="relative w-full h-[calc(100vh-80px)] md:h-[calc(100vh-122px)] min-h-[500px] max-h-[920px] bg-neutral-950 overflow-hidden">
           {/* Dải trượt ngang (Sliding Track) */}
           <div
             className="flex w-full h-full transition-transform duration-700 ease-in-out"
@@ -542,11 +562,11 @@ export default function Home() {
                 key={slide.id || idx}
                 className="relative w-full h-full shrink-0 overflow-hidden"
               >
-                {/* Ảnh slide chiến dịch nguyên bản 100% không bị crop */}
+                {/* Ảnh slide chiến dịch: Căn object-top / center_top để hiển thị trọn vẹn gương mặt người mẫu */}
                 <img
                   src={slide.image}
                   alt={slide.name || 'Campaign Look'}
-                  className="w-full h-full object-cover object-center select-none"
+                  className="w-full h-full object-cover object-top sm:object-[center_top] select-none"
                   loading="lazy"
                   onError={(e) => {
                     e.currentTarget.onerror = null;
@@ -555,15 +575,15 @@ export default function Home() {
                 />
 
                 {/* Lớp phủ gradient Brutalist tinh tế */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none" />
-                <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-transparent to-transparent pointer-events-none" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent pointer-events-none" />
+                <div className="absolute inset-0 bg-gradient-to-r from-black/65 via-transparent to-transparent pointer-events-none" />
 
                 {/* Nội dung chữ trên Slide căn chỉnh theo grid */}
-                <div className="absolute inset-0 flex flex-col justify-end p-6 sm:p-10 lg:p-16 z-20 text-white pointer-events-none">
+                <div className="absolute inset-0 flex flex-col justify-end px-6 sm:px-10 lg:px-16 pb-7 sm:pb-8 lg:pb-10 pt-4 z-20 text-white pointer-events-none">
                   <div className="max-w-[1560px] w-full mx-auto">
                     <div className="max-w-xl pointer-events-auto">
-                      <div className="flex items-center gap-3 mb-2 sm:mb-3">
-                        <span className="text-[10px] sm:text-xs font-mono tracking-[0.2em] text-neutral-300 uppercase px-2.5 py-1 bg-white/10 backdrop-blur-md border border-white/20">
+                      <div className="flex items-center gap-3 mb-2 sm:mb-2.5">
+                        <span className="text-[10px] sm:text-xs font-mono tracking-[0.2em] text-neutral-300 uppercase px-2 py-0.5 sm:px-2.5 sm:py-1 bg-white/10 backdrop-blur-md border border-white/20">
                           {slide.code}
                         </span>
                         <span className="text-[10px] sm:text-xs font-mono tracking-widest text-neutral-400 uppercase">
@@ -571,17 +591,17 @@ export default function Home() {
                         </span>
                       </div>
 
-                      <h4 className="text-3xl sm:text-5xl lg:text-7xl font-black uppercase tracking-tight text-white mb-2 leading-none drop-shadow-md">
+                      <h4 className="text-2xl sm:text-4xl lg:text-5xl font-black uppercase tracking-tight text-white mb-1.5 sm:mb-2 leading-none drop-shadow-md">
                         {slide.name}
                       </h4>
 
-                      <p className="text-xs sm:text-sm font-mono tracking-widest text-neutral-300 uppercase mb-4 sm:mb-6">
+                      <p className="text-xs sm:text-sm font-mono tracking-widest text-neutral-300 uppercase mb-3 sm:mb-5">
                         {t(`home.carousel.${slide.id}`, slide.tagline)}
                       </p>
 
                       <Link
                         to={slide.link || '/shop'}
-                        className="inline-flex items-center gap-3 px-6 sm:px-8 py-3 sm:py-3.5 bg-white text-black text-xs font-bold uppercase tracking-widest hover:bg-neutral-200 transition-colors duration-200 shadow-lg"
+                        className="inline-flex items-center gap-2.5 sm:gap-3 px-5 sm:px-7 py-2.5 sm:py-3 bg-white text-black text-xs font-bold uppercase tracking-widest hover:bg-neutral-200 transition-colors duration-200 shadow-lg cursor-pointer"
                       >
                         <span>{t('home.exploreLookbook')}</span>
                         <ArrowRight className="w-4 h-4" />
@@ -598,7 +618,7 @@ export default function Home() {
             type="button"
             onClick={handlePrevSlide}
             aria-label="Previous Slide"
-            className="absolute left-4 sm:left-8 top-1/2 -translate-y-1/2 z-30 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-black/40 hover:bg-black/80 border border-white/30 text-white flex items-center justify-center backdrop-blur-sm transition-all duration-200 hover:scale-105 cursor-pointer"
+            className="absolute left-3 sm:left-6 top-1/2 -translate-y-1/2 z-30 w-9 h-9 sm:w-11 sm:h-11 rounded-full bg-black/40 hover:bg-black/80 border border-white/30 text-white flex items-center justify-center backdrop-blur-sm transition-all duration-200 hover:scale-105 cursor-pointer"
           >
             <ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6" />
           </button>
@@ -606,13 +626,13 @@ export default function Home() {
             type="button"
             onClick={handleNextSlide}
             aria-label="Next Slide"
-            className="absolute right-4 sm:right-8 top-1/2 -translate-y-1/2 z-30 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-black/40 hover:bg-black/80 border border-white/30 text-white flex items-center justify-center backdrop-blur-sm transition-all duration-200 hover:scale-105 cursor-pointer"
+            className="absolute right-3 sm:right-6 top-1/2 -translate-y-1/2 z-30 w-9 h-9 sm:w-11 sm:h-11 rounded-full bg-black/40 hover:bg-black/80 border border-white/30 text-white flex items-center justify-center backdrop-blur-sm transition-all duration-200 hover:scale-105 cursor-pointer"
           >
             <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6" />
           </button>
 
           {/* Thanh gạch phân trang ở đáy full banner */}
-          <div className="absolute bottom-4 sm:bottom-8 right-6 sm:right-12 z-30 flex items-center gap-2">
+          <div className="absolute bottom-3 sm:bottom-5 right-6 sm:right-12 z-30 flex items-center gap-2">
             {slides.map((_, idx) => (
               <button
                 key={idx}
@@ -638,9 +658,9 @@ export default function Home() {
           - Nằm ngay dưới Campaign Carousel và trước Complete The Look
           ========================================================================= */}
       {featuredShops.length > 0 && (
-        <section className="w-full py-0 my-4 sm:my-6 bg-white overflow-hidden">
-          {/* Khung Carousel FULL CHIỀU NGANG MÀN HÌNH (w-full edge-to-edge) & NGUYÊN TỶ LỆ 16:9 */}
-          <div className="relative w-full aspect-[16/9] bg-neutral-950 overflow-hidden">
+        <section className="w-full py-0 mt-6 sm:mt-10 mb-0 bg-white overflow-hidden">
+          {/* Khung Carousel FULL CHIỀU NGANG MÀN HÌNH (w-full edge-to-edge) & KHỐNG CHẾ CHIỀU CAO VỪA MÀN HÌNH */}
+          <div className="relative w-full h-[calc(100vh-80px)] md:h-[calc(100vh-122px)] min-h-[500px] max-h-[920px] bg-neutral-950 overflow-hidden">
             {/* Dải trượt ngang (Sliding Track) */}
             <div
               className="flex w-full h-full transition-transform duration-700 ease-in-out"
@@ -648,16 +668,17 @@ export default function Home() {
             >
               {featuredShops.map((shopItem, idx) => {
                 const shopSlug = shopItem.slug || shopItem.id;
+                const isShopFollowed = isFollowing(shopItem.id || shopSlug, shopItem);
                 return (
                   <div
                     key={shopItem.id || idx}
                     className="relative w-full h-full shrink-0 overflow-hidden"
                   >
-                    {/* Ảnh bìa Cover của Shop */}
+                    {/* Ảnh bìa Cover của Shop: Căn object-top / center_top để hiển thị trọn vẹn chi tiết bên trên */}
                     <img
                       src={shopItem.coverImage}
                       alt={shopItem.name}
-                      className="w-full h-full object-cover object-center select-none"
+                      className="w-full h-full object-cover object-top sm:object-[center_top] select-none"
                       loading="lazy"
                       onError={(e) => {
                         e.currentTarget.onerror = null;
@@ -666,58 +687,84 @@ export default function Home() {
                     />
 
                     {/* Lớp gradient Cinematic Brutalist tối màu tạo độ tương phản */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent pointer-events-none" />
-                    <div className="absolute inset-0 bg-gradient-to-r from-black/75 via-black/30 to-transparent pointer-events-none" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent pointer-events-none" />
+                    <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/20 to-transparent pointer-events-none" />
 
                     {/* Nội dung chữ trên Slide căn chỉnh theo grid max-w-[1560px] */}
-                    <div className="absolute inset-0 flex flex-col justify-end p-6 sm:p-10 lg:p-16 z-20 text-white pointer-events-none">
+                    <div className="absolute inset-0 flex flex-col justify-end px-6 sm:px-10 lg:px-16 pb-7 sm:pb-8 lg:pb-10 pt-4 z-20 text-white pointer-events-none">
                       <div className="max-w-[1560px] w-full mx-auto">
                         <div className="max-w-xl pointer-events-auto">
-                          <div className="flex items-center gap-3 mb-2 sm:mb-3">
+                          <div className="flex items-center gap-3 mb-2 sm:mb-2.5">
                             {/* Logo shop */}
                             {shopItem.logo ? (
                               <img
                                 src={shopItem.logo}
                                 alt={shopItem.name}
-                                className="w-8 h-8 sm:w-10 sm:h-10 object-cover border border-white/20 bg-black/60 backdrop-blur-sm shrink-0"
+                                className="w-7 h-7 sm:w-9 sm:h-9 object-cover border border-white/20 bg-black/60 backdrop-blur-sm shrink-0"
                                 onError={(e) => {
                                   e.currentTarget.style.display = 'none';
                                 }}
                               />
                             ) : (
-                              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-white text-black font-black font-serif flex items-center justify-center shrink-0">
+                              <div className="w-7 h-7 sm:w-9 sm:h-9 bg-white text-black font-black font-serif flex items-center justify-center shrink-0 text-xs sm:text-sm">
                                 {shopItem.name?.charAt(0)?.toUpperCase() || 'A'}
                               </div>
                             )}
 
-                            <span className="text-[10px] sm:text-xs font-mono tracking-[0.2em] text-emerald-400 uppercase px-2.5 py-1 bg-emerald-950/80 backdrop-blur-md border border-emerald-500/40">
+                            <span className="text-[10px] sm:text-xs font-mono tracking-[0.2em] text-emerald-400 uppercase px-2 py-0.5 sm:px-2.5 sm:py-1 bg-emerald-950/80 backdrop-blur-md border border-emerald-500/40">
                               {t('home.verifiedAtelier')}
                             </span>
                             {shopItem.category && (
-                              <span className="text-[10px] sm:text-xs font-mono tracking-widest text-neutral-300 uppercase px-2.5 py-1 bg-white/10 backdrop-blur-md border border-white/20">
+                              <span className="text-[10px] sm:text-xs font-mono tracking-widest text-neutral-300 uppercase px-2 py-0.5 sm:px-2.5 sm:py-1 bg-white/10 backdrop-blur-md border border-white/20">
                                 {shopItem.category}
                               </span>
                             )}
                           </div>
 
                           {/* Tên Shop */}
-                          <h4 className="text-3xl sm:text-5xl lg:text-7xl font-black uppercase tracking-tight text-white mb-2 leading-none drop-shadow-md">
+                          <h4 className="text-2xl sm:text-4xl lg:text-5xl font-black uppercase tracking-tight text-white mb-1.5 sm:mb-2 leading-none drop-shadow-md">
                             {shopItem.name}
                           </h4>
 
                           {/* Tagline / Mô tả */}
-                          <p className="text-xs sm:text-sm font-mono tracking-widest text-neutral-300 uppercase mb-4 sm:mb-6 line-clamp-2">
+                          <p className="text-xs sm:text-sm font-mono tracking-widest text-neutral-300 uppercase mb-3 sm:mb-5 line-clamp-2">
                             {shopItem.tagline || shopItem.description || 'CONTEMPORARY FASHION ATELIER'}
                           </p>
 
-                          {/* Nút hành động */}
-                          <Link
-                            to={`/store/${shopSlug}`}
-                            className="inline-flex items-center gap-3 px-6 sm:px-8 py-3 sm:py-3.5 bg-white text-black text-xs font-bold uppercase tracking-widest hover:bg-neutral-200 transition-colors duration-200 shadow-lg cursor-pointer"
-                          >
-                            <span>{t('home.visitAtelier')}</span>
-                            <ArrowRight className="w-4 h-4" />
-                          </Link>
+                          {/* Cụm nút hành động */}
+                          <div className="flex items-center gap-2.5 sm:gap-3 flex-wrap w-full sm:w-auto">
+                            <button
+                              type="button"
+                              onClick={(e) => handleFollowToggle(shopItem, e)}
+                              disabled={isFollowUpdating}
+                              className={`inline-flex items-center justify-center gap-2 flex-1 sm:flex-none sm:w-48 h-11 sm:h-12 px-4 text-xs font-bold uppercase tracking-widest whitespace-nowrap transition-all duration-200 shadow-lg cursor-pointer backdrop-blur-md border ${
+                                isShopFollowed
+                                  ? 'bg-emerald-950/80 hover:bg-emerald-900/80 text-emerald-300 border-emerald-500/60'
+                                  : 'bg-white/10 hover:bg-white/20 text-white border-white/40 hover:border-white'
+                              }`}
+                              title={isShopFollowed ? 'Click to unfollow atelier' : 'Click to follow this atelier'}
+                            >
+                              {isShopFollowed ? (
+                                <>
+                                  <Check className="w-3.5 h-3.5 text-emerald-400" />
+                                  <span>{t('product.following', 'FOLLOWING')}</span>
+                                </>
+                              ) : (
+                                <>
+                                  <Plus className="w-3.5 h-3.5" />
+                                  <span>{t('product.follow', 'FOLLOW')}</span>
+                                </>
+                              )}
+                            </button>
+
+                            <Link
+                              to={`/store/${shopSlug}`}
+                              className="inline-flex items-center justify-center gap-2.5 flex-1 sm:flex-none sm:w-48 h-11 sm:h-12 px-4 bg-white text-black text-xs font-bold uppercase tracking-widest whitespace-nowrap hover:bg-neutral-200 transition-colors duration-200 shadow-lg cursor-pointer border border-white group"
+                            >
+                              <span>{t('home.visitAtelier')}</span>
+                              <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+                            </Link>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -733,7 +780,7 @@ export default function Home() {
                   type="button"
                   onClick={handlePrevShopSlide}
                   aria-label="Previous Atelier"
-                  className="absolute left-4 sm:left-8 top-1/2 -translate-y-1/2 z-30 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-black/40 hover:bg-black/80 border border-white/30 text-white flex items-center justify-center backdrop-blur-sm transition-all duration-200 hover:scale-105 cursor-pointer"
+                  className="absolute left-3 sm:left-6 top-1/2 -translate-y-1/2 z-30 w-9 h-9 sm:w-11 sm:h-11 rounded-full bg-black/40 hover:bg-black/80 border border-white/30 text-white flex items-center justify-center backdrop-blur-sm transition-all duration-200 hover:scale-105 cursor-pointer"
                 >
                   <ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6" />
                 </button>
@@ -741,13 +788,13 @@ export default function Home() {
                   type="button"
                   onClick={handleNextShopSlide}
                   aria-label="Next Atelier"
-                  className="absolute right-4 sm:right-8 top-1/2 -translate-y-1/2 z-30 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-black/40 hover:bg-black/80 border border-white/30 text-white flex items-center justify-center backdrop-blur-sm transition-all duration-200 hover:scale-105 cursor-pointer"
+                  className="absolute right-3 sm:right-6 top-1/2 -translate-y-1/2 z-30 w-9 h-9 sm:w-11 sm:h-11 rounded-full bg-black/40 hover:bg-black/80 border border-white/30 text-white flex items-center justify-center backdrop-blur-sm transition-all duration-200 hover:scale-105 cursor-pointer"
                 >
                   <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6" />
                 </button>
 
                 {/* Thanh gạch phân trang ở đáy full banner */}
-                <div className="absolute bottom-4 sm:bottom-8 right-6 sm:right-12 z-30 flex items-center gap-2">
+                <div className="absolute bottom-3 sm:bottom-5 right-6 sm:right-12 z-30 flex items-center gap-2">
                   {featuredShops.map((_, idx) => (
                     <button
                       key={idx}

@@ -8,10 +8,12 @@ import {
   Sparkles,
   CheckCircle2,
   MapPin,
-  Award
+  Award,
+  Check
 } from 'lucide-react';
 import { getProducts, getOrders, getShops } from '../../services/api';
 import { useCartStore } from '../../stores';
+import { useFollowShop } from '../../hooks/useFollowShop';
 import { QuickAddModal } from '../../components/product';
 import { Toast } from '../../components/common';
 import { formatVND, handleImageError, FALLBACK_IMAGE, toShopSlug } from '../../constants/commerce';
@@ -28,6 +30,25 @@ export default function BestSeller() {
   const [quickAddProduct, setQuickAddProduct] = useState(null);
   const [toastMessage, setToastMessage] = useState('');
   const addToCartStore = useCartStore((state) => state.addToCart);
+  const { isFollowing, toggleFollow, isUpdating: isFollowUpdating } = useFollowShop();
+
+  // Xử lý bật/tắt theo dõi gian hàng
+  const handleFollowToggle = async (shopObj, e) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    const res = await toggleFollow(shopObj);
+    if (res?.success) {
+      setToastMessage(
+        res.isNowFollowing
+          ? t('storefront.followSuccess', { name: shopObj?.name || 'atelier' })
+          : t('storefront.unfollowSuccess', { name: shopObj?.name || 'atelier' })
+      );
+    } else if (res?.isOwner) {
+      setToastMessage(t('storefront.ownAtelierToast', 'Đây là gian hàng của chính bạn.'));
+    }
+  };
 
   // Cuộn lên đầu trang khi vào trang Best Seller
   useEffect(() => {
@@ -452,6 +473,8 @@ export default function BestSeller() {
           </div>
         ) : visibleShowcases.length > 0 ? (
           visibleShowcases.map(({ shop, slug, items, totalShopSold }) => {
+            const isShopFollowed = isFollowing(shop.id || slug, shop);
+
             return (
               <div
                 key={shop.id || slug}
@@ -516,11 +539,35 @@ export default function BestSeller() {
                     </div>
                   </div>
 
-                  {/* Right: CTA to visit official storefront */}
-                  <div className="flex items-center gap-3 relative z-10 self-start md:self-center">
+                  {/* Right: CTA to visit official storefront & Follow atelier */}
+                  <div className="flex items-center gap-2.5 sm:gap-3 relative z-10 self-start md:self-center flex-wrap w-full sm:w-auto">
+                    <button
+                      type="button"
+                      onClick={(e) => handleFollowToggle(shop, e)}
+                      disabled={isFollowUpdating}
+                      className={`inline-flex items-center justify-center gap-2 flex-1 sm:flex-none sm:w-44 h-11 px-4 text-xs font-mono font-bold uppercase tracking-wider whitespace-nowrap transition-all duration-200 shadow-sm cursor-pointer border ${
+                        isShopFollowed
+                          ? 'bg-emerald-950/80 hover:bg-emerald-900/80 text-emerald-300 border-emerald-500/60'
+                          : 'bg-white/10 hover:bg-white/20 text-white border-white/30 hover:border-white'
+                      }`}
+                      title={isShopFollowed ? 'Click to unfollow atelier' : 'Click to follow this atelier'}
+                    >
+                      {isShopFollowed ? (
+                        <>
+                          <Check className="w-3.5 h-3.5 text-emerald-400" />
+                          <span>{t('product.following', 'FOLLOWING')}</span>
+                        </>
+                      ) : (
+                        <>
+                          <Plus className="w-3.5 h-3.5" />
+                          <span>{t('product.follow', 'FOLLOW')}</span>
+                        </>
+                      )}
+                    </button>
+
                     <Link
                       to={`/store/${slug}`}
-                      className="inline-flex items-center gap-2.5 px-5 sm:px-6 py-3 bg-white text-black hover:bg-neutral-200 text-xs font-mono font-bold uppercase tracking-wider transition-all duration-200 shadow-sm cursor-pointer group"
+                      className="inline-flex items-center justify-center gap-2 flex-1 sm:flex-none sm:w-44 h-11 px-4 bg-white text-black hover:bg-neutral-200 text-xs font-mono font-bold uppercase tracking-wider whitespace-nowrap transition-all duration-200 shadow-sm cursor-pointer border border-white group"
                     >
                       <span>{t('product.visitAtelier')}</span>
                       <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
