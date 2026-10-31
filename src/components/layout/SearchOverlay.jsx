@@ -5,22 +5,30 @@ import { useTranslation } from 'react-i18next'
 import { Search, X, ArrowRight, Store, Tag } from 'lucide-react'
 import { getProducts, getShops } from '../../services/api'
 import { formatVND, handleImageError, FALLBACK_IMAGE } from '../../constants/commerce'
+import {
+  getLocalizedProductName,
+  getLocalizedBadge,
+  normalizeSearchText,
+  matchesProductSearch,
+} from '../../utils'
 
+// Danh sách từ khóa gợi ý song ngữ thông minh
 const TRENDING_TAGS = [
-  'BOOTS',
-  'SUNGLASSES',
-  'LEATHER',
-  'ENIRE',
-  'SMOKER',
-  'M STUDIO',
-  '#SWAG',
-  'DENIM',
-  'BAG',
-  'CHROME',
+  { key: 'boots', labelEn: 'BOOTS', labelVi: 'GIÀY BOOT', query: 'BOOTS' },
+  { key: 'sunglasses', labelEn: 'SUNGLASSES', labelVi: 'KÍNH MÁT', query: 'SUNGLASSES' },
+  { key: 'leather', labelEn: 'LEATHER', labelVi: 'ĐỒ DA', query: 'LEATHER' },
+  { key: 'enire', labelEn: 'ENIRE', labelVi: 'ENIRE', query: 'ENIRE' },
+  { key: 'smoker', labelEn: 'SMOKER', labelVi: 'SMOKER', query: 'SMOKER' },
+  { key: 'mStudio', labelEn: 'M STUDIO', labelVi: 'M STUDIO', query: 'M STUDIO' },
+  { key: 'swag', labelEn: '#SWAG', labelVi: '#SWAG', query: '#SWAG' },
+  { key: 'denim', labelEn: 'DENIM', labelVi: 'ĐỒ JEAN', query: 'DENIM' },
+  { key: 'bag', labelEn: 'BAG', labelVi: 'TÚI XÁCH', query: 'BAG' },
+  { key: 'accessories', labelEn: 'ACCESSORIES', labelVi: 'PHỤ KIỆN', query: 'ACCESSORIES' },
 ]
 
 export default function SearchOverlay({ isOpen, onClose }) {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
+  const isVi = (i18n.language || 'en').toLowerCase().startsWith('vi')
   const navigate = useNavigate()
   const inputRef = useRef(null)
 
@@ -75,22 +83,22 @@ export default function SearchOverlay({ isOpen, onClose }) {
     }
   }, [isOpen, onClose])
 
-  // Lọc Cửa hàng phù hợp
+  // Lọc Cửa hàng phù hợp (hỗ trợ không dấu)
   const matchedShops = useMemo(() => {
-    const q = query.trim().toLowerCase()
+    const q = normalizeSearchText(query)
     if (!q) return []
     return allShops.filter((s) => {
-      const nameMatch = s.name?.toLowerCase().includes(q)
-      const slugMatch = s.slug?.toLowerCase().includes(q)
-      const catMatch = s.category?.toLowerCase().includes(q)
-      return nameMatch || slugMatch || catMatch
+      const nameMatch = normalizeSearchText(s.name).includes(q)
+      const slugMatch = normalizeSearchText(s.slug).includes(q)
+      const catMatch = normalizeSearchText(s.category).includes(q)
+      const taglineMatch = normalizeSearchText(s.tagline).includes(q)
+      return nameMatch || slugMatch || catMatch || taglineMatch
     })
   }, [query, allShops])
 
-  // Lọc Sản phẩm phù hợp (tìm theo Tên sản phẩm, Tên shop, hoặc Danh mục)
+  // Lọc Sản phẩm phù hợp (tìm song ngữ thông minh Anh - Việt theo Tên, Shop, Danh mục & Từ đồng nghĩa)
   const matchedProducts = useMemo(() => {
-    const q = query.trim().toLowerCase()
-    if (!q) return []
+    if (!query.trim()) return []
     return allProducts
       .filter((p) => {
         const isAvailable =
@@ -99,25 +107,24 @@ export default function SearchOverlay({ isOpen, onClose }) {
           String(p.badge || '').toUpperCase() !== 'SOLDOUT'
         if (!isAvailable) return false
 
-        const nameMatch = p.name?.toLowerCase().includes(q)
-        const shopMatch = p.shopName?.toLowerCase().includes(q)
-        const catMatch = p.category?.toLowerCase().includes(q)
-        return nameMatch || shopMatch || catMatch
+        return matchesProductSearch(p, query)
       })
       .slice(0, 8) // Giới hạn xem nhanh tối đa 8 sản phẩm
   }, [query, allProducts])
 
   // Tổng số sản phẩm khớp thực tế
   const totalMatchedCount = useMemo(() => {
-    const q = query.trim().toLowerCase()
-    if (!q) return 0
+    if (!query.trim()) return 0
     return allProducts.filter((p) => {
-      const nameMatch = p.name?.toLowerCase().includes(q)
-      const shopMatch = p.shopName?.toLowerCase().includes(q)
-      const catMatch = p.category?.toLowerCase().includes(q)
-      return nameMatch || shopMatch || catMatch
+      const isAvailable =
+        !p.isSoldOut &&
+        Number(p.stock ?? 1) > 0 &&
+        String(p.badge || '').toUpperCase() !== 'SOLDOUT'
+      if (!isAvailable) return false
+      return matchesProductSearch(p, query)
     }).length
   }, [query, allProducts])
+
 
   // Điều hướng sang trang xem đầy đủ kết quả
   const handleFullSearch = (searchKeyword) => {
@@ -133,7 +140,7 @@ export default function SearchOverlay({ isOpen, onClose }) {
     <div
       role="dialog"
       aria-modal="true"
-      aria-label="Search Archives & Ateliers"
+      aria-label={t('searchOverlay.title', 'FASHORA ARCHIVE DISCOVERY')}
       className="fixed inset-0 z-50 bg-black/95 backdrop-blur-md flex flex-col text-white animate-in fade-in duration-200"
     >
       {/* 1. Header Bar: Tiêu đề + Nút đóng ESC */}
@@ -181,7 +188,8 @@ export default function SearchOverlay({ isOpen, onClose }) {
                   inputRef.current?.focus()
                 }}
                 className="p-1 text-neutral-400 hover:text-white transition-colors cursor-pointer shrink-0"
-                title="Clear input"
+                title={t('searchOverlay.clear', 'Clear input')}
+                aria-label={t('searchOverlay.clear', 'Clear input')}
               >
                 <X className="w-5 h-5" />
               </button>
@@ -197,13 +205,19 @@ export default function SearchOverlay({ isOpen, onClose }) {
           </div>
           <div className="flex flex-wrap gap-2">
             {TRENDING_TAGS.map((tag) => {
-              const isActive = query.trim().toUpperCase() === tag
+              const tagLabel = isVi ? tag.labelVi : tag.labelEn
+              const normQ = normalizeSearchText(query)
+              const isActive =
+                normQ === normalizeSearchText(tag.labelEn) ||
+                normQ === normalizeSearchText(tag.labelVi) ||
+                normQ === normalizeSearchText(tag.query)
+
               return (
                 <button
-                  key={tag}
+                  key={tag.key}
                   type="button"
                   onClick={() => {
-                    setQuery(tag)
+                    setQuery(tagLabel)
                     inputRef.current?.focus()
                   }}
                   className={`px-3.5 py-1.5 border text-xs font-mono uppercase tracking-wider transition-all cursor-pointer rounded-[2px] ${
@@ -212,7 +226,7 @@ export default function SearchOverlay({ isOpen, onClose }) {
                       : 'border-neutral-800 bg-neutral-900/90 text-neutral-300 hover:border-neutral-500 hover:text-white'
                   }`}
                 >
-                  {tag}
+                  {tagLabel}
                 </button>
               )
             })}
@@ -298,6 +312,9 @@ export default function SearchOverlay({ isOpen, onClose }) {
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
                   {matchedProducts.map((prod) => {
                     const imgUrl = Array.isArray(prod.images) ? prod.images[0] : prod.image
+                    const localizedName = getLocalizedProductName(prod, i18n.language, prod.name)
+                    const localizedBadge = getLocalizedBadge(prod.badge, i18n.language)
+
                     return (
                       <Link
                         key={prod.id}
@@ -308,13 +325,13 @@ export default function SearchOverlay({ isOpen, onClose }) {
                         <div className="aspect-[3/4] w-full bg-neutral-800 overflow-hidden mb-2 relative">
                           <img
                             src={imgUrl || FALLBACK_IMAGE}
-                            alt={prod.name}
+                            alt={localizedName}
                             onError={handleImageError}
                             className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-300"
                           />
-                          {prod.badge && (
+                          {localizedBadge && (
                             <span className="absolute top-1.5 left-1.5 px-1.5 py-0.5 bg-black/80 text-[8px] font-mono tracking-widest uppercase text-white">
-                              {prod.badge}
+                              {localizedBadge}
                             </span>
                           )}
                         </div>
@@ -322,8 +339,8 @@ export default function SearchOverlay({ isOpen, onClose }) {
                           <span className="text-[9px] font-mono tracking-widest text-neutral-400 uppercase truncate block">
                             {t('searchOverlay.by', 'BY')} {prod.shopName || t('searchOverlay.atelier', 'ATELIER')}
                           </span>
-                          <h4 className="text-xs font-semibold text-white uppercase truncate group-hover:underline">
-                            {prod.name}
+                          <h4 className="text-xs font-semibold text-white uppercase truncate group-hover:underline" title={localizedName}>
+                            {localizedName}
                           </h4>
                           <span className="text-xs font-mono text-neutral-200 font-bold block">
                             {formatVND(prod.price)}

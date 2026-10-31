@@ -784,7 +784,8 @@
     "noResultsDesc": "Chúng tôi không tìm thấy kết quả nào phù hợp với từ khóa của bạn. Hãy thử tìm các từ khóa như boots, kính râm, da, hoặc tên thương hiệu.",
     "browseAll": "XEM TOÀN BỘ KHO LƯU TRỮ",
     "visit": "GHÉ THĂM",
-    "close": "ĐÓNG"
+    "close": "ĐÓNG",
+    "clear": "XÓA"
   },
   "auth": {
     "login": "ĐĂNG NHẬP",

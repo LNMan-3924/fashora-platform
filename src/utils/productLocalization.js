@@ -81,3 +81,71 @@ export function getLocalizedBadge(badge, lang = 'en') {
 
   return badge;
 }
+
+/**
+ * Chuẩn hóa chuỗi tìm kiếm hỗ trợ song ngữ (xóa dấu tiếng Việt, chữ thường, bỏ khoảng trắng dư thừa)
+ * 
+ * @param {string} text - Chuỗi cần chuẩn hóa
+ * @returns {string} Chuỗi không dấu, chữ thường
+ */
+export function normalizeSearchText(text) {
+  return String(text || '')
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/đ/g, 'd')
+    .replace(/Đ/g, 'd')
+    .trim();
+}
+
+/**
+ * Kiểm tra xem sản phẩm có khớp với từ khóa tìm kiếm song ngữ không.
+ * Hỗ trợ tìm kiếm theo:
+ * - Tên tiếng Anh & Tên tiếng Việt (bỏ dấu)
+ * - Tên xưởng may / shop
+ * - Danh mục tiếng Anh & Danh mục tiếng Việt
+ * - Các từ đồng nghĩa thông dụng: boot/bốt, túi/bag, kính/sunglasses, đồ da/leather, jean/denim
+ * 
+ * @param {Object} product - Sản phẩm cần kiểm tra
+ * @param {string} query - Từ khóa tìm kiếm người dùng nhập
+ * @returns {boolean}
+ */
+export function matchesProductSearch(product, query) {
+  if (!product || !query) return false;
+  const q = normalizeSearchText(query);
+  if (!q) return false;
+
+  const nameEn = normalizeSearchText(product.name);
+  const nameVi = normalizeSearchText(getLocalizedProductName(product, 'vi'));
+  const shopName = normalizeSearchText(product.shopName);
+  const categoryEn = normalizeSearchText(product.category);
+
+  const viCatMap = {
+    set: 'set do',
+    shirt: 'ao',
+    pants: 'quan',
+    shoes: 'giay',
+    accessories: 'phu kien',
+  };
+  const categoryVi = viCatMap[categoryEn] || '';
+
+  // 1. Khớp trực tiếp tên tiếng Anh hoặc tiếng Việt
+  if (nameEn.includes(q) || nameVi.includes(q)) return true;
+
+  // 2. Khớp tên shop
+  if (shopName.includes(q)) return true;
+
+  // 3. Khớp danh mục tiếng Anh hoặc tiếng Việt
+  if (categoryEn.includes(q) || categoryVi.includes(q)) return true;
+
+  // 4. Khớp từ đồng nghĩa thông dụng (Synonyms)
+  if ((q.includes('boot') || q.includes('bot')) && (nameEn.includes('boot') || nameVi.includes('bot'))) return true;
+  if ((q.includes('kinh') || q.includes('sunglass') || q.includes('glasses')) && (nameEn.includes('sunglass') || nameVi.includes('kinh'))) return true;
+  if ((q.includes('da') || q.includes('leather')) && (nameEn.includes('leather') || nameVi.includes('da'))) return true;
+  if ((q.includes('tui') || q.includes('bag') || q.includes('balo') || q.includes('backpack')) && (nameEn.includes('bag') || nameEn.includes('backpack') || nameVi.includes('tui') || nameVi.includes('balo'))) return true;
+  if ((q.includes('jean') || q.includes('denim')) && (nameEn.includes('jean') || nameEn.includes('denim') || nameVi.includes('jean') || nameVi.includes('denim'))) return true;
+
+  return false;
+}
+
+

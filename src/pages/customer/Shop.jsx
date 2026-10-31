@@ -7,6 +7,8 @@ import ProductGrid from '../../components/product/ProductGrid';
 import QuickAddModal from '../../components/product/QuickAddModal';
 import { Toast } from '../../components/common';
 import { useCartStore } from '../../stores';
+import { normalizeSearchText, matchesProductSearch } from '../../utils';
+
 
 // Danh mục chuẩn theo hệ thống
 const CATEGORIES = [
@@ -98,16 +100,16 @@ export function Shop({ viewCols } = {}) {
     };
   }, []);
 
-  // Nhận diện Shop nếu từ khóa tìm kiếm khớp với Tên Shop
+  // Nhận diện Shop nếu từ khóa tìm kiếm khớp với Tên Shop (hỗ trợ không dấu)
   const matchedShop = useMemo(() => {
-    const q = searchQuery.trim().toLowerCase();
+    const q = normalizeSearchText(searchQuery);
     if (!q) return null;
     return shops.find(
       (s) =>
         s.status !== 'PAUSED' &&
-        (s.name?.toLowerCase() === q ||
-          s.slug?.toLowerCase() === q ||
-          s.name?.toLowerCase().includes(q))
+        (normalizeSearchText(s.name) === q ||
+          normalizeSearchText(s.slug) === q ||
+          normalizeSearchText(s.name).includes(q))
     );
   }, [searchQuery, shops]);
 
@@ -134,16 +136,11 @@ export function Shop({ viewCols } = {}) {
       );
     }
 
-    // Tìm kiếm theo tên sản phẩm, tên shop hoặc danh mục
+    // Tìm kiếm song ngữ thông minh theo tên sản phẩm (Anh + Việt), tên shop, danh mục & từ đồng nghĩa
     if (searchQuery.trim()) {
-      const q = searchQuery.trim().toLowerCase();
-      result = result.filter((p) => {
-        const nameMatch = p.name?.toLowerCase().includes(q);
-        const shopMatch = p.shopName?.toLowerCase().includes(q);
-        const catMatch = p.category?.toLowerCase().includes(q);
-        return nameMatch || shopMatch || catMatch;
-      });
+      result = result.filter((p) => matchesProductSearch(p, searchQuery));
     }
+
 
     // Lọc theo giá
     if (minPrice) {

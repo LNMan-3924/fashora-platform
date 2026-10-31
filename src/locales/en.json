@@ -784,7 +784,8 @@
     "noResultsDesc": "We couldn't find any pieces matching your search query. Try keywords like boots, sunglasses, leather, or search for an atelier name.",
     "browseAll": "BROWSE ALL ARCHIVAL PIECES",
     "visit": "VISIT",
-    "close": "CLOSE"
+    "close": "CLOSE",
+    "clear": "CLEAR"
   },
   "auth": {
     "login": "LOGIN",
@@ -1480,7 +1481,9 @@
       "trust2Title": "CROSS-BORDER IP SAFEGUARDS",
       "trust2Desc": "Maximum intellectual property protection and authentic designer brand safeguards when entering new global markets.",
       "trust3Title": "END-TO-END FULFILLMENT / LOCAL REACH",
-      "trust3Desc": "Automated customs clearance, streamlined cross-border logistics, and seamless direct connection to domestic and international fashion consumers."
+      "trust3Desc": "Automated customs clearance, streamlined cross-border logistics, and seamless direct connection to domestic and international fashion consumers.",
+      "trust4Title": "DEDICATED ATELIER SUPPORT",
+      "trust4Desc": "24/7 specialized operations team to assist with onboarding, growth strategy, and brand incubation."
     },
     "info": {
       "title": "SHOP INFORMATION",
