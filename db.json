@@ -1,0 +1,2574 @@
+{
+  "shop": {
+    "id": "shop_m_studio",
+    "name": "M STUDIO",
+    "slug": "m-studio",
+    "tagline": "Modern Tailoring & Monochromatic Atelier",
+    "description": "M STUDIO is an avant-garde design house dedicated to sculptural silhouettes, industrial chrome hardware, and experimental monochrome fashion.",
+    "logo": "/assets/logo.png",
+    "coverImage": "/images/products/set/set-05.jpg",
+    "rating": 4.9,
+    "reviewsCount": 148,
+    "location": "Ho Chi Minh City, Vietnam",
+    "joinedDate": "October 2026",
+    "status": "ACTIVE",
+    "ownerId": "upkuSobx8os",
+    "ownerEmail": "an@gmail.com"
+  },
+  "heroBanner": {
+    "id": "hero-banner",
+    "title": "WHIPLASH ARCHIVE",
+    "subtitle": "AESPA × FASHORA CAPSULE DROP",
+    "description": "Bộ sưu tập Futuristic Cyberpunk giới hạn mang cảm hứng Y2K Techwear độc quyền.",
+    "image": "/images/banners/hero-banner.jpg",
+    "link": "/shop",
+    "buttonText": "EXPLORE CAPSULE"
+  },
+  "carouselItems": [
+    {
+      "id": "carousel-01",
+      "name": "GISELLE",
+      "code": "NO.20001030",
+      "tagline": "FUTURISTIC LEATHER",
+      "image": "/images/banners/carousel-01.jpg",
+      "link": "/shop?tag=giselle"
+    },
+    {
+      "id": "carousel-02",
+      "name": "NINGNING",
+      "code": "NO.20021023",
+      "tagline": "CYBER CARGO & METALLIC",
+      "image": "/images/banners/carousel-02.jpg",
+      "link": "/shop?tag=ningning"
+    },
+    {
+      "id": "carousel-03",
+      "name": "KARINA",
+      "code": "NO.20000411",
+      "tagline": "NEO-TECH ACCESSORIES",
+      "image": "/images/banners/carousel-03.jpg",
+      "link": "/shop?tag=karina"
+    },
+    {
+      "id": "carousel-04",
+      "name": "WINTER",
+      "code": "NO.20010101",
+      "tagline": "DARK BIKER AESTHETIC",
+      "image": "/images/banners/carousel-04.jpg",
+      "link": "/shop?tag=winter"
+    }
+  ],
+  "products": [
+    {
+      "id": "prd_acc_01",
+      "shopId": "shop_enire_5038",
+      "shopName": "enire",
+      "name": "Liquid Thorn Sunglasses",
+      "category": "ACCESSORIES",
+      "price": 450000,
+      "originalPrice": 550000,
+      "badge": "NEW",
+      "isSoldOut": false,
+      "images": [
+        "/images/products/accessories/acc-01.jpg"
+      ],
+      "sizes": [
+        "One Size"
+      ],
+      "colors": [
+        "Silver Chrome"
+      ],
+      "description": "Futuristic wraparound sunglasses featuring sculpted liquid metal thorn accents and UV400 protective dark lenses.",
+      "careInstructions": "Wipe lenses with microfiber cloth. Store in hard protective case.",
+      "stock": 12,
+      "details": {
+        "material": "Electroplated alloy frame with liquid metal thorn finish and shatter-resistant polycarbonate UV400 dark lenses.",
+        "specifications": [
+          "Wrap-around ergonomic aerodynamic curved frame.",
+          "Custom sculpted liquid-thorn organic temples.",
+          "Full spectrum UV400 category 3 sun glare protection.",
+          "Laser-etched atelier branding inside temple."
+        ],
+        "origin": "Curated by enire. Precision hardware cast in Veneto, Italy."
+      }
+    },
+    {
+      "id": "prd_acc_02",
+      "shopId": "shop_enire_5038",
+      "shopName": "enire",
+      "name": "Biomorphic Perforated Ring",
+      "category": "ACCESSORIES",
+      "price": 180000,
+      "originalPrice": null,
+      "badge": "NEW",
+      "isSoldOut": false,
+      "images": [
+        "/images/products/accessories/acc-02.jpg"
+      ],
+      "sizes": [
+        "Freesize (Adjustable)"
+      ],
+      "colors": [
+        "Matte Silver"
+      ],
+      "description": "Statement open band ring sculpted with organic hollowed textures, crafted from brushed titanium alloy.",
+      "careInstructions": "Avoid direct contact with water, perfume, and harsh chemicals.",
+      "stock": 25,
+      "details": {
+        "material": "Hypoallergenic brushed titanium and surgical-grade zinc composite alloy with a sandblasted matte finish.",
+        "specifications": [
+          "Biomorphic hollowed-out perforations with fluid contours.",
+          "Open-band structure accommodating US sizes 6 to 9.",
+          "Corrosion and tarnish resistant treatment.",
+          "Hand-burnished matte industrial silver texture."
+        ],
+        "origin": "Sculpted and cast in collaboration with enire Metals Workshop."
+      }
+    },
+    {
+      "id": "prd_acc_03",
+      "shopId": "shop_enire_5038",
+      "shopName": "enire",
+      "name": "Sculptural Patent Shoulder Bag",
+      "category": "ACCESSORIES",
+      "price": 750000,
+      "originalPrice": 890000,
+      "badge": "SALE",
+      "isSoldOut": false,
+      "images": [
+        "/images/products/accessories/acc-03.jpg"
+      ],
+      "sizes": [
+        "One Size"
+      ],
+      "colors": [
+        "Glossy Black"
+      ],
+      "description": "Avant-garde geometric shoulder bag paneled in high-shine patent faux leather with metal rivets and an adjustable buckle strap.",
+      "careInstructions": "Wipe clean with a soft damp cloth. Keep away from heat sources.",
+      "stock": 8,
+      "details": {
+        "material": "Mirror-finish polyurethane patent faux leather with cotton-twill interior lining and polished chrome hardware.",
+        "specifications": [
+          "Asymmetrical multi-panel geometric silhouette.",
+          "Adjustable roller buckle strap with reinforced industrial eyelets.",
+          "Concealed magnetic top flap closure with YKK interior zip pouch.",
+          "Debossed atelier logo plate on back exterior panel."
+        ],
+        "origin": "Handcrafted by artisan leather workshops for enire."
+      }
+    },
+    {
+      "id": "prd_acc_04",
+      "shopId": "shop_enire_5038",
+      "shopName": "enire",
+      "name": "Distressed Graphic Baseball Cap",
+      "category": "ACCESSORIES",
+      "price": 240000,
+      "originalPrice": null,
+      "badge": null,
+      "isSoldOut": false,
+      "images": [
+        "/images/products/accessories/acc-04.jpg"
+      ],
+      "sizes": [
+        "One Size"
+      ],
+      "colors": [
+        "Washed Black"
+      ],
+      "description": "Acid-washed cotton twill baseball cap finished with distressed brim detailing and gothic screen-printed graphics.",
+      "careInstructions": "Spot clean only. Do not machine wash or tumble dry.",
+      "stock": 30,
+      "details": {
+        "material": "100% Heavyweight 380gsm cotton twill with customized acid enzyme washing.",
+        "specifications": [
+          "Hand-distressed raw abrasion points along the curved brim.",
+          "Discharge screen-printed gothic calligraphy artwork.",
+          "Embroidered ventilation eyelets and structured crown.",
+          "Antique silver metal slider buckle for universal sizing."
+        ],
+        "origin": "Textile washed and customized in Vietnam under enire standards."
+      }
+    },
+    {
+      "id": "prd_acc_05",
+      "shopId": "shop_enire_5038",
+      "shopName": "enire",
+      "name": "Metallic Y2K Shoulder Bag",
+      "category": "ACCESSORIES",
+      "price": 620000,
+      "originalPrice": null,
+      "badge": "NEW",
+      "isSoldOut": false,
+      "images": [
+        "/images/products/accessories/acc-05.jpg"
+      ],
+      "sizes": [
+        "One Size"
+      ],
+      "colors": [
+        "Metallic Silver"
+      ],
+      "description": "Crinkled mirror-finish shoulder bag adorned with a bold oval monogram plaque and draping ball chain hardware.",
+      "careInstructions": "Store inside dust bag away from rough surfaces.",
+      "stock": 14,
+      "details": {
+        "material": "Crinkled metallic foil bonded to vegan leather substrate with dense nylon lining.",
+        "specifications": [
+          "High-gloss crinkle-textured reflective body.",
+          "Cast zinc alloy oval monogram front plaque.",
+          "Detachable dual drape ball chain accessories.",
+          "Interior zip slip pocket and reinforced flat base."
+        ],
+        "origin": "Curated by enire. Limited production allocation."
+      }
+    },
+    {
+      "id": "prd_acc_06",
+      "shopId": "shop_enire_5038",
+      "shopName": "enire",
+      "name": "Oval Emblem Leather Belt",
+      "category": "ACCESSORIES",
+      "price": 320000,
+      "originalPrice": 420000,
+      "badge": "SALE",
+      "isSoldOut": false,
+      "images": [
+        "/images/products/accessories/acc-06.jpg"
+      ],
+      "sizes": [
+        "85cm",
+        "90cm",
+        "95cm"
+      ],
+      "colors": [
+        "Black / Silver"
+      ],
+      "description": "Smooth faux leather belt detailed with an oversized polished zinc alloy monogram buckle.",
+      "careInstructions": "Hang straight or roll loosely. Avoid sharp folding.",
+      "stock": 20,
+      "details": {
+        "material": "Smooth bonded microfiber composite leather strap with high-polished zinc alloy buckle.",
+        "specifications": [
+          "Belt width: 3.8 cm with beveled, burnished edges.",
+          "Oversized hollowed oval signature emblem buckle (7.5 cm x 5.0 cm).",
+          "Dual leather strap retaining keepers.",
+          "Five precision die-cut sizing holes."
+        ],
+        "origin": "Assembled with custom alloy hardware for enire."
+      }
+    },
+    {
+      "id": "prd_acc_07",
+      "shopId": "shop_enire_5038",
+      "shopName": "enire",
+      "name": "Chrome Chain In-Ear Earphones",
+      "category": "ACCESSORIES",
+      "price": 390000,
+      "originalPrice": null,
+      "badge": "SOLDOUT",
+      "isSoldOut": true,
+      "images": [
+        "/images/products/accessories/acc-07.jpg"
+      ],
+      "sizes": [
+        "One Size"
+      ],
+      "colors": [
+        "Chrome Silver"
+      ],
+      "description": "Wearable tech accessory combining mirrored metallic in-ear buds with decorative curb chain wiring.",
+      "careInstructions": "Do not tug cable sharply. Keep audio jacks clean and dry.",
+      "stock": 0,
+      "details": {
+        "material": "Mirror-plated ABS acoustic enclosures and rhodium-plated brass chain cladding.",
+        "specifications": [
+          "10mm dynamic acoustic drivers tuned for balanced frequency response.",
+          "Gold-plated standard 3.5mm stereo connector.",
+          "Integrated in-line omnidirectional microphone and play/pause remote.",
+          "Durable metallic curb chain sheath minimizing tangle."
+        ],
+        "origin": "Engineered audio components assembled for enire Archive."
+      }
+    },
+    {
+      "id": "prd_acc_08",
+      "shopId": "shop_enire_5038",
+      "shopName": "enire",
+      "name": "Aerodynamic Wrap Sunglasses",
+      "category": "ACCESSORIES",
+      "price": 350000,
+      "originalPrice": null,
+      "badge": null,
+      "isSoldOut": false,
+      "images": [
+        "/images/products/accessories/acc-08.jpg"
+      ],
+      "sizes": [
+        "One Size"
+      ],
+      "colors": [
+        "Polished Silver"
+      ],
+      "description": "Curved sports wrap sunglasses built with aerodynamic grooved temples and mirror-tinted polycarbonate lenses.",
+      "careInstructions": "Rinse with clean water and dry using a lens cleaning cloth.",
+      "stock": 18,
+      "details": {
+        "material": "Ultralight TR90 thermoplastic polymer frame with mirrored shatterproof polycarbonate lenses.",
+        "specifications": [
+          "Wrap-around face shield shielding peripheral glare.",
+          "UV400 lens classification filter protecting UVA and UVB rays.",
+          "Aerodynamic vortex groove cutouts on wide temples.",
+          "Hypoallergenic soft-touch integrated nose bridges."
+        ],
+        "origin": "Precision molded and imported for enire Eyewear Series."
+      }
+    },
+    {
+      "id": "prd_acc_09",
+      "shopId": "shop_enire_5038",
+      "shopName": "enire",
+      "name": "Brushed Curb Chain Bracelet",
+      "category": "ACCESSORIES",
+      "price": 220000,
+      "originalPrice": null,
+      "badge": null,
+      "isSoldOut": false,
+      "images": [
+        "/images/products/accessories/acc-09.jpg"
+      ],
+      "sizes": [
+        "19cm",
+        "21cm"
+      ],
+      "colors": [
+        "Brushed Steel"
+      ],
+      "description": "Flat curb chain bracelet in surgical stainless steel with a center cutout logo plate and lobster clasp.",
+      "careInstructions": "Wipe with soft polishing cloth to keep shine.",
+      "stock": 22,
+      "details": {
+        "material": "316L Marine-grade surgical stainless steel with brushed industrial micro-matte finish.",
+        "specifications": [
+          "Beveled 9mm curb chain links engineered for seamless wrist articulation.",
+          "Laser-cut architectural central cutout identification plaque.",
+          "Heavy-duty spring-loaded lobster clasp.",
+          "Rust, oxidation, and sweat proof construction."
+        ],
+        "origin": "Fabricated by enire Metalcraft Lab."
+      }
+    },
+    {
+      "id": "prd_acc_10",
+      "shopId": "shop_enire_5038",
+      "shopName": "enire",
+      "name": "Snake Chain Pendant Necklace",
+      "category": "ACCESSORIES",
+      "price": 260000,
+      "originalPrice": 320000,
+      "badge": "SALE",
+      "isSoldOut": false,
+      "images": [
+        "/images/products/accessories/acc-10.jpg"
+      ],
+      "sizes": [
+        "55cm"
+      ],
+      "colors": [
+        "Silver"
+      ],
+      "description": "Fluid rounded snake bone chain necklace finished with a hollow architectural monogram pendant.",
+      "careInstructions": "Lay flat when stored to prevent creasing or twisting.",
+      "stock": 16,
+      "details": {
+        "material": "Silver-plated copper core snake chain with solid cast alloy centerpiece pendant.",
+        "specifications": [
+          "3mm fluid cylindrical round snake chain (Length: 55 cm).",
+          "Hollowed three-dimensional geometric monogram pendant.",
+          "Secure branded lobster claw fastener with 5cm extension tail.",
+          "Anti-tarnish protective lacquer dip."
+        ],
+        "origin": "Crafted under enire Archival Jewelry specifications."
+      }
+    },
+    {
+      "id": "prd_acc_11",
+      "shopId": "shop_enire_5038",
+      "shopName": "enire",
+      "name": "Gemstone Spiked Crown Ring",
+      "category": "ACCESSORIES",
+      "price": 280000,
+      "originalPrice": 350000,
+      "badge": "NEW",
+      "isSoldOut": false,
+      "images": [
+        "/images/products/accessories/acc-11.jpg"
+      ],
+      "sizes": [
+        "6",
+        "7",
+        "8"
+      ],
+      "colors": [
+        "Silver / Ice Blue"
+      ],
+      "description": "Statement band ring designed with dramatic sharp thorn spikes and set with oval pale-blue faceted crystals.",
+      "careInstructions": "Keep dry. Wipe gently with jewelry cloth after wearing.",
+      "stock": 20,
+      "details": {
+        "material": "Silver-finished brass alloy crowned with laboratory-grown pale blue faceted cubic zirconia crystals.",
+        "specifications": [
+          "Sculptural gothic barbed thorn crown contouring.",
+          "Bezel-set crystal stones refracting natural light.",
+          "Smooth contoured inner shank for ergonomic daily wear.",
+          "Available in fixed jewelers ring sizes US 6, 7, and 8."
+        ],
+        "origin": "Cast and hand-polished by enire Atelier."
+      }
+    },
+    {
+      "id": "prd_acc_12",
+      "shopId": "shop_enire_5038",
+      "shopName": "enire",
+      "name": "Ruched Leather Cylinder Shoulder Bag",
+      "category": "ACCESSORIES",
+      "price": 680000,
+      "originalPrice": 790000,
+      "badge": "NEW",
+      "isSoldOut": false,
+      "images": [
+        "/images/products/accessories/acc-12.jpg"
+      ],
+      "sizes": [
+        "One Size"
+      ],
+      "colors": [
+        "Dusty Blue"
+      ],
+      "description": "Soft gathered cylinder shoulder bag crafted in powdery blue faux leather, finished with side drawstrings and a central silver buckle plaque.",
+      "careInstructions": "Wipe with soft damp cloth. Avoid harsh chemicals.",
+      "stock": 15,
+      "details": {
+        "material": "Ultra-supple vegan lambskin faux leather with custom powder blue dye and satin poly lining.",
+        "specifications": [
+          "Ruched cylindrical body with adjustable side drawstring gathers.",
+          "Center antique cast silver buckle front plate.",
+          "Wide comfortable shoulder drop measuring 28cm.",
+          "Reinforced zipper top closure with polished hardware."
+        ],
+        "origin": "Custom tailored and dyed exclusively for enire."
+      }
+    },
+    {
+      "id": "prd_acc_13",
+      "shopId": "shop_enire_5038",
+      "shopName": "enire",
+      "name": "Heart Opal Drop Dangle Earrings",
+      "category": "ACCESSORIES",
+      "price": 190000,
+      "originalPrice": null,
+      "badge": null,
+      "isSoldOut": false,
+      "images": [
+        "/images/products/accessories/acc-13.jpg"
+      ],
+      "sizes": [
+        "One Size"
+      ],
+      "colors": [
+        "Silver / White"
+      ],
+      "description": "Delicate drop earrings featuring a frosted heart cabochon encased in a melted chrome border with hanging star and droplet chains.",
+      "careInstructions": "Store in dry jewelry box. Remove before showering or sleeping.",
+      "stock": 35,
+      "details": {
+        "material": "S925 Sterling silver earring posts with electroplated liquid chrome alloy and synthetic iridescent opal.",
+        "specifications": [
+          "Hypoallergenic ear pins suitable for sensitive ears.",
+          "Melted brutalist chrome casing enclosing frosted heart cabochon.",
+          "Asymmetric descending fine curb chains with star charms.",
+          "Overall drop length: 6.5 cm; weight: 6g per piece."
+        ],
+        "origin": "Designed by enire Studio Collection."
+      }
+    },
+    {
+      "id": "prd_acc_14",
+      "shopId": "shop_enire_5038",
+      "shopName": "enire",
+      "name": "Gothic Fleur Buckle Leather Backpack",
+      "category": "ACCESSORIES",
+      "price": 920000,
+      "originalPrice": 1150000,
+      "badge": "SALE",
+      "isSoldOut": false,
+      "images": [
+        "/images/products/accessories/acc-14.jpg"
+      ],
+      "sizes": [
+        "One Size"
+      ],
+      "colors": [
+        "Matte Black"
+      ],
+      "description": "Structured pebbled leather rucksack detailed with gothic cross appliqués, braided drawstrings, and engraved hardware buckles.",
+      "careInstructions": "Spot clean leather. Stuff lightly when storing to maintain shape.",
+      "stock": 8,
+      "details": {
+        "material": "Heavyweight pebbled full-grain faux leather with heavy duty twill lining and antiqued alloy hardware.",
+        "specifications": [
+          "Flap closure with dual engraved roller buckles and hidden magnetic snaps.",
+          "Interior drawstring cinching opening with braided leather cords.",
+          "Padded internal laptop compartment accommodating up to 14-inch devices.",
+          "Gothic cross motif leather appliqués on front bellows pocket."
+        ],
+        "origin": "Crafted in small batch workshop production for enire."
+      }
+    },
+    {
+      "id": "prd_acc_15",
+      "shopId": "shop_enire_5038",
+      "shopName": "enire",
+      "name": "Faux Fur Flap Embroidered Trapper Cap",
+      "category": "ACCESSORIES",
+      "price": 320000,
+      "originalPrice": null,
+      "badge": "NEW",
+      "isSoldOut": false,
+      "images": [
+        "/images/products/accessories/acc-15.jpg"
+      ],
+      "sizes": [
+        "One Size"
+      ],
+      "colors": [
+        "Dark Grey / Silver Fur"
+      ],
+      "description": "Winter baseball cap hybrid featuring plush faux-fur ear warmers, top tie ribbons, and front cursive embroidery with metal studs.",
+      "careInstructions": "Spot clean only. Fluff fur using a soft bristle brush.",
+      "stock": 22,
+      "details": {
+        "material": "Brushed heavyweight wool-blend felt outer with high-density plush faux shearling fur lining.",
+        "specifications": [
+          "Hybrid baseball visor silhouette with convertible drop-down earflaps.",
+          "Top ribbon ties allowing ear flaps to be tied up or secured below chin.",
+          "Metallic dome rivets framing tonal script cursive embroidery.",
+          "Quilted inner insulation lining retaining body heat."
+        ],
+        "origin": "Engineered for winter collection by enire."
+      }
+    },
+    {
+      "id": "prd_acc_16",
+      "shopId": "shop_enire_5038",
+      "shopName": "enire",
+      "name": "Plaid Trim Chain Beret Hat",
+      "category": "ACCESSORIES",
+      "price": 290000,
+      "originalPrice": 360000,
+      "badge": "SALE",
+      "isSoldOut": false,
+      "images": [
+        "/images/products/accessories/acc-16.jpg"
+      ],
+      "sizes": [
+        "One Size"
+      ],
+      "colors": [
+        "Black / Grey Plaid"
+      ],
+      "description": "Wool felt beret hat outlined with a monochrome tartan ribbon, detachable ball chain swag, and a front metal crest pin.",
+      "careInstructions": "Dry clean recommended. Do not wring or bleach.",
+      "stock": 18,
+      "details": {
+        "material": "100% Compressed natural wool felt with woven cotton-blend tartan trim and alloy hardware.",
+        "specifications": [
+          "Classic French beret crown with internal sweatband and drawstring adjustor.",
+          "Contrast monochrome tartan plaid perimeter binding.",
+          "Detachable dual-layer chrome ball chain with swivel lobster clasps.",
+          "Embossed military heraldic crest badge on temple."
+        ],
+        "origin": "Curated millinery piece produced for enire."
+      }
+    },
+    {
+      "id": "prd_acc_17",
+      "shopId": "shop_enire_5038",
+      "shopName": "enire",
+      "name": "Crystal Studded Pierced Skinny Tie",
+      "category": "ACCESSORIES",
+      "price": 250000,
+      "originalPrice": null,
+      "badge": null,
+      "isSoldOut": false,
+      "images": [
+        "/images/products/accessories/acc-17.jpg"
+      ],
+      "sizes": [
+        "One Size"
+      ],
+      "colors": [
+        "Black"
+      ],
+      "description": "Dark denim skinny necktie customized with punky safety pins, horseshoe barbell piercings, and cluster rhinestone gems.",
+      "careInstructions": "Spot clean only. Do not machine wash.",
+      "stock": 26,
+      "details": {
+        "material": "12oz Raw black denim weave accented with steel body jewelry hardware and glass rhinestones.",
+        "specifications": [
+          "Narrow modern silhouette: 4.5 cm widest point, 145 cm full length.",
+          "Hand-pierced stainless steel horseshoe circular barbells.",
+          "Arranged industrial safety pins and prong-set light-catching crystals.",
+          "Pre-tied or free tie flexibility with internal keeper loop."
+        ],
+        "origin": "Hand-customized by enire Atelier in Vietnam."
+      }
+    },
+    {
+      "id": "prd_acc_18",
+      "shopId": "shop_enire_5038",
+      "shopName": "enire",
+      "name": "Graffiti Charm Distressed Beanie Hat",
+      "category": "ACCESSORIES",
+      "price": 230000,
+      "originalPrice": null,
+      "badge": "SOLDOUT",
+      "isSoldOut": true,
+      "images": [
+        "/images/products/accessories/acc-18.jpg"
+      ],
+      "sizes": [
+        "One Size"
+      ],
+      "colors": [
+        "Off-White"
+      ],
+      "description": "Ribbed knit skull beanie decorated with charcoal bow stencil spray art and adorned with metal safety pins and miniature cutlery charms.",
+      "careInstructions": "Hand wash gently inside out. Dry flat on a towel.",
+      "stock": 0,
+      "details": {
+        "material": "100% Stretch-ribbed acrylic yarn knit with airbrush stencil pigment and alloy charms.",
+        "specifications": [
+          "Dual-fold cuff design with manual distressing and thread fraying.",
+          "Hand-sprayed charcoal bow stencil graffiti graphic.",
+          "Curated charm cluster: safety pins and antique silver finished mini cutlery charms.",
+          "Deep crown height fitting snug to slouchy styling."
+        ],
+        "origin": "Individually hand-sprayed and embellished by enire."
+      }
+    },
+    {
+      "id": "prd_set_01",
+      "shopId": "shop_l-obscur-atelier_8158",
+      "shopName": "L'OBSCUR ATELIER",
+      "name": "Military Officer Jacket & Shorts Set",
+      "category": "SET",
+      "price": 1250000,
+      "originalPrice": 1450000,
+      "badge": "NEW",
+      "isSoldOut": false,
+      "images": [
+        "/images/products/set/set-01.jpg",
+        "/images/products/set/set-01-hover.jpg"
+      ],
+      "sizes": [
+        "S",
+        "M",
+        "L"
+      ],
+      "colors": [
+        "Black"
+      ],
+      "description": "Cohesive tailored two-piece set featuring a structured double-breasted officer jacket with silver embossed buttons and high-waisted ribbed knit hot pants.",
+      "careInstructions": "Dry clean only. Do not tumble dry.",
+      "stock": 12,
+      "details": {
+        "material": "Jacket: 70% Poly-twill, 30% Rayon structured suiting; Shorts: 95% Ribbed compact cotton, 5% Spandex.",
+        "specifications": [
+          "Double-breasted jacket front with silver military-crested embossed dome buttons.",
+          "Internal padded structured shoulders and sharp peak lapels.",
+          "High-waisted form-fitting knit hot pants with elasticated waistband.",
+          "Full inner cupro lining inside jacket for frictionless layering."
+        ],
+        "origin": "Drafted and assembled in Veneto, Italy under M STUDIO Atelier."
+      }
+    },
+    {
+      "id": "prd_set_02",
+      "shopId": "shop_l-obscur-atelier_8158",
+      "shopName": "L'OBSCUR ATELIER",
+      "name": "Quilted Biker Jacket & Flare Denim Set",
+      "category": "SET",
+      "price": 1480000,
+      "originalPrice": 1750000,
+      "badge": "SALE",
+      "isSoldOut": false,
+      "images": [
+        "/images/products/set/set-02.jpg",
+        "/images/products/set/set-02-hover.jpg"
+      ],
+      "sizes": [
+        "S",
+        "M",
+        "L"
+      ],
+      "colors": [
+        "Washed Black"
+      ],
+      "description": "Edgy moto coordinate consisting of a diamond-quilted leather biker jacket with asymmetric zip and low-waist washed flare wide-leg denim trousers.",
+      "careInstructions": "Specialist leather clean for jacket. Machine wash denim cold.",
+      "stock": 9,
+      "details": {
+        "material": "Jacket: Textured heavyweight vegan biker leather; Denim: 13.5oz mineral stone-washed cotton denim.",
+        "specifications": [
+          "Diamond-quilted shoulder and sleeve padding with asymmetric moto zipper closure.",
+          "Industrial YKK metal hardware and collar snap tabs.",
+          "Low-rise flare leg jeans with whisker bleaching and raw pool-hem cut.",
+          "Traditional 5-pocket denim styling with custom rivet enforcements."
+        ],
+        "origin": "Engineered for FASHORA Runway Collection by M STUDIO."
+      }
+    },
+    {
+      "id": "prd_set_03",
+      "shopId": "shop_l-obscur-atelier_8158",
+      "shopName": "L'OBSCUR ATELIER",
+      "name": "Shearling Leather Jacket & Cable Knit Skirt Set",
+      "category": "SET",
+      "price": 1590000,
+      "originalPrice": null,
+      "badge": "NEW",
+      "isSoldOut": false,
+      "images": [
+        "/images/products/set/set-03.jpg",
+        "/images/products/set/set-03-hover.jpg"
+      ],
+      "sizes": [
+        "S",
+        "M"
+      ],
+      "colors": [
+        "Espresso Brown / Navy"
+      ],
+      "description": "Winter layered set pairing a faux-shearling trimmed textured leather jacket with a floor-length cable-knit column maxi skirt.",
+      "careInstructions": "Dry clean recommended. Flat dry knitwear away from direct heat.",
+      "stock": 7,
+      "details": {
+        "material": "Jacket: Cracked vintage vegan leather with plush acrylic shearling; Skirt: 60% Wool, 40% Acrylic cable knit.",
+        "specifications": [
+          "Oversized shearling lapels, cuffs, and hemline with dual throat collar straps.",
+          "Heavy antique brass zip front closure.",
+          "Floor-sweeping column silhouette cable knit maxi skirt.",
+          "Comfortable encased elastic waistband with high back walking vent."
+        ],
+        "origin": "Curated European winter capsule by M STUDIO."
+      }
+    },
+    {
+      "id": "prd_set_04",
+      "shopId": "shop_l-obscur-atelier_8158",
+      "shopName": "L'OBSCUR ATELIER",
+      "name": "Double Collar Denim Jacket & Baggy Jeans Set",
+      "category": "SET",
+      "price": 1350000,
+      "originalPrice": 1600000,
+      "badge": "SALE",
+      "isSoldOut": false,
+      "images": [
+        "/images/products/set/set-04.jpg",
+        "/images/products/set/set-04-hover.jpg"
+      ],
+      "sizes": [
+        "M",
+        "L",
+        "XL"
+      ],
+      "colors": [
+        "Vintage Indigo Wash"
+      ],
+      "description": "Statement denim set engineered with a sharp western cut jacket featuring layered contrasting pop-color collars and ultra-slouchy baggy jeans.",
+      "careInstructions": "Machine wash cold inside out. Hang dry to preserve wash texture.",
+      "stock": 14,
+      "details": {
+        "material": "100% Ring-spun 14oz rigid cotton denim in vintage tint stonewash.",
+        "specifications": [
+          "Layered dual collar construction with contrast faded wash tones.",
+          "Drop-shoulder western trucker silhouette with matte silver shank buttons.",
+          "Super-wide puddle jeans with double knee paneling.",
+          "Enzyme bleached fade patterning across thighs and yoke."
+        ],
+        "origin": "Manufactured with artisanal denim washes for M STUDIO."
+      }
+    },
+    {
+      "id": "prd_set_05",
+      "shopId": "shop_l-obscur-atelier_8158",
+      "shopName": "L'OBSCUR ATELIER",
+      "name": "Architectural Funnel Leather Jacket & Zip Pants Set",
+      "category": "SET",
+      "price": 1680000,
+      "originalPrice": null,
+      "badge": "NEW",
+      "isSoldOut": false,
+      "images": [
+        "/images/products/set/set-05.jpg",
+        "/images/products/set/set-05-hover.jpg"
+      ],
+      "sizes": [
+        "M",
+        "L"
+      ],
+      "colors": [
+        "Stark White / Black"
+      ],
+      "description": "Monochromatic atelier statement suit combining an asymmetric funnel-neck white leather jacket with technical spiral-zippered wide track trousers.",
+      "careInstructions": "Spot clean jacket with damp cloth. Gentle cycle for trousers.",
+      "stock": 6,
+      "details": {
+        "material": "Jacket: High-grade matte polyurethane leather; Pants: Technical heavy nylon-twill waterproof fabric.",
+        "specifications": [
+          "High funnel collar with diagonal asymmetric zipper and magnetic clasp.",
+          "Tailored sculptural sleeve darts creating articulated bends.",
+          "Wide technical trousers fitted with full continuous spiral leg zippers.",
+          "Modular zipped pockets and cinchable shock-cord ankle cuffs."
+        ],
+        "origin": "Developed at FASHORA Design Studio, Paris 8th Arrondissement."
+      }
+    },
+    {
+      "id": "prd_set_06",
+      "shopId": "shop_l-obscur-atelier_8158",
+      "shopName": "L'OBSCUR ATELIER",
+      "name": "Colorblock Buckled Cardigan & Leather Pants Set",
+      "category": "SET",
+      "price": 1390000,
+      "originalPrice": 1650000,
+      "badge": "NEW",
+      "isSoldOut": false,
+      "images": [
+        "/images/products/set/set-06.jpg",
+        "/images/products/set/set-06-hover.jpg"
+      ],
+      "sizes": [
+        "S",
+        "M",
+        "L"
+      ],
+      "colors": [
+        "Black / Cream"
+      ],
+      "description": "Asymmetric dual-tone chunky knit cardigan fitted with metal buckle strap fasteners, paired with ultra-wide faux leather puddle trousers.",
+      "careInstructions": "Dry clean cardigan. Wipe trousers clean with a damp cloth.",
+      "stock": 11,
+      "details": {
+        "material": "Top: 55% Cotton, 45% Acrylic heavyweight chunky knit; Bottom: Matte grained synthetic leather.",
+        "specifications": [
+          "Monochromatic colorblocked body with diagonal ribbed knit texture.",
+          "Trio of adjustable brushed alloy roller buckle strap closures across front.",
+          "Fluid wide-leg leather trousers with high waist fit and front pleats.",
+          "Deep slanted side pockets and double welt rear pockets."
+        ],
+        "origin": "Curated and crafted under M STUDIO Limited Allocation."
+      }
+    },
+    {
+      "id": "prd_set_07",
+      "shopId": "shop_l-obscur-atelier_8158",
+      "shopName": "L'OBSCUR ATELIER",
+      "name": "Cyber Hooded Moto Jacket & Eyelet Skirt Set",
+      "category": "SET",
+      "price": 1550000,
+      "originalPrice": 1890000,
+      "badge": "SALE",
+      "isSoldOut": false,
+      "images": [
+        "/images/products/set/set-07.jpg",
+        "/images/products/set/set-07-hover.jpg"
+      ],
+      "sizes": [
+        "S",
+        "M"
+      ],
+      "colors": [
+        "Washed Charcoal / Black"
+      ],
+      "description": "Avant-garde dystopia coordinate featuring a multi-zipper hooded leather moto jacket with back slit details and a spiked metal-grommet micro skirt.",
+      "careInstructions": "Specialist leather clean only. Keep metallic hardware dry.",
+      "stock": 5,
+      "details": {
+        "material": "Hand-buffed distressed synthetic leather shell with breathable viscose lining.",
+        "specifications": [
+          "Detachable structured hood with adjustable drawcords.",
+          "Multi-directional chrome zippers across torso and sleeves.",
+          "Micro mini skirt loaded with all-over rows of punched metal eyelets.",
+          "Internal built-in safety stretch shorts under skirt for secure fit."
+        ],
+        "origin": "Custom hand-finished piece by M STUDIO Atelier."
+      }
+    },
+    {
+      "id": "prd_set_08",
+      "shopId": "shop_l-obscur-atelier_8158",
+      "shopName": "L'OBSCUR ATELIER",
+      "name": "Metallic Racing Leather Jacket & Mini Skirt Set",
+      "category": "SET",
+      "price": 1290000,
+      "originalPrice": 1490000,
+      "badge": "NEW",
+      "isSoldOut": false,
+      "images": [
+        "/images/products/set/set-08.jpg",
+        "/images/products/set/set-08-hover.jpg"
+      ],
+      "sizes": [
+        "S",
+        "M",
+        "L"
+      ],
+      "colors": [
+        "Distressed Silver / Red"
+      ],
+      "description": "Y2K-inspired motorsport matching set composed of a stand-collar washed metallic leather jacket and a low-rise panel mini skirt with bold contrast stripe graphics.",
+      "careInstructions": "Wipe clean with a damp cloth. Do not iron or machine wash.",
+      "stock": 14,
+      "details": {
+        "material": "Distressed metallic silver coated faux leather with bold crimson racing stripe leather inlays.",
+        "specifications": [
+          "Snap-tab mandarin moto collar and zip wrist gussets.",
+          "Ergonomic racing curved arm panel construction.",
+          "Low-waisted A-line mini skirt with contrast colorblocked hip panels.",
+          "Heavy-duty industrial front zippers."
+        ],
+        "origin": "Created for M STUDIO Velocity Archive Collection."
+      }
+    },
+    {
+      "id": "prd_set_09",
+      "shopId": "shop_l-obscur-atelier_8158",
+      "shopName": "L'OBSCUR ATELIER",
+      "name": "Cropped Biker Leather Jacket & Wide Jeans Set",
+      "category": "SET",
+      "price": 1420000,
+      "originalPrice": null,
+      "badge": null,
+      "isSoldOut": false,
+      "images": [
+        "/images/products/set/set-09.jpg",
+        "/images/products/set/set-09-hover.jpg"
+      ],
+      "sizes": [
+        "M",
+        "L",
+        "XL"
+      ],
+      "colors": [
+        "Camel Brown / Faded Black"
+      ],
+      "description": "Relaxed retro coordinate comprising a boxy drop-shoulder cropped moto leather jacket with waist belt buckle and loose-leg faded vintage black jeans.",
+      "careInstructions": "Spot clean jacket. Machine wash jeans cold inside out.",
+      "stock": 16,
+      "details": {
+        "material": "Jacket: Burnished vintage camel vegan leather; Jeans: 100% 13oz washed cotton denim.",
+        "specifications": [
+          "Exaggerated cropped silhouette hitting above natural waistline.",
+          "Integrated wide waist belt with heavyweight polished rectangular prong buckle.",
+          "Extra wide-leg jeans with subtle thigh fading and contrast stitching.",
+          "Reinforced double-stitched stress points throughout both pieces."
+        ],
+        "origin": "Curated and assembled for M STUDIO Archive Series."
+      }
+    },
+    {
+      "id": "prd_pants_01",
+      "shopId": "shop_m_studio",
+      "shopName": "M STUDIO",
+      "name": "Vintage Faded Balloon Jeans",
+      "category": "PANTS",
+      "price": 680000,
+      "originalPrice": 790000,
+      "badge": "NEW",
+      "isSoldOut": false,
+      "images": [
+        "/images/products/pants/pants-01.jpg"
+      ],
+      "sizes": [
+        "S",
+        "M",
+        "L",
+        "XL"
+      ],
+      "colors": [
+        "Washed Light Blue"
+      ],
+      "description": "Dramatic curved balloon-leg jeans in heavy stone-washed denim with whisker detailing and deep side pleats creating a sculptural voluminous silhouette.",
+      "careInstructions": "Machine wash cold inside out. Hang dry to maintain volume.",
+      "stock": 24,
+      "details": {
+        "material": "100% Heavyweight 14.5oz organic cotton denim treated with natural pumice stonewash.",
+        "specifications": [
+          "Sculptural 3D curved balloon leg with double inward knee darts.",
+          "High-rise fitted waist contouring into dramatic flared volume.",
+          "Vintage faded whiskering and hand-scraped abrasions.",
+          "Branded zinc button fly and copper rivets."
+        ],
+        "origin": "Precision cut and washed for M STUDIO Denim Division."
+      }
+    },
+    {
+      "id": "prd_pants_02",
+      "shopId": "shop_m_studio",
+      "shopName": "M STUDIO",
+      "name": "Flame Wash Wide-Leg Denim",
+      "category": "PANTS",
+      "price": 640000,
+      "originalPrice": null,
+      "badge": null,
+      "isSoldOut": false,
+      "images": [
+        "/images/products/pants/pants-02.jpg"
+      ],
+      "sizes": [
+        "S",
+        "M",
+        "L",
+        "XL"
+      ],
+      "colors": [
+        "Washed Black"
+      ],
+      "description": "Wide-leg flared denim trousers featuring distinctive bleached rising flame motifs along the lower hems and subtle distress marks.",
+      "careInstructions": "Wash separately in cold water. Do not bleach.",
+      "stock": 18,
+      "details": {
+        "material": "100% Cotton 13.8oz sulfur-dyed black denim.",
+        "specifications": [
+          "Artisanal discharge-bleached ascending flame pattern on leg hems.",
+          "Slouchy wide-leg cut with extended inseam for puddle-stack effect.",
+          "Frayed raw hem finish along bottom cuff.",
+          "Custom M STUDIO engraved matte black hardware."
+        ],
+        "origin": "Hand-bleached and customized in Vietnam by M STUDIO."
+      }
+    },
+    {
+      "id": "prd_pants_03",
+      "shopId": "shop_m_studio",
+      "shopName": "M STUDIO",
+      "name": "Distressed Eye Patchwork Cargo Pants",
+      "category": "PANTS",
+      "price": 790000,
+      "originalPrice": 950000,
+      "badge": "SALE",
+      "isSoldOut": false,
+      "images": [
+        "/images/products/pants/pants-03.jpg"
+      ],
+      "sizes": [
+        "M",
+        "L",
+        "XL"
+      ],
+      "colors": [
+        "Black / White"
+      ],
+      "description": "Heavy tactile cargo pants constructed with all-over frayed knit shredding, gothic graphic eye patch appliqués, and hanging side harness straps.",
+      "careInstructions": "Hand wash gently. Air dry flat to preserve frayed threads.",
+      "stock": 10,
+      "details": {
+        "material": "100% Cotton canvas base overlaid with distressed open-weave gauze and canvas patches.",
+        "specifications": [
+          "Manual distress shredding and fraying across front panels.",
+          "Screen-printed gothic eyeball canvas patch appliqués.",
+          "Six ergonomic cargo storage pockets with flap closures.",
+          "D-ring utility webbing harness straps hanging from waist to knee."
+        ],
+        "origin": "Handcrafted limited edition produced for M STUDIO."
+      }
+    },
+    {
+      "id": "prd_pants_04",
+      "shopId": "shop_m_studio",
+      "shopName": "M STUDIO",
+      "name": "Layered Fringe Carpenter Denim Pants",
+      "category": "PANTS",
+      "price": 720000,
+      "originalPrice": null,
+      "badge": "NEW",
+      "isSoldOut": false,
+      "images": [
+        "/images/products/pants/pants-04.jpg"
+      ],
+      "sizes": [
+        "S",
+        "M",
+        "L"
+      ],
+      "colors": [
+        "Jet Black"
+      ],
+      "description": "Double-knee carpenter jeans updated with Western-inspired cascading fringe tassels, raw cut hems, and oversized utility pockets.",
+      "careInstructions": "Spot clean recommended or wash inside a mesh laundry bag.",
+      "stock": 15,
+      "details": {
+        "material": "Heavy duty 14oz rigid black cotton denim with raw-edge denim fringe tassels.",
+        "specifications": [
+          "Double-knee reinforced panels lined with flowing western fringe trim.",
+          "Carpenter hammer loop and dual utility ruler side pockets.",
+          "Straight-leg relaxed fit with reinforced triple-needle topstitching.",
+          "Unwashed jet-black finish retaining deep color depth."
+        ],
+        "origin": "Constructed by specialized denim artisans for M STUDIO."
+      }
+    },
+    {
+      "id": "prd_pants_05",
+      "shopId": "shop_m_studio",
+      "shopName": "M STUDIO",
+      "name": "Contour Spiral Zip Baggy Jeans",
+      "category": "PANTS",
+      "price": 750000,
+      "originalPrice": 880000,
+      "badge": "SALE",
+      "isSoldOut": false,
+      "images": [
+        "/images/products/pants/pants-05.jpg"
+      ],
+      "sizes": [
+        "S",
+        "M",
+        "L",
+        "XL"
+      ],
+      "colors": [
+        "Black / White Contour"
+      ],
+      "description": "Baggy skater denim finished with fluid topographic contrast white stitching and multi-functional functional metallic diagonal zippers.",
+      "careInstructions": "Machine wash delicate cycle. Close all zippers before wash.",
+      "stock": 14,
+      "details": {
+        "material": "13.5oz Washed black cotton denim with contrast high-tensile polyester stitching.",
+        "specifications": [
+          "Ergonomic topographic spiral seams curving around entire leg silhouette.",
+          "Functional metal zippers allowing silhouette transformation from straight to flare.",
+          "Generous baggy cut engineered with a dropped crotch.",
+          "Heavy contrast white dual-stitch embroidery."
+        ],
+        "origin": "Architectural silhouette drafted by M STUDIO Atelier."
+      }
+    },
+    {
+      "id": "prd_pants_06",
+      "shopId": "shop_m_studio",
+      "shopName": "M STUDIO",
+      "name": "Multi-Pocket Leather Cargo Trousers",
+      "category": "PANTS",
+      "price": 850000,
+      "originalPrice": null,
+      "badge": "NEW",
+      "isSoldOut": false,
+      "images": [
+        "/images/products/pants/pants-06.jpg"
+      ],
+      "sizes": [
+        "M",
+        "L",
+        "XL"
+      ],
+      "colors": [
+        "Matte Black"
+      ],
+      "description": "Tactical wide-cut pants made from grained faux leather, featuring detachable modular waist pouches, knee harness cinches, and grommeted straps.",
+      "careInstructions": "Wipe clean with a damp cloth. Hang on wide hanger.",
+      "stock": 12,
+      "details": {
+        "material": "High-durability matte pebbled polyurethane leather with breathable poly-viscose backing.",
+        "specifications": [
+          "Eight dimensional cargo utility pockets with concealed snaps.",
+          "Adjustable knee harness straps with quick-release snap buckles.",
+          "Detachable modular pouch clip at right waistband.",
+          "Wide leg opening with interior toggle shock-cords."
+        ],
+        "origin": "Tailored under M STUDIO Technical Utility specifications."
+      }
+    },
+    {
+      "id": "prd_pants_07",
+      "shopId": "shop_m_studio",
+      "shopName": "M STUDIO",
+      "name": "Grommet Strap Multi-Buckle Wide Pants",
+      "category": "PANTS",
+      "price": 780000,
+      "originalPrice": null,
+      "badge": "SOLDOUT",
+      "isSoldOut": true,
+      "images": [
+        "/images/products/pants/pants-07.jpg"
+      ],
+      "sizes": [
+        "S",
+        "M",
+        "L"
+      ],
+      "colors": [
+        "Chalk White"
+      ],
+      "description": "Avant-garde bondage-style wide-leg cotton pants detailed with layered zip compartments, metal eyelets, and adjustable roller buckles down each leg.",
+      "careInstructions": "Hand wash or dry clean to protect metal buckle hardware.",
+      "stock": 0,
+      "details": {
+        "material": "100% 340gsm Structured cotton drill in natural unbleached chalk white.",
+        "specifications": [
+          "Six adjustable bondage straps with metallic roller buckles wrapping each leg.",
+          "Continuously punched metal eyelet webbing trims.",
+          "Silver metal zipper utility pockets across thighs and calves.",
+          "Extra-wide relaxed hem pooling over footwear."
+        ],
+        "origin": "Exclusive prototype crafted by M STUDIO."
+      }
+    },
+    {
+      "id": "prd_pants_08",
+      "shopId": "shop_m_studio",
+      "shopName": "M STUDIO",
+      "name": "Acid-Wash Multi-Pocket Cargo Jeans",
+      "category": "PANTS",
+      "price": 820000,
+      "originalPrice": 960000,
+      "badge": "SALE",
+      "isSoldOut": false,
+      "images": [
+        "/images/products/pants/pants-08.jpg"
+      ],
+      "sizes": [
+        "S",
+        "M",
+        "L",
+        "XL"
+      ],
+      "colors": [
+        "Acid Charcoal Grey"
+      ],
+      "description": "Maximalist utility cargo pants constructed with an array of angled bellows pockets, curved contrast topstitching, and an aggressive mineral acid wash.",
+      "careInstructions": "Machine wash cold with like colors inside out.",
+      "stock": 16,
+      "details": {
+        "material": "100% Ring-spun 13.5oz cotton denim subjected to mineral acid-wash processing.",
+        "specifications": [
+          "Ten asymmetric gusseted 3D cargo pockets.",
+          "Dramatic mineral snow wash creating high-contrast texture.",
+          "Articulated knees with kinetic pleats for ease of movement.",
+          "Triple-reinforced stitching along crotch and inseams."
+        ],
+        "origin": "Washed and customized under M STUDIO Heavy Denim standards."
+      }
+    },
+    {
+      "id": "prd_shirt_01",
+      "shopId": "shop_m_studio",
+      "shopName": "M STUDIO",
+      "name": "Cropped Satin Western Shirt",
+      "category": "SHIRT",
+      "price": 490000,
+      "originalPrice": 580000,
+      "badge": "NEW",
+      "isSoldOut": false,
+      "images": [
+        "/images/products/shirt/shirt-01.jpg",
+        "/images/products/shirt/shirt-01-hover.jpg"
+      ],
+      "sizes": [
+        "S",
+        "M",
+        "L"
+      ],
+      "colors": [
+        "Stark White"
+      ],
+      "description": "Modernist cropped button-up shirt in luminous heavy satin, featuring exaggerated western yokes, sharp notched lapels, and raw-cut hem ties.",
+      "careInstructions": "Hand wash gently in cool water. Cool iron under pressing cloth.",
+      "stock": 20,
+      "details": {
+        "material": "88% Triacetate, 12% Polyamide high-density Italian satin drape.",
+        "specifications": [
+          "Cropped silhouette hitting right above natural waist.",
+          "Dramatic exaggerated western curved front and back yoke tailoring.",
+          "Raw-cut adjustable tie sashes integrated into bottom hem.",
+          "Concealed placket featuring genuine mother-of-pearl buttons."
+        ],
+        "origin": "Conceived in Paris, Veneto craftsmanship for M STUDIO."
+      }
+    },
+    {
+      "id": "prd_shirt_02",
+      "shopId": "shop_m_studio",
+      "shopName": "M STUDIO",
+      "name": "Belted Moto Leather Over-Shirt",
+      "category": "SHIRT",
+      "price": 780000,
+      "originalPrice": 920000,
+      "badge": "SALE",
+      "isSoldOut": false,
+      "images": [
+        "/images/products/shirt/shirt-02.jpg",
+        "/images/products/shirt/shirt-02-hover.jpg"
+      ],
+      "sizes": [
+        "M",
+        "L",
+        "XL"
+      ],
+      "colors": [
+        "Jet Black"
+      ],
+      "description": "Structured boxy over-shirt tailored from supple faux leather, finished with an industrial grommet waist belt, chest flaps, and four-point star zipper pulls.",
+      "careInstructions": "Wipe clean with a damp cloth. Store away from humidity.",
+      "stock": 15,
+      "details": {
+        "material": "Matte-grain synthetic leather outer with silky cupro inner lining.",
+        "specifications": [
+          "Boxy, drop-shoulder over-shirt silhouette for versatile outer layering.",
+          "Removable matching leather waist belt with metal eyelets and buckle.",
+          "Signature star-shaped cast metal zipper pulls on chest flap pockets.",
+          "Structured architectural fold-down point collar."
+        ],
+        "origin": "Engineered for M STUDIO Outerwear Archives."
+      }
+    },
+    {
+      "id": "prd_shirt_03",
+      "shopId": "shop_m_studio",
+      "shopName": "M STUDIO",
+      "name": "Scarf Collar Elastic Bomber Shirt",
+      "category": "SHIRT",
+      "price": 540000,
+      "originalPrice": null,
+      "badge": "NEW",
+      "isSoldOut": false,
+      "images": [
+        "/images/products/shirt/shirt-03.jpg",
+        "/images/products/shirt/shirt-03-hover.jpg"
+      ],
+      "sizes": [
+        "S",
+        "M",
+        "L"
+      ],
+      "colors": [
+        "Dusty Beige"
+      ],
+      "description": "Voluminous hybrid zip shirt crafted from smooth wind-resistant twill with an integrated tie-scarf funnel neckline and shirred elastic waistband.",
+      "careInstructions": "Machine wash delicate cycle. Hang to dry.",
+      "stock": 18,
+      "details": {
+        "material": "65% High-twist cotton, 35% Technical windproof nylon twill.",
+        "specifications": [
+          "Convertible funnel collar extending into integrated draped tie-scarves.",
+          "Two-way brushed alloy front zipper closure.",
+          "Shirred elasticized bomber waistband creating blouson volume.",
+          "Relaxed drop-shoulder sleeves with gathered snap cuffs."
+        ],
+        "origin": "Curated by M STUDIO Contemporary Tailoring."
+      }
+    },
+    {
+      "id": "prd_shirt_04",
+      "shopId": "shop_m_studio",
+      "shopName": "M STUDIO",
+      "name": "Ribbon Bow Detail Knit Cardigan Shirt",
+      "category": "SHIRT",
+      "price": 460000,
+      "originalPrice": null,
+      "badge": null,
+      "isSoldOut": false,
+      "images": [
+        "/images/products/shirt/shirt-04.jpg",
+        "/images/products/shirt/shirt-04-hover.jpg"
+      ],
+      "sizes": [
+        "S",
+        "M",
+        "L"
+      ],
+      "colors": [
+        "Crimson Red / Cream"
+      ],
+      "description": "Fine-gauge v-neck knit cardigan shirt designed with tone-on-tone fabric buttons and an oversized contrast ivory bow corsage brooch.",
+      "careInstructions": "Hand wash cold. Dry flat to preserve knit shape.",
+      "stock": 22,
+      "details": {
+        "material": "70% Mercerized fine-gauge cotton, 30% Mulberry silk knit.",
+        "specifications": [
+          "Plunging feminine V-neckline with ribbed knit collar trim.",
+          "Detachable handmade contrast ivory satin bow corsage with safety pin.",
+          "Color-matched fabric-covered shank button front closure.",
+          "Fitted silhouette with extended slim ribbed cuffs."
+        ],
+        "origin": "Knit from premium blended yarns for M STUDIO."
+      }
+    },
+    {
+      "id": "prd_shirt_05",
+      "shopId": "shop_m_studio",
+      "shopName": "M STUDIO",
+      "name": "Asymmetric Slogan Off-Shoulder Knit Shirt",
+      "category": "SHIRT",
+      "price": 420000,
+      "originalPrice": 490000,
+      "badge": "SALE",
+      "isSoldOut": false,
+      "images": [
+        "/images/products/shirt/shirt-05.jpg",
+        "/images/products/shirt/shirt-05-hover.jpg"
+      ],
+      "sizes": [
+        "S",
+        "M"
+      ],
+      "colors": [
+        "Washed Charcoal"
+      ],
+      "description": "Slouchy off-the-shoulder knit top featuring raw distressed shoulder buttons and white chain-stitched front gothic typography.",
+      "careInstructions": "Wash inside out in laundry bag. Do not tumble dry.",
+      "stock": 16,
+      "details": {
+        "material": "100% Slub cotton jersey with mineral enzyme distress washing.",
+        "specifications": [
+          "Asymmetrical draped boat neckline exposing left collarbone.",
+          "Decorative burnished metal shoulder buttons on left sleeve.",
+          "Front chain-stitched gothic text graphic in contrast ecru thread.",
+          "Curved raw hemline with overlock safety stitching."
+        ],
+        "origin": "Produced by M STUDIO Graphic Division."
+      }
+    },
+    {
+      "id": "prd_shirt_06",
+      "shopId": "shop_m_studio",
+      "shopName": "M STUDIO",
+      "name": "Oversized Graphic Moto Jersey Shirt",
+      "category": "SHIRT",
+      "price": 480000,
+      "originalPrice": 560000,
+      "badge": "NEW",
+      "isSoldOut": false,
+      "images": [
+        "/images/products/shirt/shirt-06.jpg",
+        "/images/products/shirt/shirt-06-hover.jpg"
+      ],
+      "sizes": [
+        "S",
+        "M",
+        "L",
+        "XL"
+      ],
+      "colors": [
+        "Monochrome Gradient"
+      ],
+      "description": "Dramatic drop-shoulder motocross jersey shirt featuring fluid monochrome gradient striping, script calligraphy typography, and draped long sleeves.",
+      "careInstructions": "Machine wash cold inside out. Do not iron directly on print.",
+      "stock": 25,
+      "details": {
+        "material": "100% Breathable moisture-wicking technical mesh polyester (240gsm).",
+        "specifications": [
+          "Sublimation printing with gradient smoke and speed graphic motifs.",
+          "Ribbed V-neck motocross style collar.",
+          "Exaggerated oversized cut with elongated dropped sleeves.",
+          "Durable double-needle stitched cuffs and drop-tail hem."
+        ],
+        "origin": "Engineered for M STUDIO Velocity Collection."
+      }
+    },
+    {
+      "id": "prd_shirt_07",
+      "shopId": "shop_m_studio",
+      "shopName": "M STUDIO",
+      "name": "Acid Wash Distressed Hooded Shirt",
+      "category": "SHIRT",
+      "price": 520000,
+      "originalPrice": 620000,
+      "badge": "SALE",
+      "isSoldOut": false,
+      "images": [
+        "/images/products/shirt/shirt-07.jpg",
+        "/images/products/shirt/shirt-07-hover.jpg"
+      ],
+      "sizes": [
+        "M",
+        "L",
+        "XL"
+      ],
+      "colors": [
+        "Acid Charcoal"
+      ],
+      "description": "Waffle-knit grunge hooded over-shirt with heavy mineral tie-dye wash, frayed raw edge hems, flared sleeves, and back minimalist text embroidery.",
+      "careInstructions": "Hand wash cold or gentle cycle. Flat dry to preserve distressing.",
+      "stock": 14,
+      "details": {
+        "material": "Heavyweight 360gsm waffle thermal knit cotton.",
+        "specifications": [
+          "Acid mineral wash yielding a unique smokey cloud patina on each piece.",
+          "Generous double-layered hood with raw unhemmed drawcords.",
+          "Subtle bell flare cut on sleeve cuffs.",
+          "Minimalist tonal micro-embroidery along lower back hem."
+        ],
+        "origin": "Custom washed and dyed for M STUDIO Archive."
+      }
+    },
+    {
+      "id": "prd_shirt_08",
+      "shopId": "shop_m_studio",
+      "shopName": "M STUDIO",
+      "name": "Rhinestone Fringe Corset Top Shirt",
+      "category": "SHIRT",
+      "price": 580000,
+      "originalPrice": null,
+      "badge": "NEW",
+      "isSoldOut": false,
+      "images": [
+        "/images/products/shirt/shirt-08.jpg",
+        "/images/products/shirt/shirt-08-hover.jpg"
+      ],
+      "sizes": [
+        "S",
+        "M",
+        "L"
+      ],
+      "colors": [
+        "Satin Black"
+      ],
+      "description": "Fitted boned satin corset top shirt styled with dual silver front zippers and cascading crystal rhinestone fringe tassels across the bust.",
+      "careInstructions": "Spot clean only. Do not machine wash to protect crystal fringe.",
+      "stock": 12,
+      "details": {
+        "material": "Double-layered heavy stretch satin (95% Polyester, 5% Elastane) with glass crystal rhinestone chains.",
+        "specifications": [
+          "Integrated flexible plastic boning defining and contouring the torso.",
+          "Dual metallic front separating zippers for adjustable fit.",
+          "Cascading tier of light-reflective crystal rhinestone fringes across chest.",
+          "Curved pointed hemline elongating the waistline."
+        ],
+        "origin": "Artisanal partywear edition crafted by M STUDIO Atelier."
+      }
+    },
+    {
+      "id": "prd_shoes_01",
+      "shopId": "bmiQJ7v54aY",
+      "shopName": "SMOKER",
+      "name": "Multi-Buckle Thigh-High Stiletto Boots",
+      "category": "SHOES",
+      "price": 1150000,
+      "originalPrice": 1350000,
+      "badge": "NEW",
+      "isSoldOut": false,
+      "images": [
+        "/images/products/shoes/shoes-01.jpg"
+      ],
+      "sizes": [
+        "36",
+        "37",
+        "38",
+        "39",
+        "40"
+      ],
+      "colors": [
+        "Jet Black"
+      ],
+      "description": "Statement thigh-high boots tailored from supple faux leather, detailed with multiple silver-grommeted buckle straps, inner side zip closure, and a razor stiletto heel.",
+      "careInstructions": "Wipe clean with a damp cloth. Store using boot shapers to prevent creasing.",
+      "stock": 10,
+      "details": {
+        "material": "Stretch micro-grain vegan leather upper, cushioned latex footbed, and non-slip rubber outsole.",
+        "specifications": [
+          "Shaft height: 62 cm (Thigh-high length); Heel height: 10.5 cm razor stiletto.",
+          "Nine functional silver grommeted buckle straps along shaft for adjustable grip.",
+          "Full-length inner medial YKK zipper for effortless slip-on access.",
+          "Pointed-toe archetype with reinforced toe box structure."
+        ],
+        "origin": "Handcrafted footwear line for SMOKER Atelier."
+      }
+    },
+    {
+      "id": "prd_shoes_02",
+      "shopId": "bmiQJ7v54aY",
+      "shopName": "SMOKER",
+      "name": "Utility Pocket Distressed Platform Knee Boots",
+      "category": "SHOES",
+      "price": 1080000,
+      "originalPrice": 1250000,
+      "badge": "SALE",
+      "isSoldOut": false,
+      "images": [
+        "/images/products/shoes/shoes-02.jpg"
+      ],
+      "sizes": [
+        "37",
+        "38",
+        "39",
+        "40",
+        "41"
+      ],
+      "colors": [
+        "Distressed White / Black"
+      ],
+      "description": "Gothic cyber platform knee-high boots featuring an aggressive grunge patina finish, modular zip utility shaft pockets, front lace-up detailing, and an ultra-chunky cleated sole.",
+      "careInstructions": "Clean with dry brush. Keep away from excessive moisture.",
+      "stock": 8,
+      "details": {
+        "material": "Hand-buffed distressed synthetic leather with molded lightweight EVA platform and rubber tread.",
+        "specifications": [
+          "Heel height: 8.0 cm; Front platform: 5.5 cm with deep cleated traction teeth.",
+          "Detachable zippered utility pocket attached via strap to exterior boot shaft.",
+          "Front 20-eyelet lace-up system with side zip for daily convenience.",
+          "Antibacterial breathable microfiber insole lining."
+        ],
+        "origin": "Engineered for SMOKER Gothic Footwear Archives."
+      }
+    },
+    {
+      "id": "prd_shoes_03",
+      "shopId": "bmiQJ7v54aY",
+      "shopName": "SMOKER",
+      "name": "Bleached Denim Fold-Over Stiletto Boots",
+      "category": "SHOES",
+      "price": 980000,
+      "originalPrice": null,
+      "badge": "NEW",
+      "isSoldOut": false,
+      "images": [
+        "/images/products/shoes/shoes-03.jpg"
+      ],
+      "sizes": [
+        "36",
+        "37",
+        "38",
+        "39",
+        "40"
+      ],
+      "colors": [
+        "Acid Wash Blue"
+      ],
+      "description": "Sleek pointed-toe knee-high boots wrapped in cloud-bleached treated denim with an ankle fold-over flap, brass press studs, and a sculpted heel.",
+      "careInstructions": "Spot clean treated denim. Avoid prolonged exposure to direct sunlight.",
+      "stock": 12,
+      "details": {
+        "material": "13oz Stonewashed and cloud-bleached cotton denim layered over reinforced leather structure.",
+        "specifications": [
+          "Shaft height: 42 cm; Heel height: 9.5 cm sculpted architectural stiletto.",
+          "Fold-over cuff collar accented with antiqued metal snap buttons.",
+          "Razor sharp pointed toe profile.",
+          "Full inner lining and cushioned footbed."
+        ],
+        "origin": "Custom textile wash footwear produced for SMOKER."
+      }
+    },
+    {
+      "id": "prd_shoes_04",
+      "shopId": "bmiQJ7v54aY",
+      "shopName": "SMOKER",
+      "name": "Distressed Leather Metal Toe Cap Derby Shoes",
+      "category": "SHOES",
+      "price": 890000,
+      "originalPrice": 1050000,
+      "badge": "SALE",
+      "isSoldOut": false,
+      "images": [
+        "/images/products/shoes/shoes-04.jpg"
+      ],
+      "sizes": [
+        "39",
+        "40",
+        "41",
+        "42",
+        "43"
+      ],
+      "colors": [
+        "Antiqued Bronze Black"
+      ],
+      "description": "Classic lace-up derby shoes reimagined with heavy surface distress distressing and a bold curved metallic cage toe cap over a durable lugged rubber sole.",
+      "careInstructions": "Brush clean and condition leather regularly. Buff metal toe guards with soft cloth.",
+      "stock": 15,
+      "details": {
+        "material": "Full-grain buffed cowhide leather with burnished bronze steel toe plate and vulcanized rubber sole.",
+        "specifications": [
+          "Curved high-grade metallic toe guard riveted to front upper.",
+          "Traditional open 4-eyelet derby lacing configuration.",
+          "Chunky lugged rubber commando sole: 4.5 cm heel elevation.",
+          "Goodyear-welted style welt stitching for maximum sole bonding."
+        ],
+        "origin": "Assembled with custom foundry hardware for SMOKER Footwear."
+      }
+    },
+    {
+      "id": "prd_shoes_05",
+      "shopId": "bmiQJ7v54aY",
+      "shopName": "SMOKER",
+      "name": "Heavy Canvas Chunky Lug Combat Boots",
+      "category": "SHOES",
+      "price": 920000,
+      "originalPrice": null,
+      "badge": null,
+      "isSoldOut": false,
+      "images": [
+        "/images/products/shoes/shoes-05.jpg"
+      ],
+      "sizes": [
+        "39",
+        "40",
+        "41",
+        "42",
+        "43",
+        "44"
+      ],
+      "colors": [
+        "Washed Black Canvas"
+      ],
+      "description": "Industrial high-top combat boots constructed from heavy-duty stone-washed cotton canvas, featuring an exaggerated boxy bulbous toe and deep-traction lugged soles.",
+      "careInstructions": "Brush off dried dirt. Wipe canvas gently with damp cloth and mild soap.",
+      "stock": 18,
+      "details": {
+        "material": "18oz Heavy military duck cotton canvas with rubberized toe cap and molded rubber sole.",
+        "specifications": [
+          "Exaggerated bulbous round toe box with protective rubber bumper.",
+          "Deep multi-directional tread lug sole: 5.0 cm heel height.",
+          "Heavy metal speed hooks and round waxed cotton cord laces.",
+          "Reinforced canvas back pull tab for easy entry."
+        ],
+        "origin": "Engineered utility footwear line for SMOKER."
+      }
+    },
+    {
+      "id": "prd_shoes_06",
+      "shopId": "bmiQJ7v54aY",
+      "shopName": "SMOKER",
+      "name": "Chunky Lug Sole Polished Derby Shoes",
+      "category": "SHOES",
+      "price": 850000,
+      "originalPrice": null,
+      "badge": "SOLDOUT",
+      "isSoldOut": true,
+      "images": [
+        "/images/products/shoes/shoes-06.jpg"
+      ],
+      "sizes": [
+        "39",
+        "40",
+        "41",
+        "42",
+        "43"
+      ],
+      "colors": [
+        "Polished Glossy Black"
+      ],
+      "description": "Monochromatic atelier statement derby shoes in high-shine brushed calf leather, featuring an apron toe seam and an exaggerated architectural block tread sole.",
+      "careInstructions": "Wipe with microfiber cloth and polish with neutral wax to maintain high shine.",
+      "stock": 0,
+      "details": {
+        "material": "High-gloss polished brush-off box calf leather with dual-density lightweight EVA and rubber compound sole.",
+        "specifications": [
+          "Classic apron toe stitched moc-seam profile.",
+          "Architectural stepped-block lug tread sole (Heel: 5.0 cm, Forefoot: 3.5 cm).",
+          "Padded leather collar preventing ankle chafing.",
+          "Full leather lining and branded ergonomic arch-support insole."
+        ],
+        "origin": "Crafted in Veneto, Italy under SMOKER Atelier Standards."
+      }
+    }
+  ],
+  "users": [
+    {
+      "id": "OG_o5LL7lOM",
+      "fullName": "Lê Ngọc Mẫn",
+      "email": "leman200x@gmail.com",
+      "phoneNumber": "0783734808",
+      "password": "Leman123@",
+      "dob": "03/09/2004",
+      "gender": "Male",
+      "shopId": "shop_l-obscur-atelier_8158",
+      "shippingAddresses": [
+        {
+          "id": "ADDR-6687",
+          "name": "Lê Ngọc Mẫn",
+          "phone": "0783734808",
+          "address": "124A, Yên Hạ",
+          "ward": "Phường Cái Răng",
+          "district": "",
+          "city": "Thành phố Cần Thơ",
+          "isDefault": true,
+          "isVerified": true
+        }
+      ],
+      "createdAt": "2026-10-16T08:37:09.764Z",
+      "name": "Lê Ngọc Mẫn",
+      "phone": "0783734808",
+      "roles": [
+        "customer",
+        "seller"
+      ],
+      "followingShops": [
+        "shop_m_studio",
+        "bmiQJ7v54aY"
+      ]
+    },
+    {
+      "id": "upkuSobx8os",
+      "fullName": "Nguyen Thien An",
+      "email": "an@gmail.com",
+      "phoneNumber": "0912345678",
+      "password": "123456",
+      "dob": "12/13/2000",
+      "gender": "Male",
+      "shopId": "shop_m_studio",
+      "shippingAddresses": [
+        {
+          "id": "ADDR-1735",
+          "name": "Nguyen Thien An",
+          "phone": "0912345678",
+          "address": "123",
+          "ward": "Phường Bình Thủy",
+          "district": "",
+          "city": "Thành phố Cần Thơ",
+          "isDefault": true,
+          "isVerified": true
+        }
+      ],
+      "createdAt": "2026-10-16T11:14:32.492Z",
+      "avatarUrl": "/images/avatars/avatar-1792732140230.jpg",
+      "name": "Nguyen Thien An",
+      "phone": "0912345678",
+      "roles": [
+        "customer",
+        "seller"
+      ],
+      "followingShops": [
+        "shop_enire_5038",
+        "bmiQJ7v54aY"
+      ]
+    },
+    {
+      "id": "UtJushvds_M",
+      "fullName": "Ngô Bảo Ngọc",
+      "email": "Ngoc@gmail.com",
+      "phoneNumber": "0777712345",
+      "password": "ngoc123",
+      "dob": "05/10/2005",
+      "gender": "Female",
+      "shopId": "bmiQJ7v54aY",
+      "shippingAddresses": [],
+      "createdAt": "2026-10-20T20:12:38.278Z",
+      "roles": [
+        "customer",
+        "seller"
+      ],
+      "followingShops": [
+        "shop_m_studio"
+      ]
+    },
+    {
+      "id": "usr_helena",
+      "fullName": "Helena Vance",
+      "name": "Helena Vance",
+      "email": "helena.vance@example.com",
+      "phoneNumber": "0912345678",
+      "phone": "0912345678",
+      "password": "123456",
+      "dob": "15/04/1996",
+      "gender": "Female",
+      "roles": [
+        "customer"
+      ],
+      "shopId": null,
+      "shippingAddresses": [
+        {
+          "id": "ADDR-9041",
+          "name": "Helena Vance",
+          "phone": "0912345678",
+          "address": "128 Le Duan Boulevard, Floor 4",
+          "ward": "Ben Nghe Ward",
+          "district": "District 1",
+          "city": "Ho Chi Minh City",
+          "isDefault": true,
+          "isVerified": true
+        }
+      ],
+      "createdAt": "2026-10-18T10:15:00.000Z"
+    },
+    {
+      "id": "usr_alexander",
+      "fullName": "Alexander Wright",
+      "name": "Alexander Wright",
+      "email": "alexander.wright@example.com",
+      "phoneNumber": "0908765432",
+      "phone": "0908765432",
+      "password": "123456",
+      "dob": "22/08/1994",
+      "gender": "Male",
+      "roles": [
+        "customer"
+      ],
+      "shopId": null,
+      "shippingAddresses": [
+        {
+          "id": "ADDR-9038",
+          "name": "Alexander Wright",
+          "phone": "0908765432",
+          "address": "88 Dong Khoi Street",
+          "ward": "Ben Nghe Ward",
+          "district": "District 1",
+          "city": "Ho Chi Minh City",
+          "isDefault": true,
+          "isVerified": true
+        }
+      ],
+      "createdAt": "2026-10-18T09:30:00.000Z"
+    },
+    {
+      "id": "usr_klara",
+      "fullName": "Klara Chen",
+      "name": "Klara Chen",
+      "email": "klara.chen@example.com",
+      "phoneNumber": "0934567890",
+      "phone": "0934567890",
+      "password": "123456",
+      "dob": "11/11/1997",
+      "gender": "Female",
+      "roles": [
+        "customer"
+      ],
+      "shopId": null,
+      "shippingAddresses": [
+        {
+          "id": "ADDR-9029",
+          "name": "Klara Chen",
+          "phone": "0934567890",
+          "address": "15 Le Thanh Ton Street",
+          "ward": "Ben Nghe Ward",
+          "district": "District 1",
+          "city": "Ho Chi Minh City",
+          "isDefault": true,
+          "isVerified": true
+        }
+      ],
+      "createdAt": "2026-10-17T16:20:00.000Z"
+    },
+    {
+      "id": "usr_marc",
+      "fullName": "Marc Dupont",
+      "name": "Marc Dupont",
+      "email": "marc.dupont@example.com",
+      "phoneNumber": "0977889900",
+      "phone": "0977889900",
+      "password": "123456",
+      "dob": "05/03/1993",
+      "gender": "Male",
+      "roles": [
+        "customer"
+      ],
+      "shopId": null,
+      "shippingAddresses": [
+        {
+          "id": "ADDR-9014",
+          "name": "Marc Dupont",
+          "phone": "0977889900",
+          "address": "22 Pasteur Street",
+          "ward": "Nguyen Thai Binh Ward",
+          "district": "District 1",
+          "city": "Ho Chi Minh City",
+          "isDefault": true,
+          "isVerified": true
+        }
+      ],
+      "createdAt": "2026-10-17T11:00:00.000Z"
+    },
+    {
+      "id": "usr_elena",
+      "fullName": "Elena Rostova",
+      "name": "Elena Rostova",
+      "email": "elena.rostova@example.com",
+      "phoneNumber": "0911223344",
+      "phone": "0911223344",
+      "password": "123456",
+      "dob": "28/09/1995",
+      "gender": "Female",
+      "roles": [
+        "customer"
+      ],
+      "shopId": null,
+      "shippingAddresses": [
+        {
+          "id": "ADDR-8992",
+          "name": "Elena Rostova",
+          "phone": "0911223344",
+          "address": "50 Nam Ky Khoi Nghia",
+          "ward": "Vo Thi Sau Ward",
+          "district": "District 3",
+          "city": "Ho Chi Minh City",
+          "isDefault": true,
+          "isVerified": true
+        }
+      ],
+      "createdAt": "2026-10-16T15:45:00.000Z"
+    },
+    {
+      "id": "nEfjbHOSaE4",
+      "fullName": "Lê Mẫn",
+      "email": "enire_cantho@gmail.com",
+      "phoneNumber": "0777788899",
+      "password": "Enire@123",
+      "dob": "2004-09-03",
+      "gender": "Male",
+      "roles": [
+        "customer",
+        "seller"
+      ],
+      "shopId": "shop_enire_5038",
+      "shippingAddresses": [
+        {
+          "name": "Lê Mẫn",
+          "phone": "0777788899",
+          "address": "124 3/2",
+          "ward": "Phường Ninh Kiều",
+          "district": "",
+          "city": "Thành phố Cần Thơ",
+          "isDefault": true,
+          "id": "ADDR-3120",
+          "isVerified": true
+        }
+      ],
+      "createdAt": "2026-10-27T08:45:54.267Z"
+    },
+    {
+      "id": "lwuHi8JP0_U",
+      "fullName": "Nguyễn Văn Linh",
+      "email": "swag_kanthor@gmail.com",
+      "phoneNumber": "0788881122",
+      "password": "Swag1234#",
+      "dob": "2002-01-30",
+      "gender": "Female",
+      "roles": [
+        "customer",
+        "seller"
+      ],
+      "shopId": "R5V7c8-5l5M",
+      "shippingAddresses": [
+        {
+          "name": "Nguyễn Văn Linh",
+          "phone": "0788881122",
+          "address": "124 Cách Mạng Tháng 8",
+          "ward": "Phường An Khánh",
+          "district": "",
+          "city": "Thành phố Hồ Chí Minh",
+          "isDefault": true,
+          "id": "ADDR-7781",
+          "isVerified": true
+        }
+      ],
+      "createdAt": "2026-10-27T10:12:13.461Z"
+    }
+  ],
+  "cart": [],
+  "orders": [
+    {
+      "id": "ord_9041_1",
+      "orderNumber": "#ORD-9041-1",
+      "userId": "usr_helena",
+      "customerEmail": "helena.vance@example.com",
+      "recipient": {
+        "fullName": "Helena Vance",
+        "phone": "0912345678",
+        "address": "128 Le Duan Boulevard, Floor 4",
+        "ward": "Ben Nghe Ward",
+        "district": "District 1",
+        "city": "Ho Chi Minh City"
+      },
+      "shopId": "shop_m_studio",
+      "shopName": "M STUDIO",
+      "items": [
+        {
+          "id": "prd_shirt_01",
+          "name": "Draped Satin Structural Shirt",
+          "price": 580000,
+          "quantity": 1,
+          "selectedSize": "M",
+          "selectedColor": "Onyx Black",
+          "image": "/images/products/shirt/shirt-01.jpg",
+          "shopId": "shop_m_studio",
+          "shopName": "M STUDIO"
+        },
+        {
+          "id": "prd_acc_02",
+          "name": "Biomorphic Perforated Ring",
+          "price": 180000,
+          "quantity": 1,
+          "selectedSize": "Freesize",
+          "selectedColor": "Matte Silver",
+          "image": "/images/products/accessories/acc-02.jpg",
+          "shopId": "shop_enire_5038",
+          "shopName": "enire"
+        }
+      ],
+      "shippingFee": 0,
+      "shippingMethod": "Standard Delivery (Complimentary)",
+      "paymentMethod": "Cash on Delivery (COD)",
+      "subtotal": 760000,
+      "total": 760000,
+      "status": "COMPLETED",
+      "createdAt": "2026-10-18T10:15:00.000Z",
+      "logistics": {
+        "courier": "SPX Express",
+        "waybill": "VN82910411VN"
+      }
+    },
+    {
+      "id": "ord_9041_2",
+      "orderNumber": "#ORD-9041-2",
+      "userId": "usr_helena",
+      "customerEmail": "helena.vance@example.com",
+      "recipient": {
+        "fullName": "Helena Vance",
+        "phone": "0912345678",
+        "address": "128 Le Duan Boulevard, Floor 4",
+        "ward": "Ben Nghe Ward",
+        "district": "District 1",
+        "city": "Ho Chi Minh City"
+      },
+      "shopId": "shop_l-obscur-atelier_8158",
+      "shopName": "L'OBSCUR ATELIER",
+      "items": [
+        {
+          "id": "prd_set_01",
+          "name": "Military Officer Jacket & Shorts Set",
+          "price": 1250000,
+          "quantity": 1,
+          "selectedSize": "S",
+          "selectedColor": "Black",
+          "image": "/images/products/set/set-01.jpg",
+          "shopId": "shop_l-obscur-atelier_8158",
+          "shopName": "L'OBSCUR ATELIER"
+        }
+      ],
+      "shippingFee": 0,
+      "shippingMethod": "Standard Delivery (Complimentary)",
+      "paymentMethod": "Cash on Delivery (COD)",
+      "subtotal": 1250000,
+      "total": 1250000,
+      "status": "COMPLETED",
+      "createdAt": "2026-10-18T10:15:00.000Z",
+      "logistics": {
+        "courier": "SPX Express",
+        "waybill": "VN82910412VN"
+      }
+    },
+    {
+      "id": "ord_9038",
+      "orderNumber": "#ORD-9038",
+      "userId": "usr_alexander",
+      "customerEmail": "alexander.wright@example.com",
+      "recipient": {
+        "fullName": "Alexander Wright",
+        "phone": "0908765432",
+        "address": "88 Dong Khoi Street",
+        "ward": "Ben Nghe Ward",
+        "district": "District 1",
+        "city": "Ho Chi Minh City"
+      },
+      "shopId": "shop_enire_5038",
+      "shopName": "enire",
+      "items": [
+        {
+          "id": "prd_acc_05",
+          "name": "Metallic Y2K Shoulder Bag",
+          "price": 620000,
+          "quantity": 1,
+          "selectedSize": "One Size",
+          "selectedColor": "Chrome Silver",
+          "image": "/images/products/accessories/acc-05.jpg",
+          "shopId": "shop_enire_5038",
+          "shopName": "enire"
+        }
+      ],
+      "shippingFee": 35000,
+      "shippingMethod": "Express Courier (+₫35,000)",
+      "paymentMethod": "Cash on Delivery (COD)",
+      "subtotal": 620000,
+      "total": 655000,
+      "status": "COMPLETED",
+      "createdAt": "2026-10-18T09:30:00.000Z",
+      "logistics": {
+        "courier": "SPX Express",
+        "waybill": "VN8291038VN"
+      }
+    },
+    {
+      "id": "ord_9029",
+      "orderNumber": "#ORD-9029",
+      "userId": "usr_klara",
+      "customerEmail": "klara.chen@example.com",
+      "recipient": {
+        "fullName": "Klara Chen",
+        "phone": "0934567890",
+        "address": "15 Le Thanh Ton Street",
+        "ward": "Ben Nghe Ward",
+        "district": "District 1",
+        "city": "Ho Chi Minh City"
+      },
+      "shopId": "shop_l-obscur-atelier_8158",
+      "shopName": "L'OBSCUR ATELIER",
+      "items": [
+        {
+          "id": "prd_set_02",
+          "name": "Quilted Biker Jacket & Flare Denim Set",
+          "price": 1890000,
+          "quantity": 1,
+          "selectedSize": "S",
+          "selectedColor": "Charcoal Black",
+          "image": "/images/products/set/set-02.jpg",
+          "shopId": "shop_l-obscur-atelier_8158",
+          "shopName": "L'OBSCUR ATELIER"
+        }
+      ],
+      "shippingFee": 0,
+      "shippingMethod": "Standard Delivery (Complimentary)",
+      "paymentMethod": "Cash on Delivery (COD)",
+      "subtotal": 1890000,
+      "total": 1890000,
+      "status": "SHIPPING",
+      "createdAt": "2026-10-17T16:20:00.000Z",
+      "logistics": {
+        "courier": "SPX Express",
+        "waybill": "VN8291029VN"
+      }
+    },
+    {
+      "id": "ord_9014",
+      "orderNumber": "#ORD-9014",
+      "userId": "usr_marc",
+      "customerEmail": "marc.dupont@example.com",
+      "recipient": {
+        "fullName": "Marc Dupont",
+        "phone": "0977889900",
+        "address": "22 Pasteur Street",
+        "ward": "Nguyen Thai Binh Ward",
+        "district": "District 1",
+        "city": "Ho Chi Minh City"
+      },
+      "shopId": "shop_m_studio",
+      "shopName": "M STUDIO",
+      "items": [
+        {
+          "id": "prd_shirt_02",
+          "name": "Double Lapel Pocket Tailored Blazer Shirt",
+          "price": 590000,
+          "quantity": 1,
+          "selectedSize": "L",
+          "selectedColor": "Jet Black",
+          "image": "/images/products/shirt/shirt-02.jpg",
+          "shopId": "shop_m_studio",
+          "shopName": "M STUDIO"
+        }
+      ],
+      "shippingFee": 0,
+      "shippingMethod": "Standard Delivery (Complimentary)",
+      "paymentMethod": "Cash on Delivery (COD)",
+      "subtotal": 590000,
+      "total": 590000,
+      "status": "COMPLETED",
+      "createdAt": "2026-10-17T11:00:00.000Z",
+      "logistics": {
+        "courier": "SPX Express",
+        "waybill": "VN8291014VN"
+      }
+    },
+    {
+      "id": "ord_8992",
+      "orderNumber": "#ORD-8992",
+      "userId": "usr_elena",
+      "customerEmail": "elena.rostova@example.com",
+      "recipient": {
+        "fullName": "Elena Rostova",
+        "phone": "0911223344",
+        "address": "50 Nam Ky Khoi Nghia",
+        "ward": "Vo Thi Sau Ward",
+        "district": "District 3",
+        "city": "Ho Chi Minh City"
+      },
+      "shopId": "shop_enire_5038",
+      "shopName": "enire",
+      "items": [
+        {
+          "id": "prd_acc_01",
+          "name": "Liquid Thorn Sunglasses",
+          "price": 450000,
+          "quantity": 1,
+          "selectedSize": "One Size",
+          "selectedColor": "Silver Chrome",
+          "image": "/images/products/accessories/acc-01.jpg",
+          "shopId": "shop_enire_5038",
+          "shopName": "enire"
+        }
+      ],
+      "shippingFee": 35000,
+      "shippingMethod": "Express Courier (+₫35,000)",
+      "paymentMethod": "Cash on Delivery (COD)",
+      "subtotal": 450000,
+      "total": 485000,
+      "status": "CANCELLED",
+      "createdAt": "2026-10-16T15:45:00.000Z",
+      "logistics": {
+        "courier": "SPX Express",
+        "waybill": "VN8298992VN"
+      }
+    },
+    {
+      "id": "ord_8985",
+      "orderNumber": "#ORD-8985",
+      "userId": "usr_marc",
+      "customerEmail": "marc.dupont@example.com",
+      "recipient": {
+        "fullName": "Marc Dupont",
+        "phone": "0977889900",
+        "address": "22 Pasteur Street",
+        "ward": "Nguyen Thai Binh Ward",
+        "district": "District 1",
+        "city": "Ho Chi Minh City"
+      },
+      "shopId": "shop_l-obscur-atelier_8158",
+      "shopName": "L'OBSCUR ATELIER",
+      "items": [
+        {
+          "id": "prd_set_05",
+          "name": "Architectural Funnel Leather Jacket & Zip Pants Set",
+          "price": 1650000,
+          "quantity": 1,
+          "selectedSize": "M",
+          "selectedColor": "Raw Charcoal",
+          "image": "/images/products/set/set-05.jpg",
+          "shopId": "shop_l-obscur-atelier_8158",
+          "shopName": "L'OBSCUR ATELIER"
+        }
+      ],
+      "shippingFee": 0,
+      "shippingMethod": "Standard Delivery (Complimentary)",
+      "paymentMethod": "Cash on Delivery (COD)",
+      "subtotal": 1650000,
+      "total": 1650000,
+      "status": "COMPLETED",
+      "createdAt": "2026-10-15T14:30:00.000Z",
+      "logistics": {
+        "courier": "SPX Express",
+        "waybill": "VN8298985VN"
+      }
+    },
+    {
+      "id": "ord_8801",
+      "orderNumber": "#SPXVN881002530",
+      "userId": "upkuSobx8os",
+      "customerEmail": "an@gmail.com",
+      "recipient": {
+        "fullName": "Nguyen Thien An",
+        "phone": "0912345678",
+        "address": "123 Binh Thuong",
+        "ward": "Binh Thuan Ward",
+        "district": "District 7",
+        "city": "Ho Chi Minh City"
+      },
+      "shopId": "bmiQJ7v54aY",
+      "shopName": "SMOKER",
+      "items": [
+        {
+          "id": "prd_shoes_06",
+          "name": "Chunky Lug Sole Polished Derby Shoes",
+          "price": 2100000,
+          "quantity": 1,
+          "selectedSize": "42",
+          "selectedColor": "Polished Jet Black",
+          "image": "/images/products/shoes/shoes-06.jpg",
+          "shopId": "bmiQJ7v54aY",
+          "shopName": "SMOKER"
+        }
+      ],
+      "shippingFee": 0,
+      "shippingMethod": "Standard Delivery (Complimentary)",
+      "paymentMethod": "Cash on Delivery (COD)",
+      "subtotal": 2100000,
+      "total": 2100000,
+      "status": "COMPLETED",
+      "createdAt": "2026-10-16T12:22:21.799Z",
+      "logistics": {
+        "courier": "SPX Express",
+        "waybill": "VN53341799VN"
+      }
+    },
+    {
+      "id": "ord_8802",
+      "orderNumber": "#SPXVN998075994",
+      "userId": "OG_o5LL7lOM",
+      "customerEmail": "leman200x@gmail.com",
+      "recipient": {
+        "fullName": "Le Ngoc Man",
+        "phone": "0987245673",
+        "address": "143 Ben Nghe",
+        "ward": "Ben Nghe Ward",
+        "district": "District 1",
+        "city": "Ho Chi Minh City"
+      },
+      "shopId": "shop_enire_5038",
+      "shopName": "enire",
+      "items": [
+        {
+          "id": "prd_acc_03",
+          "name": "Sculptural Patent Shoulder Bag",
+          "price": 750000,
+          "quantity": 1,
+          "selectedSize": "One Size",
+          "selectedColor": "Glossy Black",
+          "image": "/images/products/accessories/acc-03.jpg",
+          "shopId": "shop_enire_5038",
+          "shopName": "enire"
+        }
+      ],
+      "shippingFee": 0,
+      "shippingMethod": "Standard Delivery (Complimentary)",
+      "paymentMethod": "Cash on Delivery (COD)",
+      "subtotal": 750000,
+      "total": 750000,
+      "status": "CANCELLED",
+      "createdAt": "2026-10-16T12:46:37.189Z",
+      "logistics": {
+        "courier": "SPX Express",
+        "waybill": "VN54797189VN"
+      }
+    }
+  ],
+  "shops": [
+    {
+      "id": "shop_m_studio",
+      "name": "M STUDIO",
+      "slug": "m-studio",
+      "sellerCode": "SELLER #MS-8021",
+      "currency": "VND (₫)",
+      "tagline": "Modern Tailoring & Monochromatic Atelier",
+      "description": "M STUDIO is an avant-garde design house dedicated to sculptural silhouettes, industrial chrome hardware, and experimental monochrome fashion.",
+      "logo": "/images/shops/shop-logo-1793084646978-4705.png",
+      "coverImage": "/images/shops/shop-logo-1793446365102-9980.png",
+      "rating": 4.9,
+      "reviewsCount": 148,
+      "location": "Ho Chi Minh City, Vietnam",
+      "joinedDate": "October 2026",
+      "status": "ACTIVE",
+      "ownerId": "upkuSobx8os",
+      "ownerEmail": "an@gmail.com",
+      "category": "FASHION & APPAREL",
+      "phone": "",
+      "payoutAccount": {
+        "bankName": "Vietcombank (VCB)",
+        "accountNumber": "",
+        "accountName": "Nguyen Thien An"
+      }
+    },
+    {
+      "id": "shop_l-obscur-atelier_8158",
+      "name": "L'OBSCUR ATELIER",
+      "slug": "l-obscur-atelier",
+      "sellerCode": "SELLER #LOB-8158",
+      "currency": "VND (₫)",
+      "tagline": "",
+      "description": "",
+      "logo": "/images/shops/shop-logo-1793094935385-5606.jpg",
+      "coverImage": "/images/shops/shop-logo-1793446532263-4428.png",
+      "rating": 5,
+      "reviewsCount": 0,
+      "location": "",
+      "joinedDate": "October 2026",
+      "status": "ACTIVE",
+      "ownerId": "OG_o5LL7lOM",
+      "ownerEmail": "leman200x@gmail.com",
+      "category": "ALL-IN-ONE FASHION",
+      "phone": "",
+      "payoutAccount": {
+        "bankName": "Vietcombank (VCB)",
+        "accountNumber": "",
+        "accountName": "Lê Ngọc Mẫn"
+      }
+    },
+    {
+      "id": "shop_enire_5038",
+      "sellerCode": "SELLER #ENI-1166",
+      "currency": "VND (₫)",
+      "name": "enire",
+      "slug": "enire",
+      "tagline": "enire ✦ cyber jewellery & futuristic forms",
+      "description": "Y3K jewelry blends metallic shine with a futuristic spirit\nA one-of-a-kind visual statement for the new era",
+      "logo": "/images/shops/shop-logo-1793091157944-5138.jpg",
+      "category": "ACCESSORIES & JEWELRY",
+      "rating": 5,
+      "reviewsCount": 0,
+      "location": "124 3/2, Can Tho",
+      "phone": "0777788899",
+      "payoutAccount": {
+        "bankName": "Vietcombank",
+        "accountNumber": "0777788899",
+        "accountName": "Lê Mẫn"
+      },
+      "joinedDate": "October 2026",
+      "status": "ACTIVE",
+      "ownerId": "nEfjbHOSaE4",
+      "ownerName": "Lê Mẫn",
+      "ownerEmail": "enire_cantho@gmail.com",
+      "coverImage": "/images/shops/shop-logo-1793446800047-7631.png"
+    },
+    {
+      "id": "bmiQJ7v54aY",
+      "sellerCode": "SELLER #SMO-9117",
+      "currency": "VND (₫)",
+      "name": "SMOKER",
+      "slug": "smoker",
+      "tagline": "SMOKER ✦ footwear & leather goods",
+      "description": "SMOKER ✦ footwear & leather goods",
+      "logo": "/images/shops/shop-logo-1793092026447-4352.png",
+      "category": "FOOTWEAR & LEATHER GOODS",
+      "rating": 5,
+      "reviewsCount": 0,
+      "location": "88 Nguyễn Trãi, Phường Bến Thành, Quận 1, TP. Hồ Chí Minh, Ho Chi Minh City",
+      "phone": "0777712345",
+      "payoutAccount": {
+        "bankName": "MB Bank (MB)",
+        "accountNumber": "0777712345",
+        "accountName": "NGO BAO NGOC"
+      },
+      "joinedDate": "October 2026",
+      "status": "ACTIVE",
+      "ownerId": "UtJushvds_M",
+      "ownerName": "Ngô Bảo Ngọc",
+      "ownerEmail": "Ngoc@gmail.com",
+      "coverImage": "/images/shops/shop-logo-1793452530889-7068.png"
+    },
+    {
+      "id": "R5V7c8-5l5M",
+      "sellerCode": "SELLER #SWA-8462",
+      "currency": "VND (₫)",
+      "name": "#SWAG",
+      "slug": "swag",
+      "tagline": "#SWAG ✦ Modern Streetwear & Trendsetter Forms",
+      "description": "The place that shapes contemporary street style: Confident — Bold — Unique.  \nStay updated with the latest designs for today’s youth.",
+      "logo": "/images/shops/shop-logo-1793096272688-8068.jpg",
+      "category": "READY-TO-WEAR & APPAREL",
+      "rating": 5,
+      "reviewsCount": 0,
+      "location": "124 Cách Mạng Tháng 8, Phường An Khánh, Ho Chi Minh City",
+      "phone": "0788881122",
+      "payoutAccount": {
+        "bankName": "Vietcombank",
+        "accountNumber": "0788881122",
+        "accountName": "Nguyen van linh"
+      },
+      "joinedDate": "October 2026",
+      "status": "ACTIVE",
+      "ownerId": "lwuHi8JP0_U",
+      "ownerName": "Nguyễn Văn Linh",
+      "ownerEmail": "swag_kanthor@gmail.com",
+      "coverImage": "/images/shops/shop-logo-1793450143436-2202.png"
+    }
+  ],
+  "$schema": "./node_modules/json-server/schema.json"
+}

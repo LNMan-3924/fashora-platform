@@ -1,0 +1,455 @@
+import { useState, useEffect, useMemo } from 'react';
+import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import { Plus, ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
+import { getProducts } from '../../services/api';
+import { getLocalizedProduct } from '../../utils';
+
+const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=600&q=80';
+
+// Hàm đồng bộ màu sắc nhãn Badge chuẩn nhận diện Fashora (hỗ trợ song ngữ)
+function getBadgeStyle(variant) {
+  const v = (variant || '').toLowerCase();
+  if (v.includes('sale') || v.includes('discount') || v.includes('giảm') || v.includes('khuyến')) {
+    return 'bg-red-600 text-white';
+  }
+  if (v.includes('sold') || v.includes('out') || v.includes('hết')) {
+    return 'bg-neutral-800 text-neutral-200';
+  }
+  if (v.includes('hot') || v.includes('best') || v.includes('nổi bật')) {
+    return 'bg-amber-600 text-white';
+  }
+  return 'bg-black text-white';
+}
+
+// 8 Sản phẩm phối đồ mẫu đại diện đầy đủ các phân loại thời trang (Outfit Curation)
+const DEFAULT_LOOK_ITEMS = [
+  // --- TRANG 1: PHỤ KIỆN, TÚI VÀ NÓN ---
+  {
+    id: 'prd_acc_01',
+    name: 'LIQUID THORN SUNGLASSES',
+    price: 450000,
+    image: '/images/products/accessories/acc-01.jpg',
+    images: ['/images/products/accessories/acc-01.jpg'],
+    category: 'ACCESSORIES',
+    shopName: 'enire',
+    badge: null,
+    isSoldOut: false,
+    colors: ['Silver Chrome', 'Smoke Lens'],
+    sizes: ['One Size'],
+    stock: 15,
+  },
+  {
+    id: 'prd_acc_02',
+    name: 'BIOMORPHIC PERFORATED RING',
+    price: 180000,
+    image: '/images/products/accessories/acc-02.jpg',
+    images: ['/images/products/accessories/acc-02.jpg'],
+    category: 'JEWELRY',
+    shopName: 'enire',
+    badge: null,
+    isSoldOut: false,
+    colors: ['Titanium Silver'],
+    sizes: ['Freesize'],
+    stock: 20,
+  },
+  {
+    id: 'prd_acc_03',
+    name: 'SCULPTURAL PATENT SHOULDER BAG',
+    price: 750000,
+    image: '/images/products/accessories/acc-03.jpg',
+    images: ['/images/products/accessories/acc-03.jpg'],
+    category: 'BAGS',
+    shopName: 'enire',
+    badge: 'SALE',
+    isSoldOut: false,
+    colors: ['Patent Black'],
+    sizes: ['One Size'],
+    stock: 8,
+  },
+  {
+    id: 'prd_acc_04',
+    name: 'DISTRESSED GRAPHIC BASEBALL CAP',
+    price: 240000,
+    image: '/images/products/accessories/acc-04.jpg',
+    images: ['/images/products/accessories/acc-04.jpg'],
+    category: 'HEADWEAR',
+    shopName: 'enire',
+    badge: null,
+    isSoldOut: false,
+    colors: ['Washed Black'],
+    sizes: ['One Size'],
+    stock: 12,
+  },
+
+  // --- TRANG 2: GIÀY, ÁO, QUẦN VÀ THẮT LƯNG ---
+  {
+    id: 'prd_shoes_06',
+    name: 'MONOLITH LUG DERBY SHOES',
+    price: 2100000,
+    image: '/images/products/shoes/shoes-06.jpg',
+    images: ['/images/products/shoes/shoes-06.jpg'],
+    category: 'SHOES',
+    shopName: 'SMOKER',
+    badge: 'HOT',
+    isSoldOut: false,
+    colors: ['Polished Jet Black'],
+    sizes: ['39', '40', '41', '42'],
+    stock: 6,
+  },
+  {
+    id: 'prd_shirt_01',
+    name: 'BOXY OVERSIZED DRAPED SHIRT',
+    price: 890000,
+    image: '/images/products/apparel/shirt-01.jpg',
+    images: ['/images/products/apparel/shirt-01.jpg'],
+    category: 'SHIRT',
+    shopName: 'M STUDIO',
+    badge: 'NEW',
+    isSoldOut: false,
+    colors: ['Optic White', 'Asphalt'],
+    sizes: ['S', 'M', 'L'],
+    stock: 14,
+  },
+  {
+    id: 'prd_pants_02',
+    name: 'WIDE-LEG PLEATED TAILORED TROUSERS',
+    price: 1150000,
+    image: '/images/products/apparel/pants-02.jpg',
+    images: ['/images/products/apparel/pants-02.jpg'],
+    category: 'PANTS',
+    shopName: 'M STUDIO',
+    badge: null,
+    isSoldOut: false,
+    colors: ['Charcoal Black'],
+    sizes: ['28', '30', '32'],
+    stock: 10,
+  },
+  {
+    id: 'prd_acc_07',
+    name: 'TEXTURED RAW CUT LEATHER BELT',
+    price: 390000,
+    image: '/images/products/accessories/acc-07.jpg',
+    images: ['/images/products/accessories/acc-07.jpg'],
+    category: 'ACCESSORIES',
+    shopName: 'enire',
+    badge: null,
+    isSoldOut: true,
+    colors: ['Distressed Black'],
+    sizes: ['One Size'],
+    stock: 0,
+  },
+  {
+    id: 'prd_acc_05',
+    name: 'METALLIC Y2K SHOULDER BAG',
+    price: 620000,
+    image: '/images/products/accessories/acc-05.jpg',
+    images: ['/images/products/accessories/acc-05.jpg'],
+    category: 'BAGS',
+    shopName: 'enire',
+    badge: 'NEW',
+    isSoldOut: false,
+    colors: ['Silver Chrome'],
+    sizes: ['One Size'],
+    stock: 9,
+  },
+  {
+    id: 'prd_acc_08',
+    name: 'AERODYNAMIC WRAP SUNGLASSES',
+    price: 350000,
+    image: '/images/products/accessories/acc-08.jpg',
+    images: ['/images/products/accessories/acc-08.jpg'],
+    category: 'ACCESSORIES',
+    shopName: 'enire',
+    badge: null,
+    isSoldOut: false,
+    colors: ['Glossy Black'],
+    sizes: ['One Size'],
+    stock: 14,
+  },
+  {
+    id: 'prd_shoes_01',
+    name: 'CHUNKY DERBY LEATHER SHOES',
+    price: 1850000,
+    image: '/images/products/shoes/shoes-01.jpg',
+    images: ['/images/products/shoes/shoes-01.jpg'],
+    category: 'SHOES',
+    shopName: 'SMOKER',
+    badge: 'SALE',
+    isSoldOut: false,
+    colors: ['Matte Black'],
+    sizes: ['39', '40', '41', '42'],
+    stock: 5,
+  },
+  {
+    id: 'prd_acc_06',
+    name: 'OVAL EMBLEM LEATHER BELT',
+    price: 320000,
+    image: '/images/products/accessories/acc-06.jpg',
+    images: ['/images/products/accessories/acc-06.jpg'],
+    category: 'ACCESSORIES',
+    shopName: 'enire',
+    badge: null,
+    isSoldOut: false,
+    colors: ['Black / Silver'],
+    sizes: ['One Size'],
+    stock: 11,
+  },
+];
+
+export default function CompleteTheLook({
+  items,
+  title,
+  subtitle,
+  viewAllLink = '/shop',
+  onQuickAdd,
+  className = '',
+}) {
+  const { t, i18n } = useTranslation();
+  const displayTitle = title || t('productDetail.completeTheLook', 'COMPLETE THE LOOK');
+  const displaySubtitle = subtitle || t('productDetail.curatedPairings', { shopName: 'M STUDIO' });
+
+  const [apiItems, setApiItems] = useState([]);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const ITEMS_PER_PAGE = 6;
+
+  useEffect(() => {
+    let isMounted = true;
+
+    getProducts()
+      .then((res) => {
+        if (!isMounted) return;
+        const data = res?.data || res;
+        if (Array.isArray(data) && data.length > 0) {
+          // Lấy đa dạng các thể loại: Phụ kiện, Giày, Áo, Quần
+          const categories = ['ACCESSORIES', 'SHOES', 'SHIRT', 'PANTS', 'BAGS', 'JEWELRY'];
+          const diverseList = [];
+          
+          // Ưu tiên chọn rải đều mỗi thể loại để đủ bộ phối 12 món
+          categories.forEach((cat) => {
+            const matches = data.filter((p) => p.category?.toUpperCase()?.includes(cat));
+            if (matches.length > 0) {
+              diverseList.push(...matches.slice(0, 3));
+            }
+          });
+
+          // Lấy đủ 12 sản phẩm cho 2 trang (mỗi trang 6 món)
+          const combined = diverseList.length >= 12 ? diverseList : [...diverseList, ...data];
+          const uniqueItems = Array.from(new Map(combined.map((item) => [item.id, item])).values());
+          const selected = uniqueItems.slice(0, 12);
+
+          const formatted = selected.map((p) => ({
+            ...p,
+            isSoldOut: Boolean(p.stock === 0 || p.isSoldOut || p.status === 'SOLD_OUT'),
+            badge: p.badge || p.tag || (p.salePrice ? 'SALE' : null),
+          }));
+
+          setApiItems(formatted);
+        }
+      })
+      .catch((err) => {
+        console.warn('CompleteTheLook API fallback:', err?.message);
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const formatPrice = (val) =>
+    new Intl.NumberFormat('vi-VN').format(Number(val) || 0);
+
+  const allItems =
+    items && items.length > 0 && items !== DEFAULT_LOOK_ITEMS
+      ? items
+      : apiItems.length > 0
+        ? apiItems
+        : DEFAULT_LOOK_ITEMS;
+
+  const localizedItems = useMemo(() => {
+    return allItems.map((item) => getLocalizedProduct(item, i18n.language));
+  }, [allItems, i18n.language]);
+
+  const totalPages = Math.ceil(localizedItems.length / ITEMS_PER_PAGE);
+  const currentPage = Math.floor(currentIndex / ITEMS_PER_PAGE) + 1;
+  const visibleItems = localizedItems.slice(currentIndex, currentIndex + ITEMS_PER_PAGE);
+
+  const handlePrev = () => {
+    setCurrentIndex((prev) => Math.max(0, prev - ITEMS_PER_PAGE));
+  };
+
+  const handleNext = () => {
+    setCurrentIndex((prev) =>
+      prev + ITEMS_PER_PAGE < allItems.length ? prev + ITEMS_PER_PAGE : prev
+    );
+  };
+
+  return (
+    <section className={className || "mt-16 lg:mt-24 pt-10 border-t border-neutral-200"}>
+      {/* ------------------------------------------------------------- */}
+      {/* HEADER KHỐI GỢI Ý & BỘ NÚT ĐIỀU HƯỚNG MŨI TÊN                  */}
+      {/* ------------------------------------------------------------- */}
+      <div className="flex items-center justify-between mb-6 sm:mb-8 flex-wrap gap-4">
+        <div>
+          <h2 className="font-bold text-xl sm:text-2xl uppercase tracking-wider text-[#111111]">
+            {displayTitle}
+          </h2>
+          {displaySubtitle && (
+            <p className="text-xs sm:text-sm text-neutral-500 mt-1">
+              {displaySubtitle}
+            </p>
+          )}
+        </div>
+
+        <div className="flex items-center gap-4 sm:gap-6">
+          {allItems.length > ITEMS_PER_PAGE && (
+            <div className="flex items-center gap-2">
+              <span className="text-[11px] font-mono text-neutral-400 tracking-widest mr-1">
+                {String(currentPage).padStart(2, '0')} / {String(totalPages).padStart(2, '0')}
+              </span>
+              <button
+                type="button"
+                onClick={handlePrev}
+                disabled={currentIndex === 0}
+                aria-label="Previous items"
+                className={`w-8 h-8 rounded-full border border-neutral-200 flex items-center justify-center transition-all ${
+                  currentIndex === 0
+                    ? 'opacity-30 cursor-not-allowed bg-neutral-50 text-neutral-400'
+                    : 'hover:bg-black hover:text-white hover:border-black cursor-pointer text-[#111111]'
+                }`}
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </button>
+              <button
+                type="button"
+                onClick={handleNext}
+                disabled={currentIndex + ITEMS_PER_PAGE >= allItems.length}
+                aria-label="Next items"
+                className={`w-8 h-8 rounded-full border border-neutral-200 flex items-center justify-center transition-all ${
+                  currentIndex + ITEMS_PER_PAGE >= allItems.length
+                    ? 'opacity-30 cursor-not-allowed bg-neutral-50 text-neutral-400'
+                    : 'hover:bg-black hover:text-white hover:border-black cursor-pointer text-[#111111]'
+                }`}
+              >
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            </div>
+          )}
+
+          {viewAllLink && (
+            <Link
+              to={viewAllLink}
+              className="text-xs font-semibold tracking-widest uppercase text-[#111111] hover:text-neutral-500 transition-colors flex items-center gap-1 group"
+            >
+              <span>VIEW ALL</span>
+              <ArrowRight className="w-3.5 h-3.5 transition-transform duration-300 group-hover:translate-x-1" />
+            </Link>
+          )}
+        </div>
+      </div>
+
+      {/* ------------------------------------------------------------- */}
+      {/* LƯỚI SẢN PHẨM PHỐI HỢP CÁC PHÂN LOẠI (Mobile: 2, Tablet: 4, Desktop: 6) */}
+      {/* ------------------------------------------------------------- */}
+      <div className="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-6 gap-3 sm:gap-4 xl:gap-5">
+        {visibleItems.map((prod) => {
+          const isSoldOut = Boolean(prod.isSoldOut || prod.stock === 0);
+          const badge = prod.badge || prod.tag;
+
+          const rawImage =
+            (Array.isArray(prod.images) && prod.images.length > 0
+              ? prod.images[0]
+              : null) ||
+            prod.image ||
+            FALLBACK_IMAGE;
+
+          const displayImage =
+            typeof rawImage === 'string'
+              ? rawImage.replace(/^(\.\/)?public\//, '/')
+              : FALLBACK_IMAGE;
+
+          return (
+            <div
+              key={prod.id}
+              className="group border border-neutral-100 hover:border-neutral-300 rounded-[2px] bg-white overflow-hidden flex flex-col justify-between transition-colors duration-200 relative"
+            >
+              {/* KHUNG ẢNH */}
+              <div className="relative aspect-[3/4] w-full overflow-hidden bg-white border-b border-neutral-100 flex items-center justify-center p-2.5 sm:p-3">
+                <Link to={`/products/${prod.id}`} className="block h-full w-full">
+                  <img
+                    src={displayImage}
+                    alt={prod.name || 'Product Image'}
+                    className={`h-full w-full object-contain object-center transition-transform duration-500 ease-out group-hover:scale-105 ${
+                      isSoldOut ? 'opacity-60 grayscale' : ''
+                    }`}
+                    loading="lazy"
+                    onError={(e) => {
+                      e.currentTarget.onerror = null;
+                      e.currentTarget.src = FALLBACK_IMAGE;
+                    }}
+                  />
+                </Link>
+
+                {/* Nền bóng đen che lên ảnh cho sản phẩm Sold Out */}
+                {isSoldOut && (
+                  <div className="absolute inset-0 bg-black/60 flex items-center justify-center z-10 pointer-events-none">
+                    <span className="text-white text-xs font-mono uppercase tracking-widest font-bold border border-white px-3 py-1">
+                      SOLD OUT
+                    </span>
+                  </div>
+                )}
+
+                {/* BADGE TRẠNG THÁI */}
+                {!isSoldOut && badge && (
+                  <div className="absolute top-2.5 left-2.5 flex flex-col gap-1.5 pointer-events-none z-10">
+                    <span
+                      className={`px-2 py-0.5 text-[9px] font-bold tracking-wider uppercase rounded-sm shadow-sm ${getBadgeStyle(
+                        badge
+                      )}`}
+                    >
+                      {badge}
+                    </span>
+                  </div>
+                )}
+
+                {/* NÚT THÊM NHANH */}
+                {!isSoldOut && (
+                  <button
+                    type="button"
+                    aria-label={`Quick add ${prod.name}`}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      if (onQuickAdd) onQuickAdd({ ...prod, image: displayImage });
+                    }}
+                    className="absolute bottom-2.5 right-2.5 w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white text-[#111111] shadow-md flex items-center justify-center transition-all duration-300 hover:scale-110 hover:bg-[#111111] hover:text-white z-10 cursor-pointer group/btn"
+                    title="Quick add"
+                  >
+                    <Plus className="w-3.5 h-3.5 sm:w-4 sm:h-4 transition-transform duration-300 group-hover/btn:rotate-90" />
+                  </button>
+                )}
+              </div>
+
+              {/* THÔNG TIN DANH MỤC, TÊN VÀ GIÁ */}
+              <div className="p-2.5 sm:p-3 flex flex-col justify-between bg-white text-left grow">
+                <span className="text-[10px] font-mono text-neutral-400 uppercase tracking-widest block mb-1">
+                  {prod.category || 'M STUDIO'}
+                </span>
+                <Link
+                  to={`/products/${prod.id}`}
+                  className="text-[12px] sm:text-[13px] font-normal uppercase tracking-wider text-neutral-900 hover:underline line-clamp-1"
+                  title={prod.name}
+                >
+                  {prod.name}
+                </Link>
+                <span className="mt-1 text-[12px] sm:text-[13px] font-medium tracking-tight text-neutral-800">
+                  {formatPrice(prod.price)}
+                </span>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
